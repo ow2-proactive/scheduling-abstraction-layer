@@ -5,6 +5,7 @@ src/generated
 .idea
 .gradle
 gradle/ext/
+scheduling-abstraction-layer.log
 
 
 # Created by https://www.gitignore.io/api/intellij,eclipse,emacs,vim,gradle,sonar,java

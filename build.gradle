@@ -90,7 +90,7 @@ springBoot {
 }
 
 war {
-    baseName = "microservice"
+    baseName = "scheduling-abstraction-layer"
     version = version
 }
 
