@@ -1,4 +1,4 @@
-# **yamt** (yet another microservice template)
+# **Scheduling Abstraction Layer** (yet another microservice template)
 Restful microservice template from ProActive
 
 ## Purpose
