@@ -101,6 +101,8 @@ dependencyManagement {
 }
 
 dependencies {
+    compile "org.ow2.proactive:microservices-common:$version"
+
     compile 'org.projectlombok:lombok'
     compile 'commons-fileupload:commons-fileupload'
 
