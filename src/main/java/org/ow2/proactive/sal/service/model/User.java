@@ -23,32 +23,21 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.microservice_template.model;
+package org.ow2.proactive.sal.service.model;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.Test;
-import org.ow2.proactive.microservice_template.fixtures.UserFixture;
+import lombok.*;
 
 
-/**
- * Created by Iaroslav on 4/29/2016.
- */
-public class UserTest {
+@EqualsAndHashCode
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class User {
+    private String name;
 
-    @Test
-    public void testHashcodeEquals() {
+    private int age;
 
-        Set<User> users = new HashSet<>();
-        User user = UserFixture.simpleUser();
-        users.add(user);
-        users.add(user);
-        users.add(user);
-
-        assertThat(users.size(), is(1));
-    }
+    private double salary;
 }

@@ -23,14 +23,14 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.microservice_template.rest;
+package org.ow2.proactive.sal.service.rest;
 
 import java.util.Collection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ow2.proactive.microservice_template.model.User;
-import org.ow2.proactive.microservice_template.service.UserService;
+import org.ow2.proactive.sal.service.model.User;
+import org.ow2.proactive.sal.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

@@ -23,7 +23,7 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.microservice_template.service;
+package org.ow2.proactive.sal.service.service;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -32,8 +32,8 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.ow2.proactive.microservice_template.fixtures.UserFixture;
-import org.ow2.proactive.microservice_template.model.User;
+import org.ow2.proactive.sal.service.fixtures.UserFixture;
+import org.ow2.proactive.sal.service.model.User;
 
 
 /**
