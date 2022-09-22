@@ -6,6 +6,6 @@
 	http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context-4.2.xsd">
 
-    <context:component-scan base-package="org.ow2.proactive.microservice_template"/>
+    <context:component-scan base-package="org.ow2.proactive.sal.service"/>
 
 </beans>
