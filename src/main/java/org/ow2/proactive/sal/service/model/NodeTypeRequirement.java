@@ -39,12 +39,15 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class NodeTypeRequirement extends org.ow2.proactive.sal.service.model.Requirement {
+public class NodeTypeRequirement extends Requirement {
     @JsonProperty("nodeType")
-    private List<org.ow2.proactive.sal.service.model.NodeType> nodeTypes;
+    private List<NodeType> nodeTypes;
 
     @JsonProperty("jobIdForByon")
     private String jobIdForBYON;
+
+    @JsonProperty("jobIdForEDGE")
+    private String jobIdForEDGE;
 
     /**
      * Get nodeType
@@ -61,12 +64,13 @@ public class NodeTypeRequirement extends org.ow2.proactive.sal.service.model.Req
         }
         NodeTypeRequirement nodeTypeRequirement = (NodeTypeRequirement) o;
         return Objects.equals(this.nodeTypes, nodeTypeRequirement.nodeTypes) &&
-               Objects.equals(this.jobIdForBYON, nodeTypeRequirement.jobIdForBYON) && super.equals(o);
+               Objects.equals(this.jobIdForBYON, nodeTypeRequirement.jobIdForBYON) &&
+               Objects.equals(this.jobIdForEDGE, nodeTypeRequirement.jobIdForEDGE) && super.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeTypes, jobIdForBYON, super.hashCode());
+        return Objects.hash(nodeTypes, jobIdForBYON, jobIdForEDGE, super.hashCode());
     }
 
     @Override
@@ -76,6 +80,7 @@ public class NodeTypeRequirement extends org.ow2.proactive.sal.service.model.Req
         sb.append("    ").append(toIndentedString(super.toString())).append("\n");
         sb.append("    nodeType: ").append(toIndentedString(nodeTypes)).append("\n");
         sb.append("    jobIdForBYON: ").append(toIndentedString(jobIdForBYON)).append("\n");
+        sb.append("    jobIdForEDGE: ").append(toIndentedString(jobIdForEDGE)).append("\n");
         sb.append("}");
         return sb.toString();
     }

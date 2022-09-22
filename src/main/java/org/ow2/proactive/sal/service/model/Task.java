@@ -59,17 +59,17 @@ public class Task implements Serializable {
     private String type;
 
     @Embedded
-    private org.ow2.proactive.sal.service.model.CommandsInstallation installation;
+    private CommandsInstallation installation;
 
     @Embedded
-    private org.ow2.proactive.sal.service.model.DockerEnvironment environment;
+    private DockerEnvironment environment;
 
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Deployment> deployments;
 
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<org.ow2.proactive.sal.service.model.Port> portsToOpen;
+    private List<Port> portsToOpen;
 
     @Column(name = "PARENT_TASKS")
     @ElementCollection(targetClass = String.class)

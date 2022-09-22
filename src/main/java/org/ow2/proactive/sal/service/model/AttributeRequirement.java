@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Subtype of Requirement
  */
-public class AttributeRequirement extends org.ow2.proactive.sal.service.model.Requirement {
+public class AttributeRequirement extends Requirement {
     @JsonProperty("requirementClass")
     private String requirementClass = null;
 

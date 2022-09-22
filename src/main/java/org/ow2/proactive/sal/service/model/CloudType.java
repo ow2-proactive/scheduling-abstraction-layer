@@ -42,6 +42,8 @@ public enum CloudType {
 
     BYON("BYON"),
 
+    EDGE("EDGE"),
+
     SIMULATION("SIMULATION");
 
     private String value;

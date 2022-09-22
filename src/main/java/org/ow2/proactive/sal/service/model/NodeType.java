@@ -70,13 +70,23 @@ public enum NodeType implements Enumerator {
      * @see #BYON_VALUE
      */
     BYON(3, "BYON", "BYON"),
+
+    /**
+     * The '<em><b>EDGE</b></em>' literal object.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #EDGE_VALUE
+     */
+    EDGE(4, "EDGE", "EDGE"),
+    /**
+    
     /**
     * The '<em><b>SIMULATION</b></em>' literal object.
     * <!-- begin-user-doc -->
     * <!-- end-user-doc -->
     * @see #SIMULATION_VALUE
     */
-    SIMULATION(4, "SIMULATION", "SIMULATION");
+    SIMULATION(5, "SIMULATION", "SIMULATION");
 
     /**
      * The '<em><b>IAAS</b></em>' literal value.
@@ -127,6 +137,18 @@ public enum NodeType implements Enumerator {
     public static final int BYON_VALUE = 3;
 
     /**
+     * The '<em><b>EDGE</b></em>' literal value.
+     * <!-- begin-user-doc -->
+     * <p>
+     * If the meaning of '<em><b>EDGE</b></em>' literal object isn't clear,
+     * there really should be more of a description here...
+     * </p>
+     * <!-- end-user-doc -->
+     * @see #EDGE
+     */
+    public static final int EDGE_VALUE = 4;
+
+    /**
      * The '<em><b>SIMULATION</b></em>' literal value.
      * <!-- begin-user-doc -->
      * <p>
@@ -136,14 +158,14 @@ public enum NodeType implements Enumerator {
      * <!-- end-user-doc -->
      * @see #SIMULATION
      */
-    public static final int SIMULATION_VALUE = 4;
+    public static final int SIMULATION_VALUE = 5;
 
     /**
      * An array of all the '<em><b>Node Type</b></em>' enumerators.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      */
-    private static final NodeType[] VALUES_ARRAY = new NodeType[] { IAAS, PAAS, FAAS, BYON, SIMULATION, };
+    private static final NodeType[] VALUES_ARRAY = new NodeType[] { IAAS, PAAS, FAAS, BYON, EDGE, SIMULATION, };
 
     /**
      * A public read-only list of all the '<em><b>Node Type</b></em>' enumerators.
@@ -203,6 +225,8 @@ public enum NodeType implements Enumerator {
                 return FAAS;
             case BYON_VALUE:
                 return BYON;
+            case EDGE_VALUE:
+                return EDGE;
             case SIMULATION_VALUE:
                 return SIMULATION;
         }

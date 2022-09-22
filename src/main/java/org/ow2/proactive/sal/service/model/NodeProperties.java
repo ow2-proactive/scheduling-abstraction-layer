@@ -62,7 +62,7 @@ public class NodeProperties implements Serializable {
 
     @Embedded
     @JsonProperty("geoLocation")
-    private org.ow2.proactive.sal.service.model.GeoLocation geoLocation = null;
+    private GeoLocation geoLocation = null;
 
     public NodeProperties providerId(String providerId) {
         this.providerId = providerId;
@@ -149,7 +149,7 @@ public class NodeProperties implements Serializable {
         this.operatingSystem = operatingSystem;
     }
 
-    public NodeProperties geoLocation(org.ow2.proactive.sal.service.model.GeoLocation geoLocation) {
+    public NodeProperties geoLocation(GeoLocation geoLocation) {
         this.geoLocation = geoLocation;
         return this;
     }
@@ -158,11 +158,11 @@ public class NodeProperties implements Serializable {
      * Geographical location this node resides in.
      * @return geoLocation
      **/
-    public org.ow2.proactive.sal.service.model.GeoLocation getGeoLocation() {
+    public GeoLocation getGeoLocation() {
         return geoLocation;
     }
 
-    public void setGeoLocation(org.ow2.proactive.sal.service.model.GeoLocation geoLocation) {
+    public void setGeoLocation(GeoLocation geoLocation) {
         this.geoLocation = geoLocation;
     }
 

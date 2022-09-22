@@ -115,7 +115,7 @@ public class Location implements Serializable {
 
     @Embedded
     @JsonProperty("geoLocation")
-    private org.ow2.proactive.sal.service.model.GeoLocation geoLocation = null;
+    private GeoLocation geoLocation = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
     @JsonProperty("parent")
@@ -124,7 +124,7 @@ public class Location implements Serializable {
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
     @JsonProperty("state")
-    private org.ow2.proactive.sal.service.model.DiscoveryItemState state = null;
+    private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
     @JsonProperty("owner")
@@ -215,7 +215,7 @@ public class Location implements Serializable {
         this.isAssignable = isAssignable;
     }
 
-    public Location geoLocation(org.ow2.proactive.sal.service.model.GeoLocation geoLocation) {
+    public Location geoLocation(GeoLocation geoLocation) {
         this.geoLocation = geoLocation;
         return this;
     }
@@ -224,11 +224,11 @@ public class Location implements Serializable {
      * Get geoLocation
      * @return geoLocation
      **/
-    public org.ow2.proactive.sal.service.model.GeoLocation getGeoLocation() {
+    public GeoLocation getGeoLocation() {
         return geoLocation;
     }
 
-    public void setGeoLocation(org.ow2.proactive.sal.service.model.GeoLocation geoLocation) {
+    public void setGeoLocation(GeoLocation geoLocation) {
         this.geoLocation = geoLocation;
     }
 
@@ -249,7 +249,7 @@ public class Location implements Serializable {
         this.parent = parent;
     }
 
-    public Location state(org.ow2.proactive.sal.service.model.DiscoveryItemState state) {
+    public Location state(DiscoveryItemState state) {
         this.state = state;
         return this;
     }
@@ -258,11 +258,11 @@ public class Location implements Serializable {
      * Get state
      * @return state
      **/
-    public org.ow2.proactive.sal.service.model.DiscoveryItemState getState() {
+    public DiscoveryItemState getState() {
         return state;
     }
 
-    public void setState(org.ow2.proactive.sal.service.model.DiscoveryItemState state) {
+    public void setState(DiscoveryItemState state) {
         this.state = state;
     }
 

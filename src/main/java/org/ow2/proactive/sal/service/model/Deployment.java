@@ -60,13 +60,13 @@ public class Deployment implements Serializable {
     private String hardwareProviderId;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
-    private org.ow2.proactive.sal.service.model.EmsDeploymentRequest emsDeployment;
+    private EmsDeploymentRequest emsDeployment;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
-    private org.ow2.proactive.sal.service.model.PACloud paCloud;
+    private PACloud paCloud;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
-    private org.ow2.proactive.sal.service.model.Task task;
+    private Task task;
 
     @Column(name = "IS_DEPLOYED")
     private Boolean isDeployed = false;
@@ -81,14 +81,17 @@ public class Deployment implements Serializable {
     private String instanceId;
 
     @Embedded
-    private org.ow2.proactive.sal.service.model.IpAddress ipAddress = null;
+    private IpAddress ipAddress = null;
 
     @Column(name = "NODE_TYPE")
     @Enumerated(EnumType.STRING)
-    private org.ow2.proactive.sal.service.model.NodeType deploymentType;
+    private NodeType deploymentType;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
-    private org.ow2.proactive.sal.service.model.ByonNode byonNode;
+    private ByonNode byonNode;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    private EdgeNode edgeNode;
 
     public static void clean() {
         List<Deployment> allDeployments = EntityManagerHelper.createQuery("SELECT d FROM Deployment d",
@@ -114,6 +117,14 @@ public class Deployment implements Serializable {
                        ", ipAddress='" + ipAddress + '\'' + ", nodeAccessToken='" + nodeAccessToken + '\'' +
                        ", number='" + number + '\'' + ", paCloud='" + paCloud + '\'' + ", task='" + task.getName() +
                        '\'' + ", byonNode='" + byonNode.getName() + '\'' + '}';
+
+            case EDGE:
+                return "Deployment{" + "nodeName='" + nodeName + '\'' + ", locationName='" + locationName + '\'' +
+                       ", imageProviderId='" + imageProviderId + '\'' + ", hardwareProviderId='" + hardwareProviderId +
+                       '\'' + ", isDeployed='" + isDeployed.toString() + '\'' + ", instanceId='" + instanceId + '\'' +
+                       ", ipAddress='" + ipAddress + '\'' + ", nodeAccessToken='" + nodeAccessToken + '\'' +
+                       ", number='" + number + '\'' + ", paCloud='" + paCloud + '\'' + ", task='" + task.getName() +
+                       '\'' + ", edgeNode='" + edgeNode.getName() + '\'' + '}';
             default:
                 return "Deployment{nodeName='" + nodeName + '}';
         }

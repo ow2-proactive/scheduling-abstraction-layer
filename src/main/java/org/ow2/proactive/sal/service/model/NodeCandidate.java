@@ -42,11 +42,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
  * A node creatable by the system
  */
+@Slf4j
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -77,6 +79,8 @@ public class NodeCandidate implements Serializable {
         PAAS("PAAS"),
 
         BYON("BYON"),
+
+        EDGE("EDGE"),
 
         SIMULATION("SIMULATION");
 
@@ -111,6 +115,10 @@ public class NodeCandidate implements Serializable {
     @Column(name = "JOB_ID_FOR_BYON")
     @JsonProperty("jobIdForByon")
     private String jobIdForBYON;
+
+    @Column(name = "JOB_ID_FOR_EDGE")
+    @JsonProperty("jobIdForEdge")
+    private String jobIdForEDGE;
 
     @Column(name = "PRICE")
     @JsonProperty("price")
@@ -186,8 +194,16 @@ public class NodeCandidate implements Serializable {
         return jobIdForBYON;
     }
 
+    public String getJobIdForEDGE() {
+        return jobIdForEDGE;
+    }
+
     public void setJobIdForBYON(String jobIdForBYON) {
         this.jobIdForBYON = jobIdForBYON;
+    }
+
+    public void setJobIdForEDGE(String jobIdForEDGE) {
+        this.jobIdForEDGE = jobIdForEDGE;
     }
 
     public NodeCandidate price(Double price) {
@@ -331,7 +347,27 @@ public class NodeCandidate implements Serializable {
      * @return true if yes, false if not
      */
     public boolean isByonNodeCandidate() {
-        return nodeCandidateType.value.equals("BYON");
+        if (nodeCandidateType.equals(NodeCandidateTypeEnum.BYON)) {
+            LOGGER.info("   Is BYON:       YES");
+            return true;
+        } else {
+            LOGGER.info("   Is BYON:       NO");
+            return false;
+        }
+    }
+
+    /**
+     * Check if a node candidate is of BYON type
+     * @return true if yes, false if not
+     */
+    public boolean isEdgeNodeCandidate() {
+        if (nodeCandidateType.equals(NodeCandidateTypeEnum.EDGE)) {
+            LOGGER.info("   Is EDGE:       YES");
+            return true;
+        } else {
+            LOGGER.info("   Is EDGE:       NO");
+            return false;
+        }
     }
 
     /**
@@ -361,6 +397,7 @@ public class NodeCandidate implements Serializable {
         return Objects.equals(this.id, nodeCandidate.id) &&
                Objects.equals(this.nodeCandidateType, nodeCandidate.nodeCandidateType) &&
                Objects.equals(this.jobIdForBYON, nodeCandidate.jobIdForBYON) &&
+               Objects.equals(this.jobIdForEDGE, nodeCandidate.jobIdForEDGE) &&
                Objects.equals(this.price, nodeCandidate.price) && Objects.equals(this.cloud, nodeCandidate.cloud) &&
                Objects.equals(this.image, nodeCandidate.image) &&
                Objects.equals(this.hardware, nodeCandidate.hardware) &&
@@ -375,6 +412,7 @@ public class NodeCandidate implements Serializable {
         return Objects.hash(id,
                             nodeCandidateType,
                             jobIdForBYON,
+                            jobIdForEDGE,
                             price,
                             cloud,
                             image,
@@ -393,6 +431,7 @@ public class NodeCandidate implements Serializable {
         sb.append("    id: ").append(toIndentedString(id)).append("\n");
         sb.append("    nodeCandidateType: ").append(toIndentedString(nodeCandidateType)).append("\n");
         sb.append("    jobIdForBYON: ").append(toIndentedString(jobIdForBYON)).append("\n");
+        sb.append("    jobIdForEDGE: ").append(toIndentedString(jobIdForEDGE)).append("\n");
         sb.append("    price: ").append(toIndentedString(price)).append("\n");
         sb.append("    cloud: ").append(toIndentedString(cloud)).append("\n");
         sb.append("    image: ").append(toIndentedString(image)).append("\n");

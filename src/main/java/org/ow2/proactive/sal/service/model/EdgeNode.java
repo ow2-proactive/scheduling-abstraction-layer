@@ -44,15 +44,16 @@ import lombok.Setter;
 
 
 /**
- * Representation of a BYON used by Cloudiator
+ * Representation of an Edge used by ProActive
+ * This class is a clone of the Byon Node Class with some modifications
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Getter
 @Setter
-@Table(name = "BYON_NODE")
-public class ByonNode implements Serializable {
+@Table(name = "EDGE_NODE")
+public class EdgeNode implements Serializable {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
@@ -63,6 +64,16 @@ public class ByonNode implements Serializable {
     @Column(name = "NAME")
     @JsonProperty("name")
     private String name = null;
+
+    @Column(name = "SYSTEM_ARCH")
+    @JsonProperty("systemArch")
+    private String systemArch = null;
+
+    @JsonProperty("scriptURL")
+    private String scriptURL = null;
+
+    @JsonProperty("scriptURL")
+    private String jarURL = null;
 
     @Embedded
     @JsonProperty("loginCredential")
@@ -99,12 +110,12 @@ public class ByonNode implements Serializable {
     private String jobId;
 
     public static void clean() {
-        List<ByonNode> allByonNodes = EntityManagerHelper.createQuery("SELECT bn FROM ByonNode bn", ByonNode.class)
+        List<EdgeNode> allEdgeNodes = EntityManagerHelper.createQuery("SELECT en FROM EdgeNode en", EdgeNode.class)
                                                          .getResultList();
-        allByonNodes.forEach(EntityManagerHelper::remove);
+        allEdgeNodes.forEach(EntityManagerHelper::remove);
     }
 
-    public ByonNode name(String name) {
+    public EdgeNode name(String name) {
         this.name = name;
         return this;
     }
@@ -121,7 +132,7 @@ public class ByonNode implements Serializable {
         this.name = name;
     }
 
-    public ByonNode loginCredential(LoginCredential loginCredential) {
+    public EdgeNode loginCredential(LoginCredential loginCredential) {
         this.loginCredential = loginCredential;
         return this;
     }
@@ -138,12 +149,12 @@ public class ByonNode implements Serializable {
         this.loginCredential = loginCredential;
     }
 
-    public ByonNode ipAddresses(List<IpAddress> ipAddresses) {
+    public EdgeNode ipAddresses(List<IpAddress> ipAddresses) {
         this.ipAddresses = ipAddresses;
         return this;
     }
 
-    public ByonNode addIpAddressesItem(IpAddress ipAddressesItem) {
+    public EdgeNode addIpAddressesItem(IpAddress ipAddressesItem) {
         if (this.ipAddresses == null) {
             this.ipAddresses = new ArrayList<IpAddress>();
         }
@@ -163,7 +174,7 @@ public class ByonNode implements Serializable {
         this.ipAddresses = ipAddresses;
     }
 
-    public ByonNode nodeProperties(NodeProperties nodeProperties) {
+    public EdgeNode nodeProperties(NodeProperties nodeProperties) {
         this.nodeProperties = nodeProperties;
         return this;
     }
@@ -180,27 +191,27 @@ public class ByonNode implements Serializable {
         this.nodeProperties = nodeProperties;
     }
 
-    public ByonNode reason(String reason) {
+    public EdgeNode reason(String reason) {
         this.reason = reason;
         return this;
     }
 
-    public ByonNode diagnostic(String diagnostic) {
+    public EdgeNode diagnostic(String diagnostic) {
         this.diagnostic = diagnostic;
         return this;
     }
 
-    public ByonNode id(String id) {
+    public EdgeNode id(String id) {
         this.id = id;
         return this;
     }
 
-    public ByonNode userId(String userId) {
+    public EdgeNode userId(String userId) {
         this.userId = userId;
         return this;
     }
 
-    public ByonNode allocated(Boolean allocated) {
+    public EdgeNode allocated(Boolean allocated) {
         this.allocated = allocated;
         return this;
     }
@@ -221,15 +232,15 @@ public class ByonNode implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ByonNode byonNode = (ByonNode) o;
-        return Objects.equals(this.name, byonNode.name) &&
-               Objects.equals(this.loginCredential, byonNode.loginCredential) &&
-               Objects.equals(this.ipAddresses, byonNode.ipAddresses) &&
-               Objects.equals(this.nodeProperties, byonNode.nodeProperties) &&
-               Objects.equals(this.reason, byonNode.reason) && Objects.equals(this.diagnostic, byonNode.diagnostic) &&
-               Objects.equals(this.nodeCandidate, byonNode.nodeCandidate) && Objects.equals(this.id, byonNode.id) &&
-               Objects.equals(this.userId, byonNode.userId) && Objects.equals(this.allocated, byonNode.allocated) &&
-               Objects.equals(this.jobId, byonNode.jobId);
+        EdgeNode edgeNode = (EdgeNode) o;
+        return Objects.equals(this.name, edgeNode.name) &&
+               Objects.equals(this.loginCredential, edgeNode.loginCredential) &&
+               Objects.equals(this.ipAddresses, edgeNode.ipAddresses) &&
+               Objects.equals(this.nodeProperties, edgeNode.nodeProperties) &&
+               Objects.equals(this.reason, edgeNode.reason) && Objects.equals(this.diagnostic, edgeNode.diagnostic) &&
+               Objects.equals(this.nodeCandidate, edgeNode.nodeCandidate) && Objects.equals(this.id, edgeNode.id) &&
+               Objects.equals(this.userId, edgeNode.userId) && Objects.equals(this.allocated, edgeNode.allocated) &&
+               Objects.equals(this.jobId, edgeNode.jobId);
     }
 
     @Override
@@ -249,7 +260,7 @@ public class ByonNode implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class ByonNode {\n");
+        sb.append("class EdgeNode {\n");
 
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    loginCredential: ").append(toIndentedString(loginCredential)).append("\n");

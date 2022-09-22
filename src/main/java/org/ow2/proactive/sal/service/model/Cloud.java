@@ -66,15 +66,15 @@ public class Cloud implements Serializable {
 
     @Embedded
     @JsonProperty("api")
-    private org.ow2.proactive.sal.service.model.Api api = null;
+    private Api api = null;
 
     @Embedded
     @JsonProperty("credential")
-    private org.ow2.proactive.sal.service.model.CloudCredential credential = null;
+    private CloudCredential credential = null;
 
     @Embedded
     @JsonProperty("cloudConfiguration")
-    private org.ow2.proactive.sal.service.model.CloudConfiguration cloudConfiguration = null;
+    private CloudConfiguration cloudConfiguration = null;
 
     @Column(name = "OWNER")
     @JsonProperty("owner")
@@ -159,7 +159,7 @@ public class Cloud implements Serializable {
         this.cloudType = cloudType;
     }
 
-    public Cloud api(org.ow2.proactive.sal.service.model.Api api) {
+    public Cloud api(Api api) {
         this.api = api;
         return this;
     }
@@ -168,15 +168,15 @@ public class Cloud implements Serializable {
      * Get api
      * @return api
      **/
-    public org.ow2.proactive.sal.service.model.Api getApi() {
+    public Api getApi() {
         return api;
     }
 
-    public void setApi(org.ow2.proactive.sal.service.model.Api api) {
+    public void setApi(Api api) {
         this.api = api;
     }
 
-    public Cloud credential(org.ow2.proactive.sal.service.model.CloudCredential credential) {
+    public Cloud credential(CloudCredential credential) {
         this.credential = credential;
         return this;
     }
@@ -185,15 +185,15 @@ public class Cloud implements Serializable {
      * Get credential
      * @return credential
      **/
-    public org.ow2.proactive.sal.service.model.CloudCredential getCredential() {
+    public CloudCredential getCredential() {
         return credential;
     }
 
-    public void setCredential(org.ow2.proactive.sal.service.model.CloudCredential credential) {
+    public void setCredential(CloudCredential credential) {
         this.credential = credential;
     }
 
-    public Cloud cloudConfiguration(org.ow2.proactive.sal.service.model.CloudConfiguration cloudConfiguration) {
+    public Cloud cloudConfiguration(CloudConfiguration cloudConfiguration) {
         this.cloudConfiguration = cloudConfiguration;
         return this;
     }
@@ -202,11 +202,11 @@ public class Cloud implements Serializable {
      * Get cloudConfiguration
      * @return cloudConfiguration
      **/
-    public org.ow2.proactive.sal.service.model.CloudConfiguration getCloudConfiguration() {
+    public CloudConfiguration getCloudConfiguration() {
         return cloudConfiguration;
     }
 
-    public void setCloudConfiguration(org.ow2.proactive.sal.service.model.CloudConfiguration cloudConfiguration) {
+    public void setCloudConfiguration(CloudConfiguration cloudConfiguration) {
         this.cloudConfiguration = cloudConfiguration;
     }
 

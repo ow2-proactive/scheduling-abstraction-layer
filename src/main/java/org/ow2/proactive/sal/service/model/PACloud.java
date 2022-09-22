@@ -72,6 +72,10 @@ public class PACloud implements Serializable {
     @Column(name = "SECURITY_GROUP")
     private String securityGroup;
 
+    @Embedded
+    @Column(name = "SSH_CREDENTIALS")
+    private SSHCredentials sshCredentials;
+
     @Column(name = "ENDPOINT")
     private String endpoint;
 
@@ -159,11 +163,12 @@ public class PACloud implements Serializable {
                                                                    .toString();
         return "PACloud{" + "cloudID='" + cloudID + '\'' + ", nodeSourceNamePrefix='" + nodeSourceNamePrefix + '\'' +
                ", cloudProviderName='" + cloudProviderName + '\'' + ", cloudType='" + cloudType.toString() + '\'' +
-               ", subnet='" + subnet + '\'' + ", securityGroup='" + securityGroup + '\'' + ", endpoint='" + endpoint +
-               '\'' + ", scopePrefix='" + scopePrefix + '\'' + ", scopeValue='" + scopeValue + '\'' +
-               ", identityVersion='" + identityVersion + '\'' + ", dummyInfrastructureName='" +
-               dummyInfrastructureName + '\'' + ", defaultNetwork='" + defaultNetwork + '\'' + ", blacklist='" +
-               blacklist + '\'' + ", deployedRegions=" + deployedRegions + ", deployedWhiteListedRegions=" +
-               deployedWhiteListedRegions + ", deployments='" + deploymentsPrint + '\'' + '}';
+               ", subnet='" + subnet + '\'' + ", securityGroup='" + securityGroup + '\'' + ", sshCredentials='" +
+               sshCredentials.toString() + '\'' + ", endpoint='" + endpoint + '\'' + ", scopePrefix='" + scopePrefix +
+               '\'' + ", scopeValue='" + scopeValue + '\'' + ", identityVersion='" + identityVersion + '\'' +
+               ", dummyInfrastructureName='" + dummyInfrastructureName + '\'' + ", defaultNetwork='" + defaultNetwork +
+               '\'' + ", blacklist='" + blacklist + '\'' + ", deployedRegions=" + deployedRegions +
+               ", deployedWhiteListedRegions=" + deployedWhiteListedRegions + ", deployments='" + deploymentsPrint +
+               '\'' + '}';
     }
 }

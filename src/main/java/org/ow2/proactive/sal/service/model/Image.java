@@ -62,7 +62,7 @@ public class Image implements Serializable {
 
     @Embedded
     @JsonProperty("operatingSystem")
-    private org.ow2.proactive.sal.service.model.OperatingSystem operatingSystem = null;
+    private OperatingSystem operatingSystem = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JsonProperty("location")
@@ -71,7 +71,7 @@ public class Image implements Serializable {
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
     @JsonProperty("state")
-    private org.ow2.proactive.sal.service.model.DiscoveryItemState state = null;
+    private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
     @JsonProperty("owner")
@@ -133,7 +133,7 @@ public class Image implements Serializable {
         this.providerId = providerId;
     }
 
-    public Image operatingSystem(org.ow2.proactive.sal.service.model.OperatingSystem operatingSystem) {
+    public Image operatingSystem(OperatingSystem operatingSystem) {
         this.operatingSystem = operatingSystem;
         return this;
     }
@@ -142,11 +142,11 @@ public class Image implements Serializable {
      * Get operatingSystem
      * @return operatingSystem
      **/
-    public org.ow2.proactive.sal.service.model.OperatingSystem getOperatingSystem() {
+    public OperatingSystem getOperatingSystem() {
         return operatingSystem;
     }
 
-    public void setOperatingSystem(org.ow2.proactive.sal.service.model.OperatingSystem operatingSystem) {
+    public void setOperatingSystem(OperatingSystem operatingSystem) {
         this.operatingSystem = operatingSystem;
     }
 
@@ -167,7 +167,7 @@ public class Image implements Serializable {
         this.location = location;
     }
 
-    public Image state(org.ow2.proactive.sal.service.model.DiscoveryItemState state) {
+    public Image state(DiscoveryItemState state) {
         this.state = state;
         return this;
     }
@@ -176,11 +176,11 @@ public class Image implements Serializable {
      * Get state
      * @return state
      **/
-    public org.ow2.proactive.sal.service.model.DiscoveryItemState getState() {
+    public DiscoveryItemState getState() {
         return state;
     }
 
-    public void setState(org.ow2.proactive.sal.service.model.DiscoveryItemState state) {
+    public void setState(DiscoveryItemState state) {
         this.state = state;
     }
 

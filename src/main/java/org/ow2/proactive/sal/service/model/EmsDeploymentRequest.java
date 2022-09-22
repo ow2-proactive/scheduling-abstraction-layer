@@ -124,7 +124,7 @@ public class EmsDeploymentRequest implements Serializable {
 
     @Column(name = "TARGETOS")
     @Enumerated(EnumType.STRING)
-    private org.ow2.proactive.sal.service.model.OperatingSystemFamily targetOs;
+    private OperatingSystemFamily targetOs;
 
     @Column(name = "TARGETTYPE")
     @Enumerated(EnumType.STRING)
@@ -147,8 +147,8 @@ public class EmsDeploymentRequest implements Serializable {
     private String nodeId;
 
     private EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port,
-            org.ow2.proactive.sal.service.model.OperatingSystemFamily targetOs, TargetType targetType,
-            String targetName, TargetProvider targetProvider, String location, boolean isUsingHttps, String id) {
+            OperatingSystemFamily targetOs, TargetType targetType, String targetName, TargetProvider targetProvider,
+            String location, boolean isUsingHttps, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
         this.baguette_port = baguette_port;
@@ -162,8 +162,8 @@ public class EmsDeploymentRequest implements Serializable {
     }
 
     public EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port,
-            org.ow2.proactive.sal.service.model.OperatingSystemFamily targetOs, String targetType, String targetName,
-            TargetProvider targetProvider, String location, boolean isUsingHttps, String id) {
+            OperatingSystemFamily targetOs, String targetType, String targetName, TargetProvider targetProvider,
+            String location, boolean isUsingHttps, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
         this.baguette_port = baguette_port;

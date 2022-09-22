@@ -54,10 +54,10 @@ public class Credentials implements Serializable {
     @Column(name = "PASSWORD")
     private String password;
 
-    @Column(name = "PRIVATE_KEY")
+    @Column(name = "PRIVATE_KEY", columnDefinition = "TEXT")
     private String privateKey;
 
-    @Column(name = "PUBLIC_KEY")
+    @Column(name = "PUBLIC_KEY", columnDefinition = "TEXT")
     private String publicKey;
 
     @Column(name = "DOMAIN")

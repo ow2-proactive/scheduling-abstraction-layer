@@ -25,7 +25,6 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -41,9 +40,18 @@ import lombok.*;
 @Getter
 @Setter
 @ToString(callSuper = true)
-public class ByonDefinition implements Serializable {
+public class EdgeDefinition {
     @JsonProperty("name")
     private String name = null;
+
+    @JsonProperty("systemArch")
+    private String systemArch = null;
+
+    @JsonProperty("scriptURL")
+    private String scriptURL = null;
+
+    @JsonProperty("jarURL")
+    private String jarURL = null;
 
     @JsonProperty("loginCredential")
     private LoginCredential loginCredential = null;
@@ -52,5 +60,5 @@ public class ByonDefinition implements Serializable {
     private List<IpAddress> ipAddresses = null;
 
     @JsonProperty("nodeProperties")
-    private org.ow2.proactive.sal.service.model.NodeProperties nodeProperties = null;
+    private NodeProperties nodeProperties = null;
 }
