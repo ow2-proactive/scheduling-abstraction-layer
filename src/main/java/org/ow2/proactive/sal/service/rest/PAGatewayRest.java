@@ -26,7 +26,6 @@
 package org.ow2.proactive.sal.service.rest;
 
 import java.security.KeyException;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.security.auth.login.LoginException;
@@ -35,8 +34,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.ow2.proactive.resourcemanager.common.event.RMNodeEvent;
 import org.ow2.proactive.resourcemanager.exception.RMException;
+import org.ow2.proactive.sal.service.service.PAGatewayService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +54,18 @@ import io.swagger.annotations.ApiParam;
 @Api(description = "Operations on Proactive gateway", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class PAGatewayRest {
 
+    @Autowired
+    private PAGatewayService paGatewayService;
+
+    @RequestMapping(value = "/init", method = RequestMethod.POST)
+    @ApiOperation(value = "Init a gateway to the ProActive server", response = String.class)
+    public ResponseEntity<Boolean>
+            init(@ApiParam(value = "ProActive server URL (exp: http://try.activeeon.com:8080/)", required = true)
+    @FormParam(value = "paURL")
+    final String paURL) {
+        return ResponseEntity.ok(paGatewayService.init(paURL));
+    }
+
     @RequestMapping(value = "/connect", method = RequestMethod.POST)
     @ApiOperation(value = "Construct and connect a gateway to the ProActive server", response = String.class)
     public ResponseEntity<String> connect(@ApiParam(value = "Proactive authentication username", required = true)
@@ -60,7 +73,7 @@ public class PAGatewayRest {
     final String username, @ApiParam(value = "Proactive authentication password", required = true)
     @FormParam(value = "password")
     final String password) throws LoginException, KeyException, RMException {
-        return ResponseEntity.ok(username + password);
+        return ResponseEntity.ok(paGatewayService.connect(username, password));
     }
 
     @RequestMapping(value = "/disconnect", method = RequestMethod.POST)
@@ -68,7 +81,7 @@ public class PAGatewayRest {
     public void disconnect(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        ;
+        paGatewayService.disconnect(sessionId);
     }
 
     @RequestMapping(value = "/activevms", method = RequestMethod.GET)
@@ -77,6 +90,6 @@ public class PAGatewayRest {
             getActiveVMs(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException, PermissionRestException {
-        return ResponseEntity.ok(new LinkedList<RMNodeEvent>());
+        return ResponseEntity.ok(paGatewayService.getActiveVMs(sessionId));
     }
 }
