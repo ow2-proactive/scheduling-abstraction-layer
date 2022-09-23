@@ -29,6 +29,7 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Lob;
 
 import lombok.*;
 
@@ -47,7 +48,8 @@ public class SSHCredentials {
     @Column(name = "KEY_PAIR_NAME")
     private String keyPairName = null;
 
-    @Column(name = "PRIVATE_KEY", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "PRIVATE_KEY")
     private String privateKey = null;
 
     @Override
