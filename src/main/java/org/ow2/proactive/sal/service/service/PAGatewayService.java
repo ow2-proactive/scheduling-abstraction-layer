@@ -96,7 +96,6 @@ public class PAGatewayService {
         schedulerGateway.disconnect();
     }
 
-
     /**
      * This function returns a list of available VMs
      * @param sessionId A session id
@@ -107,7 +106,6 @@ public class PAGatewayService {
     public List<RMNodeEvent> getActiveVMs(String sessionId) throws NotConnectedException, PermissionRestException {
         return resourceManagerGateway.getListOfNodesEvents();
     }
-
 
     /**
      * Verify that the provided sessionId corresponds to an active session

@@ -132,7 +132,7 @@ public class PAResourceManagerGateway {
 
     /**
      * Init a gateway to the ProActive Resource Manager
-     * @param paURL ProActive URL (exp: http://try.activeeon.com:8080/)
+     * @param paURL ProActive URL (exp: https://try.activeeon.com:8443/)
      */
     public void init(String paURL) {
         // Initialize the gateway from the RMConnectionHelper class
@@ -172,7 +172,6 @@ public class PAResourceManagerGateway {
     public void disconnect() {
         RMConnectionHelper.disconnect();
     }
-
 
     /**
      * Verify that the provided sessionId corresponds to an active session
