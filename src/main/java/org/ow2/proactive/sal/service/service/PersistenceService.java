@@ -43,6 +43,7 @@ public class PersistenceService {
 
     /**
      * Clean all DB entries
+     * @param sessionId A valid session id
      */
     public void cleanAll(String sessionId) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {

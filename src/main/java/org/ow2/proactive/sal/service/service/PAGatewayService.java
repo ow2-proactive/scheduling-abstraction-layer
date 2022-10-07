@@ -32,6 +32,7 @@ import javax.security.auth.login.LoginException;
 
 import org.ow2.proactive.resourcemanager.common.event.RMNodeEvent;
 import org.ow2.proactive.resourcemanager.exception.RMException;
+import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -39,6 +40,7 @@ import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestExc
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -46,19 +48,28 @@ import lombok.extern.slf4j.Slf4j;
 @Service("PAGatewayServiceService")
 public class PAGatewayService {
 
+    @Getter
+    private String paURL;
+
     @Autowired
     private PAResourceManagerGateway resourceManagerGateway;
 
     @Autowired
     private PASchedulerGateway schedulerGateway;
 
+    @Autowired
+    private PAConnectorIaasGateway connectorIaasGateway;
+
     /**
      * Init a gateway to the ProActive server
-     * @param paURL ProActive server URL (exp: http://try.activeeon.com:8080/)
+     * @param paURL ProActive server URL (exp: https://try.activeeon.com:8443/)
      */
     public Boolean init(String paURL) {
+        this.paURL = paURL;
         LOGGER.debug("Init ProActive's Resource Manager");
         resourceManagerGateway.init(paURL);
+        LOGGER.debug("Init ProActive's Connector IAAS");
+        connectorIaasGateway.init(paURL);
         LOGGER.debug("Init ProActive's Scheduler");
         schedulerGateway.init(paURL);
         return true;

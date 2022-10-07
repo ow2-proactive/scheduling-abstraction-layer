@@ -140,10 +140,16 @@ public class RMConnectionHelper {
     }
 
     public static Boolean isActive() throws NotConnectedException {
+        if (rmRestInterface == null) {
+            throw new NotConnectedException("Please init and connect PAGateway before any operation.");
+        }
         return rmRestInterface.isActive(sessionId);
     }
 
     public static Boolean isActive(String sessionId) throws NotConnectedException {
+        if (rmRestInterface == null) {
+            throw new NotConnectedException("Please init and connect PAGateway before any operation.");
+        }
         return rmRestInterface.isActive(sessionId);
     }
 
