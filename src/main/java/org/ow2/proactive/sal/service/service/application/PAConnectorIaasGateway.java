@@ -42,19 +42,26 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.PACloud;
 import org.ow2.proactive.sal.service.util.ConnectionHelper;
+import org.ow2.proactive.sal.service.util.RMConnectionHelper;
+import org.springframework.stereotype.Service;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
+@Service("PAConnectorIaasGateway")
 public class PAConnectorIaasGateway {
 
-    private final String paURL;
+    private String paURL;
 
     private final String CONNECTOR_IAAS_PATH = "/connector-iaas";
 
-    public PAConnectorIaasGateway(String paServerURL) {
+    /**
+     * Init a gateway to the ProActive Connector IAAS
+     * @param paServerURL ProActive URL (exp: https://try.activeeon.com:8443/)
+     */
+    public void init(String paServerURL) {
         this.paURL = paServerURL;
     }
 
