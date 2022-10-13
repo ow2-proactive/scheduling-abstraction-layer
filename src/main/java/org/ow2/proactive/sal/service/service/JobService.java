@@ -375,7 +375,7 @@ public class JobService {
         });
     }
 
-    private void setAllMandatoryDependencies(TaskFlowJob paJob, Job jobToSubmit) {
+    protected void setAllMandatoryDependencies(TaskFlowJob paJob, Job jobToSubmit) {
         jobToSubmit.getTasks().forEach(task -> {
             if (task.getParentTasks() != null && !task.getParentTasks().isEmpty()) {
                 task.getParentTasks().forEach(parentTaskName -> {

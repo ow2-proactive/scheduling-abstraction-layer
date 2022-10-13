@@ -29,7 +29,9 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
+import org.ow2.proactive.sal.service.service.ScalingService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +45,9 @@ import io.swagger.annotations.ApiParam;
 @Api(description = "Scaling operations", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class ScalingRest {
 
+    @Autowired
+    private ScalingService scalingService;
+
     @RequestMapping(value = "/{jobId}/{taskName}/out", method = RequestMethod.POST)
     @ApiOperation(value = "Register a set of node as an operation for scale up")
     public synchronized ResponseEntity<Boolean>
@@ -55,7 +60,7 @@ public class ScalingRest {
     final String taskName, @ApiParam(value = "Name of the nodes to be created and provisioned", required = true)
     @RequestParam(value = "nodeNames")
     final List<String> nodeNames) throws NotConnectedException {
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(scalingService.addScaleOutTask(sessionId, jobId, taskName, nodeNames));
     }
 
     @RequestMapping(value = "/{jobId}/{taskName}/in", method = RequestMethod.POST)
@@ -70,6 +75,6 @@ public class ScalingRest {
     final String taskName, @ApiParam(value = "A list of node to be removed", required = true)
     @RequestParam(value = "nodeNames")
     final List<String> nodeNames) throws NotConnectedException {
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(scalingService.addScaleInTask(sessionId, jobId, taskName, nodeNames));
     }
 }
