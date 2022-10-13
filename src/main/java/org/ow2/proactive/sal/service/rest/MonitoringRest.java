@@ -30,7 +30,9 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 
 import org.ow2.proactive.sal.service.model.EmsDeploymentRequest;
+import org.ow2.proactive.sal.service.service.MonitoringService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,9 +46,12 @@ import io.swagger.annotations.ApiParam;
 @Api(description = "Operations on EMS monitors", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class MonitoringRest {
 
+    @Autowired
+    private MonitoringService monitoringService;
+
     @RequestMapping(method = RequestMethod.POST)
     @ApiOperation(value = "Add an EMS deployment to a defined job")
-    public ResponseEntity<Boolean>
+    public ResponseEntity<Integer>
             addEmsDeployment(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "Names of the nodes to which to add EMS deployment", required = true)
@@ -55,7 +60,7 @@ public class MonitoringRest {
                     @ApiParam(value = "The authorization bearer used by upperware's components to authenticate with each other. Needed by the EMS.", required = true)
                     @RequestParam
                     final String authorizationBearer) throws NotConnectedException {
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(monitoringService.addEmsDeployment(sessionId, nodeNames, authorizationBearer));
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -64,6 +69,6 @@ public class MonitoringRest {
             getMonitorsList(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(monitoringService.getMonitorsList(sessionId));
     }
 }
