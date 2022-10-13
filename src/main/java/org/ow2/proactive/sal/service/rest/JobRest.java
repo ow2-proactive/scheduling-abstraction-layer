@@ -34,10 +34,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.Job;
 import org.ow2.proactive.sal.service.model.SubmittedJobType;
+import org.ow2.proactive.sal.service.service.JobService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.job.JobResult;
 import org.ow2.proactive.scheduler.common.job.JobState;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +53,9 @@ import io.swagger.annotations.ApiParam;
 @Api(description = "Operations on jobs", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class JobRest {
 
+    @Autowired
+    private JobService jobService;
+
     @RequestMapping(method = RequestMethod.POST)
     @ApiOperation(value = "Create a ProActive job skeleton")
     public ResponseEntity<Boolean> createJob(@ApiParam(value = "Proactive authentication session id", required = true)
@@ -58,7 +63,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job skeleton definition in JSON format", required = true)
     @RequestBody
     final JSONObject job) throws NotConnectedException {
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(jobService.createJob(sessionId, job));
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -66,7 +71,7 @@ public class JobRest {
     public ResponseEntity<List<Job>> getJobs(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(jobService.getJobs(sessionId));
     }
 
     @RequestMapping(value = "/stop", method = RequestMethod.PUT)
@@ -76,7 +81,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "List of job IDs to stop", required = true)
     @RequestParam(value = "jobIds")
     final List<String> jobIds) throws NotConnectedException {
-        return ResponseEntity.ok(0L);
+        return ResponseEntity.ok(jobService.stopJobs(sessionId, jobIds));
     }
 
     @RequestMapping(value = "/{jobId}", method = RequestMethod.GET)
@@ -86,7 +91,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(jobService.getJob(sessionId, jobId));
     }
 
     @RequestMapping(value = "/{jobId}/dot", method = RequestMethod.GET)
@@ -97,7 +102,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(jobService.getGraphInDotFormat(sessionId, jobId));
     }
 
     @RequestMapping(value = "/{jobId}/submit", method = RequestMethod.POST)
@@ -107,7 +112,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(0L);
+        return ResponseEntity.ok(jobService.submitJob(sessionId, jobId));
     }
 
     @RequestMapping(value = "/{jobId}/status", method = RequestMethod.GET)
@@ -118,7 +123,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job ID", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(Pair.of(SubmittedJobType.UNKNOWN, null));
+        return ResponseEntity.ok(jobService.getJobState(sessionId, jobId));
     }
 
     @RequestMapping(value = "/{jobId}/wait", method = RequestMethod.GET)
@@ -131,7 +136,7 @@ public class JobRest {
     final String jobId, @ApiParam(value = "The timeout", required = true)
     @RequestParam(value = "timeout")
     final long timeout) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(jobService.waitForJob(sessionId, jobId, timeout));
     }
 
     @RequestMapping(value = "/{jobId}/stop", method = RequestMethod.PUT)
@@ -141,7 +146,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job ID", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(0L);
+        return ResponseEntity.ok(jobService.stopJob(sessionId, jobId));
     }
 
     @RequestMapping(value = "/{jobId}/kill", method = RequestMethod.PUT)
@@ -151,7 +156,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job ID", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(jobService.killJob(sessionId, jobId));
     }
 
     @RequestMapping(value = "/{jobId}/{taskName}/wait", method = RequestMethod.GET)
@@ -166,7 +171,7 @@ public class JobRest {
     final String taskName, @ApiParam(value = "The timeout", required = true)
     @RequestParam(value = "timeout")
     final long timeout) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(jobService.waitForTask(sessionId, jobId, taskName, timeout));
     }
 
     @RequestMapping(value = "/{jobId}/{taskName}/result", method = RequestMethod.GET)
@@ -179,7 +184,7 @@ public class JobRest {
     final String jobId, @ApiParam(value = "A task name", required = true)
     @PathVariable
     final String taskName) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(jobService.getTaskResult(sessionId, jobId, taskName));
     }
 
     @RequestMapping(value = "/kill", method = RequestMethod.PUT)
@@ -188,7 +193,7 @@ public class JobRest {
             killAllActivePAJobs(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(jobService.killAllActivePAJobs(sessionId));
     }
 
     @RequestMapping(value = "/remove", method = RequestMethod.DELETE)
@@ -197,6 +202,6 @@ public class JobRest {
             removeAllPAJobs(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(jobService.removeAllPAJobs(sessionId));
     }
 }
