@@ -25,9 +25,23 @@
  */
 package org.ow2.proactive.sal.service.service;
 
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
+import org.apache.commons.lang3.Validate;
+import org.json.JSONObject;
+import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
+import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
+import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
+import org.ow2.proactive.sal.service.util.EntityManagerHelper;
+import org.ow2.proactive.sal.service.util.TemporaryFilesHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
+import org.ow2.proactive.scheduler.common.job.JobId;
+import org.ow2.proactive_grid_cloud_portal.scheduler.exception.RestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +55,198 @@ public class NodeService {
     @Autowired
     private PAGatewayService paGatewayService;
 
-    public Boolean removeNodes(String sessionId, List<String> iaasNodesToBeRemoved, boolean b)
+    @Autowired
+    private PAResourceManagerGateway resourceManagerGateway;
+
+    @Autowired
+    private PASchedulerGateway schedulerGateway;
+
+    /**
+     * Add nodes to the tasks of a defined job
+     * @param sessionId A valid session id
+     * @param nodes An array of nodes information in JSONObject format
+     * @param jobId A constructed job identifier
+     * @return 0 if nodes has been added properly. A greater than 0 value otherwise.
+     */
+    public synchronized Boolean addNodes(String sessionId, List<JSONObject> nodes, String jobId)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
+        Validate.notNull(nodes, "The received nodes structure is empty. Nothing to be created.");
+
+        EntityManagerHelper.begin();
+
+        nodes.forEach(node -> {
+            Deployment newDeployment = new Deployment();
+            JSONObject nodeCandidateInfo = node.optJSONObject("nodeCandidateInformation");
+            newDeployment.setNodeName(node.optString("nodeName"));
+            newDeployment.setDeploymentType(NodeType.IAAS);
+            newDeployment.setLocationName(nodeCandidateInfo.optString("locationName"));
+            newDeployment.setImageProviderId(nodeCandidateInfo.optString("imageProviderId"));
+            newDeployment.setHardwareProviderId(nodeCandidateInfo.optString("hardwareProviderId"));
+
+            PACloud cloud = EntityManagerHelper.find(PACloud.class, nodeCandidateInfo.optString("cloudID"));
+            cloud.addDeployment(newDeployment);
+            if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(newDeployment.getHardwareProviderId())) {
+                if (!cloud.isWhiteListedRegionDeployed(newDeployment.getLocationName())) {
+                    String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() +
+                                            newDeployment.getLocationName();
+                    this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
+                    cloud.addWhiteListedDeployedRegion(newDeployment.getLocationName(),
+                                                       newDeployment.getImageProviderId());
+                }
+            } else {
+                if (!cloud.isRegionDeployed(newDeployment.getLocationName())) {
+                    String nodeSourceName = cloud.getNodeSourceNamePrefix() + newDeployment.getLocationName();
+                    this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
+                    cloud.addDeployedRegion(newDeployment.getLocationName(),
+                                            newDeployment.getLocationName() + "/" + newDeployment.getImageProviderId());
+                }
+            }
+
+            LOGGER.info("Node source defined.");
+
+            LOGGER.info("Trying to retrieve task: " + node.optString("taskName"));
+            Task task = EntityManagerHelper.find(Job.class, jobId).findTask(node.optString("taskName"));
+
+            newDeployment.setPaCloud(cloud);
+            newDeployment.setTask(task);
+            newDeployment.setNumber(task.getNextDeploymentID());
+            EntityManagerHelper.persist(newDeployment);
+            LOGGER.debug("Deployment created: " + newDeployment.toString());
+
+            EntityManagerHelper.persist(cloud);
+            LOGGER.info("Deployment added to the related cloud: " + cloud.toString());
+
+            task.addDeployment(newDeployment);
+            EntityManagerHelper.persist(task);
+        });
+
+        EntityManagerHelper.commit();
+
+        LOGGER.info("Nodes added properly.");
+
+        return true;
+    }
+
+    /**
+     * Define a node source in PA server related to a deployment information
+     * @param nodeSourceName A valid and unique node source name
+     * @param cloud The cloud information object
+     * @param deployment The deployment information object
+     */
+    private void defineNSWithDeploymentInfo(String nodeSourceName, PACloud cloud, Deployment deployment) {
+        String filename;
+        Map<String, String> variables = new HashMap<>();
+        variables.put("NS_name", nodeSourceName);
+        variables.put("security_group", cloud.getSecurityGroup());
+        variables.put("sshUsername", cloud.getSshCredentials().getUsername());
+        variables.put("sshKeyPairName", cloud.getSshCredentials().getKeyPairName());
+        variables.put("sshPrivateKey", cloud.getSshCredentials().getPrivateKey());
+        try {
+            URL endpointPa = (new URL(paGatewayService.getPaURL()));
+            variables.put("rm_host_name", endpointPa.getHost());
+            variables.put("pa_port", "" + endpointPa.getPort());
+        } catch (MalformedURLException e) {
+            LOGGER.error("MalformedURLException: ", e);
+        }
+        if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getHardwareProviderId())) {
+            switch (cloud.getCloudProviderName()) {
+                case "aws-ec2":
+                    filename = File.separator + "Define_NS_AWS_AutoScale.xml";
+                    variables.put("aws_username", cloud.getCredentials().getUserName());
+                    variables.put("aws_secret", cloud.getCredentials().getPrivateKey());
+                    variables.put("image", deployment.getImageProviderId());
+                    variables.put("instance_type", deployment.getHardwareProviderId());
+                    variables.put("region", deployment.getLocationName());
+                    variables.put("subnet", cloud.getSubnet());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unhandled white listed instance type for cloud provider: " +
+                                                       cloud.getCloudProviderName());
+            }
+        } else {
+            variables.put("NS_nVMs", "0");
+            variables.put("image", deployment.getLocationName() + File.separator + deployment.getImageProviderId());
+            switch (cloud.getCloudProviderName()) {
+                case "aws-ec2":
+                    filename = File.separator + "Define_NS_AWS.xml";
+                    variables.put("aws_username", cloud.getCredentials().getUserName());
+                    variables.put("aws_secret", cloud.getCredentials().getPrivateKey());
+                    variables.put("subnet", cloud.getSubnet());
+                    break;
+                case "openstack":
+                    filename = File.separator + "Define_NS_OS.xml";
+                    variables.put("os_endpoint", cloud.getEndpoint());
+                    variables.put("os_scopePrefix", cloud.getScopePrefix());
+                    variables.put("os_scopeValue", cloud.getScopeValue());
+                    variables.put("os_identityVersion", cloud.getIdentityVersion());
+                    variables.put("os_username", cloud.getCredentials().getUserName());
+                    variables.put("os_password", cloud.getCredentials().getPrivateKey());
+                    variables.put("os_domain", cloud.getCredentials().getDomain());
+                    variables.put("os_region", deployment.getLocationName());
+                    variables.put("os_networkId", cloud.getDefaultNetwork());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unhandled cloud provider: " + cloud.getCloudProviderName());
+            }
+        }
+        File fXmlFile = null;
+        LOGGER.info("NodeSource deployment workflow filename: " + filename);
+        try {
+            fXmlFile = TemporaryFilesHelper.createTempFileFromResource(filename);
+        } catch (IOException ioe) {
+            LOGGER.error("Opening the NS deployment workflow file failed due to : " +
+                         Arrays.toString(ioe.getStackTrace()));
+        }
+        assert fXmlFile != null;
+        LOGGER.info("Submitting the file: " + fXmlFile.toString());
+        LOGGER.info("Trying to deploy the NS: " + nodeSourceName);
+        JobId jobId = schedulerGateway.submit(fXmlFile, variables);
+        LOGGER.info("Job submitted with ID: " + jobId);
+        TemporaryFilesHelper.delete(fXmlFile);
+    }
+
+    /**
+     * Get all added nodes
+     * @param sessionId A valid session id
+     * @return List of all table Deployment's entries
+     */
+    public List<Deployment> getNodes(String sessionId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        resourceManagerGateway.synchronizeDeploymentsIPAddresses(schedulerGateway);
+        resourceManagerGateway.synchronizeDeploymentsInstanceIDs();
+        return EntityManagerHelper.createQuery("SELECT d FROM Deployment d", Deployment.class).getResultList();
+    }
+
+    /**
+     * Remove nodes
+     * @param sessionId A valid session id
+     * @param nodeNames List of node names to remove
+     * @param preempt If true remove node immediately without waiting for it to be freed
+     */
+    public Boolean removeNodes(String sessionId, List<String> nodeNames, boolean preempt) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        nodeNames.forEach(nodeName -> {
+            try {
+                List<String> nodeURLs = resourceManagerGateway.searchNodes(Collections.singletonList(nodeName), true);
+                if (!nodeURLs.isEmpty()) {
+                    String nodeUrl = nodeURLs.get(0);
+                    resourceManagerGateway.removeNode(nodeUrl, preempt);
+                    LOGGER.info("Node " + nodeName + " with URL: " + nodeUrl + " has been removed successfully.");
+                } else {
+                    LOGGER.warn("No Nodes with tag " + nodeName + " has been found in RM. Nothing to be removed here.");
+                }
+
+            } catch (NotConnectedException | RestException e) {
+                LOGGER.error(String.valueOf(e.getStackTrace()));
+            }
+        });
         return true;
     }
 }

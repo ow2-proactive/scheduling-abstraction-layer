@@ -60,7 +60,7 @@ public class NodeRest {
     final List<JSONObject> nodes, @ApiParam(value = "A job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(nodeService.addNodes(sessionId, nodes, jobId));
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -69,7 +69,7 @@ public class NodeRest {
             getNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(nodeService.getNodes(sessionId));
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
