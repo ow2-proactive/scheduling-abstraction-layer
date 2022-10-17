@@ -50,6 +50,9 @@ public class MonitoringService {
     @Autowired
     private PAGatewayService paGatewayService;
 
+    @Autowired
+    private ServiceConfiguration serviceConfiguration;
+
     /**
      * Add an EMS deployment to a defined job
      * @param sessionId A valid session id
@@ -68,7 +71,7 @@ public class MonitoringService {
         AtomicInteger failedDeploymentIdentification = new AtomicInteger();
         URL endpointPa;
         try {
-            endpointPa = (new URL(paGatewayService.getPaURL()));
+            endpointPa = (new URL(serviceConfiguration.getPaUrl()));
             String baguetteIp = endpointPa.getHost();
             int baguettePort = 8111;
             boolean isUsingHttps = true;

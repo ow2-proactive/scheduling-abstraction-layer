@@ -60,6 +60,9 @@ public class CloudService {
     @Autowired
     private PAResourceManagerGateway resourceManagerGateway;
 
+    @Autowired
+    private ServiceConfiguration serviceConfiguration;
+
     /**
      * Add clouds to the ProActive Resource Manager
      * @param sessionId A valid session id
@@ -124,7 +127,7 @@ public class CloudService {
     }
 
     private void updateNodeCandidatesAsync(List<String> newCloudIds) {
-        UpdatingNodeCandidatesThread updatingThread = new UpdatingNodeCandidatesThread(paGatewayService.getPaURL(),
+        UpdatingNodeCandidatesThread updatingThread = new UpdatingNodeCandidatesThread(serviceConfiguration.getPaUrl(),
                                                                                        newCloudIds);
         updatingThread.start();
     }
