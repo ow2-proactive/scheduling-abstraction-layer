@@ -75,7 +75,7 @@ public class PAGatewayRest {
     final String username, @ApiParam(value = "Proactive authentication password", required = true)
     @FormParam(value = "password")
     final String password) throws LoginException, KeyException, RMException {
-        return ResponseEntity.ok(paGatewayService.connect(username, password));
+        return ResponseEntity.ok(paGatewayService.connectAndInsist(username, password));
     }
 
     @RequestMapping(value = "/disconnect", method = RequestMethod.POST)

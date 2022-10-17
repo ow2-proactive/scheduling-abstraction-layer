@@ -61,6 +61,9 @@ public class NodeService {
     @Autowired
     private PASchedulerGateway schedulerGateway;
 
+    @Autowired
+    private ServiceConfiguration serviceConfiguration;
+
     /**
      * Add nodes to the tasks of a defined job
      * @param sessionId A valid session id
@@ -145,7 +148,7 @@ public class NodeService {
         variables.put("sshKeyPairName", cloud.getSshCredentials().getKeyPairName());
         variables.put("sshPrivateKey", cloud.getSshCredentials().getPrivateKey());
         try {
-            URL endpointPa = (new URL(paGatewayService.getPaURL()));
+            URL endpointPa = (new URL(serviceConfiguration.getPaUrl()));
             variables.put("rm_host_name", endpointPa.getHost());
             variables.put("pa_port", "" + endpointPa.getPort());
         } catch (MalformedURLException e) {

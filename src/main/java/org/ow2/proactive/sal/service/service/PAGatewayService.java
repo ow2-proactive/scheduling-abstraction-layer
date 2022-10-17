@@ -28,6 +28,7 @@ package org.ow2.proactive.sal.service.service;
 import java.security.KeyException;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.security.auth.login.LoginException;
 
 import org.ow2.proactive.resourcemanager.common.event.RMNodeEvent;
@@ -40,16 +41,12 @@ import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestExc
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
 @Service("PAGatewayServiceService")
 public class PAGatewayService {
-
-    @Getter
-    private String paURL;
 
     @Autowired
     private PAResourceManagerGateway resourceManagerGateway;
@@ -60,12 +57,26 @@ public class PAGatewayService {
     @Autowired
     private PAConnectorIaasGateway connectorIaasGateway;
 
+    @Autowired
+    private ServiceConfiguration serviceConfiguration;
+
+    @Autowired
+    private PAGatewayInitThread paGatewayInitThread;
+
+    /**
+     * Init a gateway to the ProActive server in an automatic way on application startup
+     */
+    @PostConstruct
+    public void init() {
+        paGatewayInitThread.start();
+    }
+
     /**
      * Init a gateway to the ProActive server
      * @param paURL ProActive server URL (exp: https://try.activeeon.com:8443/)
      */
     public Boolean init(String paURL) {
-        this.paURL = paURL;
+        serviceConfiguration.setPaUrl(paURL);
         LOGGER.debug("Init ProActive's Resource Manager");
         resourceManagerGateway.init(paURL);
         LOGGER.debug("Init ProActive's Connector IAAS");
@@ -77,14 +88,37 @@ public class PAGatewayService {
 
     /**
      * Connect to the ProActive server
-     * @param username The user's username
+     * @param login The user's username
      * @param password The user's password
      * @return The new session id
      * @throws LoginException In case the login is not valid
      * @throws KeyException In case the password is not valid
      * @throws RMException In case an error happens in the RM
      */
-    public String connect(String username, String password) throws LoginException, KeyException, RMException {
+    public String connectAndInsist(String login, String password) throws LoginException, KeyException, RMException {
+        int retries = 0;
+        boolean isConnected = false;
+        String sessionId = "";
+        while (!isConnected && retries < ServiceConfiguration.MAX_CONNECTION_RETRIES) {
+            try {
+                sessionId = this.connect(login, password);
+                isConnected = true;
+                serviceConfiguration.setPaLogin(login);
+                serviceConfiguration.setPaPassword(password);
+            } catch (RuntimeException re) {
+                LOGGER.warn("Not able to connect to ProActive Scheduler : ", re);
+            }
+            retries++;
+        }
+        if (isConnected) {
+            LOGGER.info("Connected to RM and Scheduler after {} attempts.", retries);
+        } else {
+            LOGGER.info("Connection to RM and Scheduler failed after {} attempts.", retries);
+        }
+        return sessionId;
+    }
+
+    protected String connect(String username, String password) throws LoginException, KeyException, RMException {
         LOGGER.debug("Connecting to ProActive's Resource Manager");
         resourceManagerGateway.connect(username, password);
         LOGGER.debug("Connecting to ProActive's Scheduler");

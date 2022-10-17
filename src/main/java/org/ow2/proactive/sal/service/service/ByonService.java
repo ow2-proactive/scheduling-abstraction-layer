@@ -56,6 +56,9 @@ public class ByonService {
     @Autowired
     private PASchedulerGateway schedulerGateway;
 
+    @Autowired
+    private ServiceConfiguration serviceConfiguration;
+
     /**
      * Register new BYON nodes passed as ByonDefinition object
      *
@@ -209,7 +212,7 @@ public class ByonService {
         }
         // Collect the pamr router address and port number
         try {
-            URL endpointPa = (new URL(paGatewayService.getPaURL()));
+            URL endpointPa = (new URL(serviceConfiguration.getPaUrl()));
             variables.put("rm_host_name", endpointPa.getHost());
             variables.put("pa_port", "" + endpointPa.getPort());
         } catch (MalformedURLException e) {

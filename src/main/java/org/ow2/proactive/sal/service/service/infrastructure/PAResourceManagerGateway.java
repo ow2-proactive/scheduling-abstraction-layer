@@ -44,6 +44,7 @@ import org.ow2.proactive.sal.service.model.Deployment;
 import org.ow2.proactive.sal.service.model.IpAddress;
 import org.ow2.proactive.sal.service.model.IpAddressType;
 import org.ow2.proactive.sal.service.model.IpVersion;
+import org.ow2.proactive.sal.service.service.ServiceConfiguration;
 import org.ow2.proactive.sal.service.service.application.PAFactory;
 import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.sal.service.util.RMConnectionHelper;
@@ -66,10 +67,6 @@ public class PAResourceManagerGateway {
 
     private RMRestInterface rmRestInterface;
 
-    static final int MAX_CONNECTION_RETRIES = 10;
-
-    static final int INTERVAL = 10000;
-
     private String username;
 
     private String password;
@@ -89,9 +86,9 @@ public class PAResourceManagerGateway {
             List<String> deployedNodes = null;
             boolean gotResponse = false;
 
-            while (!gotResponse && retries <= MAX_CONNECTION_RETRIES) {
+            while (!gotResponse && retries <= ServiceConfiguration.MAX_CONNECTION_RETRIES) {
                 try {
-                    Thread.sleep(INTERVAL);
+                    Thread.sleep(ServiceConfiguration.INTERVAL);
                     deployedNodes = getDeployedNodesInformation(nodeSource, option);
                     if (!deployedNodes.isEmpty()) {
                         gotResponse = true;

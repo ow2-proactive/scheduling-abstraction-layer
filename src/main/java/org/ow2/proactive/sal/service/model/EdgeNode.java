@@ -72,7 +72,7 @@ public class EdgeNode implements Serializable {
     @JsonProperty("scriptURL")
     private String scriptURL = null;
 
-    @JsonProperty("scriptURL")
+    @JsonProperty("jarURL")
     private String jarURL = null;
 
     @Embedded
