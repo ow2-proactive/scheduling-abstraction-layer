@@ -1,0 +1,113 @@
+CITY COUNTRY LATITUDE LONGITUDE REGION CLOUD
+Virginia US 37.3719 -79.8164 eastus Azure
+Virginia US 36.6681 -78.3889 eastus2 Azure
+Texas US 29.4167 -98.5 southcentralus Azure
+Washington US 47.233 -119.852 westus2 Azure
+California US 37.783 -122.417 westus Azure
+"New South Wales" Australia -33.86 151.2094 australiaeast Azure
+Singapore Singapore 1.283 103.833 southeastasia Azure
+Ireland Ireland 53.3478 -6.2597 northeurope Azure
+London UK 50.941 -0.799 uksouth Azure
+Netherlands Netherlands 52.3667 4.9 westeurope Azure
+Iowa US 41.5908 -93.6208 centralus Azure
+Illinois US 41.8819 -87.6278 northcentralus Azure
+Johannesburg "South Africa" -25.731340 28.218370 southafricanorth Azure
+Pune India 18.5822 73.9197 centralindia Azure
+"Hong Kong" "Hong Kong" 22.267 114.188 eastasia Azure
+"Tokyo, Saitama" Japan 35.68 139.77 japaneast Azure
+Seoul "South Korea" 37.5665 126.9780 koreacentral Azure
+Toronto Canada 43.653 -79.383 canadacentral Azure
+Paris France 46.3772 2.3730 francecentral Azure
+Frankfurt Germany 50.110924 8.682127 germanywestcentral Azure
+Norway Norway 59.913868 10.752245 norwayeast Azure
+Zurich Switzerland 47.451542 8.564572 switzerlandnorth Azure
+Dubai UAE 25.266666 55.316666 uaenorth Azure
+"Sao Paulo State" Brazil -23.55 -46.633 brazilsouth Azure
+Wyoming US 40.890 -110.234 westcentralus Azure
+"Cape Town" "South Africa" -34.075691 18.843266 southafricawest Azure
+Canberra Australia -35.3075 149.1244 australiacentral Azure
+Canberra Australia -35.3075 149.1244 australiacentral2 Azure
+Victoria Australia -37.8136 144.9631 australiasoutheast Azure
+Osaka Japan 34.6939 135.5022 japanwest Azure
+Busan "South Korea" 35.1796 129.0756 koreasouth Azure
+Chennai India 12.9822 80.1636 southindia Azure
+Mumbai India 19.088 72.868 westindia Azure
+Quebec Canada 46.817 -71.217 canadaeast Azure
+Marseille France 43.8345 2.1972 francesouth Azure
+Berlin Germany 53.073635 8.806422 germanynorth Azure
+Norway Norway 58.969975 5.733107 norwaywest Azure
+Geneva Switzerland 46.204391 6.143158 switzerlandwest Azure
+Cardiff UK 53.427 -3.084 ukwest Azure
+"Abu Dhabi" UAE 24.466667 54.366669 uaecentral Azure
+Rio Brazil -22.90278 -43.2075 brazilsoutheast Azure
+Ohio US 39.9653 -83.0235 us-east-2 AWS
+"North Virgina" US 39.0481 -77.4728 us-east-1 AWS
+"North California" US 37.3388 -121.8914 us-west-1 AWS
+Oregon US 45.8491 -119.7143 us-west-2 AWS
+"Cape Town" "South Africa" -33.9258 18.4232 af-south-1 AWS
+"Hong Kong" "Hong Kong" 34.7732 113.722 ap-east-1 AWS
+Mumbai "Asia Pacific (Mumbai) " 19.0748 72.8856 ap-south-1 AWS
+Osaka Japan 34.6851 135.5136 ap-northeast-3 AWS
+Seoul "South Korea" 37.4562 126.7288 ap-northeast-2 AWS
+Singapore Singapore 1.2929 103.8547 ap-southeast-1 AWS
+Sydney Australia -33.8591 151.2002 ap-southeast-2 AWS
+"Tokyo, Saitama" Japan 35.685 139.7514 ap-northeast-1 AWS
+Montreal Canada "45.4995 " -73.5848 ca-central-1 AWS
+Frankfurt Germany 50.1188 8.6843 eu-central-1 AWS
+Ireland Ireland 53.3331 -6.2489 eu-west-1 AWS
+London UK 51.5164 -0.093 eu-west-2 AWS
+Milan Italy 45.4643 9.1895 eu-south-1 AWS
+Paris Paris 48.8607 2.3281 eu-west-3 AWS
+Stockholm Sweden 59.3333 18.05 eu-north-1 AWS
+Bahrain Bahrain 26.0333 50.55 me-south-1 AWS
+"Sao Paulo" Brazil -23.5475 -46.6361 sa-east-1 AWS
+Oregon US 45.598976135 -121.178939819 us-west1 GCE
+"Los Angeles" US 34.052238464 -118.243347168 us-west2 GCE
+"Salt Lake City" US 40.758476257 " -111.888145447" us-west3 GCE
+"Las Vegas" US 36.169090271 " -115.140579224" us-west4 GCE
+Iowa US 41.258964539 -95.854362488 us-central1 GCE
+"South Carolina" US 33.194789886 -80.010345459 us-east1 GCE
+"North Virginia" US 39.108001709 " -77.550636292" us-east4 GCE
+Montreal Canada 45.509063721 -73.553359985 northamerica-northeast1 GCE
+"Sao Paulo" Brazil -23.548666000 -46.638252258 southamerica-east1 GCE
+London UK 51.500152588 -0.126236007 europe-west2 GCE
+"St. Ghislain" Belgium 50.447853088 3.820250988 europe-west1 GCE
+Eemshaven Netherlands 53.442104340 6.825708866 europe-west4 GCE
+Zurich Switzerland 47.367000580 8.550000191 europe-west6 GCE
+Frankfurt Germany 50.110885620 8.679491997 europe-west3 GCE
+Hamina Finland 61.707283020 24.835819244 europe-north1 GCE
+Mumbai India 18.969047546 72.821182251 asia-south1 GCE
+Singapour Singapore 1.356400967 103.808128357 asia-southeast1 GCE
+Jakarta Indonesia -6.174757004 106.827072144 asia-southeast2 GCE
+"Hong Kong" "Hong Kong" 22.421119690 114.166152954 asia-east2 GCE
+Changhua Taiwan 24.071657 120.562447 asia-east1 GCE
+Tokyo Japan 35.689487 139.691711 asia-northeast1 GCE
+Osaka Japan 34.693737 135.502167 asia-northeast2 GCE
+Sydney Australia -33.868820 151.209290 australia-southeast1 GCE
+Seoul "South Korea" 37.566536 126.977966 asia-northeast3 GCE
+London UK 51.500152588 -0.126236007 LON1 OVH
+Warsaw Poland 52.234977722 21.008491516 WAW1 OVH
+Frankfurt Germany 50.110885620 8.679491997 FRA1 OVH
+Paris France 48.856895446777344 2.350848913192749 DC1 OVH
+Paris France 48.856895446777344 2.350848913192749 GSW OVH
+Paris France 48.856895446777344 2.350848913192749 P19 OVH
+Roubaix France 50.691265106 3.173233986 RBX1 OVH
+Roubaix France 50.691265106 3.173233986 RBX2 OVH
+Roubaix France 50.691265106 3.173233986 RBX3 OVH
+Roubaix France 50.691265106 3.173233986 RBX4 OVH
+Roubaix France 50.691265106 3.173233986 RBX5 OVH
+Roubaix France 50.691265106 3.173233986 RBX6 OVH
+Gravelines France 50.986942291 2.125894070 GRA1 OVH
+Gravelines France 50.986942291 2.125894070 GRA2 OVH
+Strasbourg France 48.582946777 7.743753910 SBG1 OVH
+Strasbourg France 48.582946777 7.743753910 SBG2 OVH
+Beauharnois Canada 45.313774109 -73.876998901 BHS-1 OVH
+Beauharnois Canada 45.313774109 -73.876998901 BHS-2 OVH
+Beauharnois Canada 45.313774109 -73.876998901 BHS-3 OVH
+Beauharnois Canada 45.313774109 -73.876998901 BHS-4 OVH
+Beauharnois Canada 45.313774109 -73.876998901 BHS-5 OVH
+Beauharnois Canada 45.313774109 -73.876998901 BHS-6 OVH
+Singapore Singapore 1.356400967 103.808128357 SGP-1 OVH
+Sydney Australia -33.868820 151.209290 SYD-1 OVH
+Hillsboro US 45.523948669 -122.989738464 HIL-1 OVH
+"Vint Hill" US 38.763755923 -77.680551836 VIN-1 OVH
