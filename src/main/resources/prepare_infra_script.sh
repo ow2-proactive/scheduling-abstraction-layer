@@ -7,11 +7,11 @@ if [[ ! -z $PROVIDED_PORT_NAME ]]; then
     CODE=$?
     echo "The Public IP was retreived with code: $CODE"
 
-	if [[ $CODE -lt 6 ]]
-	then
-	  echo Public adress: $IP_ADDR
-	else
-	  echo "Getting the Public IP failed!"
+    if [[ $CODE -lt 6 ]]
+    then
+      echo Public adress: $IP_ADDR
+    else
+      echo "Getting the Public IP failed!"
     echo "The recieved IP: $IP_ADDR"
     exit 1
   fi

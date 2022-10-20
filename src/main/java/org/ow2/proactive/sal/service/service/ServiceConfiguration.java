@@ -28,15 +28,15 @@ package org.ow2.proactive.sal.service.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.context.annotation.PropertySources;
 
 
 @Configuration
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
-        @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties") })
+                   @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties", ignoreResourceNotFound = true) })
 @Getter
 @Setter
 public class ServiceConfiguration {

@@ -54,9 +54,9 @@ public class PAGatewayInitThread extends Thread {
             Thread.sleep(ServiceConfiguration.INTERVAL);
             try {
                 LOGGER.debug("Trying connection to: {} with login: {} and password: {}",
-                            serviceConfiguration.getPaUrl(),
-                            serviceConfiguration.getPaLogin(),
-                            serviceConfiguration.getPaPassword());
+                             serviceConfiguration.getPaUrl(),
+                             serviceConfiguration.getPaLogin(),
+                             serviceConfiguration.getPaPassword());
                 paGatewayService.connect(serviceConfiguration.getPaLogin(), serviceConfiguration.getPaPassword());
                 isConnected = true;
             } catch (RuntimeException re) {

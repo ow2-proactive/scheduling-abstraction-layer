@@ -38,7 +38,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
-        @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties") })
+                   @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties", ignoreResourceNotFound = true) })
 @Configuration
 public class RepositoryConfiguration {
 
