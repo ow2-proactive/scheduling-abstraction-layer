@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:proactive:jobdescriptor:3.12" xsi:schemaLocation="urn:proactive:jobdescriptor:3.12 http://www.activeeon.com/public_content/schemas/proactive/jobdescriptor/3.12/schedulerjob.xsd"  name="Define_NS_OS" projectName="Morphemic" priority="normal" onTaskError="continueJobExecution"  maxNumberOfExecution="2"  >
+  <variables>
+    <variable name="NS_name" value="" />
+    <variable name="NS_nVMs" value="0" model="PA:Integer"/>
+    <variable name="os_username" value="" model="PA:HIDDEN"/>
+    <variable name="os_password" value="" model="PA:HIDDEN"/>
+    <variable name="security_group" value="" />
+    <variable name="rm_host_name" value="" />
+    <variable name="os_domain" value="" />
+    <variable name="os_endpoint" value="" />
+    <variable name="sshKeyPairName" value="" />
+    <variable name="os_scopePrefix" value="" />
+    <variable name="os_scopeValue" value="" />
+    <variable name="os_region" value="" />
+    <variable name="os_identityVersion" value="" />
+    <variable name="os_networkId" value="" />
+    <variable name="pa_port" value="" />
+  </variables>
+  <description>
+    <![CDATA[ A workflow that executes Groovy in JVM. ]]>
+  </description>
+  <taskFlow>
+    <task name="defineOpenStackNodeSource" 
+    
+    
+    
+    
+    fork="true">
+      <description>
+        <![CDATA[ Define an OpenStack NodeSource ]]>
+      </description>
+      <scriptExecutable>
+        <script>
+          <code language="groovy">
+            <![CDATA[
+// Connecting to the Scheduler
+def retCode = 0;
+def nodeSourceName = variables.get("NS_name")
+def protocol = (variables.get("pa_port") == "443" || variables.get("pa_port") == "8443" ) ? "https" : "http"
+println "[+] Preparation of NodeSoure " + nodeSourceName
+print "(1/4) Connecting to the RM ..."
+rmapi.connect()
+println " ... OK !"
+
+// Getting NS configuration settings
+def infrastructureType = "org.ow2.proactive.resourcemanager.nodesource.infrastructure.OpenstackInfrastructure"
+def infrastructureParameters = [variables.get("os_username"), //username
+                                variables.get("os_password"), //password
+                                variables.get("os_domain"), // domain
+                                variables.get("os_endpoint"), // endpoint
+                                variables.get("os_scopePrefix"), // scopePrefix
+                                variables.get("os_scopeValue"), // scopeValue
+                                variables.get("os_region"), // region
+                                variables.get("os_identityVersion"), // identityVerion
+                                "irrelevant_image", //image
+                                "irrelevant_flavor", //flavor
+                                variables.get("os_networkId"), // networkId
+                                variables.get("sshKeyPairName"), //keyPairName
+                                variables.get("NS_nVMs"), //numberOfInstance
+                                "1", //N VMs per node
+                                 protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/connector-iaas", //connector-iaas url
+                                variables.get("rm_host_name"), //rmHostname
+                                 protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/rest/node.jar", //node jar url
+                                "-Dproactive.useIPaddress=true", //additionalProperties"
+                                "300000", //nodesInitDelay 
+                                ""] //startupScript
+def infrastructureFileParameters = []
+def policyType = "org.ow2.proactive.resourcemanager.nodesource.policy.EmptyPolicy"
+def poliyParameters = ["ALL","ME"]
+def policyFileParameters = []
+def nodesRecoverable = "true"
+
+// Enforcing ....
+try {
+    print "(2/4) Creating NodeSource ..."
+	print rmapi.defineNodeSource(nodeSourceName,infrastructureType,(String[]) infrastructureParameters.toArray(),(String[]) infrastructureFileParameters.toArray(), policyType, (String[]) poliyParameters.toArray(), (String[]) policyFileParameters.toArray(),nodesRecoverable)
+	println " ... OK !"
+    print "(3/4) Deploying the NodeSource ..."
+    rmapi.deployNodeSource(nodeSourceName)
+    println " ... OK !"
+} catch (Exception e) {
+	println " ... Error: " + e.getMessage();
+    retCode = 1;    
+} finally {
+	print "(4/4) Logging out ..."
+	rmapi.disconnect();
+	println " ... OK !"    
+}
+return retCode;
+]]>
+          </code>
+        </script>
+      </scriptExecutable>
+      <metadata>
+        <positionTop>
+            142.13333129882812
+        </positionTop>
+        <positionLeft>
+            351.5
+        </positionLeft>
+      </metadata>
+    </task>
+  </taskFlow>
+  <metadata>
+    <visualization>
+      <![CDATA[ <html>
+    <head>
+    <link rel="stylesheet" href="/studio/styles/studio-standalone.css">
+        <style>
+        #workflow-designer {
+            left:0 !important;
+            top:0 !important;
+            width:2826px;
+            height:7788px;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="workflow-visualization-view"><div id="workflow-visualization" style="position:relative;top:-137.13333129882812px;left:-346.5px"><div class="task _jsPlumb_endpoint_anchor_ ui-draggable active-task" style="top: 142.134px; left: 351.5px;" id="jsPlumb_1_22"><a class="task-name" data-toggle="tooltip" data-placement="right" title="Define an OpenStack NodeSource"><img src="images/Groovy.png" width="20px">&nbsp;<span class="name">defineOpenStackNodeSource</span></a></div><div style="position: absolute; height: 20px; width: 20px; left: 425.5px; top: 172px;" class="_jsPlumb_endpoint source-endpoint dependency-source-endpoint connected _jsPlumb_endpoint_anchor_ ui-draggable ui-droppable"><svg style="position:absolute;left:0px;top:0px" width="20" height="20" pointer-events="all" position="absolute" version="1.1" xmlns="http://www.w3.org/1999/xhtml"><circle cx="10" cy="10" r="10" version="1.1" xmlns="http://www.w3.org/1999/xhtml" fill="#666" stroke="none" style=""></circle></svg></div></div></div>
+    </body>
+</html>
+ ]]>
+    </visualization>
+  </metadata>
+</job>

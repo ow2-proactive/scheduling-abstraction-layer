@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:proactive:jobdescriptor:3.12" xsi:schemaLocation="urn:proactive:jobdescriptor:3.12 http://www.activeeon.com/public_content/schemas/proactive/jobdescriptor/3.12/schedulerjob.xsd"  name="Define_NS_AWS" projectName="Morphemic" priority="normal" onTaskError="continueJobExecution"  maxNumberOfExecution="2"  >
+  <variables>
+    <variable name="NS_name" value="" model=""/>
+    <variable name="NS_nVMs" value="0" model="PA:Integer"/>
+    <variable name="aws_username" value="" model="PA:HIDDEN"/>
+    <variable name="aws_secret" value="" model="PA:HIDDEN"/>
+    <variable name="security_group" value="" model=""/>
+    <variable name="sshUsername" value="" />
+    <variable name="sshKeyPairName" value="" />
+    <variable name="sshPrivateKey" value=""  model="PA:HIDDEN"/>
+    <variable name="subnet" value="" model=""/>
+    <variable name="image" value="" model=""/>
+    <variable name="rm_host_name" value="" model=""/>
+    <variable name="pa_port" value="" model=""/>
+  </variables>
+  <description>
+    <![CDATA[ A workflow that executes Groovy in JVM. ]]>
+  </description>
+  <taskFlow>
+    <task name="defineAWSNodeSource"
+    
+    
+    
+    
+    fork="true">
+      <description>
+        <![CDATA[ Define an AWS NodeSource ]]>
+      </description>
+      <scriptExecutable>
+        <script>
+          <code language="groovy">
+            <![CDATA[
+// Connecting to the Scheduler
+def retCode = 0;
+def nodeSourceName = variables.get("NS_name")
+def protocol = (variables.get("pa_port") == "443" || variables.get("pa_port") == "8443" ) ? "https" : "http"
+println "[+] Preparation of NodeSoure " + nodeSourceName
+print "(1/4) Connecting to the RM ..."
+rmapi.connect()
+println " ... OK !"
+
+// Getting NS configuration settings
+def infrastructureType = "org.ow2.proactive.resourcemanager.nodesource.infrastructure.AWSEC2Infrastructure"
+def infrastructureParameters = [variables.get("aws_username"), //username
+                                variables.get("aws_secret"), //secret
+                                variables.get("NS_nVMs"), //N of VMs
+                                "1", //N VMs per node
+                                variables.get("image"), //image
+                                variables.get("sshUsername"), //sshUsername
+                                variables.get("sshKeyPairName"), //sshKeyPair
+                                "", //ram
+                                "", //Ncore
+                                variables.get("security_group"), //sg
+                                variables.get("subnet"), //subnet
+                                variables.get("rm_host_name"), //host
+                                protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/connector-iaas", //connector-iaas url
+                                protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/rest/node.jar", //node jar url
+                                "-Dproactive.useIPaddress=true", //additionalProperties"
+                                "300000", //timeout
+                                "",
+                                ""]
+def infrastructureFileParameters = [variables.get("sshPrivateKey")]
+def policyType = "org.ow2.proactive.resourcemanager.nodesource.policy.EmptyPolicy"
+def poliyParameters = ["ALL","ME"]
+def policyFileParameters = []
+def nodesRecoverable = "true"
+
+// Enforcing ....
+try {
+    print "(2/4) Creating NodeSource ..."
+	rmapi.defineNodeSource(nodeSourceName,infrastructureType,(String[]) infrastructureParameters.toArray(),(String[]) infrastructureFileParameters.toArray(), policyType, (String[]) poliyParameters.toArray(), (String[]) policyFileParameters.toArray(),nodesRecoverable)
+	println " ... OK !"
+    print "(3/4) Deploying the NodeSource ..."
+    rmapi.deployNodeSource(nodeSourceName)
+    println " ... OK !"
+} catch (Exception e) {
+	println " ... Error: " + e.getMessage();
+    retCode = 1;    
+} finally {
+	print "(4/4) Logging out ..."
+	rmapi.disconnect();
+	println " ... OK !"    
+}
+return retCode;
+]]>
+          </code>
+        </script>
+      </scriptExecutable>
+      <metadata>
+        <positionTop>
+            142.125
+        </positionTop>
+        <positionLeft>
+            351.5
+        </positionLeft>
+      </metadata>
+    </task>
+  </taskFlow>
+  <metadata>
+    <visualization>
+      <![CDATA[ <html>
+    <head>
+    <link rel="stylesheet" href="/studio/styles/studio-standalone.css">
+        <style>
+        #workflow-designer {
+            left:0 !important;
+            top:0 !important;
+            width:2864px;
+            height:3536px;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="workflow-visualization-view"><div id="workflow-visualization" style="position:relative;top:-137.125px;left:-346.5px"><div class="task _jsPlumb_endpoint_anchor_ ui-draggable" id="jsPlumb_1_7" style="top: 142.125px; left: 351.5px;"><a class="task-name" data-toggle="tooltip" data-placement="right" title="Define an AWS NodeSource"><img src="/studio/images/Groovy.png" width="20px">&nbsp;<span class="name">defineAWSNodeSource</span></a></div><div class="_jsPlumb_endpoint source-endpoint dependency-source-endpoint connected _jsPlumb_endpoint_anchor_ ui-draggable ui-droppable" style="position: absolute; height: 20px; width: 20px; left: 410px; top: 172px;"><svg style="position:absolute;left:0px;top:0px" width="20" height="20" pointer-events="all" position="absolute" version="1.1" xmlns="http://www.w3.org/1999/xhtml"><circle cx="10" cy="10" r="10" version="1.1" xmlns="http://www.w3.org/1999/xhtml" fill="#666" stroke="none" style=""></circle></svg></div></div></div>
+    </body>
+</html>
+ ]]>
+    </visualization>
+  </metadata>
+</job>
