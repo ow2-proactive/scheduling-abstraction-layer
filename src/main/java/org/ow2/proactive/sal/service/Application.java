@@ -61,9 +61,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication(scanBasePackages = { "org.ow2.proactive.sal.service" })
 @EnableAutoConfiguration(exclude = { MultipartAutoConfiguration.class })
 @EnableSwagger2
-//@PropertySource(value = "classpath:application.properties"),
-@PropertySources({ @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties"),
-                   @PropertySource(value = "classpath:local.run.application.properties") })
+@PropertySources({ @PropertySource(value = "classpath:application.properties"),
+        @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties") })
 @EntityScan(basePackages = "org.ow2.proactive.sal.service.model")
 @EntityScanRoot("classpath:/org/ow2/proactive/sal/service/model")
 @EnableTransactionManagement

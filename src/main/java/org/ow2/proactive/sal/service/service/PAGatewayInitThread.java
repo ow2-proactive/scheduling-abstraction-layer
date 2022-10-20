@@ -53,7 +53,7 @@ public class PAGatewayInitThread extends Thread {
         while (!isConnected && retries < ServiceConfiguration.MAX_CONNECTION_RETRIES) {
             Thread.sleep(ServiceConfiguration.INTERVAL);
             try {
-                LOGGER.info("Trying connection to: {} with login: {} and password: {}",
+                LOGGER.debug("Trying connection to: {} with login: {} and password: {}",
                             serviceConfiguration.getPaUrl(),
                             serviceConfiguration.getPaLogin(),
                             serviceConfiguration.getPaPassword());

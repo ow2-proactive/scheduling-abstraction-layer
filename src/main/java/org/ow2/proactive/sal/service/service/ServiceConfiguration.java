@@ -31,10 +31,12 @@ import org.springframework.context.annotation.PropertySource;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.annotation.PropertySources;
 
 
 @Configuration
-@PropertySource(value = "classpath:local.run.application.properties", ignoreResourceNotFound = true)
+@PropertySources({ @PropertySource(value = "classpath:application.properties"),
+        @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties") })
 @Getter
 @Setter
 public class ServiceConfiguration {
