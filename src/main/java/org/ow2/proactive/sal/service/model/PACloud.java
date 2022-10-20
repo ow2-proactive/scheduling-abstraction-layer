@@ -34,8 +34,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -110,12 +108,6 @@ public class PACloud implements Serializable {
 
     @OneToOne
     private Credentials credentials;
-
-    public static void clean() {
-        List<PACloud> allPAClouds = EntityManagerHelper.createQuery("SELECT pac FROM PACloud pac", PACloud.class)
-                                                       .getResultList();
-        allPAClouds.forEach(EntityManagerHelper::remove);
-    }
 
     public void addDeployment(Deployment deployment) {
         if (deployments == null) {

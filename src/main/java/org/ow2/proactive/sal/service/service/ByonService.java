@@ -36,7 +36,6 @@ import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
 import org.ow2.proactive.sal.service.util.ByonAgentAutomation;
 import org.ow2.proactive.sal.service.util.ByonUtils;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.sal.service.util.TemporaryFilesHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.job.JobId;
@@ -59,6 +58,9 @@ public class ByonService {
     @Autowired
     private ServiceConfiguration serviceConfiguration;
 
+    @Autowired
+    private RepositoryService repositoryService;
+
     /**
      * Register new BYON nodes passed as ByonDefinition object
      *
@@ -77,18 +79,21 @@ public class ByonService {
         Validate.notNull(jobId, "The received jobId is empty. Nothing to be registered.");
         LOGGER.info("registerNewByonNode endpoint is called with Automate set to " + automate +
                     ", Registering a new BYON definition related to job " + jobId + " ...");
-        NodeCandidate byonNC = ByonUtils.createNodeCandidate(byonNodeDefinition.getNodeProperties(), jobId, "byon");
-        EntityManagerHelper.begin();
         ByonNode newByonNode = new ByonNode();
         newByonNode.setName(byonNodeDefinition.getName());
         newByonNode.setLoginCredential(byonNodeDefinition.getLoginCredential());
         newByonNode.setIpAddresses(byonNodeDefinition.getIpAddresses());
         newByonNode.setNodeProperties(byonNodeDefinition.getNodeProperties());
         newByonNode.setJobId(jobId);
+
+        NodeCandidate byonNC = ByonUtils.createNodeCandidate(byonNodeDefinition.getNodeProperties(),
+                                                             jobId,
+                                                             "byon",
+                                                             newByonNode.getId());
         newByonNode.setNodeCandidate(byonNC);
 
-        EntityManagerHelper.persist(newByonNode);
-        EntityManagerHelper.commit();
+        repositoryService.updateByonNode(newByonNode);
+        repositoryService.flush();
         LOGGER.info("BYON node registered.");
         if (automate) {
             ByonAgentAutomation byonAA = new ByonAgentAutomation(newByonNode);
@@ -112,8 +117,7 @@ public class ByonService {
             throw new NotConnectedException();
         }
         List<ByonNode> filteredByonNodes = new LinkedList<>();
-        List<ByonNode> listByonNodes = EntityManagerHelper.createQuery("SELECT byon FROM ByonNode byon", ByonNode.class)
-                                                          .getResultList();
+        List<ByonNode> listByonNodes = repositoryService.listByonNodes();
         if (jobId.equals("0")) {
             return listByonNodes;
         } else {
@@ -145,10 +149,9 @@ public class ByonService {
         Validate.notNull(byonIdPerComponent,
                          "The received byonIdPerComponent structure is empty. Nothing to be added.");
 
-        EntityManagerHelper.begin();
         byonIdPerComponent.forEach((byonNodeId, componentName) -> {
-            ByonNode byonNode = EntityManagerHelper.find(ByonNode.class, byonNodeId);
-            Task task = EntityManagerHelper.find(Task.class, jobId + componentName);
+            ByonNode byonNode = repositoryService.getByonNode(byonNodeId);
+            Task task = repositoryService.getTask(jobId + componentName);
 
             assert byonNode != null : "The BYON ID passed in the mapping does not exist in the database";
             assert task != null : "The componentId passed in the mapping does not exist in the database";
@@ -171,7 +174,7 @@ public class ByonService {
             cloud.setSshCredentials(sshCred);
             cloud.addDeployment(newDeployment);
             newDeployment.setPaCloud(cloud);
-            EntityManagerHelper.persist(cloud);
+            repositoryService.updatePACloud(cloud);
 
             List<ByonNode> byonNodeList = new LinkedList<>();
             byonNodeList.add(byonNode);
@@ -182,14 +185,14 @@ public class ByonService {
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
-            EntityManagerHelper.persist(newDeployment);
+            repositoryService.updateDeployment(newDeployment);
             LOGGER.debug("Deployment created: " + newDeployment.toString());
 
             task.addDeployment(newDeployment);
-            EntityManagerHelper.persist(task);
+            repositoryService.updateTask(task);
         });
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
 
         LOGGER.info("BYON nodes added properly.");
         return true;
@@ -270,8 +273,7 @@ public class ByonService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        EntityManagerHelper.begin();
-        ByonNode byonNode = EntityManagerHelper.find(ByonNode.class, byonId);
+        ByonNode byonNode = repositoryService.getByonNode(byonId);
 
         if (byonNode == null) {
             LOGGER.error("The passed BYON ID is not Found in the database");
@@ -279,7 +281,7 @@ public class ByonService {
         }
 
         LOGGER.info("Deleting the corresponding PACloud from the database ...");
-        PACloud paCloud = EntityManagerHelper.find(PACloud.class, "BYON_NS_" + byonNode.getId());
+        PACloud paCloud = repositoryService.getPACloud("BYON_NS_" + byonNode.getId());
         if (paCloud != null) {
             if (paCloud.getDeployments() != null) {
                 LOGGER.info("Cleaning deployments from related tasks {}", paCloud.getDeployments().toString());
@@ -287,7 +289,7 @@ public class ByonService {
                 LOGGER.info("Cleaning deployments from paCloud {}", paCloud.getCloudID());
                 paCloud.clearDeployments();
             }
-            EntityManagerHelper.remove(paCloud);
+            repositoryService.deletePACloud(paCloud);
         } else {
             LOGGER.warn("The PACloud related to the byonNode {} is not found.", byonNode.getName());
         }
@@ -295,7 +297,7 @@ public class ByonService {
         if (!ByonUtils.undeployByonNs(byonNode, false, true)) {
             LOGGER.warn("The BYON node source undeploy finished with errors!");
         }
-        ByonUtils.deleteByonNode(byonNode);
+        repositoryService.deleteByonNode(byonNode);
 
         return true;
 

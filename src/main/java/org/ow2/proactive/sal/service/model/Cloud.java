@@ -32,8 +32,6 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -79,11 +77,6 @@ public class Cloud implements Serializable {
     @Column(name = "OWNER")
     @JsonProperty("owner")
     private String owner = null;
-
-    public static void clean() {
-        List<Cloud> allClouds = EntityManagerHelper.createQuery("SELECT c FROM Cloud c", Cloud.class).getResultList();
-        allClouds.forEach(EntityManagerHelper::remove);
-    }
 
     /**
      * State of the cloud

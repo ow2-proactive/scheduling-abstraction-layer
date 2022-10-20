@@ -32,7 +32,6 @@ import org.ow2.proactive.sal.service.model.NodeCandidate;
 import org.ow2.proactive.sal.service.model.Requirement;
 import org.ow2.proactive.sal.service.nc.NodeCandidateUtils;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.sal.service.util.JCloudsInstancesUtils;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +47,9 @@ public class NodeCandidateService {
     @Autowired
     private PAGatewayService paGatewayService;
 
+    @Autowired
+    private RepositoryService repositoryService;
+
     /**
      * Find node candidates
      * @param sessionId A valid session id
@@ -60,9 +62,7 @@ public class NodeCandidateService {
             throw new NotConnectedException();
         }
         List<NodeCandidate> filteredNodeCandidates = new LinkedList<>();
-        List<NodeCandidate> allNodeCandidates = EntityManagerHelper.createQuery("SELECT nc FROM NodeCandidate nc",
-                                                                                NodeCandidate.class)
-                                                                   .getResultList();
+        List<NodeCandidate> allNodeCandidates = repositoryService.listNodeCandidates();
         allNodeCandidates.forEach(nodeCandidate -> {
             LOGGER.info("Checking node candidate with type: {}", nodeCandidate.getHardware().getName());
             if (nodeCandidate.isByonNodeCandidate() || nodeCandidate.isEdgeNodeCandidate() ||
@@ -90,9 +90,7 @@ public class NodeCandidateService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        List<NodeCandidate> allNodeCandidates = EntityManagerHelper.createQuery("SELECT nc FROM NodeCandidate nc",
-                                                                                NodeCandidate.class)
-                                                                   .getResultList();
+        List<NodeCandidate> allNodeCandidates = repositoryService.listNodeCandidates();
         return (long) allNodeCandidates.size();
     }
 }

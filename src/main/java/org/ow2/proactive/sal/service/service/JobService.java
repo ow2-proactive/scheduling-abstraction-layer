@@ -36,7 +36,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.UserException;
 import org.ow2.proactive.scheduler.common.job.JobInfo;
@@ -67,6 +66,9 @@ public class JobService {
     @Autowired
     private TaskBuilder taskBuilder;
 
+    @Autowired
+    private RepositoryService repositoryService;
+
     /**
      * Create a ProActive job skeleton
      * @param sessionId A valid session id
@@ -77,8 +79,6 @@ public class JobService {
             throw new NotConnectedException();
         }
         Validate.notNull(job, "The job received is empty. Nothing to be created.");
-
-        EntityManagerHelper.begin();
 
         Job newJob = new Job();
         newJob.setJobId(job.optJSONObject("jobInformation").optString("id"));
@@ -134,19 +134,19 @@ public class JobService {
             }
 
             List<Port> portsToOpen = extractListOfPortsToOpen(task.optJSONArray("ports"), job);
-            portsToOpen.forEach(EntityManagerHelper::persist);
+            portsToOpen.forEach(repositoryService::updatePort);
             newTask.setPortsToOpen(portsToOpen);
             newTask.setParentTasks(extractParentTasks(job, task));
 
-            EntityManagerHelper.persist(newTask);
+            repositoryService.updateTask(newTask);
             tasks.add(newTask);
         });
 
         newJob.setTasks(tasks);
 
-        EntityManagerHelper.persist(newJob);
+        repositoryService.updateJob(newJob);
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
 
         LOGGER.info("Job created: " + newJob.toString());
 
@@ -233,7 +233,7 @@ public class JobService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return EntityManagerHelper.createQuery("SELECT j FROM Job j", Job.class).getResultList();
+        return repositoryService.listJobs();
     }
 
     /**
@@ -257,7 +257,7 @@ public class JobService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return EntityManagerHelper.find(Job.class, jobId);
+        return repositoryService.getJob(jobId);
     }
 
     /**
@@ -274,7 +274,7 @@ public class JobService {
         StringBuilder dotGraphSyntax = new StringBuilder();
 
         // Get the job by jobId from the DB
-        Job applicationJob = EntityManagerHelper.find(Job.class, jobId);
+        Job applicationJob = repositoryService.getJob(jobId);
 
         LOGGER.debug("Dot graph creation for the job: " + applicationJob.toString());
 
@@ -327,21 +327,20 @@ public class JobService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Job jobToSubmit = EntityManagerHelper.find(Job.class, jobId);
-        EntityManagerHelper.refresh(jobToSubmit);
+        Job jobToSubmit = repositoryService.getJob(jobId);
+        //        No refreshing method
+        //        EntityManagerHelper.refresh(jobToSubmit);
         LOGGER.info("Job found to submit: " + jobToSubmit.toString());
 
         TaskFlowJob paJob = new TaskFlowJob();
         paJob.setName(jobToSubmit.getName());
         LOGGER.info("Job created: " + paJob.toString());
 
-        EntityManagerHelper.begin();
-
         jobToSubmit.getTasks().forEach(task -> {
             List<ScriptTask> scriptTasks = taskBuilder.buildPATask(task, jobToSubmit);
 
             addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-            EntityManagerHelper.persist(task);
+            repositoryService.updateTask(task);
         });
 
         setAllMandatoryDependencies(paJob, jobToSubmit);
@@ -359,8 +358,8 @@ public class JobService {
             LOGGER.warn("The job " + jobId + " is already deployed. Nothing to be submitted here.");
         }
 
-        EntityManagerHelper.persist(jobToSubmit);
-        EntityManagerHelper.commit();
+        repositoryService.updateJob(jobToSubmit);
+        repositoryService.flush();
 
         return (submittedJobId);
     }
@@ -407,7 +406,7 @@ public class JobService {
             throw new NotConnectedException();
         }
         LOGGER.info("Getting job " + jobId + " state ");
-        Optional<Job> optJob = Optional.ofNullable(EntityManagerHelper.find(Job.class, jobId));
+        Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
             return Pair.of(SubmittedJobType.UNKNOWN, null);
@@ -434,7 +433,7 @@ public class JobService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Job submittedJob = EntityManagerHelper.find(Job.class, jobId);
+        Job submittedJob = repositoryService.getJob(jobId);
         JobResult jobResult = schedulerGateway.waitForJob(String.valueOf(submittedJob.getSubmittedJobId()), timeout);
         LOGGER.info("Results of job: " + jobId + " fetched successfully: " + jobResult.toString());
         return jobResult;
@@ -451,13 +450,12 @@ public class JobService {
             throw new NotConnectedException();
         }
         LOGGER.info("Stopping job " + jobId);
-        Optional<Job> optJob = Optional.ofNullable(EntityManagerHelper.find(Job.class, jobId));
+        Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
             return 0L;
         }
         Job job = optJob.get();
-        EntityManagerHelper.begin();
         job.getTasks().forEach(task -> {
             List<String> iaasNodesToBeRemoved = task.getDeployments()
                                                     .stream()
@@ -485,17 +483,28 @@ public class JobService {
 
             taskIaasDeployments.forEach(deployment -> {
                 deployment.getTask().removeDeployment(deployment);
-                EntityManagerHelper.persist(deployment.getTask());
+                repositoryService.updateTask(deployment.getTask());
                 deployment.getPaCloud().removeDeployment(deployment);
-                EntityManagerHelper.persist(deployment.getPaCloud());
-                EntityManagerHelper.remove(deployment);
+                repositoryService.updatePACloud(deployment.getPaCloud());
+                repositoryService.deleteDeployment(deployment);
             });
 
             taskByonDeployments.forEach(deployment -> {
                 deployment.getTask().removeDeployment(deployment);
-                EntityManagerHelper.persist(deployment.getTask());
-                EntityManagerHelper.remove(deployment);
+                repositoryService.updateTask(deployment.getTask());
+                repositoryService.deleteDeployment(deployment);
             });
+
+            task.getDeployments()
+                .stream()
+                .filter(deployment -> NodeType.IAAS.equals(deployment.getDeploymentType()))
+                .filter(Deployment::getIsDeployed)
+                .forEach(deployment -> {
+                    deployment.getIaasNode().decDeployedNodes(1L);
+                    repositoryService.updateIaasNode(deployment.getIaasNode());
+                }
+
+            );
 
             try {
                 nodeService.removeNodes(sessionId, iaasNodesToBeRemoved, true);
@@ -516,9 +525,9 @@ public class JobService {
         //TODO: This should be updated if a stopping workflow will be submitted in future.
         // Please think of the impact of this on PaGateway.getJobState()
         //        job.setSubmittedJobId(0L);
-        EntityManagerHelper.persist(job);
+        repositoryService.updateJob(job);
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
 
         // This is kept for future improvement.
         // It is in case we want to return the submitted stopping job's ID
@@ -535,13 +544,19 @@ public class JobService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Job submittedJob = EntityManagerHelper.find(Job.class, jobId);
-        boolean result = schedulerGateway.killJob(String.valueOf(submittedJob.getSubmittedJobId()));
-        if (result) {
-            LOGGER.info("The job : " + jobId + " could be killed successfully.");
+        boolean result = false;
+        Job submittedJob = repositoryService.getJob(jobId);
+        if (submittedJob != null && submittedJob.getSubmittedJobId() > 0L) {
+            result = schedulerGateway.killJob(String.valueOf(submittedJob.getSubmittedJobId()));
+            if (result) {
+                LOGGER.info("The job : {} could be killed successfully.", jobId);
+            } else {
+                LOGGER.error("The job : {} could not be killed.", jobId);
+            }
         } else {
-            LOGGER.error("The job : " + jobId + " could not be killed.");
+            LOGGER.warn("The job : {} has not been submitted. Nothing to be killed.", jobId);
         }
+
         return result;
     }
 
@@ -558,7 +573,7 @@ public class JobService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Job submittedJob = EntityManagerHelper.find(Job.class, jobId);
+        Job submittedJob = repositoryService.getJob(jobId);
         Task createdTask = submittedJob.findTask(taskName);
         Map<String, TaskResult> taskResultsMap = new HashMap<>();
         createdTask.getSubmittedTaskNames().forEach(submittedTaskName -> {
@@ -583,7 +598,7 @@ public class JobService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Job submittedJob = EntityManagerHelper.find(Job.class, jobId);
+        Job submittedJob = repositoryService.getJob(jobId);
         Task createdTask = submittedJob.findTask(taskName);
         Map<String, TaskResult> taskResultsMap = new HashMap<>();
         createdTask.getSubmittedTaskNames().forEach(submittedTaskName -> {

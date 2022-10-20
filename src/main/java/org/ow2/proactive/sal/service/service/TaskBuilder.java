@@ -77,17 +77,31 @@ public class TaskBuilder {
             case "commands":
                 return createCommandsTask(task, taskNameSuffix, taskToken, job);
             case "docker":
-                return createDockerTask(task, taskNameSuffix, taskToken);
+                return createDockerTask(task, taskNameSuffix, taskToken, job);
         }
 
         return new LinkedList<>();
     }
 
-    private List<ScriptTask> createDockerTask(Task task, String taskNameSuffix, String taskToken) {
+    private List<ScriptTask> createDockerTask(Task task, String taskNameSuffix, String taskToken, Job job) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
-        ScriptTask scriptTask = PAFactory.createBashScriptTaskFromFile(task.getName() + taskNameSuffix,
-                                                                       "start_docker_app.sh");
+        ScriptTask scriptTask = PAFactory.createBashScriptTask(task.getName() + "_start" +
+                                                               taskNameSuffix,
+                                                               Utils.getContentWithFileName("export_env_var_script.sh") +
+                                                                               SCRIPTS_SEPARATION_BASH +
+                                                                               Utils.getContentWithFileName("start_docker_app.sh"));
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
+
+        if (!task.getParentTasks().isEmpty()) {
+            //TODO: Taking into consideration multiple parent tasks with multiple communications
+            taskVariablesMap.put("requestedPortName",
+                                 new TaskVariable("requestedPortName",
+                                                  job.findTask(task.getParentTasks().get(0))
+                                                     .getPortsToOpen()
+                                                     .get(0)
+                                                     .getRequestedName()));
+        }
+
         taskVariablesMap.put("INSTANCE_NAME", new TaskVariable("INSTANCE_NAME", task.getTaskId() + "-$PA_JOB_ID"));
         taskVariablesMap.put("DOCKER_IMAGE", new TaskVariable("DOCKER_IMAGE", task.getEnvironment().getDockerImage()));
         taskVariablesMap.put("PORTS", new TaskVariable("PORTS", task.getEnvironment().getPort()));
@@ -215,21 +229,25 @@ public class TaskBuilder {
         String imageId;
         switch (deployment.getPaCloud().getCloudProviderName()) {
             case "aws-ec2":
-                if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getHardwareProviderId())) {
-                    imageId = deployment.getImageProviderId();
+                if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getNode()
+                                                                                          .getNodeCandidate()
+                                                                                          .getHardware()
+                                                                                          .getProviderId())) {
+                    imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
                 } else {
-                    imageId = deployment.getLocationName() + "/" + deployment.getImageProviderId();
+                    imageId = deployment.getNode().getNodeCandidate().getLocation().getName() + "/" +
+                              deployment.getNode().getNodeCandidate().getImage().getProviderId();
                 }
                 break;
             case "openstack":
-                imageId = deployment.getImageProviderId();
+                imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
                 break;
             default:
-                imageId = deployment.getImageProviderId();
+                imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
         }
         String nodeConfigJson = "{\"image\": \"" + imageId + "\", " + "\"vmType\": \"" +
-                                deployment.getHardwareProviderId() + "\", " + "\"nodeTags\": \"" +
-                                deployment.getNodeName();
+                                deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\", " +
+                                "\"nodeTags\": \"" + deployment.getNodeName();
         if (task.getPortsToOpen() == null || task.getPortsToOpen().isEmpty()) {
             nodeConfigJson += "\"}";
         } else {
@@ -245,17 +263,25 @@ public class TaskBuilder {
     private Map<String, TaskVariable> createVariablesMapForAcquiringIAASNode(Task task, Deployment deployment,
             String nodeToken) {
         Map<String, TaskVariable> variablesMap = new HashMap<>();
-        if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getHardwareProviderId())) {
+        if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getNode()
+                                                                                  .getNodeCandidate()
+                                                                                  .getHardware()
+                                                                                  .getProviderId())) {
             variablesMap.put("NS_name",
                              new TaskVariable("NS_name",
                                               PACloud.WHITE_LISTED_NAME_PREFIX +
                                                          deployment.getPaCloud().getNodeSourceNamePrefix() +
-                                                         deployment.getLocationName()));
+                                                         deployment.getNode()
+                                                                   .getNodeCandidate()
+                                                                   .getLocation()
+                                                                   .getName()));
         } else {
             variablesMap.put("NS_name",
                              new TaskVariable("NS_name",
-                                              deployment.getPaCloud().getNodeSourceNamePrefix() +
-                                                         deployment.getLocationName()));
+                                              deployment.getPaCloud().getNodeSourceNamePrefix() + deployment.getNode()
+                                                                                                            .getNodeCandidate()
+                                                                                                            .getLocation()
+                                                                                                            .getName()));
         }
         variablesMap.put("nVMs", new TaskVariable("nVMs", "1", "PA:Integer", false));
         variablesMap.put("synchronous", new TaskVariable("synchronous", "true", "PA:Boolean", false));
@@ -548,17 +574,19 @@ public class TaskBuilder {
                                                               "echo \"No ports to open and not parent tasks. Nothing to be prepared in VM.\"");
         }
 
-        if (task.getInstallation()
-                .getOperatingSystemType()
-                .getOperatingSystemFamily()
-                .toLowerCase(Locale.ROOT)
-                .equals("ubuntu") &&
-            task.getInstallation().getOperatingSystemType().getOperatingSystemVersion() < 2000) {
-            LOGGER.info("Adding apt lock handler script since task: " + task.getName() +
-                        " is meant to be executed in: " +
-                        task.getInstallation().getOperatingSystemType().getOperatingSystemFamily() + " version: " +
-                        task.getInstallation().getOperatingSystemType().getOperatingSystemVersion());
-            prepareInfraTask.setPreScript(PAFactory.createSimpleScriptFromFIle("wait_for_lock_script.sh", "bash"));
+        if (task.getType().equals("commands")) {
+            if (task.getInstallation()
+                    .getOperatingSystemType()
+                    .getOperatingSystemFamily()
+                    .toLowerCase(Locale.ROOT)
+                    .equals("ubuntu") &&
+                task.getInstallation().getOperatingSystemType().getOperatingSystemVersion() < 2000) {
+                LOGGER.info("Adding apt lock handler script since task: " + task.getName() +
+                            " is meant to be executed in: " +
+                            task.getInstallation().getOperatingSystemType().getOperatingSystemFamily() + " version: " +
+                            task.getInstallation().getOperatingSystemType().getOperatingSystemVersion());
+                prepareInfraTask.setPreScript(PAFactory.createSimpleScriptFromFIle("wait_for_lock_script.sh", "bash"));
+            }
         }
 
         prepareInfraTask.setVariables(taskVariablesMap);

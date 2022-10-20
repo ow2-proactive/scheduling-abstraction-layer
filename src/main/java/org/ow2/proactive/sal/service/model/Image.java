@@ -31,8 +31,6 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -76,11 +74,6 @@ public class Image implements Serializable {
     @Column(name = "OWNER")
     @JsonProperty("owner")
     private String owner = null;
-
-    public static void clean() {
-        List<Image> allImages = EntityManagerHelper.createQuery("SELECT i FROM Image i", Image.class).getResultList();
-        allImages.forEach(EntityManagerHelper::remove);
-    }
 
     public Image id(String id) {
         this.id = id;

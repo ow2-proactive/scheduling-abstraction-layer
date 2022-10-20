@@ -26,15 +26,12 @@
 package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.persistence.*;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -60,13 +57,6 @@ public class NodeCandidate implements Serializable {
     @Column(name = "ID")
     @JsonProperty("id")
     private String id = null;
-
-    public static void clean() {
-        List<NodeCandidate> allNodeCandidates = EntityManagerHelper.createQuery("SELECT nc FROM NodeCandidate nc",
-                                                                                NodeCandidate.class)
-                                                                   .getResultList();
-        allNodeCandidates.forEach(EntityManagerHelper::remove);
-    }
 
     /**
      * Gets or Sets nodeCandidateType
@@ -147,6 +137,10 @@ public class NodeCandidate implements Serializable {
     @Column(name = "MEMORY_PRICE")
     @JsonProperty("memoryPrice")
     private Double memoryPrice = null;
+
+    @Column(name = "NODE_ID")
+    @JsonProperty("nodeId")
+    private String nodeId = null;
 
     @Embedded
     @JsonProperty("environment")
@@ -325,6 +319,23 @@ public class NodeCandidate implements Serializable {
         this.memoryPrice = memoryPrice;
     }
 
+    public NodeCandidate nodeId(String nodeId) {
+        this.nodeId = nodeId;
+        return this;
+    }
+
+    /**
+     * Get nodeId
+     * @return nodeId
+     **/
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
     public NodeCandidate environment(Environment environment) {
         this.environment = environment;
         return this;
@@ -370,21 +381,6 @@ public class NodeCandidate implements Serializable {
         }
     }
 
-    /**
-     * Find the first node candidate that
-     * @param hardware A given stored hardware
-     * @return The first found node candidate that uses the given hardware
-     */
-    public static NodeCandidate findFirstNodeCandidateWithHardware(Hardware hardware) {
-        List<NodeCandidate> nodeCandidates = EntityManagerHelper.createQuery("SELECT nc FROM NodeCandidate nc",
-                                                                             NodeCandidate.class)
-                                                                .getResultList();
-        Optional<NodeCandidate> optNodeCandidate = nodeCandidates.stream()
-                                                                 .filter(nodeCandidate -> hardware.equals(nodeCandidate.getHardware()))
-                                                                 .findFirst();
-        return optNodeCandidate.orElse(null);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -404,6 +400,7 @@ public class NodeCandidate implements Serializable {
                Objects.equals(this.location, nodeCandidate.location) &&
                Objects.equals(this.pricePerInvocation, nodeCandidate.pricePerInvocation) &&
                Objects.equals(this.memoryPrice, nodeCandidate.memoryPrice) &&
+               Objects.equals(this.nodeId, nodeCandidate.nodeId) &&
                Objects.equals(this.environment, nodeCandidate.environment);
     }
 
@@ -420,6 +417,7 @@ public class NodeCandidate implements Serializable {
                             location,
                             pricePerInvocation,
                             memoryPrice,
+                            nodeId,
                             environment);
     }
 
@@ -439,6 +437,7 @@ public class NodeCandidate implements Serializable {
         sb.append("    location: ").append(toIndentedString(location)).append("\n");
         sb.append("    pricePerInvocation: ").append(toIndentedString(pricePerInvocation)).append("\n");
         sb.append("    memoryPrice: ").append(toIndentedString(memoryPrice)).append("\n");
+        sb.append("    nodeId: ").append(toIndentedString(nodeId)).append("\n");
         sb.append("    environment: ").append(toIndentedString(environment)).append("\n");
         sb.append("}");
         return sb.toString();

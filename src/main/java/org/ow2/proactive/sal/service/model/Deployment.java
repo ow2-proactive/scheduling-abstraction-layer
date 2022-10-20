@@ -27,10 +27,10 @@ package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.*;
-
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
+import javax.ws.rs.NotSupportedException;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,15 +49,6 @@ public class Deployment implements Serializable {
     @Id
     @Column(name = "NODE_NAME")
     private String nodeName;
-
-    @Column(name = "LOCATION_NAME")
-    private String locationName;
-
-    @Column(name = "IMAGE_PROVIDER_ID")
-    private String imageProviderId;
-
-    @Column(name = "HARDWARE_PROVIDER_ID")
-    private String hardwareProviderId;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private EmsDeploymentRequest emsDeployment;
@@ -87,44 +78,51 @@ public class Deployment implements Serializable {
     @Enumerated(EnumType.STRING)
     private NodeType deploymentType;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    private IaasNode iaasNode;
+
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private ByonNode byonNode;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private EdgeNode edgeNode;
 
-    public static void clean() {
-        List<Deployment> allDeployments = EntityManagerHelper.createQuery("SELECT d FROM Deployment d",
-                                                                          Deployment.class)
-                                                             .getResultList();
-        allDeployments.forEach(EntityManagerHelper::remove);
+    public Node getNode() {
+        switch (deploymentType) {
+            case IAAS:
+                return getIaasNode();
+            case BYON:
+                return getByonNode();
+            case EDGE:
+                return getEdgeNode();
+            default:
+                throw new NotSupportedException(String.format("Deployment type [%s] not supported yet.",
+                                                              deploymentType));
+        }
     }
 
     @Override
     public String toString() {
         switch (deploymentType) {
             case IAAS:
-                return "Deployment{" + "nodeName='" + nodeName + '\'' + ", locationName='" + locationName + '\'' +
-                       ", imageProviderId='" + imageProviderId + '\'' + ", hardwareProviderId='" + hardwareProviderId +
-                       '\'' + ", isDeployed='" + isDeployed.toString() + '\'' + ", instanceId='" + instanceId + '\'' +
-                       ", ipAddress='" + ipAddress + '\'' + ", nodeAccessToken='" + nodeAccessToken + '\'' +
-                       ", number='" + number + '\'' + ", paCloud='" + paCloud.getNodeSourceNamePrefix() + '\'' +
-                       ", task='" + task.getName() + '\'' + ", byonNode='" + byonNode + '\'' + '}';
+                return "Deployment{" + "nodeName='" + nodeName + '\'' + ", isDeployed='" + isDeployed.toString() +
+                       '\'' + ", instanceId='" + instanceId + '\'' + ", ipAddress='" + ipAddress + '\'' +
+                       ", nodeAccessToken='" + nodeAccessToken + '\'' + ", number='" + number + '\'' + ", paCloud='" +
+                       Optional.ofNullable(paCloud).map(PACloud::getNodeSourceNamePrefix).orElse(null) + '\'' +
+                       ", task='" + task.getName() + '\'' + ", iaasNode='" + iaasNode + '\'' + '}';
             case BYON:
-                return "Deployment{" + "nodeName='" + nodeName + '\'' + ", locationName='" + locationName + '\'' +
-                       ", imageProviderId='" + imageProviderId + '\'' + ", hardwareProviderId='" + hardwareProviderId +
-                       '\'' + ", isDeployed='" + isDeployed.toString() + '\'' + ", instanceId='" + instanceId + '\'' +
-                       ", ipAddress='" + ipAddress + '\'' + ", nodeAccessToken='" + nodeAccessToken + '\'' +
-                       ", number='" + number + '\'' + ", paCloud='" + paCloud + '\'' + ", task='" + task.getName() +
-                       '\'' + ", byonNode='" + byonNode.getName() + '\'' + '}';
+                return "Deployment{" + "nodeName='" + nodeName + '\'' + ", isDeployed='" + isDeployed.toString() +
+                       '\'' + ", instanceId='" + instanceId + '\'' + ", ipAddress='" + ipAddress + '\'' +
+                       ", nodeAccessToken='" + nodeAccessToken + '\'' + ", number='" + number + '\'' + ", paCloud='" +
+                       paCloud + '\'' + ", task='" + Optional.ofNullable(task).map(Task::getName).orElse(null) + '\'' +
+                       ", byonNode='" + Optional.ofNullable(byonNode).map(ByonNode::getName).orElse(null) + '\'' + '}';
 
             case EDGE:
-                return "Deployment{" + "nodeName='" + nodeName + '\'' + ", locationName='" + locationName + '\'' +
-                       ", imageProviderId='" + imageProviderId + '\'' + ", hardwareProviderId='" + hardwareProviderId +
-                       '\'' + ", isDeployed='" + isDeployed.toString() + '\'' + ", instanceId='" + instanceId + '\'' +
-                       ", ipAddress='" + ipAddress + '\'' + ", nodeAccessToken='" + nodeAccessToken + '\'' +
-                       ", number='" + number + '\'' + ", paCloud='" + paCloud + '\'' + ", task='" + task.getName() +
-                       '\'' + ", edgeNode='" + edgeNode.getName() + '\'' + '}';
+                return "Deployment{" + "nodeName='" + nodeName + '\'' + ", isDeployed='" + isDeployed.toString() +
+                       '\'' + ", instanceId='" + instanceId + '\'' + ", ipAddress='" + ipAddress + '\'' +
+                       ", nodeAccessToken='" + nodeAccessToken + '\'' + ", number='" + number + '\'' + ", paCloud='" +
+                       paCloud + '\'' + ", task='" + Optional.ofNullable(task).map(Task::getName).orElse(null) + '\'' +
+                       ", edgeNode='" + Optional.ofNullable(edgeNode).map(EdgeNode::getName).orElse(null) + '\'' + '}';
             default:
                 return "Deployment{nodeName='" + nodeName + '}';
         }

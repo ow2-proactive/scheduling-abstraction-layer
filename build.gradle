@@ -1,3 +1,35 @@
+
+apply plugin: 'spring-boot'
+apply plugin: 'com.github.kt3k.coveralls'
+apply from: "$rootDir/gradle/ext/coding-format.gradle"
+apply plugin: "io.spring.dependency-management"
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'jacoco'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'war'
+apply plugin: "application"
+
+group = 'org.ow2.proactive'
+
+// Configure the maven repository deployment
+install {
+    repositories.mavenInstaller {
+        // Set the version
+        pom.version = version
+        // Set the group/namespace for the maven repository deployment.
+        pom.groupId = 'org.ow2.proactive'
+        // Give the artifact a 'base name' (The version is added to the 'base name')
+        pom.artifactId = 'scheduling-abstraction-layer'
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'http://repository.activeeon.com/content/groups/proactive/' }
+}
+
 buildscript {
     repositories {
         mavenCentral()
@@ -19,18 +51,42 @@ buildscript {
     }
 }
 
-apply plugin: 'spring-boot'
-apply plugin: 'com.github.kt3k.coveralls'
-apply from: "$rootDir/gradle/ext/coding-format.gradle"
-apply plugin: "io.spring.dependency-management"
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'jacoco'
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'war'
+allprojects {
+    apply plugin: 'maven'
+    apply plugin: 'project-report'
 
-group = 'org.ow2.proactive'
+    group = 'org.ow2.proactive'
+    version = version
+
+    if (project.hasProperty('ci')) {
+        configurations.all {
+            resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        }
+    }
+
+    configurations.all {
+        resolutionStrategy.force "org.ow2.proactive:sal:${version}"
+    }
+
+    rootProject.buildscript.repositories.each {
+        repositories.add(it)
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                snapshotRepository(url: "http://repository.activeeon.com/content/repositories/snapshots/") {
+                    authentication(userName: "${System.getProperty('nexusUsername')}",
+                            password: "${System.getProperty('nexusPassword')}")
+                }
+                repository(url: "http://repository.activeeon.com/content/repositories/releases/") {
+                    authentication(userName: "${System.getProperty('nexusUsername')}",
+                            password: "${System.getProperty('nexusPassword')}")
+                }
+            }
+        }
+    }
+}
 
 bootRepackage {
     enabled = false
@@ -56,11 +112,6 @@ coveralls {
 
 ext {
     generatedSrcDir = "$projectDir/src/generated/java"
-}
-
-repositories {
-    jcenter()
-    maven { url 'http://repository.activeeon.com/content/groups/proactive/' }
 }
 
 sourceSets {
@@ -94,6 +145,20 @@ springBoot {
 war {
     baseName = "scheduling-abstraction-layer"
     version = version
+    manifest {
+        attributes 'Main-Class': mainClassName
+        attributes 'Class-Path': "."
+    }
+}
+
+jar {
+    baseName = 'scheduling-abstraction-layer'
+    // Version is define in gradle.properties
+    version =  version
+    manifest {
+        attributes 'Main-Class': mainClassName
+        attributes 'Class-Path': "."
+    }
 }
 
 dependencyManagement {
@@ -112,8 +177,13 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.hateoas:spring-hateoas'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    providedRuntime 'org.hsqldb:hsqldb'
+    runtime('org.hibernate:hibernate-hikaricp') {
+        exclude group: 'org.javassist', module: 'javassist'
+    }
 
-    providedCompile 'org.springframework.boot:spring-boot-starter-tomcat'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
     compile 'io.springfox:springfox-spring-web'
     compile 'io.springfox:springfox-swagger2'

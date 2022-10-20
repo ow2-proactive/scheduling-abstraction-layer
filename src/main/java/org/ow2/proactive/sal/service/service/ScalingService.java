@@ -36,7 +36,6 @@ import javax.ws.rs.NotFoundException;
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.UserException;
 import org.ow2.proactive.scheduler.common.job.TaskFlowJob;
@@ -66,6 +65,9 @@ public class ScalingService {
     @Autowired
     private TaskBuilder taskBuilder;
 
+    @Autowired
+    private RepositoryService repositoryService;
+
     /**
      * Register a set of node as an operation for scale up
      * @param sessionId A valid session id
@@ -81,15 +83,15 @@ public class ScalingService {
         }
         Validate.notEmpty(nodeNames, "The provided nodes list should not be empty");
         Validate.notNull(jobId, "The provided jobId should not be null.");
-        EntityManagerHelper.begin();
 
         // Let's find the jobId to retrieve the task
-        Optional<Job> optJob = Optional.ofNullable(EntityManagerHelper.find(Job.class, jobId));
+        Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
             return false;
         }
-        EntityManagerHelper.refresh(optJob.get());
+        //        No way to refresh the DB entry
+        //        EntityManagerHelper.refresh(optJob.get());
 
         // Let's find the task:
         Optional<Task> optTask = Optional.ofNullable(optJob.get().findTask(taskName));
@@ -109,18 +111,17 @@ public class ScalingService {
 
         // Let's clone the deployment/node as needed
         Deployment oldDeployment = optTask.get().getDeployments().get(0);
-        if (NodeType.BYON.equals(oldDeployment.getDeploymentType())) {
-            LOGGER.error(String.format("The previous deployment is a BYON node [%s] ", oldDeployment));
+        if (NodeType.BYON.equals(oldDeployment.getDeploymentType()) ||
+            NodeType.EDGE.equals(oldDeployment.getDeploymentType())) {
+            LOGGER.error(String.format("The previous deployment is a BYON/EDGE node [%s] ", oldDeployment));
             return false;
         }
         nodeNames.stream().map(nodeName -> {
             EmsDeploymentRequest newEmsDeploymentReq = oldDeployment.getEmsDeployment() == null ? null
                                                                                                 : oldDeployment.getEmsDeployment()
                                                                                                                .clone(nodeName);
+            oldDeployment.getIaasNode().incDeployedNodes(1L);
             return new Deployment(nodeName,
-                                  oldDeployment.getLocationName(),
-                                  oldDeployment.getImageProviderId(),
-                                  oldDeployment.getHardwareProviderId(),
                                   newEmsDeploymentReq,
                                   oldDeployment.getPaCloud(),
                                   oldDeployment.getTask(),
@@ -130,6 +131,7 @@ public class ScalingService {
                                   null,
                                   null,
                                   NodeType.IAAS,
+                                  oldDeployment.getIaasNode(),
                                   null,
                                   null);
         }).forEach(deployment -> {
@@ -138,15 +140,16 @@ public class ScalingService {
             newNodesNumbers.add(optTask.get().getNextDeploymentID());
             optTask.get().addDeployment(deployment);
             if (deployment.getEmsDeployment() != null) {
-                EntityManagerHelper.persist(deployment.getEmsDeployment());
+                repositoryService.updateEmsDeploymentRequest(deployment.getEmsDeployment());
             }
             deployment.getPaCloud().addDeployment(deployment);
-            EntityManagerHelper.persist(deployment);
-            EntityManagerHelper.persist(optTask.get());
-            EntityManagerHelper.persist(deployment.getPaCloud());
+            repositoryService.updateDeployment(deployment);
+            repositoryService.updateTask(optTask.get());
+            repositoryService.updateNode(deployment.getNode());
+            repositoryService.updatePACloud(deployment.getPaCloud());
         });
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
 
         // Let's deploy the VMS
         submitScalingOutJob(optJob.get(), taskName, newNodesNumbers);
@@ -155,21 +158,20 @@ public class ScalingService {
     }
 
     private void submitScalingOutJob(Job job, String scaledTaskName, List<Long> newNodesNumbers) {
-        EntityManagerHelper.refresh(job);
+        //        No way to refresh the DB entry
+        //        EntityManagerHelper.refresh(job);
         LOGGER.info("Task: " + scaledTaskName + " of job " + job.toString() + " to be scaled out.");
 
         TaskFlowJob paJob = new TaskFlowJob();
         paJob.setName(job.getName() + "_" + scaledTaskName + "_ScaleOut");
         LOGGER.info("Job created: " + paJob.toString());
 
-        EntityManagerHelper.begin();
-
         job.getTasks().forEach(task -> {
             List<ScriptTask> scriptTasks = taskBuilder.buildScalingOutPATask(task, job, scaledTaskName);
 
             if (scriptTasks != null && !scriptTasks.isEmpty()) {
                 addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-                EntityManagerHelper.persist(task);
+                repositoryService.updateTask(task);
             }
         });
 
@@ -182,8 +184,8 @@ public class ScalingService {
         job.setSubmittedJobId(submittedJobId);
         job.setSubmittedJobType(SubmittedJobType.SCALE_OUT);
 
-        EntityManagerHelper.persist(job);
-        EntityManagerHelper.commit();
+        repositoryService.updateJob(job);
+        repositoryService.flush();
         LOGGER.info("Scaling out of task \'" + scaledTaskName + "\' job, submitted successfully. ID = " +
                     submittedJobId);
     }
@@ -264,15 +266,15 @@ public class ScalingService {
         }
         Validate.notEmpty(nodeNames, "The provided nodes list should not be empty");
         Validate.notNull(jobId, "The provided jobId should not be null.");
-        EntityManagerHelper.begin();
 
         // Let's find the jobId to retrieve the task
-        Optional<Job> optJob = Optional.ofNullable(EntityManagerHelper.find(Job.class, jobId));
+        Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
             throw new NotFoundException("Job " + jobId + " not found");
         }
-        EntityManagerHelper.refresh(optJob.get());
+        //        No way to refresh the DB entry
+        //        EntityManagerHelper.refresh(optJob.get());
 
         // Let's find the task:
         Optional<Task> optTask = Optional.ofNullable(optJob.get().findTask(taskName));
@@ -289,14 +291,15 @@ public class ScalingService {
 
         // For supplied node, I retrieve their deployment
         List<Deployment> deployments = nodeNames.stream()
-                                                .map(node -> EntityManagerHelper.find(Deployment.class, node))
+                                                .map(node -> repositoryService.getDeployment(node))
                                                 .filter(Objects::nonNull)
                                                 .collect(Collectors.toList());
 
         deployments = deployments.stream().filter(deployment -> {
-            if (NodeType.BYON.equals(deployment.getDeploymentType())) {
+            if (NodeType.BYON.equals(deployment.getDeploymentType()) ||
+                NodeType.EDGE.equals(deployment.getDeploymentType())) {
                 LOGGER.warn("Deployment " + deployment.getNodeName() +
-                            " is a BYON node and can't be removed in scaling in.");
+                            " is a BYON/EDGE node and can't be removed in scaling in.");
                 return false;
             }
             return true;
@@ -312,15 +315,17 @@ public class ScalingService {
         // For every node, I remove the deployment entree
         deployments.forEach(deployment -> {
             deployment.getTask().removeDeployment(deployment);
-            EntityManagerHelper.persist(deployment.getTask());
+            repositoryService.updateTask(deployment.getTask());
             deployment.getPaCloud().removeDeployment(deployment);
-            EntityManagerHelper.persist(deployment.getPaCloud());
-            EntityManagerHelper.remove(deployment);
+            repositoryService.updatePACloud(deployment.getPaCloud());
+            deployment.getIaasNode().decDeployedNodes(1L);
+            repositoryService.updateIaasNode(deployment.getIaasNode());
+            repositoryService.deleteDeployment(deployment);
         });
         // I commit the removal of deployed node
         nodeService.removeNodes(sessionId, nodesToBeRemoved, true);
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
 
         // Let's deploy the VMS
         submitScalingInJob(optJob.get(), taskName);
@@ -329,21 +334,20 @@ public class ScalingService {
     }
 
     private void submitScalingInJob(Job job, String scaledTaskName) {
-        EntityManagerHelper.refresh(job);
+        //        No way to refresh the DB entry
+        //        EntityManagerHelper.refresh(job);
         LOGGER.info("Task: " + scaledTaskName + " of job " + job.toString() + " to be scaled in.");
 
         TaskFlowJob paJob = new TaskFlowJob();
         paJob.setName(job.getName() + "_" + scaledTaskName + "_ScaleIn");
         LOGGER.info("Job created: " + paJob.toString());
 
-        EntityManagerHelper.begin();
-
         job.getTasks().forEach(task -> {
             List<ScriptTask> scriptTasks = taskBuilder.buildScalingInPATask(task, job, scaledTaskName);
 
             if (scriptTasks != null && !scriptTasks.isEmpty()) {
                 addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-                EntityManagerHelper.persist(task);
+                repositoryService.updateTask(task);
             }
         });
 
@@ -356,8 +360,8 @@ public class ScalingService {
         job.setSubmittedJobId(submittedJobId);
         job.setSubmittedJobType(SubmittedJobType.SCALE_IN);
 
-        EntityManagerHelper.persist(job);
-        EntityManagerHelper.commit();
+        repositoryService.updateJob(job);
+        repositoryService.flush();
         LOGGER.info("Scaling out of task \'" + scaledTaskName + "\' job, submitted successfully. ID = " +
                     submittedJobId);
     }

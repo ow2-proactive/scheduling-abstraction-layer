@@ -44,9 +44,9 @@ import org.ow2.proactive.sal.service.model.Deployment;
 import org.ow2.proactive.sal.service.model.IpAddress;
 import org.ow2.proactive.sal.service.model.IpAddressType;
 import org.ow2.proactive.sal.service.model.IpVersion;
+import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.sal.service.service.ServiceConfiguration;
 import org.ow2.proactive.sal.service.service.application.PAFactory;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.sal.service.util.RMConnectionHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.UserException;
@@ -56,6 +56,7 @@ import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive_grid_cloud_portal.common.RMRestInterface;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestException;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.RestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,9 @@ public class PAResourceManagerGateway {
     private String username;
 
     private String password;
+
+    @Autowired
+    private RepositoryService repositoryService;
 
     /**
      * Get, in an asynchronous way, deployed nodes names
@@ -425,9 +429,8 @@ public class PAResourceManagerGateway {
     }
 
     public void synchronizeDeploymentsIPAddresses(PASchedulerGateway schedulerGateway) {
-        List<Deployment> deployments = EntityManagerHelper.createQuery("SELECT d FROM Deployment d", Deployment.class)
-                                                          .getResultList();
-        EntityManagerHelper.begin();
+        List<Deployment> deployments = repositoryService.listDeployments();
+
         deployments.parallelStream().forEach(deployment -> {
             if (deployment.getIsDeployed()) {
                 try {
@@ -457,7 +460,7 @@ public class PAResourceManagerGateway {
                                                                     publicIPAddr);
                                 LOGGER.info("ipAddress: " + ipAddress.toString());
                                 deployment.setIpAddress(ipAddress);
-                                EntityManagerHelper.persist(deployment);
+                                repositoryService.updateDeployment(deployment);
                             }
                         } else {
                             LOGGER.warn("The node " + deployment.getNodeName() + " is not reachable in RM.");
@@ -475,7 +478,7 @@ public class PAResourceManagerGateway {
                 }
             }
         });
-        EntityManagerHelper.commit();
+        repositoryService.flush();
     }
 
     private TaskFlowJob createIPAddrGetterWorkflow(Deployment deployment) {
@@ -497,9 +500,8 @@ public class PAResourceManagerGateway {
     }
 
     public void synchronizeDeploymentsInstanceIDs() {
-        List<Deployment> deployments = EntityManagerHelper.createQuery("SELECT d FROM Deployment d", Deployment.class)
-                                                          .getResultList();
-        EntityManagerHelper.begin();
+        List<Deployment> deployments = repositoryService.listDeployments();
+
         deployments.parallelStream().forEach(deployment -> {
             if (deployment.getIsDeployed()) {
                 try {
@@ -511,7 +513,7 @@ public class PAResourceManagerGateway {
                         if (!nodeURLs.isEmpty()) {
                             String instanceId = nodeURLs.get(0).substring(nodeURLs.get(0).lastIndexOf("__") + 2);
                             deployment.setInstanceId(instanceId);
-                            EntityManagerHelper.persist(deployment);
+                            repositoryService.updateDeployment(deployment);
                             LOGGER.info("Deployment " + deployment.getNodeName() + "instance ID set to: " + instanceId);
                         } else {
                             LOGGER.warn("The node " + deployment.getNodeName() + " is not reachable in RM.");
@@ -526,7 +528,7 @@ public class PAResourceManagerGateway {
                 }
             }
         });
-        EntityManagerHelper.commit();
+        repositoryService.flush();
     }
 
     /**

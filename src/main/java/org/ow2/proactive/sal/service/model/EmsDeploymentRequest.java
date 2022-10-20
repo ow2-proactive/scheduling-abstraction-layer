@@ -34,7 +34,6 @@ import java.util.Map;
 import javax.persistence.*;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.scheduler.common.task.TaskVariable;
 
 import lombok.*;
@@ -48,13 +47,6 @@ import lombok.*;
 @Entity
 @Table(name = "EMSDEPLOYMENTREQUEST")
 public class EmsDeploymentRequest implements Serializable {
-
-    public static void clean() {
-        List<EmsDeploymentRequest> allEmsDeploymentRequests = EntityManagerHelper.createQuery("SELECT emsdr FROM EmsDeploymentRequest emsdr",
-                                                                                              EmsDeploymentRequest.class)
-                                                                                 .getResultList();
-        allEmsDeploymentRequests.forEach(EntityManagerHelper::remove);
-    }
 
     public enum TargetType {
         vm("IAAS"),
@@ -122,13 +114,12 @@ public class EmsDeploymentRequest implements Serializable {
     @Column(name = "BAGUETTEPORT")
     private int baguette_port;
 
-    @Column(name = "TARGETOS")
-    @Enumerated(EnumType.STRING)
-    private OperatingSystemFamily targetOs;
-
     @Column(name = "TARGETTYPE")
     @Enumerated(EnumType.STRING)
     private TargetType targetType;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    private NodeCandidate targetNodeCandidate;
 
     @Column(name = "TARGETNAME")
     private String targetName;
@@ -137,8 +128,8 @@ public class EmsDeploymentRequest implements Serializable {
     @Enumerated(EnumType.STRING)
     private TargetProvider targetProvider;
 
-    @Column(name = "LOCATION")
-    private String location;
+    @Column(name = "TARGETOPENPORTS")
+    private String targetOpenPorts;
 
     @Column(name = "ISUSINGHTTP")
     private boolean isUsingHttps;
@@ -147,31 +138,31 @@ public class EmsDeploymentRequest implements Serializable {
     private String nodeId;
 
     private EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port,
-            OperatingSystemFamily targetOs, TargetType targetType, String targetName, TargetProvider targetProvider,
-            String location, boolean isUsingHttps, String id) {
+            TargetType targetType, NodeCandidate targetNodeCandidate, String targetName, TargetProvider targetProvider,
+            String targetOpenPorts, boolean isUsingHttps, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
         this.baguette_port = baguette_port;
-        this.targetOs = targetOs;
         this.targetType = targetType;
+        this.targetNodeCandidate = targetNodeCandidate;
         this.targetName = targetName;
         this.targetProvider = targetProvider;
-        this.location = location;
+        this.targetOpenPorts = targetOpenPorts;
         this.isUsingHttps = isUsingHttps;
         this.nodeId = id;
     }
 
-    public EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port,
-            OperatingSystemFamily targetOs, String targetType, String targetName, TargetProvider targetProvider,
-            String location, boolean isUsingHttps, String id) {
+    public EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port, String targetType,
+            NodeCandidate targetNodeCandidate, String targetName, TargetProvider targetProvider, String targetOpenPorts,
+            boolean isUsingHttps, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
         this.baguette_port = baguette_port;
-        this.targetOs = targetOs;
         this.targetType = TargetType.fromValue(targetType);
+        this.targetNodeCandidate = targetNodeCandidate;
         this.targetName = targetName;
         this.targetProvider = targetProvider;
-        this.location = location;
+        this.targetOpenPorts = targetOpenPorts;
         this.isUsingHttps = isUsingHttps;
         this.nodeId = id;
     }
@@ -184,13 +175,82 @@ public class EmsDeploymentRequest implements Serializable {
         Map<String, TaskVariable> result = new HashMap<>();
         result.put("authorization_bearer",
                    new TaskVariable("authorization_bearer", this.authorizationBearer, "", false));
-        result.put("baguette_ip", new TaskVariable("baguette_ip", baguetteIp.toString(), "", false));
+        result.put("baguette_ip", new TaskVariable("baguette_ip", baguetteIp, "", false));
         result.put("baguette_port", new TaskVariable("baguette_port", String.valueOf(baguette_port), "", false));
-        result.put("target_operating_system", new TaskVariable("target_operating_system", targetOs.name(), "", false));
+        result.put("target_os_name",
+                   new TaskVariable("target_os_name",
+                                    targetNodeCandidate.getImage()
+                                                       .getOperatingSystem()
+                                                       .getOperatingSystemFamily()
+                                                       .name(),
+                                    "",
+                                    false));
+        result.put("target_os_family",
+                   new TaskVariable("target_os_family",
+                                    targetNodeCandidate.getImage()
+                                                       .getOperatingSystem()
+                                                       .getOperatingSystemFamily()
+                                                       .name(),
+                                    "",
+                                    false));
+        result.put("target_os_version",
+                   new TaskVariable("target_os_version",
+                                    targetNodeCandidate.getImage()
+                                                       .getOperatingSystem()
+                                                       .getOperatingSystemVersion()
+                                                       .toString(),
+                                    "",
+                                    false));
+        result.put("target_os_arch",
+                   new TaskVariable("target_os_arch",
+                                    targetNodeCandidate.getImage()
+                                                       .getOperatingSystem()
+                                                       .getOperatingSystemArchitecture()
+                                                       .toString(),
+                                    "",
+                                    false));
         result.put("target_type", new TaskVariable("target_type", targetType.name(), "", false));
         result.put("target_name", new TaskVariable("target_name", targetName, "", false));
+        result.put("target_hdw_cores",
+                   new TaskVariable("target_hdw_cores",
+                                    targetNodeCandidate.getHardware().getCores().toString(),
+                                    "",
+                                    false));
+        result.put("target_hdw_memory",
+                   new TaskVariable("target_hdw_memory",
+                                    targetNodeCandidate.getHardware().getRam().toString(),
+                                    "",
+                                    false));
+        result.put("target_hdw_disk",
+                   new TaskVariable("target_hdw_disk",
+                                    targetNodeCandidate.getHardware().getDisk().toString(),
+                                    "",
+                                    false));
         result.put("target_provider", new TaskVariable("target_provider", targetProvider.name(), "", false));
-        result.put("location", new TaskVariable("location", location, "", false));
+        result.put("target_open_ports", new TaskVariable("target_open_ports", targetOpenPorts, "", false));
+        result.put("target_image_id",
+                   new TaskVariable("target_image_id", targetNodeCandidate.getImage().getProviderId(), "", false));
+        result.put("region", new TaskVariable("region", targetNodeCandidate.getLocation().getName(), "", false));
+        result.put("location_country",
+                   new TaskVariable("location_country",
+                                    targetNodeCandidate.getLocation().getGeoLocation().getCountry(),
+                                    "",
+                                    false));
+        result.put("location_city",
+                   new TaskVariable("location_city",
+                                    targetNodeCandidate.getLocation().getGeoLocation().getCity(),
+                                    "",
+                                    false));
+        result.put("location_longitude",
+                   new TaskVariable("location_longitude",
+                                    targetNodeCandidate.getLocation().getGeoLocation().getLongitude().toString(),
+                                    "",
+                                    false));
+        result.put("location_latitude",
+                   new TaskVariable("location_latitude",
+                                    targetNodeCandidate.getLocation().getGeoLocation().getLatitude().toString(),
+                                    "",
+                                    false));
         result.put("using_https", new TaskVariable("using_https", isUsingHttps + "", "PA:Boolean", false));
         result.put("id", new TaskVariable("id", nodeId, "", false));
         return result;
@@ -200,11 +260,11 @@ public class EmsDeploymentRequest implements Serializable {
         EmsDeploymentRequest req = new EmsDeploymentRequest(authorizationBearer,
                                                             baguetteIp,
                                                             baguette_port,
-                                                            targetOs,
                                                             targetType,
+                                                            targetNodeCandidate,
                                                             targetName,
                                                             targetProvider,
-                                                            location,
+                                                            targetOpenPorts,
                                                             isUsingHttps,
                                                             nodeId);
         return req;
