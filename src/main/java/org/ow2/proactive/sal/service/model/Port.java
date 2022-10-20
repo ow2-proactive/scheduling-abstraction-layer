@@ -30,8 +30,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.*;
@@ -49,7 +47,7 @@ public class Port implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
     @Column(name = "PORT_ID")
-    private int portId;
+    private Integer portId;
 
     @Column(name = "VALUE")
     private Integer value;
@@ -66,8 +64,4 @@ public class Port implements Serializable {
         }
     }
 
-    public static void clean() {
-        List<Port> allPorts = EntityManagerHelper.createQuery("SELECT p FROM Port p", Port.class).getResultList();
-        allPorts.forEach(EntityManagerHelper::remove);
-    }
 }

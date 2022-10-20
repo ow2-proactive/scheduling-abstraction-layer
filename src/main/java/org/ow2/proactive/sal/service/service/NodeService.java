@@ -37,7 +37,6 @@ import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.sal.service.util.TemporaryFilesHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.job.JobId;
@@ -64,6 +63,9 @@ public class NodeService {
     @Autowired
     private ServiceConfiguration serviceConfiguration;
 
+    @Autowired
+    private RepositoryService repositoryService;
+
     /**
      * Add nodes to the tasks of a defined job
      * @param sessionId A valid session id
@@ -78,55 +80,82 @@ public class NodeService {
         }
         Validate.notNull(nodes, "The received nodes structure is empty. Nothing to be created.");
 
-        EntityManagerHelper.begin();
-
         nodes.forEach(node -> {
             Deployment newDeployment = new Deployment();
-            JSONObject nodeCandidateInfo = node.optJSONObject("nodeCandidateInformation");
             newDeployment.setNodeName(node.optString("nodeName"));
             newDeployment.setDeploymentType(NodeType.IAAS);
-            newDeployment.setLocationName(nodeCandidateInfo.optString("locationName"));
-            newDeployment.setImageProviderId(nodeCandidateInfo.optString("imageProviderId"));
-            newDeployment.setHardwareProviderId(nodeCandidateInfo.optString("hardwareProviderId"));
 
-            PACloud cloud = EntityManagerHelper.find(PACloud.class, nodeCandidateInfo.optString("cloudID"));
+            LOGGER.info("Trying to retrieve node candidate and related iaas node: " +
+                        node.optString("nodeCandidateId"));
+            NodeCandidate nodeCandidate = repositoryService.getNodeCandidate(node.optString("nodeCandidateId"));
+            if (nodeCandidate == null) {
+                LOGGER.error("Node candidate [{}] does not exist.", node.optString("nodeCandidateId"));
+                throw new IllegalArgumentException(String.format("NodeCandidateID [%s] not valid.",
+                                                                 node.optString("nodeCandidateId")));
+            }
+            IaasNode iaasNode = repositoryService.getIaasNode(nodeCandidate.getNodeId());
+
+            newDeployment.setIaasNode(iaasNode);
+            iaasNode.incDeployedNodes(1L);
+            repositoryService.updateIaasNode(iaasNode);
+
+            PACloud cloud = repositoryService.getPACloud(node.optString("cloudID"));
             cloud.addDeployment(newDeployment);
-            if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(newDeployment.getHardwareProviderId())) {
-                if (!cloud.isWhiteListedRegionDeployed(newDeployment.getLocationName())) {
+            if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(newDeployment.getNode()
+                                                                                         .getNodeCandidate()
+                                                                                         .getHardware()
+                                                                                         .getProviderId())) {
+                if (!cloud.isWhiteListedRegionDeployed(newDeployment.getNode()
+                                                                    .getNodeCandidate()
+                                                                    .getLocation()
+                                                                    .getName())) {
                     String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() +
-                                            newDeployment.getLocationName();
+                                            newDeployment.getNode().getNodeCandidate().getLocation().getName();
                     this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
-                    cloud.addWhiteListedDeployedRegion(newDeployment.getLocationName(),
-                                                       newDeployment.getImageProviderId());
+                    cloud.addWhiteListedDeployedRegion(newDeployment.getNode()
+                                                                    .getNodeCandidate()
+                                                                    .getLocation()
+                                                                    .getName(),
+                                                       newDeployment.getNode()
+                                                                    .getNodeCandidate()
+                                                                    .getImage()
+                                                                    .getProviderId());
                 }
             } else {
-                if (!cloud.isRegionDeployed(newDeployment.getLocationName())) {
-                    String nodeSourceName = cloud.getNodeSourceNamePrefix() + newDeployment.getLocationName();
+                if (!cloud.isRegionDeployed(newDeployment.getNode().getNodeCandidate().getLocation().getName())) {
+                    String nodeSourceName = cloud.getNodeSourceNamePrefix() +
+                                            newDeployment.getNode().getNodeCandidate().getLocation().getName();
                     this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
-                    cloud.addDeployedRegion(newDeployment.getLocationName(),
-                                            newDeployment.getLocationName() + "/" + newDeployment.getImageProviderId());
+                    cloud.addDeployedRegion(newDeployment.getNode().getNodeCandidate().getLocation().getName(),
+                                            newDeployment.getNode()
+                                                         .getNodeCandidate()
+                                                         .getLocation()
+                                                         .getName() + "/" + newDeployment.getNode()
+                                                                                         .getNodeCandidate()
+                                                                                         .getImage()
+                                                                                         .getProviderId());
                 }
             }
 
             LOGGER.info("Node source defined.");
 
             LOGGER.info("Trying to retrieve task: " + node.optString("taskName"));
-            Task task = EntityManagerHelper.find(Job.class, jobId).findTask(node.optString("taskName"));
+            Task task = repositoryService.getJob(jobId).findTask(node.optString("taskName"));
 
             newDeployment.setPaCloud(cloud);
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
-            EntityManagerHelper.persist(newDeployment);
+            repositoryService.updateDeployment(newDeployment);
             LOGGER.debug("Deployment created: " + newDeployment.toString());
 
-            EntityManagerHelper.persist(cloud);
+            repositoryService.updatePACloud(cloud);
             LOGGER.info("Deployment added to the related cloud: " + cloud.toString());
 
             task.addDeployment(newDeployment);
-            EntityManagerHelper.persist(task);
+            repositoryService.updateTask(task);
         });
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
 
         LOGGER.info("Nodes added properly.");
 
@@ -154,15 +183,19 @@ public class NodeService {
         } catch (MalformedURLException e) {
             LOGGER.error("MalformedURLException: ", e);
         }
-        if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getHardwareProviderId())) {
+        if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getNode()
+                                                                                  .getNodeCandidate()
+                                                                                  .getHardware()
+                                                                                  .getProviderId())) {
             switch (cloud.getCloudProviderName()) {
                 case "aws-ec2":
                     filename = File.separator + "Define_NS_AWS_AutoScale.xml";
                     variables.put("aws_username", cloud.getCredentials().getUserName());
                     variables.put("aws_secret", cloud.getCredentials().getPrivateKey());
-                    variables.put("image", deployment.getImageProviderId());
-                    variables.put("instance_type", deployment.getHardwareProviderId());
-                    variables.put("region", deployment.getLocationName());
+                    variables.put("image", deployment.getNode().getNodeCandidate().getImage().getProviderId());
+                    variables.put("instance_type",
+                                  deployment.getNode().getNodeCandidate().getHardware().getProviderId());
+                    variables.put("region", deployment.getNode().getNodeCandidate().getLocation().getName());
                     variables.put("subnet", cloud.getSubnet());
                     break;
                 default:
@@ -171,7 +204,9 @@ public class NodeService {
             }
         } else {
             variables.put("NS_nVMs", "0");
-            variables.put("image", deployment.getLocationName() + File.separator + deployment.getImageProviderId());
+            variables.put("image",
+                          deployment.getNode().getNodeCandidate().getLocation().getName() + File.separator +
+                                   deployment.getNode().getNodeCandidate().getImage().getProviderId());
             switch (cloud.getCloudProviderName()) {
                 case "aws-ec2":
                     filename = File.separator + "Define_NS_AWS.xml";
@@ -188,7 +223,7 @@ public class NodeService {
                     variables.put("os_username", cloud.getCredentials().getUserName());
                     variables.put("os_password", cloud.getCredentials().getPrivateKey());
                     variables.put("os_domain", cloud.getCredentials().getDomain());
-                    variables.put("os_region", deployment.getLocationName());
+                    variables.put("os_region", deployment.getNode().getNodeCandidate().getLocation().getName());
                     variables.put("os_networkId", cloud.getDefaultNetwork());
                     break;
                 default:
@@ -222,7 +257,7 @@ public class NodeService {
         }
         resourceManagerGateway.synchronizeDeploymentsIPAddresses(schedulerGateway);
         resourceManagerGateway.synchronizeDeploymentsInstanceIDs();
-        return EntityManagerHelper.createQuery("SELECT d FROM Deployment d", Deployment.class).getResultList();
+        return repositoryService.listDeployments();
     }
 
     /**

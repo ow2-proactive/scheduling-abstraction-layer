@@ -23,32 +23,33 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.service;
+package org.ow2.proactive.sal.service.util;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import java.lang.annotation.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.context.annotation.Import;
 
 
-@Configuration
-@PropertySource(value = "classpath:local.run.application.properties", ignoreResourceNotFound = true)
-@Getter
-@Setter
-public class ServiceConfiguration {
+/**
+ * Allows to override the entity scan root
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import(EntityScanRootRegistrar.class)
+public @interface EntityScanRoot {
 
-    public static final int MAX_CONNECTION_RETRIES = 10;
+    /**
+     * Override the default entity scan root ("classpath:") to a more accurate path.
+     * This expression is parsed by a PathMatchingResourcePatternResolver.
+     *
+     * Supports wild card notation e.g. classpath*:path/somejar*.jar. The wildcard must return a single resource
+     *
+     * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver#getResource(String)
+     * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver#getResources(String)
+     *
+     * @return the entity scan classpath string
+     */
+    String value() default "classpath:";
 
-    public static final int INTERVAL = 10000;
-
-    @Value("${pa.url}")
-    private String paUrl;
-
-    @Value("${pa.login}")
-    private String paLogin;
-
-    @Value("${pa.password}")
-    private String paPassword;
 }

@@ -30,8 +30,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
-
 import lombok.*;
 
 
@@ -46,7 +44,7 @@ public class Credentials implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "CREDENTIALS_ID")
-    private int credentialsId;
+    private Integer credentialsId;
 
     @Column(name = "USER_NAME")
     private String userName;
@@ -63,10 +61,4 @@ public class Credentials implements Serializable {
     @Column(name = "DOMAIN")
     private String domain;
 
-    public static void clean() {
-        List<Credentials> allCredentials = EntityManagerHelper.createQuery("SELECT c FROM Credentials c",
-                                                                           Credentials.class)
-                                                              .getResultList();
-        allCredentials.forEach(EntityManagerHelper::remove);
-    }
 }

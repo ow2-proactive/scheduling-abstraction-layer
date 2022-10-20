@@ -25,15 +25,11 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.*;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -52,13 +48,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "BYON_NODE")
-public class ByonNode implements Serializable {
-    @Id
-    @GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    @Column(name = "ID")
-    @JsonProperty("id")
-    private String id = null;
+public class ByonNode extends AbstractNode {
 
     @Column(name = "NAME")
     @JsonProperty("name")
@@ -83,9 +73,6 @@ public class ByonNode implements Serializable {
     @JsonProperty("diagnostic")
     private String diagnostic = null;
 
-    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
-    private NodeCandidate nodeCandidate = null;
-
     @Column(name = "USER_ID")
     @JsonProperty("userId")
     private String userId = null;
@@ -97,12 +84,6 @@ public class ByonNode implements Serializable {
     @Column(name = "JOB_ID")
     @JsonProperty("jobId")
     private String jobId;
-
-    public static void clean() {
-        List<ByonNode> allByonNodes = EntityManagerHelper.createQuery("SELECT bn FROM ByonNode bn", ByonNode.class)
-                                                         .getResultList();
-        allByonNodes.forEach(EntityManagerHelper::remove);
-    }
 
     public ByonNode name(String name) {
         this.name = name;

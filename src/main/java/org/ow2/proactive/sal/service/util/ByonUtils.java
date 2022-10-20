@@ -34,6 +34,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestException;
@@ -49,15 +50,21 @@ public class ByonUtils {
 
     private static PAResourceManagerGateway resourceManagerGateway;
 
+    private static RepositoryService repositoryService;
+
     @Autowired
     private PAResourceManagerGateway tempResourceManagerGateway;
+
+    @Autowired
+    private RepositoryService tempRepositoryService;
 
     private ByonUtils() {
     }
 
     @PostConstruct
-    private void initStaticRMGateway() {
+    private void initStaticAttributes() {
         resourceManagerGateway = this.tempResourceManagerGateway;
+        repositoryService = this.tempRepositoryService;
     }
 
     static final int MAX_CONNECTION_RETRIES = 10;
@@ -70,18 +77,17 @@ public class ByonUtils {
      * @param nodeType a String of the node type (byon or edge)
      * @return an object of class NodeCandidate
      */
-    public static NodeCandidate createNodeCandidate(NodeProperties np, String jobId, String nodeType) {
-        EntityManagerHelper.begin();
+    public static NodeCandidate createNodeCandidate(NodeProperties np, String jobId, String nodeType, String nodeId) {
         LOGGER.debug("Creating the {} node candidate ...", nodeType.toUpperCase());
         //Start by setting the universal nodes properties
         NodeCandidate nc = new NodeCandidate();
         nc.setPrice(0.0);
         nc.setMemoryPrice(0.0);
         nc.setPricePerInvocation(0.0);
+        nc.setNodeId(nodeId);
 
         //create a dummy cloud definition for BYON nodes
-        Cloud dummyCloud = new Cloud();
-        dummyCloud = ByonUtils.getOrCreateDummyCloud(nodeType);
+        Cloud dummyCloud = ByonUtils.getOrCreateDummyCloud(nodeType);
         //Create a dummy image
         Image image = new Image();
         image.setOperatingSystem(np.getOperatingSystem());
@@ -97,16 +103,13 @@ public class ByonUtils {
         //Define the properties that depend on the node type
 
         if (nodeType.equals("byon")) {
-            String bid = RandomStringUtils.randomAlphanumeric(16);
-            //set the image id
-            image.setId("byon-image-" + bid);
-            //set the image Name
-            image.setName("byon-image-name-" + np.getOperatingSystem().getOperatingSystemFamily() + "-" +
-                          np.getOperatingSystem().getOperatingSystemArchitecture());
+
+            //set the image name
+            image.setId("byon-image-" + RandomStringUtils.randomAlphanumeric(16));
             //set the hardware
-            hardware.setId("byon-hardware-" + bid);
+            hardware.setId("byon-hardware-" + RandomStringUtils.randomAlphanumeric(16));
             //set the location
-            location.setId("byon-location-" + bid);
+            location.setId("byon-location-" + RandomStringUtils.randomAlphanumeric(16));
             //set the nc parameters
             nc.setNodeCandidateType(NodeCandidate.NodeCandidateTypeEnum.BYON);
             // set the nc jobIdForBYON
@@ -114,16 +117,13 @@ public class ByonUtils {
             // set the nc jobIdForEDGE
             nc.setJobIdForEDGE(null);
         } else { //the node type is EDGE
-            String eid = RandomStringUtils.randomAlphanumeric(16);
-            //set the image id
-            image.setId("edge-image-" + eid);
-            //set the image Name
-            image.setName("edge-image-name-" + np.getOperatingSystem().getOperatingSystemFamily() + "-" +
-                          np.getOperatingSystem().getOperatingSystemArchitecture());
+
+            //set the image name
+            image.setId("edge-image-" + RandomStringUtils.randomAlphanumeric(16));
             //set the hardware
-            hardware.setId("edge-hardware-" + eid);
+            hardware.setId("edge-hardware-" + RandomStringUtils.randomAlphanumeric(16));
             //set the location
-            location.setId("edge-location-" + eid);
+            location.setId("edge-location-" + RandomStringUtils.randomAlphanumeric(16));
             //set the nc parameters
             nc.setNodeCandidateType(NodeCandidate.NodeCandidateTypeEnum.EDGE);
             // set the nc jobIdForBYON
@@ -136,7 +136,7 @@ public class ByonUtils {
         nc.setImage(image);
         nc.setHardware(hardware);
         nc.setLocation(location);
-        EntityManagerHelper.persist(nc);
+        repositoryService.updateNodeCandidate(nc);
         LOGGER.info("{} node candidate created.", nodeType.toUpperCase());
         return nc;
     }
@@ -147,9 +147,8 @@ public class ByonUtils {
      */
     public static Cloud getOrCreateDummyCloud(String nodeType) {
         LOGGER.debug("Searching for the dummy cloud ...");
-        EntityManagerHelper.begin();
         //Check if the Byon cloud already exists
-        Optional<Cloud> optCloud = Optional.ofNullable(EntityManagerHelper.find(Cloud.class, nodeType));
+        Optional<Cloud> optCloud = Optional.ofNullable(repositoryService.getCloud(nodeType));
         if (optCloud.isPresent()) {
             LOGGER.info("Dummy cloud for {} was found!", nodeType);
             return optCloud.get();
@@ -163,7 +162,7 @@ public class ByonUtils {
         newCloud.setId(nodeType);
 
         //Add the Byon cloud to the database
-        EntityManagerHelper.persist(newCloud);
+        repositoryService.updateCloud(newCloud);
         LOGGER.info("Dummy {} cloud created.", nodeType.toUpperCase());
         return newCloud;
 
@@ -272,29 +271,5 @@ public class ByonUtils {
         }
         LOGGER.info("BYON node source was removed with no errors");
         return true;
-    }
-
-    /**
-     * Deleting the BYON node and its Node candidate from the data base
-     * @param byonNode an object of class ByonNode to be removed.
-     */
-    public static void deleteByonNode(ByonNode byonNode) {
-        EntityManagerHelper.begin();
-        LOGGER.info("Removing the BYON node " + byonNode.getId() + " from the database...");
-
-        Location byonLocation = byonNode.getNodeCandidate().getLocation();
-        Hardware byonHardware = byonNode.getNodeCandidate().getHardware();
-        Image byonImage = byonNode.getNodeCandidate().getImage();
-
-        LOGGER.info("Removing the BYON Location " + byonLocation.getId() + " from the database...");
-        EntityManagerHelper.remove(byonLocation);
-        LOGGER.info("Removing the BYON Hardware " + byonHardware.getId() + " from the database...");
-        EntityManagerHelper.remove(byonHardware);
-        LOGGER.info("Removing the BYON Image " + byonImage.getId() + " from the database...");
-        EntityManagerHelper.remove(byonImage);
-
-        byonNode.setNodeCandidate(null);
-        EntityManagerHelper.remove(byonNode);
-        EntityManagerHelper.commit();
     }
 }

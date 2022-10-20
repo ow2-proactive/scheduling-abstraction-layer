@@ -25,15 +25,10 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.*;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -53,17 +48,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "EDGE_NODE")
-public class EdgeNode implements Serializable {
-    @Id
-    @GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    @Column(name = "ID")
-    @JsonProperty("id")
-    private String id = null;
-
-    @Column(name = "NAME")
-    @JsonProperty("name")
-    private String name = null;
+public class EdgeNode extends ByonNode {
 
     @Column(name = "SYSTEM_ARCH")
     @JsonProperty("systemArch")
@@ -75,153 +60,64 @@ public class EdgeNode implements Serializable {
     @JsonProperty("jarURL")
     private String jarURL = null;
 
-    @Embedded
-    @JsonProperty("loginCredential")
-    private LoginCredential loginCredential = null;
-
-    @ElementCollection(targetClass = IpAddress.class)
-    private List<IpAddress> ipAddresses = null;
-
-    @Embedded
-    @JsonProperty("nodeProperties")
-    private NodeProperties nodeProperties = null;
-
-    @Column(name = "REASON")
-    @JsonProperty("reason")
-    private String reason = null;
-
-    @Column(name = "DIAGNOSTIC")
-    @JsonProperty("diagnostic")
-    private String diagnostic = null;
-
-    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
-    private NodeCandidate nodeCandidate = null;
-
-    @Column(name = "USER_ID")
-    @JsonProperty("userId")
-    private String userId = null;
-
-    @Column(name = "ALLOCATED")
-    @JsonProperty("allocated")
-    private Boolean allocated = null;
-
-    @Column(name = "JOB_ID")
-    @JsonProperty("jobId")
-    private String jobId;
-
-    public static void clean() {
-        List<EdgeNode> allEdgeNodes = EntityManagerHelper.createQuery("SELECT en FROM EdgeNode en", EdgeNode.class)
-                                                         .getResultList();
-        allEdgeNodes.forEach(EntityManagerHelper::remove);
-    }
-
+    @Override
     public EdgeNode name(String name) {
-        this.name = name;
+        super.setName(name);
         return this;
     }
 
-    /**
-     * Human-readable name for the node.
-     * @return name
-     **/
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    @Override
     public EdgeNode loginCredential(LoginCredential loginCredential) {
-        this.loginCredential = loginCredential;
+        super.setLoginCredential(loginCredential);
         return this;
     }
 
-    /**
-     * Get loginCredential
-     * @return loginCredential
-     **/
-    public LoginCredential getLoginCredential() {
-        return loginCredential;
-    }
-
-    public void setLoginCredential(LoginCredential loginCredential) {
-        this.loginCredential = loginCredential;
-    }
-
+    @Override
     public EdgeNode ipAddresses(List<IpAddress> ipAddresses) {
-        this.ipAddresses = ipAddresses;
+        super.setIpAddresses(ipAddresses);
         return this;
     }
 
+    @Override
     public EdgeNode addIpAddressesItem(IpAddress ipAddressesItem) {
-        if (this.ipAddresses == null) {
-            this.ipAddresses = new ArrayList<IpAddress>();
-        }
-        this.ipAddresses.add(ipAddressesItem);
+        super.addIpAddressesItem(ipAddressesItem);
         return this;
     }
 
-    /**
-     * The public/private ip addresses under which this node is reachable.
-     * @return ipAddresses
-     **/
-    public List<IpAddress> getIpAddresses() {
-        return ipAddresses;
-    }
-
-    public void setIpAddresses(List<IpAddress> ipAddresses) {
-        this.ipAddresses = ipAddresses;
-    }
-
+    @Override
     public EdgeNode nodeProperties(NodeProperties nodeProperties) {
-        this.nodeProperties = nodeProperties;
+        super.setNodeProperties(nodeProperties);
         return this;
     }
 
-    /**
-     * Further properties of this node.
-     * @return nodeProperties
-     **/
-    public NodeProperties getNodeProperties() {
-        return nodeProperties;
-    }
-
-    public void setNodeProperties(NodeProperties nodeProperties) {
-        this.nodeProperties = nodeProperties;
-    }
-
+    @Override
     public EdgeNode reason(String reason) {
-        this.reason = reason;
+        super.setReason(reason);
         return this;
     }
 
+    @Override
     public EdgeNode diagnostic(String diagnostic) {
-        this.diagnostic = diagnostic;
+        super.setDiagnostic(diagnostic);
         return this;
     }
 
+    @Override
     public EdgeNode id(String id) {
-        this.id = id;
+        super.setId(id);
         return this;
     }
 
+    @Override
     public EdgeNode userId(String userId) {
-        this.userId = userId;
+        super.setUserId(userId);
         return this;
     }
 
+    @Override
     public EdgeNode allocated(Boolean allocated) {
-        this.allocated = allocated;
+        super.setAllocated(allocated);
         return this;
-    }
-
-    /**
-     * Signals if the node was allocated by cloudiator
-     * @return allocated
-     **/
-    public Boolean isAllocated() {
-        return allocated;
     }
 
     @Override
@@ -233,28 +129,37 @@ public class EdgeNode implements Serializable {
             return false;
         }
         EdgeNode edgeNode = (EdgeNode) o;
-        return Objects.equals(this.name, edgeNode.name) &&
-               Objects.equals(this.loginCredential, edgeNode.loginCredential) &&
-               Objects.equals(this.ipAddresses, edgeNode.ipAddresses) &&
-               Objects.equals(this.nodeProperties, edgeNode.nodeProperties) &&
-               Objects.equals(this.reason, edgeNode.reason) && Objects.equals(this.diagnostic, edgeNode.diagnostic) &&
-               Objects.equals(this.nodeCandidate, edgeNode.nodeCandidate) && Objects.equals(this.id, edgeNode.id) &&
-               Objects.equals(this.userId, edgeNode.userId) && Objects.equals(this.allocated, edgeNode.allocated) &&
-               Objects.equals(this.jobId, edgeNode.jobId);
+        return Objects.equals(super.getName(), edgeNode.getName()) &&
+               Objects.equals(super.getLoginCredential(), edgeNode.getLoginCredential()) &&
+               Objects.equals(super.getIpAddresses(), edgeNode.getIpAddresses()) &&
+               Objects.equals(super.getNodeProperties(), edgeNode.getNodeProperties()) &&
+               Objects.equals(super.getReason(), edgeNode.getReason()) &&
+               Objects.equals(super.getDiagnostic(), edgeNode.getDiagnostic()) &&
+               Objects.equals(super.getNodeCandidate(), edgeNode.getNodeCandidate()) &&
+               Objects.equals(super.getId(), edgeNode.getId()) &&
+               Objects.equals(super.getUserId(), edgeNode.getUserId()) &&
+               Objects.equals(super.getAllocated(), edgeNode.getAllocated()) &&
+               Objects.equals(super.getJobId(), edgeNode.getJobId()) &&
+               Objects.equals(systemArch, edgeNode.getSystemArch()) &&
+               Objects.equals(scriptURL, edgeNode.getScriptURL()) && Objects.equals(jarURL, edgeNode.getJarURL());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name,
-                            loginCredential,
-                            ipAddresses,
-                            nodeProperties,
-                            reason,
-                            diagnostic,
-                            nodeCandidate,
-                            id,
-                            userId,
-                            allocated);
+        return Objects.hash(super.getName(),
+                            super.getLoginCredential(),
+                            super.getIpAddresses(),
+                            super.getNodeProperties(),
+                            super.getReason(),
+                            super.getDiagnostic(),
+                            super.getNodeCandidate(),
+                            super.getId(),
+                            super.getUserId(),
+                            super.getAllocated(),
+                            super.getJobId(),
+                            systemArch,
+                            scriptURL,
+                            jarURL);
     }
 
     @Override
@@ -262,17 +167,20 @@ public class EdgeNode implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("class EdgeNode {\n");
 
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    loginCredential: ").append(toIndentedString(loginCredential)).append("\n");
-        sb.append("    ipAddresses: ").append(toIndentedString(ipAddresses)).append("\n");
-        sb.append("    nodeProperties: ").append(toIndentedString(nodeProperties)).append("\n");
-        sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
-        sb.append("    diagnostic: ").append(toIndentedString(diagnostic)).append("\n");
-        sb.append("    nodeCandidate: ").append(toIndentedString(nodeCandidate)).append("\n");
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
-        sb.append("    allocated: ").append(toIndentedString(allocated)).append("\n");
-        sb.append("    jobId: ").append(toIndentedString(jobId)).append("\n");
+        sb.append("    name: ").append(toIndentedString(super.getName())).append("\n");
+        sb.append("    loginCredential: ").append(toIndentedString(super.getLoginCredential())).append("\n");
+        sb.append("    ipAddresses: ").append(toIndentedString(super.getIpAddresses())).append("\n");
+        sb.append("    nodeProperties: ").append(toIndentedString(super.getNodeProperties())).append("\n");
+        sb.append("    reason: ").append(toIndentedString(super.getReason())).append("\n");
+        sb.append("    diagnostic: ").append(toIndentedString(super.getDiagnostic())).append("\n");
+        sb.append("    nodeCandidate: ").append(toIndentedString(super.getNodeCandidate())).append("\n");
+        sb.append("    id: ").append(toIndentedString(super.getId())).append("\n");
+        sb.append("    userId: ").append(toIndentedString(super.getUserId())).append("\n");
+        sb.append("    allocated: ").append(toIndentedString(super.getAllocated())).append("\n");
+        sb.append("    jobId: ").append(toIndentedString(super.getJobId())).append("\n");
+        sb.append("    systemArch: ").append(toIndentedString(systemArch)).append("\n");
+        sb.append("    scriptURL: ").append(toIndentedString(scriptURL)).append("\n");
+        sb.append("    jarURL: ").append(toIndentedString(jarURL)).append("\n");
         sb.append("}");
         return sb.toString();
     }

@@ -37,7 +37,6 @@ import org.ow2.proactive.sal.service.nc.UpdatingNodeCandidatesThread;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.sal.service.util.JCloudsInstancesUtils;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestException;
@@ -63,6 +62,9 @@ public class CloudService {
     @Autowired
     private ServiceConfiguration serviceConfiguration;
 
+    @Autowired
+    private RepositoryService repositoryService;
+
     /**
      * Add clouds to the ProActive Resource Manager
      * @param sessionId A valid session id
@@ -75,7 +77,6 @@ public class CloudService {
         }
         Validate.notNull(clouds, "The received clouds structure is empty. Nothing to be created.");
 
-        EntityManagerHelper.begin();
         List<String> savedCloudIds = new LinkedList<>();
         clouds.forEach(cloud -> {
             PACloud newCloud = new PACloud();
@@ -105,19 +106,19 @@ public class CloudService {
             credentials.setUserName(cloud.optJSONObject("credentials").optString("user"));
             credentials.setPrivateKey(cloud.optJSONObject("credentials").optString("secret"));
             credentials.setDomain(cloud.optJSONObject("credentials").optString("domain"));
-            EntityManagerHelper.persist(credentials);
+            repositoryService.updateCredentials(credentials);
             newCloud.setCredentials(credentials);
 
             String dummyInfraName = "iamadummy" + newCloud.getCloudProviderName();
             connectorIaasGateway.defineInfrastructure(dummyInfraName, newCloud, "");
             newCloud.setDummyInfrastructureName(dummyInfraName);
 
-            EntityManagerHelper.persist(newCloud);
+            repositoryService.updatePACloud(newCloud);
             LOGGER.debug("Cloud created: " + newCloud.toString());
             savedCloudIds.add(newCloud.getCloudID());
         });
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
 
         LOGGER.info("Clouds created properly.");
 
@@ -141,7 +142,7 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return EntityManagerHelper.createQuery("SELECT pac FROM PACloud pac", PACloud.class).getResultList();
+        return repositoryService.listPACloud();
     }
 
     /**
@@ -156,7 +157,7 @@ public class CloudService {
             throw new NotConnectedException();
         }
         cloudIDs.forEach(cloudID -> {
-            PACloud cloud = EntityManagerHelper.find(PACloud.class, cloudID);
+            PACloud cloud = repositoryService.getPACloud(cloudID);
             for (Map.Entry<String, String> entry : cloud.getDeployedRegions().entrySet()) {
                 try {
                     resourceManagerGateway.undeployNodeSource(cloud.getNodeSourceNamePrefix() + entry.getKey(),
@@ -188,9 +189,8 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        EntityManagerHelper.begin();
         cloudIDs.forEach(cloudID -> {
-            PACloud cloud = EntityManagerHelper.find(PACloud.class, cloudID);
+            PACloud cloud = repositoryService.getPACloud(cloudID);
             if (cloud == null) {
                 LOGGER.info("Cloud {} not found, nothing to be removed.", cloudID);
                 return;
@@ -222,10 +222,10 @@ public class CloudService {
             }
             LOGGER.info("Cleaning deployments from the cloud entry");
             cloud.clearDeployments();
-            EntityManagerHelper.remove(cloud);
+            repositoryService.deletePACloud(cloud);
             LOGGER.info("Cloud removed.");
         });
-        EntityManagerHelper.commit();
+        repositoryService.flush();
         return true;
     }
 
@@ -238,7 +238,7 @@ public class CloudService {
     public List<Image> getCloudImages(String sessionId, String cloudID) throws NotConnectedException {
         List<Image> allImages = getAllCloudImages(sessionId);
         List<Image> filteredImages = new LinkedList<>();
-        PACloud paCloud = EntityManagerHelper.find(PACloud.class, cloudID);
+        PACloud paCloud = repositoryService.getPACloud(cloudID);
         if (paCloud != null) {
             JSONArray imagesArray = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
             List<String> imagesIDs = IntStream.range(0, imagesArray.length())
@@ -263,7 +263,7 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return EntityManagerHelper.createQuery("SELECT img FROM Image img", Image.class).getResultList();
+        return repositoryService.listImages();
     }
 
     /**
@@ -286,14 +286,13 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        List<Hardware> allHardwares = EntityManagerHelper.createQuery("SELECT hw FROM Hardware hw", Hardware.class)
-                                                         .getResultList();
+        List<Hardware> allHardwares = repositoryService.listHardwares();
 
         return allHardwares.stream()
-                           .filter(hardware -> JCloudsInstancesUtils.isHandledHardwareInstanceType(NodeCandidate.findFirstNodeCandidateWithHardware(hardware)
-                                                                                                                .getCloud()
-                                                                                                                .getApi()
-                                                                                                                .getProviderName(),
+                           .filter(hardware -> JCloudsInstancesUtils.isHandledHardwareInstanceType(repositoryService.findFirstNodeCandidateWithHardware(hardware)
+                                                                                                                    .getCloud()
+                                                                                                                    .getApi()
+                                                                                                                    .getProviderName(),
                                                                                                    hardware.getName()) ||
                                                WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(hardware.getName()))
                            .collect(Collectors.toList());
@@ -319,6 +318,6 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return EntityManagerHelper.createQuery("SELECT loc FROM Location loc", Location.class).getResultList();
+        return repositoryService.listLocations();
     }
 }

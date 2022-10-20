@@ -23,32 +23,30 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.service;
+package org.ow2.proactive.sal.service.model;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import javax.persistence.*;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
 
 
-@Configuration
-@PropertySource(value = "classpath:local.run.application.properties", ignoreResourceNotFound = true)
 @Getter
 @Setter
-public class ServiceConfiguration {
+@MappedSuperclass
+public abstract class AbstractNode implements Node {
 
-    public static final int MAX_CONNECTION_RETRIES = 10;
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    @Column(name = "ID")
+    @JsonProperty("id")
+    protected String id = null;
 
-    public static final int INTERVAL = 10000;
-
-    @Value("${pa.url}")
-    private String paUrl;
-
-    @Value("${pa.login}")
-    private String paLogin;
-
-    @Value("${pa.password}")
-    private String paPassword;
+    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
+    protected NodeCandidate nodeCandidate = null;
 }

@@ -32,8 +32,6 @@ import java.util.Map;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -60,7 +58,7 @@ public class Job implements Serializable {
     private Map<String, String> variables;
 
     @Column(name = "SUBMITTED_JOB_ID")
-    private long submittedJobId;
+    private long submittedJobId = 0L;
 
     @Column(name = "SUBMITTED_JOB_TYPE")
     @Enumerated(EnumType.STRING)
@@ -68,11 +66,6 @@ public class Job implements Serializable {
 
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
     private List<Task> tasks;
-
-    public static void clean() {
-        List<Job> allJobs = EntityManagerHelper.createQuery("SELECT j FROM Job j", Job.class).getResultList();
-        allJobs.forEach(EntityManagerHelper::remove);
-    }
 
     public Task findTask(String taskName) {
         return tasks.stream().filter(task -> task.getName().equals(taskName)).findAny().orElse(null);

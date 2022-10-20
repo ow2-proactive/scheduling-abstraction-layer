@@ -25,13 +25,20 @@
  */
 package org.ow2.proactive.sal.service;
 
+import javax.servlet.ServletContext;
+
+import org.ow2.proactive.sal.service.util.EntityScanRoot;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.MultipartAutoConfiguration;
+import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -54,8 +61,16 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication(scanBasePackages = { "org.ow2.proactive.sal.service" })
 @EnableAutoConfiguration(exclude = { MultipartAutoConfiguration.class })
 @EnableSwagger2
-@PropertySource("classpath:application.properties")
+//@PropertySource(value = "classpath:application.properties"),
+@PropertySources({ @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties"),
+                   @PropertySource(value = "classpath:local.run.application.properties") })
+@EntityScan(basePackages = "org.ow2.proactive.sal.service.model")
+@EntityScanRoot("classpath:/org/ow2/proactive/sal/service/model")
+@EnableTransactionManagement
 public class Application extends WebMvcConfigurerAdapter {
+
+    @Autowired
+    ServletContext context;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

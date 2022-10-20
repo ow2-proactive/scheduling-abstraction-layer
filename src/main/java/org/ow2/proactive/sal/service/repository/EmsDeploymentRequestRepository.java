@@ -23,32 +23,13 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.service;
+package org.ow2.proactive.sal.service.repository;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-
-import lombok.Getter;
-import lombok.Setter;
+import org.ow2.proactive.sal.service.model.EmsDeploymentRequest;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 
-@Configuration
-@PropertySource(value = "classpath:local.run.application.properties", ignoreResourceNotFound = true)
-@Getter
-@Setter
-public class ServiceConfiguration {
-
-    public static final int MAX_CONNECTION_RETRIES = 10;
-
-    public static final int INTERVAL = 10000;
-
-    @Value("${pa.url}")
-    private String paUrl;
-
-    @Value("${pa.login}")
-    private String paLogin;
-
-    @Value("${pa.password}")
-    private String paPassword;
+@Repository
+public interface EmsDeploymentRequestRepository extends JpaRepository<EmsDeploymentRequest, String> {
 }

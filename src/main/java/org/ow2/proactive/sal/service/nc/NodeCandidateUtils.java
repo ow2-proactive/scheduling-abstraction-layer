@@ -33,13 +33,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.javatuples.Quartet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 import org.ow2.proactive.sal.service.util.GeoLocationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -57,9 +59,19 @@ public class NodeCandidateUtils {
     @Autowired
     private PAConnectorIaasGateway connectorIaasGateway;
 
+    @Autowired
+    private RepositoryService repositoryService;
+
+    private static RepositoryService staticRepositoryService;
+
     private final GeoLocationUtils geoLocationUtils;
 
     private final LoadingCache<Quartet<PACloud, String, String, String>, JSONArray> nodeCandidatesCache;
+
+    @PostConstruct
+    private void initStaticAttributes() {
+        staticRepositoryService = this.repositoryService;
+    }
 
     public NodeCandidateUtils(String paURL) {
         geoLocationUtils = new GeoLocationUtils();
@@ -234,7 +246,7 @@ public class NodeCandidateUtils {
         JSONObject hardwareJSON = nodeCandidateJSON.optJSONObject("hw");
         String hardwareId = paCloud.getCloudID() + "/" + nodeCandidateJSON.optString("region") + "/" +
                             hardwareJSON.optString("type");
-        Hardware hardware = EntityManagerHelper.find(Hardware.class, hardwareId);
+        Hardware hardware = repositoryService.getHardware(hardwareId);
         if (hardware == null) {
             hardware = new Hardware();
             hardware.setId(hardwareId);
@@ -255,7 +267,7 @@ public class NodeCandidateUtils {
 
     private Location createLocation(JSONObject nodeCandidateJSON, PACloud paCloud) {
         String locationId = paCloud.getCloudID() + "/" + nodeCandidateJSON.optString("region");
-        Location location = EntityManagerHelper.find(Location.class, locationId);
+        Location location = repositoryService.getLocation(locationId);
         if (location == null) {
             location = new Location();
             location.setId(locationId);
@@ -285,7 +297,7 @@ public class NodeCandidateUtils {
 
     private Image createImage(JSONObject nodeCandidateJSON, JSONObject imageJSON, PACloud paCloud) {
         String imageId = paCloud.getCloudID() + "/" + imageJSON.optString("id");
-        Image image = EntityManagerHelper.find(Image.class, imageId);
+        Image image = repositoryService.getImage(imageId);
         if (image == null) {
             image = new Image();
             image.setId(imageId);
@@ -313,7 +325,7 @@ public class NodeCandidateUtils {
     }
 
     private Cloud createCloud(JSONObject nodeCandidateJSON, PACloud paCloud) {
-        Cloud cloud = EntityManagerHelper.find(Cloud.class, paCloud.getCloudID());
+        Cloud cloud = repositoryService.getCloud(paCloud.getCloudID());
         if (cloud == null) {
             cloud = new Cloud();
             cloud.setId(paCloud.getCloudID());
@@ -352,10 +364,8 @@ public class NodeCandidateUtils {
     }
 
     public void updateNodeCandidates(List<String> newCloudIds) {
-        EntityManagerHelper.begin();
-
         newCloudIds.forEach(newCloudId -> {
-            PACloud paCloud = EntityManagerHelper.find(PACloud.class, newCloudId);
+            PACloud paCloud = repositoryService.getPACloud(newCloudId);
             LOGGER.info("Getting blacklisted regions...");
             List<String> blacklistedRegions = Arrays.asList(paCloud.getBlacklist().split(","));
             LOGGER.info("Blacklisted regions: {}", blacklistedRegions);
@@ -397,31 +407,31 @@ public class NodeCandidateUtils {
                                                            " is not handled yet.");
                 }
 
-                try {
-                    if (paCloud.getCloudProviderName().equals("openstack")) {
-                        entries.add(pair);
-                        JSONArray nodeCandidates = nodeCandidatesCache.get(Quartet.with(paCloud, region, imageReq, ""));
-                        nodeCandidates.forEach(nc -> {
-                            JSONObject nodeCandidate = (JSONObject) nc;
-                            EntityManagerHelper.persist(createLocation(nodeCandidate, paCloud));
-                            EntityManagerHelper.persist(createNodeCandidate(nodeCandidate, image, paCloud));
-                        });
-                    } else {
-                        JSONArray nodeCandidates = nodeCandidatesCache.get(Quartet.with(paCloud, region, imageReq, ""));
-                        nodeCandidates.forEach(nc -> {
-                            JSONObject nodeCandidate = (JSONObject) nc;
-                            EntityManagerHelper.persist(createLocation(nodeCandidate, paCloud));
-                            EntityManagerHelper.persist(createNodeCandidate(nodeCandidate, image, paCloud));
-                        });
-                    }
-                } catch (ExecutionException ee) {
-                    LOGGER.error("Could not get node candidates from cache: ", ee);
+                if (paCloud.getCloudProviderName().equals("openstack")) {
+                    entries.add(pair);
                 }
-
+                populateNodeCandidatesFromCache(paCloud, region, imageReq, image);
             });
         });
 
-        EntityManagerHelper.commit();
+        repositoryService.flush();
+    }
+
+    private void populateNodeCandidatesFromCache(PACloud paCloud, String region, String imageReq, JSONObject image) {
+        try {
+            JSONArray nodeCandidates = nodeCandidatesCache.get(Quartet.with(paCloud, region, imageReq, ""));
+            nodeCandidates.forEach(nc -> {
+                JSONObject nodeCandidate = (JSONObject) nc;
+                repositoryService.updateLocation(createLocation(nodeCandidate, paCloud));
+                NodeCandidate newNodeCandidate = createNodeCandidate(nodeCandidate, image, paCloud);
+                IaasNode newIaasNode = new IaasNode(newNodeCandidate);
+                repositoryService.updateIaasNode(newIaasNode);
+                newNodeCandidate.setNodeId(newIaasNode.getId());
+                repositoryService.updateNodeCandidate(newNodeCandidate);
+            });
+        } catch (ExecutionException ee) {
+            LOGGER.error("Could not get node candidates from cache: ", ee);
+        }
     }
 
     private JSONArray getAllPagedNodeCandidates(PACloud paCloud, String region, String imageReq, String token) {
@@ -453,8 +463,7 @@ public class NodeCandidateUtils {
     }
 
     private static ByonNode getByonNodeFromNC(NodeCandidate nodeCandidate) {
-        List<ByonNode> allByonNodes = EntityManagerHelper.createQuery("SELECT bn FROM ByonNode bn", ByonNode.class)
-                                                         .getResultList();
+        List<ByonNode> allByonNodes = staticRepositoryService.listByonNodes();
         for (ByonNode byonNode : allByonNodes) {
             if (byonNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
                 return byonNode;
@@ -464,8 +473,7 @@ public class NodeCandidateUtils {
     }
 
     private static EdgeNode getEdgeNodeFromNC(NodeCandidate nodeCandidate) {
-        List<EdgeNode> allEdgeNodes = EntityManagerHelper.createQuery("SELECT en FROM EdgeNode en", EdgeNode.class)
-                                                         .getResultList();
+        List<EdgeNode> allEdgeNodes = staticRepositoryService.listEdgeNodes();
         for (EdgeNode edgeNode : allEdgeNodes) {
             if (edgeNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
                 return edgeNode;

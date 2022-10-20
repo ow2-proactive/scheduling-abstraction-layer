@@ -33,7 +33,6 @@ import javax.persistence.*;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -69,7 +68,7 @@ public class Task implements Serializable {
 
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<Port> portsToOpen;
+    private List<Port> portsToOpen = new LinkedList<>();
 
     @Column(name = "PARENT_TASKS")
     @ElementCollection(targetClass = String.class)
@@ -87,11 +86,6 @@ public class Task implements Serializable {
 
     @Column(name = "NEXT_DEPLOYMENT_ID")
     private Long nextDeploymentID = 0L;
-
-    public static void clean() {
-        List<Task> allTasks = EntityManagerHelper.createQuery("SELECT t FROM Task t", Task.class).getResultList();
-        allTasks.forEach(EntityManagerHelper::remove);
-    }
 
     public void addDeployment(Deployment deployment) {
         if (deployments == null) {

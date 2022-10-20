@@ -31,8 +31,6 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.service.util.EntityManagerHelper;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -56,7 +54,7 @@ public class Hardware implements Serializable {
     @JsonProperty("name")
     private String name = null;
 
-    @Column(name = "PROVIDER_NAME")
+    @Column(name = "PROVIDER_ID")
     @JsonProperty("providerId")
     private String providerId = null;
 
@@ -84,12 +82,6 @@ public class Hardware implements Serializable {
     @Column(name = "OWNER")
     @JsonProperty("owner")
     private String owner = null;
-
-    public static void clean() {
-        List<Hardware> allHardwares = EntityManagerHelper.createQuery("SELECT h FROM Hardware h", Hardware.class)
-                                                         .getResultList();
-        allHardwares.forEach(EntityManagerHelper::remove);
-    }
 
     public Hardware id(String id) {
         this.id = id;
