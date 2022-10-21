@@ -36,7 +36,7 @@ import lombok.Setter;
 
 @Configuration
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
-                   @PropertySource(value = "file:${MELODIC_CONFIG_DIR}/eu.morphemic.schedulingAbstractionLayer.properties", ignoreResourceNotFound = true) })
+                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/sal.properties", ignoreResourceNotFound = true) })
 @Getter
 @Setter
 public class ServiceConfiguration {
