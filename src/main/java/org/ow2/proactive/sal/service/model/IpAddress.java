@@ -50,18 +50,18 @@ public class IpAddress implements Serializable {
     @Column(name = "IP_ADDRESS_TYPE")
     @Enumerated(EnumType.STRING)
     @JsonProperty("IpAddressType")
-    private org.ow2.proactive.sal.service.model.IpAddressType ipAddressType = null;
+    private IpAddressType ipAddressType = null;
 
     @Column(name = "IP_VERSION")
     @Enumerated(EnumType.STRING)
     @JsonProperty("IpVersion")
-    private org.ow2.proactive.sal.service.model.IpVersion ipVersion = null;
+    private IpVersion ipVersion = null;
 
     @Column(name = "VALUE")
     @JsonProperty("value")
     private String value = null;
 
-    public IpAddress ipAddressType(org.ow2.proactive.sal.service.model.IpAddressType ipAddressType) {
+    public IpAddress ipAddressType(IpAddressType ipAddressType) {
         this.ipAddressType = ipAddressType;
         return this;
     }
@@ -71,15 +71,15 @@ public class IpAddress implements Serializable {
      * @return ipAddressType
      **/
     @NotNull
-    public org.ow2.proactive.sal.service.model.IpAddressType getIpAddressType() {
+    public IpAddressType getIpAddressType() {
         return ipAddressType;
     }
 
-    public void setIpAddressType(org.ow2.proactive.sal.service.model.IpAddressType ipAddressType) {
+    public void setIpAddressType(IpAddressType ipAddressType) {
         this.ipAddressType = ipAddressType;
     }
 
-    public IpAddress ipVersion(org.ow2.proactive.sal.service.model.IpVersion ipVersion) {
+    public IpAddress ipVersion(IpVersion ipVersion) {
         this.ipVersion = ipVersion;
         return this;
     }
@@ -89,11 +89,11 @@ public class IpAddress implements Serializable {
      * @return ipVersion
      **/
     @NotNull
-    public org.ow2.proactive.sal.service.model.IpVersion getIpVersion() {
+    public IpVersion getIpVersion() {
         return ipVersion;
     }
 
-    public void setIpVersion(org.ow2.proactive.sal.service.model.IpVersion ipVersion) {
+    public void setIpVersion(IpVersion ipVersion) {
         this.ipVersion = ipVersion;
     }
 

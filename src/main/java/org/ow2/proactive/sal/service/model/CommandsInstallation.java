@@ -70,5 +70,5 @@ public class CommandsInstallation {
     private String updateCmd;
 
     @Embedded
-    private org.ow2.proactive.sal.service.model.OperatingSystemType operatingSystemType;
+    private OperatingSystemType operatingSystemType;
 }

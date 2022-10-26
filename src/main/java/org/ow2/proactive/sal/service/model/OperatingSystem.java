@@ -55,7 +55,7 @@ public class OperatingSystem implements Serializable {
     @Column(name = "OPERATING_SYSTEM_ARCHITECTURE")
     @Enumerated(EnumType.STRING)
     @JsonProperty("operatingSystemArchitecture")
-    private org.ow2.proactive.sal.service.model.OperatingSystemArchitecture operatingSystemArchitecture = null;
+    private OperatingSystemArchitecture operatingSystemArchitecture = null;
 
     @Column(name = "OPERATING_SYSTEM_VERSION")
     @JsonProperty("operatingSystemVersion")
@@ -79,7 +79,7 @@ public class OperatingSystem implements Serializable {
     }
 
     public OperatingSystem operatingSystemArchitecture(
-            org.ow2.proactive.sal.service.model.OperatingSystemArchitecture operatingSystemArchitecture) {
+            OperatingSystemArchitecture operatingSystemArchitecture) {
         this.operatingSystemArchitecture = operatingSystemArchitecture;
         return this;
     }
@@ -88,12 +88,12 @@ public class OperatingSystem implements Serializable {
      * Get operatingSystemArchitecture
      * @return operatingSystemArchitecture
      **/
-    public org.ow2.proactive.sal.service.model.OperatingSystemArchitecture getOperatingSystemArchitecture() {
+    public OperatingSystemArchitecture getOperatingSystemArchitecture() {
         return operatingSystemArchitecture;
     }
 
     public void setOperatingSystemArchitecture(
-            org.ow2.proactive.sal.service.model.OperatingSystemArchitecture operatingSystemArchitecture) {
+            OperatingSystemArchitecture operatingSystemArchitecture) {
         this.operatingSystemArchitecture = operatingSystemArchitecture;
     }
 
