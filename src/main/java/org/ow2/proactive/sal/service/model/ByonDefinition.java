@@ -52,5 +52,5 @@ public class ByonDefinition implements Serializable {
     private List<IpAddress> ipAddresses = null;
 
     @JsonProperty("nodeProperties")
-    private org.ow2.proactive.sal.service.model.NodeProperties nodeProperties = null;
+    private NodeProperties nodeProperties = null;
 }
