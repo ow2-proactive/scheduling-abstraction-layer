@@ -26,10 +26,7 @@
 package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
@@ -156,11 +153,11 @@ public class PACloud implements Serializable {
         return "PACloud{" + "cloudID='" + cloudID + '\'' + ", nodeSourceNamePrefix='" + nodeSourceNamePrefix + '\'' +
                ", cloudProviderName='" + cloudProviderName + '\'' + ", cloudType='" + cloudType.toString() + '\'' +
                ", subnet='" + subnet + '\'' + ", securityGroup='" + securityGroup + '\'' + ", sshCredentials='" +
-               sshCredentials.toString() + '\'' + ", endpoint='" + endpoint + '\'' + ", scopePrefix='" + scopePrefix +
-               '\'' + ", scopeValue='" + scopeValue + '\'' + ", identityVersion='" + identityVersion + '\'' +
-               ", dummyInfrastructureName='" + dummyInfrastructureName + '\'' + ", defaultNetwork='" + defaultNetwork +
-               '\'' + ", blacklist='" + blacklist + '\'' + ", deployedRegions=" + deployedRegions +
-               ", deployedWhiteListedRegions=" + deployedWhiteListedRegions + ", deployments='" + deploymentsPrint +
-               '\'' + '}';
+               Optional.ofNullable(sshCredentials).map(SSHCredentials::toString).orElse(null) + '\'' + ", endpoint='" +
+               endpoint + '\'' + ", scopePrefix='" + scopePrefix + '\'' + ", scopeValue='" + scopeValue + '\'' +
+               ", identityVersion='" + identityVersion + '\'' + ", dummyInfrastructureName='" +
+               dummyInfrastructureName + '\'' + ", defaultNetwork='" + defaultNetwork + '\'' + ", blacklist='" +
+               blacklist + '\'' + ", deployedRegions=" + deployedRegions + ", deployedWhiteListedRegions=" +
+               deployedWhiteListedRegions + ", deployments='" + deploymentsPrint + '\'' + '}';
     }
 }

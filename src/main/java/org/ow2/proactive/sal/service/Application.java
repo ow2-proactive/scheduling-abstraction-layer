@@ -38,6 +38,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -61,6 +62,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication(scanBasePackages = { "org.ow2.proactive.sal.service" })
 @EnableAutoConfiguration(exclude = { MultipartAutoConfiguration.class })
 @EnableSwagger2
+@EnableAsync
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
                    @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/sal.properties", ignoreResourceNotFound = true) })
 @EntityScan(basePackages = "org.ow2.proactive.sal.service.model")

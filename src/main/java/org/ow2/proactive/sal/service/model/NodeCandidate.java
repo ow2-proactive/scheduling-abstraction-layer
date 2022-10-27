@@ -114,19 +114,19 @@ public class NodeCandidate implements Serializable {
     @JsonProperty("price")
     private Double price = null;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JsonProperty("cloud")
     private Cloud cloud = null;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JsonProperty("location")
     private Location location = null;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JsonProperty("image")
     private Image image = null;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
     @JsonProperty("hardware")
     private Hardware hardware = null;
 

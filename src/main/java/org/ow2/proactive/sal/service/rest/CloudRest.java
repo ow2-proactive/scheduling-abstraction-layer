@@ -30,11 +30,7 @@ import java.util.Optional;
 
 import javax.ws.rs.core.MediaType;
 
-import org.json.JSONObject;
-import org.ow2.proactive.sal.service.model.Hardware;
-import org.ow2.proactive.sal.service.model.Image;
-import org.ow2.proactive.sal.service.model.Location;
-import org.ow2.proactive.sal.service.model.PACloud;
+import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.service.CloudService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +56,7 @@ public class CloudRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "An array of clouds information in JSONObject format", required = true)
     @RequestBody
-    final List<JSONObject> clouds) throws NotConnectedException {
-        //TODO: Define PACloudDefinition class as input
+    final List<CloudDefinition> clouds) throws NotConnectedException {
         return ResponseEntity.ok(cloudService.addClouds(sessionId, clouds));
     }
 

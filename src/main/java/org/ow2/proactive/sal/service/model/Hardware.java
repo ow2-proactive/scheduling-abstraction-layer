@@ -70,7 +70,7 @@ public class Hardware implements Serializable {
     @JsonProperty("disk")
     private Double disk = null;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonProperty("location")
     private Location location = null;
 

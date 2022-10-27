@@ -594,9 +594,34 @@ public class RepositoryService {
     @Modifying(clearAutomatically = true)
     public NodeCandidate deleteNodeCandidate(String nodeCandidateId) {
         NodeCandidate instanceToRemove = getNodeCandidate(nodeCandidateId);
-        //TODO To Complete removing
+        this.deleteOrphanNode(instanceToRemove);
         nodeCandidateRepository.delete(nodeCandidateId);
+        cloudRepository.getOrphanCloudIds().forEach(this::deleteCloud);
+        imageRepository.getOrphanImageIds().forEach(this::deleteImage);
+        hardwareRepository.getOrphanHardwareIds().forEach(this::deleteHardware);
+        locationRepository.getOrphanLocationIds().forEach(this::deleteLocation);
         return instanceToRemove;
+    }
+
+    /**
+     * Delete the nodeCandidate to be removed related node
+     * @param nodeCandidateToBeRemoved the node candidate to be removed
+     */
+    @Modifying(clearAutomatically = true)
+    private void deleteOrphanNode(NodeCandidate nodeCandidateToBeRemoved) {
+        switch (nodeCandidateToBeRemoved.getNodeCandidateType()) {
+            case IAAS:
+                iaasNodeRepository.delete(nodeCandidateToBeRemoved.getNodeId());
+                break;
+            case BYON:
+                byonNodeRepository.delete(nodeCandidateToBeRemoved.getNodeId());
+                break;
+            case EDGE:
+                edgeNodeRepository.delete(nodeCandidateToBeRemoved.getNodeId());
+                break;
+            default:
+                LOGGER.warn("To be deleted node type not supported yet!");
+        }
     }
 
     /**
@@ -722,7 +747,7 @@ public class RepositoryService {
     /**
      * Flush all DB entries
      */
-    public void flush() {
+    public synchronized void flush() {
         jobRepository.flush();
         taskRepository.flush();
         paCloudRepository.flush();

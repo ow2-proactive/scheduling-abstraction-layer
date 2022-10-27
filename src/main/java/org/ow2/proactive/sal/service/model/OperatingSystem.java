@@ -78,8 +78,7 @@ public class OperatingSystem implements Serializable {
         this.operatingSystemFamily = operatingSystemFamily;
     }
 
-    public OperatingSystem operatingSystemArchitecture(
-            OperatingSystemArchitecture operatingSystemArchitecture) {
+    public OperatingSystem operatingSystemArchitecture(OperatingSystemArchitecture operatingSystemArchitecture) {
         this.operatingSystemArchitecture = operatingSystemArchitecture;
         return this;
     }
@@ -92,8 +91,7 @@ public class OperatingSystem implements Serializable {
         return operatingSystemArchitecture;
     }
 
-    public void setOperatingSystemArchitecture(
-            OperatingSystemArchitecture operatingSystemArchitecture) {
+    public void setOperatingSystemArchitecture(OperatingSystemArchitecture operatingSystemArchitecture) {
         this.operatingSystemArchitecture = operatingSystemArchitecture;
     }
 

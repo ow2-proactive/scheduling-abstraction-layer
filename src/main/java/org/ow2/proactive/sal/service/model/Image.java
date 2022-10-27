@@ -62,7 +62,7 @@ public class Image implements Serializable {
     @JsonProperty("operatingSystem")
     private OperatingSystem operatingSystem = null;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonProperty("location")
     private Location location = null;
 

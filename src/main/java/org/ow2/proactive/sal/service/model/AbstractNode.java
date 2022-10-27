@@ -47,6 +47,6 @@ public abstract class AbstractNode implements Node {
     @JsonProperty("id")
     protected String id = null;
 
-    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     protected NodeCandidate nodeCandidate = null;
 }

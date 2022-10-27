@@ -27,25 +27,34 @@ package org.ow2.proactive.sal.service.nc;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
 import lombok.extern.slf4j.Slf4j;
 
 
-@AllArgsConstructor
 @Slf4j
-public class UpdatingNodeCandidatesThread extends Thread {
+@Component
+public class UpdatingNodeCandidatesUtils {
 
-    private final String paURL;
+    @Autowired
+    private NodeCandidateUtils nodeCandidateUtils;
 
-    private final List<String> newCloudIds;
-
-    @SneakyThrows
-    @Override
-    public void run() {
+    @Async
+    public void asyncUpdate(List<String> newCloudIds) throws InterruptedException {
         LOGGER.info("Thread updating node candidates related to clouds " + newCloudIds.toString() + " started.");
-        NodeCandidateUtils nodeCandidateUtils = new NodeCandidateUtils(this.paURL);
+        nodeCandidateUtils.initNodeCandidateUtils();
         nodeCandidateUtils.updateNodeCandidates(newCloudIds);
         LOGGER.info("Thread updating node candidates related to clouds " + newCloudIds.toString() + " ended properly.");
+    }
+
+    @Async
+    public void asyncClean(List<String> newCloudIds) throws InterruptedException {
+        LOGGER.info("Thread cleaning node candidates related to clouds " + newCloudIds.toString() + " started.");
+        long cleaned = nodeCandidateUtils.cleanNodeCandidates(newCloudIds);
+        LOGGER.info("Thread cleaning node candidates related to clouds {} ended properly with {} NC cleaned.",
+                    newCloudIds.toString(),
+                    cleaned);
     }
 }
