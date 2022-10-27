@@ -26,54 +26,59 @@
 package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Lob;
+import javax.persistence.Embedded;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 
 
+/**
+ * Attributes defining a Cloud`
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
-@Embeddable
-public class SSHCredentials implements Serializable {
+@ToString(callSuper = true)
+public class CloudDefinition implements Serializable {
 
-    @Column(name = "USERNAME")
-    @JsonProperty("username")
-    private String username = null;
+    @JsonProperty("cloudID")
+    private String cloudID = null;
 
-    @Column(name = "KEY_PAIR_NAME")
-    @JsonProperty("keyPairName")
-    private String keyPairName = null;
+    @JsonProperty("cloudProviderName")
+    private String cloudProviderName = null;
 
-    @Lob
-    @Column(name = "PRIVATE_KEY")
-    @JsonProperty("privateKey")
-    private String privateKey = null;
+    @JsonProperty("cloudType")
+    private CloudType cloudType = null;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        SSHCredentials sshCredentials = (SSHCredentials) o;
-        return Objects.equals(this.username, sshCredentials.username) &&
-               Objects.equals(this.keyPairName, sshCredentials.keyPairName) &&
-               Objects.equals(this.privateKey, sshCredentials.privateKey);
-    }
+    @JsonProperty("securityGroup")
+    private String securityGroup = null;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(username, keyPairName, privateKey);
-    }
+    @JsonProperty("subnet")
+    private String subnet = null;
+
+    @Embedded
+    @JsonProperty("sshCredentials")
+    private SSHCredentials sshCredentials = null;
+
+    @JsonProperty("endpoint")
+    private String endpoint = null;
+
+    @Embedded
+    @JsonProperty("scope")
+    private Scope scope = null;
+
+    @JsonProperty("identityVersion")
+    private String identityVersion;
+
+    @JsonProperty("defaultNetwork")
+    private String defaultNetwork;
+
+    @JsonProperty("credentials")
+    private Credential credentials;
+
+    @JsonProperty("blacklist")
+    private String blacklist;
 }

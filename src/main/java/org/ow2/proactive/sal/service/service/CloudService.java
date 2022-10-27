@@ -33,7 +33,7 @@ import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.*;
-import org.ow2.proactive.sal.service.nc.UpdatingNodeCandidatesThread;
+import org.ow2.proactive.sal.service.nc.UpdatingNodeCandidatesUtils;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
@@ -60,7 +60,7 @@ public class CloudService {
     private PAResourceManagerGateway resourceManagerGateway;
 
     @Autowired
-    private ServiceConfiguration serviceConfiguration;
+    private UpdatingNodeCandidatesUtils updatingNodeCandidatesUtils;
 
     @Autowired
     private RepositoryService repositoryService;
@@ -71,7 +71,7 @@ public class CloudService {
      * @param clouds A list of clouds information in JSONObject format
      * @return 0 if clouds has been added properly. A greater than 0 value otherwise.
      */
-    public Integer addClouds(String sessionId, List<JSONObject> clouds) throws NotConnectedException {
+    public Integer addClouds(String sessionId, List<CloudDefinition> clouds) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
@@ -80,32 +80,28 @@ public class CloudService {
         List<String> savedCloudIds = new LinkedList<>();
         clouds.forEach(cloud -> {
             PACloud newCloud = new PACloud();
-            String nodeSourceNamePrefix = cloud.optString("cloudProviderName") + cloud.optString("cloudID");
+            String nodeSourceNamePrefix = cloud.getCloudProviderName() + cloud.getCloudID();
             newCloud.setNodeSourceNamePrefix(nodeSourceNamePrefix);
-            newCloud.setCloudID(cloud.optString("cloudID"));
-            newCloud.setCloudProviderName(cloud.optString("cloudProviderName"));
-            newCloud.setCloudType(CloudType.fromValue(cloud.optString("cloudType")));
+            newCloud.setCloudID(cloud.getCloudID());
+            newCloud.setCloudProviderName(cloud.getCloudProviderName());
+            newCloud.setCloudType(cloud.getCloudType());
             newCloud.setDeployedRegions(new HashMap<>());
             newCloud.setDeployedWhiteListedRegions(new HashMap<>());
-            newCloud.setSubnet(cloud.optString("subnet"));
-            newCloud.setSecurityGroup(cloud.optString("securityGroup"));
-            newCloud.setEndpoint(cloud.optString("endpoint"));
-            newCloud.setScopePrefix(cloud.optJSONObject("scope").optString("prefix"));
-            newCloud.setScopeValue(cloud.optJSONObject("scope").optString("value"));
-            newCloud.setIdentityVersion(cloud.optString("identityVersion"));
-            newCloud.setDefaultNetwork(cloud.optString("defaultNetwork"));
-            newCloud.setBlacklist(cloud.optString("blacklist"));
+            newCloud.setSubnet(cloud.getSubnet());
+            newCloud.setSecurityGroup(cloud.getSecurityGroup());
+            newCloud.setEndpoint(cloud.getEndpoint());
+            newCloud.setScopePrefix(cloud.getScope().getPrefix());
+            newCloud.setScopeValue(cloud.getScope().getValue());
+            newCloud.setIdentityVersion(cloud.getIdentityVersion());
+            newCloud.setDefaultNetwork(cloud.getDefaultNetwork());
+            newCloud.setBlacklist(Optional.ofNullable(cloud.getBlacklist()).orElse(""));
 
-            SSHCredentials sshCredentials = new SSHCredentials();
-            sshCredentials.setUsername(cloud.optJSONObject("sshCredentials").optString("username"));
-            sshCredentials.setKeyPairName(cloud.optJSONObject("sshCredentials").optString("keyPairName"));
-            sshCredentials.setPrivateKey(cloud.optJSONObject("sshCredentials").optString("privateKey"));
-            newCloud.setSshCredentials(sshCredentials);
+            newCloud.setSshCredentials(cloud.getSshCredentials());
 
             Credentials credentials = new Credentials();
-            credentials.setUserName(cloud.optJSONObject("credentials").optString("user"));
-            credentials.setPrivateKey(cloud.optJSONObject("credentials").optString("secret"));
-            credentials.setDomain(cloud.optJSONObject("credentials").optString("domain"));
+            credentials.setUserName(cloud.getCredentials().getUser());
+            credentials.setPrivateKey(cloud.getCredentials().getSecret());
+            credentials.setDomain(cloud.getCredentials().getDomain());
             repositoryService.updateCredentials(credentials);
             newCloud.setCredentials(credentials);
 
@@ -122,15 +118,13 @@ public class CloudService {
 
         LOGGER.info("Clouds created properly.");
 
-        updateNodeCandidatesAsync(savedCloudIds);
+        try {
+            updatingNodeCandidatesUtils.asyncUpdate(savedCloudIds);
+        } catch (InterruptedException ie) {
+            LOGGER.warn("Thread updating node candidates interrupted!", ie);
+        }
 
         return 0;
-    }
-
-    private void updateNodeCandidatesAsync(List<String> newCloudIds) {
-        UpdatingNodeCandidatesThread updatingThread = new UpdatingNodeCandidatesThread(serviceConfiguration.getPaUrl(),
-                                                                                       newCloudIds);
-        updatingThread.start();
     }
 
     /**
@@ -222,6 +216,12 @@ public class CloudService {
             }
             LOGGER.info("Cleaning deployments from the cloud entry");
             cloud.clearDeployments();
+            LOGGER.info("Cleaning node candidates");
+            try {
+                updatingNodeCandidatesUtils.asyncClean(cloudIDs);
+            } catch (InterruptedException ie) {
+                LOGGER.warn("Thread cleaning node candidates interrupted!", ie);
+            }
             repositoryService.deletePACloud(cloud);
             LOGGER.info("Cloud removed.");
         });

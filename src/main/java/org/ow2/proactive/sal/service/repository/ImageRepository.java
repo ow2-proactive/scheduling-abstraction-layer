@@ -25,11 +25,19 @@
  */
 package org.ow2.proactive.sal.service.repository;
 
+import java.util.List;
+
 import org.ow2.proactive.sal.service.model.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image, String> {
+
+    @Transactional(readOnly = true)
+    @Query(value = "SELECT id FROM Image WHERE id NOT IN (SELECT image.id FROM NodeCandidate GROUP BY image.id)")
+    List<String> getOrphanImageIds();
 }

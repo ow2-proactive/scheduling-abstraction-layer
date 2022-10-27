@@ -44,6 +44,7 @@ import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.util.GeoLocationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
@@ -54,6 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
+@Component
 public class NodeCandidateUtils {
 
     @Autowired
@@ -64,16 +66,16 @@ public class NodeCandidateUtils {
 
     private static RepositoryService staticRepositoryService;
 
-    private final GeoLocationUtils geoLocationUtils;
+    private GeoLocationUtils geoLocationUtils;
 
-    private final LoadingCache<Quartet<PACloud, String, String, String>, JSONArray> nodeCandidatesCache;
+    private LoadingCache<Quartet<PACloud, String, String, String>, JSONArray> nodeCandidatesCache;
 
     @PostConstruct
     private void initStaticAttributes() {
         staticRepositoryService = this.repositoryService;
     }
 
-    public NodeCandidateUtils(String paURL) {
+    public void initNodeCandidateUtils() {
         geoLocationUtils = new GeoLocationUtils();
         nodeCandidatesCache = CacheBuilder.newBuilder()
                                           .maximumSize(100)
@@ -260,6 +262,8 @@ public class NodeCandidateUtils {
                 hardware.setDisk((double) 0);
             }
             hardware.setLocation(createLocation(nodeCandidateJSON, paCloud));
+
+            repositoryService.updateHardware(hardware);
         }
 
         return hardware;
@@ -276,6 +280,8 @@ public class NodeCandidateUtils {
             location.setLocationScope(Location.LocationScopeEnum.REGION);
             location.setIsAssignable(true);
             location.setGeoLocation(createGeoLocation(paCloud.getCloudProviderName(), location.getName()));
+
+            repositoryService.updateLocation(location);
         }
         return location;
     }
@@ -319,6 +325,8 @@ public class NodeCandidateUtils {
             os.setOperatingSystemVersion(osJSON.optBigDecimal("version", BigDecimal.valueOf(0)));
             image.setOperatingSystem(os);
             image.setLocation(createLocation(nodeCandidateJSON, paCloud));
+
+            repositoryService.updateImage(image);
         }
 
         return image;
@@ -333,6 +341,8 @@ public class NodeCandidateUtils {
             cloud.setApi(new Api(nodeCandidateJSON.optString("cloud")));
             cloud.setCredential(new CloudCredential());
             cloud.setCloudConfiguration(new CloudConfiguration("", new HashMap<>()));
+
+            repositoryService.updateCloud(cloud);
         }
         return cloud;
     }
@@ -343,8 +353,8 @@ public class NodeCandidateUtils {
         nodeCandidate.setPrice(nodeCandidateJSON.optDouble("price"));
         nodeCandidate.setCloud(createCloud(nodeCandidateJSON, paCloud));
 
-        nodeCandidate.setImage(createImage(nodeCandidateJSON, imageJSON, paCloud));
         nodeCandidate.setLocation(createLocation(nodeCandidateJSON, paCloud));
+        nodeCandidate.setImage(createImage(nodeCandidateJSON, imageJSON, paCloud));
         nodeCandidate.setHardware(createHardware(nodeCandidateJSON, paCloud));
 
         nodeCandidate.setPricePerInvocation((double) 0);
@@ -422,8 +432,9 @@ public class NodeCandidateUtils {
             JSONArray nodeCandidates = nodeCandidatesCache.get(Quartet.with(paCloud, region, imageReq, ""));
             nodeCandidates.forEach(nc -> {
                 JSONObject nodeCandidate = (JSONObject) nc;
-                repositoryService.updateLocation(createLocation(nodeCandidate, paCloud));
+                createLocation(nodeCandidate, paCloud);
                 NodeCandidate newNodeCandidate = createNodeCandidate(nodeCandidate, image, paCloud);
+                repositoryService.updateNodeCandidate(newNodeCandidate);
                 IaasNode newIaasNode = new IaasNode(newNodeCandidate);
                 repositoryService.updateIaasNode(newIaasNode);
                 newNodeCandidate.setNodeId(newIaasNode.getId());
@@ -480,5 +491,13 @@ public class NodeCandidateUtils {
             }
         }
         return null;
+    }
+
+    public long cleanNodeCandidates(List<String> newCloudIds) {
+        return repositoryService.listNodeCandidates()
+                                .stream()
+                                .filter(nodeCandidate -> newCloudIds.contains(nodeCandidate.getCloud().getId()))
+                                .map(nodeCandidate -> repositoryService.deleteNodeCandidate(nodeCandidate.getId()))
+                                .count();
     }
 }
