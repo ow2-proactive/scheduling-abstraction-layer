@@ -74,69 +74,28 @@ public class JobService {
      * @param sessionId A valid session id
      * @param job A job skeleton definition in JSON format
      */
-    public Boolean createJob(String sessionId, JSONObject job) throws NotConnectedException {
+    public Boolean createJob(String sessionId, JobDefinition job) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
         Validate.notNull(job, "The job received is empty. Nothing to be created.");
 
         Job newJob = new Job();
-        newJob.setJobId(job.optJSONObject("jobInformation").optString("id"));
-        newJob.setName(job.optJSONObject("jobInformation").optString("name"));
+        newJob.setJobId(job.getJobInformation().getId());
+        newJob.setName(job.getJobInformation().getName());
         List<Task> tasks = new LinkedList<>();
-        JSONArray jsonTasks = job.optJSONArray("tasks");
-        jsonTasks.forEach(object -> {
-            JSONObject task = (JSONObject) object;
+        job.getTasks().forEach(taskDefinition -> {
             Task newTask = new Task();
-            newTask.setTaskId(newJob.getJobId() + task.optString("name"));
-            newTask.setName(task.optString("name"));
-            JSONObject installation = task.getJSONObject("installation");
+            newTask.setTaskId(newJob.getJobId() + taskDefinition.getName());
+            newTask.setName(taskDefinition.getName());
+            Installation installation = taskDefinition.getInstallation();
+            newTask.setType(installation.getType().getValue());
+            newTask.setInstallationByType(taskDefinition.getInstallation());
 
-            newTask.setType(installation.optString("type"));
-            switch (newTask.getType()) {
-                case "docker":
-                    DockerEnvironment environment = new DockerEnvironment();
-                    environment.setDockerImage(installation.optString("dockerImage"));
-                    environment.setPort(installation.optJSONObject("environment").optString("port"));
-                    Map<String, String> vars = new HashMap<>();
-                    installation.optJSONObject("environment")
-                                .keySet()
-                                .stream()
-                                .filter(key -> !key.equals("port"))
-                                .forEach(key -> vars.put(key,
-                                                         installation.optJSONObject("environment").optString(key)));
-                    environment.setEnvironmentVars(vars);
-                    newTask.setEnvironment(environment);
-                    LOGGER.info("vars calculated" + vars);
-                    break;
-                case "commands":
-                    CommandsInstallation commands = new CommandsInstallation();
-                    commands.setPreInstall(installation.optString("preInstall"));
-                    commands.setInstall(installation.optString("install"));
-                    commands.setPostInstall(installation.optString("postInstall"));
-                    commands.setPreStart(installation.optString("preStart"));
-                    commands.setStart(installation.optString("start"));
-                    commands.setPostStart(installation.optString("postStart"));
-                    commands.setUpdateCmd(installation.optString("update"));
-                    commands.setPreStop(installation.optString("preStop"));
-                    commands.setStop(installation.optString("stop"));
-                    commands.setPostStop(installation.optString("postStop"));
-                    OperatingSystemType operatingSystemType = new OperatingSystemType();
-                    operatingSystemType.setOperatingSystemFamily(installation.optJSONObject("operatingSystem")
-                                                                             .optString("operatingSystemFamily"));
-                    operatingSystemType.setOperatingSystemVersion(installation.optJSONObject("operatingSystem")
-                                                                              .optFloat("operatingSystemVersion"));
-                    commands.setOperatingSystemType(operatingSystemType);
-                    newTask.setInstallation(commands);
-                    break;
-                case "spark":
-                    throw new IllegalArgumentException("Spark tasks are not handled yet.");
-            }
-
-            List<Port> portsToOpen = extractListOfPortsToOpen(task.optJSONArray("ports"), job);
+            List<Port> portsToOpen = extractListOfPortsToOpen(taskDefinition.getPorts(), job);
             portsToOpen.forEach(repositoryService::updatePort);
             newTask.setPortsToOpen(portsToOpen);
-            newTask.setParentTasks(extractParentTasks(job, task));
+            newTask.setParentTasks(extractParentTasks(job, taskDefinition));
 
             repositoryService.updateTask(newTask);
             tasks.add(newTask);
@@ -153,14 +112,13 @@ public class JobService {
         return true;
     }
 
-    private List<Port> extractListOfPortsToOpen(JSONArray ports, JSONObject job) {
+    private List<Port> extractListOfPortsToOpen(List<AbstractPortDefinition> ports, JobDefinition job) {
         List<Port> portsToOpen = new LinkedList<>();
         if (ports != null) {
-            ports.forEach(object -> {
-                JSONObject portEntry = (JSONObject) object;
-                if (Objects.equals("PortProvided", portEntry.optString("type"))) {
-                    Port portToOpen = new Port(portEntry.optInt("port"));
-                    portToOpen.setRequestedName(findRequiredPort(job, portEntry.optString("name")));
+            ports.forEach(portDefinition -> {
+                if (portDefinition instanceof PortProvided) {
+                    Port portToOpen = new Port(((PortProvided) portDefinition).getPort());
+                    portToOpen.setRequestedName(findRequiredPort(job, ((PortProvided) portDefinition).getName()));
                     portsToOpen.add(portToOpen);
                 }
             });
@@ -168,27 +126,24 @@ public class JobService {
         return portsToOpen;
     }
 
-    private String findRequiredPort(JSONObject job, String providedPortName) {
-        for (Object communicationObject : job.optJSONArray("communications")) {
-            JSONObject communication = (JSONObject) communicationObject;
-            if (Objects.equals(providedPortName, communication.optString("portProvided")))
-                return communication.optString("portRequired");
+    private String findRequiredPort(JobDefinition job, String providedPortName) {
+        for (Communication communication : job.getCommunications()) {
+            if (Objects.equals(providedPortName, communication.getPortProvided()))
+                return communication.getPortRequired();
         }
         return "NOTREQUESTED_providedPortName";
     }
 
-    private List<String> extractParentTasks(JSONObject job, JSONObject task) {
+    private List<String> extractParentTasks(JobDefinition job, TaskDefinition task) {
         List<String> parentTasks = new LinkedList<>();
-        JSONArray ports = task.optJSONArray("ports");
-        if (ports != null) {
-            ports.forEach(portObject -> {
-                JSONObject portEntry = (JSONObject) portObject;
-                //                if (Objects.equals("PortRequired", portEntry.optString("type"))
-                //                        && portEntry.optBoolean("isMandatory")) {
-                if (Objects.equals("PortRequired", portEntry.optString("type"))) {
+        if (task.getPorts() != null) {
+            task.getPorts().forEach(portDefinition -> {
+                //                                if (portDefinition instanceof PortRequired
+                //                                        && ((PortRequired) portDefinition).isMandatory()) {
+                if (portDefinition instanceof PortRequired) {
                     LOGGER.debug("Mandatory required port detected");
-                    String providedPortName = findProvidedPort(job, portEntry.optString("name"));
-                    parentTasks.add(findTaskByProvidedPort(job.optJSONArray("tasks"), providedPortName));
+                    String providedPortName = findProvidedPort(job, ((PortRequired) portDefinition).getName());
+                    parentTasks.add(findTaskByProvidedPort(job.getTasks(), providedPortName));
                 }
             });
         }
@@ -196,29 +151,25 @@ public class JobService {
         return parentTasks;
     }
 
-    private String findProvidedPort(JSONObject job, String requiredPortName) {
-        for (Object communicationObject : job.optJSONArray("communications")) {
-            JSONObject communication = (JSONObject) communicationObject;
-            if (Objects.equals(requiredPortName, communication.optString("portRequired")))
-                return communication.optString("portProvided");
+    private String findProvidedPort(JobDefinition job, String requiredPortName) {
+        for (Communication communication : job.getCommunications()) {
+            if (Objects.equals(requiredPortName, communication.getPortRequired()))
+                return communication.getPortProvided();
         }
         throw new NotFoundException("Required port " + requiredPortName + " not found in communications.");
     }
 
-    private String findTaskByProvidedPort(JSONArray tasks, String providedPortName) {
-        for (Object taskObject : tasks) {
-            JSONObject task = (JSONObject) taskObject;
+    private String findTaskByProvidedPort(List<TaskDefinition> tasks, String providedPortName) {
+        for (TaskDefinition task : tasks) {
             if (taskProvidesPort(task, providedPortName))
-                return task.optString("name");
+                return task.getName();
         }
         throw new NotFoundException("Task that provides port " + providedPortName + " was not found in job.");
     }
 
-    private boolean taskProvidesPort(JSONObject task, String providedPortName) {
-        for (Object portObject : task.optJSONArray("ports")) {
-            JSONObject port = (JSONObject) portObject;
-            if (Objects.equals("PortProvided", port.optString("type")) &&
-                Objects.equals(providedPortName, port.optString("name")))
+    private boolean taskProvidesPort(TaskDefinition task, String providedPortName) {
+        for (PortDefinition port : task.getPorts()) {
+            if (port instanceof PortProvided && Objects.equals(providedPortName, ((PortProvided) port).getName()))
                 return true;
         }
         return false;

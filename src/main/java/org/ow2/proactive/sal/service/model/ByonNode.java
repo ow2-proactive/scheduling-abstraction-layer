@@ -47,6 +47,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "BYON_NODE")
 public class ByonNode extends AbstractNode {
 

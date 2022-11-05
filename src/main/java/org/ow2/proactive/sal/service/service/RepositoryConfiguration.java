@@ -38,7 +38,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
-                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/sal.properties", ignoreResourceNotFound = true) })
+                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/${PROPERTIES_FILENAME}.properties", ignoreResourceNotFound = true) })
 @Configuration
 public class RepositoryConfiguration {
 

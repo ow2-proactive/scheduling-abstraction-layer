@@ -64,7 +64,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableAsync
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
-                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/sal.properties", ignoreResourceNotFound = true) })
+                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/${PROPERTIES_FILENAME}.properties", ignoreResourceNotFound = true) })
 @EntityScan(basePackages = "org.ow2.proactive.sal.service.model")
 @EntityScanRoot("classpath:/org/ow2/proactive/sal/service/model")
 @EnableTransactionManagement

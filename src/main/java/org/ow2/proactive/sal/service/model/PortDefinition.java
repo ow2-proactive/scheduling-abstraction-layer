@@ -23,34 +23,47 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.service;
+package org.ow2.proactive.sal.service.model;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
+import java.io.Serializable;
+import java.util.Locale;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 
-@Configuration
-@PropertySources({ @PropertySource(value = "classpath:application.properties"),
-                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/${PROPERTIES_FILENAME}.properties", ignoreResourceNotFound = true) })
-@Getter
-@Setter
-public class ServiceConfiguration {
+public interface PortDefinition extends Serializable {
 
-    public static final int MAX_CONNECTION_RETRIES = 10;
+    PortType getType();
 
-    public static final int INTERVAL = 10000;
+    /**
+     * Port type
+     */
+    enum PortType {
+        PROVIDED("PortProvided"),
 
-    @Value("${pa.url}")
-    private String paUrl;
+        REQUIRED("PortRequired");
 
-    @Value("${pa.login}")
-    private String paLogin;
+        private final String value;
 
-    @Value("${pa.password}")
-    private String paPassword;
+        PortType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static PortDefinition.PortType fromValue(String text) {
+            for (PortDefinition.PortType b : PortDefinition.PortType.values()) {
+                if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
 }

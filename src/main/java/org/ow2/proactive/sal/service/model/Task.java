@@ -38,8 +38,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @NoArgsConstructor
 @ToString(callSuper = true)
 @Getter
@@ -57,6 +59,7 @@ public class Task implements Serializable {
     @Column(name = "TYPE")
     private String type;
 
+    // Are these two attributes able to be merged into one common abstract?
     @Embedded
     private CommandsInstallation installation;
 
@@ -104,5 +107,16 @@ public class Task implements Serializable {
             submittedTaskNames = new LinkedList<>();
         }
         submittedTaskNames.add(submittedTaskName);
+    }
+
+    public void setInstallationByType(Installation installation) {
+        if (installation instanceof DockerEnvironment) {
+            this.setEnvironment((DockerEnvironment) installation);
+            LOGGER.info("vars calculated" + ((DockerEnvironment) installation).getEnvironmentVars());
+        } else if (installation instanceof CommandsInstallation) {
+            this.setInstallation((CommandsInstallation) installation);
+        } else {
+            throw new IllegalArgumentException("Task type not supported yet.");
+        }
     }
 }

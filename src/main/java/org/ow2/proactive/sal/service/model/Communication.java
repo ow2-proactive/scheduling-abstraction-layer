@@ -25,49 +25,26 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.util.Map;
-
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.*;
 
 
+/**
+ * Attributes defining a Job Communication`
+ */
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(callSuper = true)
 @Getter
 @Setter
-@Embeddable
-@JsonTypeName(value = "docker")
-public class DockerEnvironment extends AbstractInstallation {
+@ToString(callSuper = true)
+public class Communication implements Serializable {
 
-    @Column(name = "DOCKER_IMAGE")
-    @JsonProperty("dockerImage")
-    private String dockerImage;
+    @JsonProperty("portProvided")
+    private String portProvided;
 
-    @Column(name = "PORT")
-    private String port;
-
-    @Column(name = "ENV_VARS")
-    @ElementCollection(targetClass = String.class)
-    @JsonProperty("environmentVars")
-    private Map<String, String> environmentVars;
-
-    @Override
-    public InstallationType getType() {
-        return InstallationType.DOCKER;
-    }
-
-    public String getEnvVarsAsCommandString() {
-        StringBuilder commandString = new StringBuilder();
-        for (Map.Entry<String, String> entry : environmentVars.entrySet()) {
-            commandString.append("-e ").append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
-        }
-        return commandString.toString();
-    }
+    @JsonProperty("portRequired")
+    private String portRequired;
 }

@@ -23,34 +23,19 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.service;
+package org.ow2.proactive.sal.service.model;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
-
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 
-@Configuration
-@PropertySources({ @PropertySource(value = "classpath:application.properties"),
-                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/${PROPERTIES_FILENAME}.properties", ignoreResourceNotFound = true) })
-@Getter
-@Setter
-public class ServiceConfiguration {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({ @JsonSubTypes.Type(value = CommandsInstallation.class, name = "commands"),
+                @JsonSubTypes.Type(value = DockerEnvironment.class, name = "docker") })
+public abstract class AbstractInstallation implements Installation {
 
-    public static final int MAX_CONNECTION_RETRIES = 10;
+    @JsonProperty("type")
+    protected InstallationType type;
 
-    public static final int INTERVAL = 10000;
-
-    @Value("${pa.url}")
-    private String paUrl;
-
-    @Value("${pa.login}")
-    private String paLogin;
-
-    @Value("${pa.password}")
-    private String paPassword;
 }

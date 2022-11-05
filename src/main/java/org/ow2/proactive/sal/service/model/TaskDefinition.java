@@ -25,49 +25,30 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.util.Map;
-
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embeddable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.*;
 
 
+/**
+ * Attributes defining a Task`
+ */
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(callSuper = true)
 @Getter
 @Setter
-@Embeddable
-@JsonTypeName(value = "docker")
-public class DockerEnvironment extends AbstractInstallation {
+@ToString(callSuper = true)
+public class TaskDefinition {
 
-    @Column(name = "DOCKER_IMAGE")
-    @JsonProperty("dockerImage")
-    private String dockerImage;
+    @JsonProperty("name")
+    private String name;
 
-    @Column(name = "PORT")
-    private String port;
+    @JsonProperty("installation")
+    private AbstractInstallation installation;
 
-    @Column(name = "ENV_VARS")
-    @ElementCollection(targetClass = String.class)
-    @JsonProperty("environmentVars")
-    private Map<String, String> environmentVars;
-
-    @Override
-    public InstallationType getType() {
-        return InstallationType.DOCKER;
-    }
-
-    public String getEnvVarsAsCommandString() {
-        StringBuilder commandString = new StringBuilder();
-        for (Map.Entry<String, String> entry : environmentVars.entrySet()) {
-            commandString.append("-e ").append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
-        }
-        return commandString.toString();
-    }
+    @JsonProperty("ports")
+    private List<AbstractPortDefinition> ports;
 }

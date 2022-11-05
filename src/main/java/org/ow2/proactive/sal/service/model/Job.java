@@ -25,15 +25,11 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 
 import lombok.*;
 
@@ -71,15 +67,15 @@ public class Job implements Serializable {
         return tasks.stream().filter(task -> task.getName().equals(taskName)).findAny().orElse(null);
     }
 
-    /**
-     *
-     * Transform a job into JSON format
-     *
-     * @return the JSON representation of the job
-     * @throws IOException In case an IOException is thrown
-     */
-    public String getJobInJson() throws IOException {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        return ow.writeValueAsString(this);
-    }
+    //    /**
+    //     *
+    //     * Transform a job into JSON format
+    //     *
+    //     * @return the JSON representation of the job
+    //     * @throws IOException In case an IOException is thrown
+    //     */
+    //    public String getJobInJson() throws IOException {
+    //        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    //        return ow.writeValueAsString(this);
+    //    }
 }
