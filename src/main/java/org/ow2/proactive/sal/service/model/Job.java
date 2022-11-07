@@ -66,16 +66,4 @@ public class Job implements Serializable {
     public Task findTask(String taskName) {
         return tasks.stream().filter(task -> task.getName().equals(taskName)).findAny().orElse(null);
     }
-
-    //    /**
-    //     *
-    //     * Transform a job into JSON format
-    //     *
-    //     * @return the JSON representation of the job
-    //     * @throws IOException In case an IOException is thrown
-    //     */
-    //    public String getJobInJson() throws IOException {
-    //        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    //        return ow.writeValueAsString(this);
-    //    }
 }

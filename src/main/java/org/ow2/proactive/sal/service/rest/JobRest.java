@@ -31,7 +31,6 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.Job;
 import org.ow2.proactive.sal.service.model.JobDefinition;
 import org.ow2.proactive.sal.service.model.SubmittedJobType;

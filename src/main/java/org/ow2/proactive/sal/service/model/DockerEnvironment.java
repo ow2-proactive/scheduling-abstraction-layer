@@ -51,6 +51,7 @@ public class DockerEnvironment extends AbstractInstallation {
     private String dockerImage;
 
     @Column(name = "PORT")
+    @JsonProperty("port")
     private String port;
 
     @Column(name = "ENV_VARS")
