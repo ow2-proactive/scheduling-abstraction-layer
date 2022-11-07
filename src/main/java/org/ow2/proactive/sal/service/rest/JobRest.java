@@ -31,8 +31,8 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.Job;
+import org.ow2.proactive.sal.service.model.JobDefinition;
 import org.ow2.proactive.sal.service.model.SubmittedJobType;
 import org.ow2.proactive.sal.service.service.JobService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -62,7 +62,7 @@ public class JobRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A job skeleton definition in JSON format", required = true)
     @RequestBody
-    final JSONObject job) throws NotConnectedException {
+    final JobDefinition job) throws NotConnectedException {
         return ResponseEntity.ok(jobService.createJob(sessionId, job));
     }
 

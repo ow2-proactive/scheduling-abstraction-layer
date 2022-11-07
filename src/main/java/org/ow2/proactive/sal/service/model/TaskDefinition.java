@@ -25,45 +25,30 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.*;
 
 
+/**
+ * Attributes defining a Task`
+ */
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(callSuper = true)
 @Getter
 @Setter
-@Entity
-@Table(name = "JOB")
-public class Job implements Serializable {
-    @Id
-    @Column(name = "JOB_ID")
-    private String jobId;
+@ToString(callSuper = true)
+public class TaskDefinition {
 
-    @Column(name = "NAME")
+    @JsonProperty("name")
     private String name;
 
-    @Column(name = "VARIABLES")
-    @ElementCollection(targetClass = String.class)
-    private Map<String, String> variables;
+    @JsonProperty("installation")
+    private AbstractInstallation installation;
 
-    @Column(name = "SUBMITTED_JOB_ID")
-    private long submittedJobId = 0L;
-
-    @Column(name = "SUBMITTED_JOB_TYPE")
-    @Enumerated(EnumType.STRING)
-    private SubmittedJobType submittedJobType;
-
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
-    private List<Task> tasks;
-
-    public Task findTask(String taskName) {
-        return tasks.stream().filter(task -> task.getName().equals(taskName)).findAny().orElse(null);
-    }
+    @JsonProperty("ports")
+    private List<AbstractPortDefinition> ports;
 }

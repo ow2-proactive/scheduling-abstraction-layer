@@ -31,6 +31,9 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import lombok.*;
 
 
@@ -40,17 +43,26 @@ import lombok.*;
 @Getter
 @Setter
 @Embeddable
-public class DockerEnvironment {
+@JsonTypeName(value = "docker")
+public class DockerEnvironment extends AbstractInstallation {
 
     @Column(name = "DOCKER_IMAGE")
+    @JsonProperty("dockerImage")
     private String dockerImage;
 
     @Column(name = "PORT")
+    @JsonProperty("port")
     private String port;
 
     @Column(name = "ENV_VARS")
     @ElementCollection(targetClass = String.class)
+    @JsonProperty("environmentVars")
     private Map<String, String> environmentVars;
+
+    @Override
+    public InstallationType getType() {
+        return InstallationType.DOCKER;
+    }
 
     public String getEnvVarsAsCommandString() {
         StringBuilder commandString = new StringBuilder();

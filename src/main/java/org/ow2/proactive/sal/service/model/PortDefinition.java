@@ -26,44 +26,44 @@
 package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
-import javax.persistence.*;
-
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString(callSuper = true)
-@Getter
-@Setter
-@Entity
-@Table(name = "JOB")
-public class Job implements Serializable {
-    @Id
-    @Column(name = "JOB_ID")
-    private String jobId;
+public interface PortDefinition extends Serializable {
 
-    @Column(name = "NAME")
-    private String name;
+    PortType getType();
 
-    @Column(name = "VARIABLES")
-    @ElementCollection(targetClass = String.class)
-    private Map<String, String> variables;
+    /**
+     * Port type
+     */
+    enum PortType {
+        PROVIDED("PortProvided"),
 
-    @Column(name = "SUBMITTED_JOB_ID")
-    private long submittedJobId = 0L;
+        REQUIRED("PortRequired");
 
-    @Column(name = "SUBMITTED_JOB_TYPE")
-    @Enumerated(EnumType.STRING)
-    private SubmittedJobType submittedJobType;
+        private final String value;
 
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
-    private List<Task> tasks;
+        PortType(String value) {
+            this.value = value;
+        }
 
-    public Task findTask(String taskName) {
-        return tasks.stream().filter(task -> task.getName().equals(taskName)).findAny().orElse(null);
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static PortDefinition.PortType fromValue(String text) {
+            for (PortDefinition.PortType b : PortDefinition.PortType.values()) {
+                if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
+                    return b;
+                }
+            }
+            return null;
+        }
     }
 }

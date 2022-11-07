@@ -26,44 +26,47 @@
 package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-import lombok.*;
+import lombok.Getter;
 
 
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString(callSuper = true)
-@Getter
-@Setter
-@Entity
-@Table(name = "JOB")
-public class Job implements Serializable {
-    @Id
-    @Column(name = "JOB_ID")
-    private String jobId;
+public interface Installation extends Serializable {
 
-    @Column(name = "NAME")
-    private String name;
+    InstallationType getType();
 
-    @Column(name = "VARIABLES")
-    @ElementCollection(targetClass = String.class)
-    private Map<String, String> variables;
+    /**
+     * Installation type
+     */
+    enum InstallationType {
+        DOCKER("docker"),
 
-    @Column(name = "SUBMITTED_JOB_ID")
-    private long submittedJobId = 0L;
+        COMMANDS("commands");
 
-    @Column(name = "SUBMITTED_JOB_TYPE")
-    @Enumerated(EnumType.STRING)
-    private SubmittedJobType submittedJobType;
+        @Getter
+        private final String value;
 
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
-    private List<Task> tasks;
+        InstallationType(String value) {
+            this.value = value;
+        }
 
-    public Task findTask(String taskName) {
-        return tasks.stream().filter(task -> task.getName().equals(taskName)).findAny().orElse(null);
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static Installation.InstallationType fromValue(String text) {
+            for (Installation.InstallationType b : Installation.InstallationType.values()) {
+                if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
+                    return b;
+                }
+            }
+            return null;
+        }
     }
 }

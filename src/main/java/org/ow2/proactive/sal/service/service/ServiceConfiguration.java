@@ -36,7 +36,7 @@ import lombok.Setter;
 
 @Configuration
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
-                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/sal.properties", ignoreResourceNotFound = true) })
+                   @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/${PROPERTIES_FILENAME}.properties", ignoreResourceNotFound = true) })
 @Getter
 @Setter
 public class ServiceConfiguration {
