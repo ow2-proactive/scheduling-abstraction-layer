@@ -25,8 +25,6 @@
  */
 package org.ow2.proactive.sal.service.service;
 
-import java.util.concurrent.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,10 +50,6 @@ public class PAGatewayInitThread extends Thread {
         int retries = 0;
         boolean isConnected = false;
         Exception exception = new Exception("");
-        ExecutorService executor = Executors.newCachedThreadPool();
-        Callable<String> task = () -> paGatewayService.connect(serviceConfiguration.getPaLogin(),
-                                                               serviceConfiguration.getPaPassword());
-        Future<String> future = executor.submit(task);
         while (!isConnected && retries < ServiceConfiguration.MAX_CONNECTION_RETRIES) {
             Thread.sleep(ServiceConfiguration.INTERVAL);
             try {
@@ -63,19 +57,11 @@ public class PAGatewayInitThread extends Thread {
                              serviceConfiguration.getPaUrl(),
                              serviceConfiguration.getPaLogin(),
                              serviceConfiguration.getPaPassword());
-                future.get(ServiceConfiguration.TIMEOUT, TimeUnit.SECONDS);
+                paGatewayService.connect(serviceConfiguration.getPaLogin(), serviceConfiguration.getPaPassword());
                 isConnected = true;
             } catch (RuntimeException re) {
-                LOGGER.warn("Connection failed due to a RuntimeException: ", re);
+                LOGGER.warn("Not able to connect to ProActive Scheduler : ", re);
                 exception = re;
-            } catch (TimeoutException ex) {
-                LOGGER.warn("Connection failed due to a TimeoutException: ", ex);
-            } catch (InterruptedException ie) {
-                LOGGER.warn("Connection failed due to an InterruptedException: ", ie);
-            } catch (ExecutionException ee) {
-                LOGGER.warn("Connection failed due to an ExecutionException: ", ee);
-            } finally {
-                future.cancel(true); // may or may not desire this
             }
             retries++;
         }
