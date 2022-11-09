@@ -29,10 +29,10 @@ import org.ow2.proactive.authentication.ConnectionInfo;
 import org.ow2.proactive.scheduler.common.exception.PermissionException;
 import org.ow2.proactive_grid_cloud_portal.smartproxy.RestSmartProxyImpl;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 public class SchedulerConnectionHelper {
 
     private static final String SCHEDULER_REST_PATH = "/rest";

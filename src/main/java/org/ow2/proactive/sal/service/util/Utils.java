@@ -33,10 +33,10 @@ import java.util.stream.Stream;
 
 import org.ow2.proactive.sal.service.service.application.PAFactory;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 public class Utils {
 
     private Utils() {

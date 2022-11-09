@@ -32,7 +32,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
 /*
@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Activeeon R&D Department
  */
 
-@Slf4j
+@Log4j2
 public class SSHConnection {
     private final String username;
 

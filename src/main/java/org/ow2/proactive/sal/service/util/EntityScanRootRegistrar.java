@@ -49,14 +49,13 @@ import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 import org.springframework.util.Assert;
 
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 
 
 /**
  * {@link ImportBeanDefinitionRegistrar} used by {@link org.ow2.proactive.sal.service.util.EntityScanRoot}.
  *
  */
-@Slf4j
+@Log4j2
 class EntityScanRootRegistrar implements ImportBeanDefinitionRegistrar {
 
     private static final String BEAN_NAME = "entityScanRootBeanPostProcessor";

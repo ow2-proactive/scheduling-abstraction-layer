@@ -32,15 +32,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
-import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.service.model.Deployment;
+import org.ow2.proactive.sal.service.model.EmsDeploymentRequest;
+import org.ow2.proactive.sal.service.model.PACloud;
+import org.ow2.proactive.sal.service.model.Port;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @Service("MonitoringService")
 public class MonitoringService {
 

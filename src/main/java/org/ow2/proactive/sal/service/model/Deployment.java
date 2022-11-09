@@ -26,11 +26,13 @@
 package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.*;
 import javax.ws.rs.NotSupportedException;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,6 +46,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "DEPLOYMENT")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "nodeName")
 public class Deployment implements Serializable {
 
     @Id

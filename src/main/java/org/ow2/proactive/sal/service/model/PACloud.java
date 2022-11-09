@@ -31,6 +31,11 @@ import java.util.stream.Collectors;
 
 import javax.persistence.*;
 
+import org.codehaus.jackson.annotate.JsonManagedReference;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,6 +48,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "PA_CLOUD")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "cloudID")
 public class PACloud implements Serializable {
 
     public static final String WHITE_LISTED_NAME_PREFIX = "WLH";

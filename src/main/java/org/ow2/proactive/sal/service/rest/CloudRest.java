@@ -54,7 +54,7 @@ public class CloudRest {
     @ApiOperation(value = "Add clouds to SAL", response = Integer.class)
     public ResponseEntity<Integer> addClouds(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "An array of clouds information in JSONObject format", required = true)
+    final String sessionId, @ApiParam(value = "A list of CloudDefinition instances in json format", required = true)
     @RequestBody
     final List<CloudDefinition> clouds) throws NotConnectedException {
         return ResponseEntity.ok(cloudService.addClouds(sessionId, clouds));

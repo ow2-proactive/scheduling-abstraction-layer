@@ -28,7 +28,6 @@ package org.ow2.proactive.sal.service.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.*;
 

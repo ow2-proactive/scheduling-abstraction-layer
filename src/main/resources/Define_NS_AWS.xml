@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="urn:proactive:jobdescriptor:3.12" xsi:schemaLocation="urn:proactive:jobdescriptor:3.12 http://www.activeeon.com/public_content/schemas/proactive/jobdescriptor/3.12/schedulerjob.xsd"  name="Define_NS_AWS" projectName="Morphemic" priority="normal" onTaskError="continueJobExecution"  maxNumberOfExecution="2"  >
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="urn:proactive:jobdescriptor:3.13" xsi:schemaLocation="urn:proactive:jobdescriptor:3.13 http://www.activeeon.com/public_content/schemas/proactive/jobdescriptor/3.13/schedulerjob.xsd"  name="Define_NS_AWS" projectName="Morphemic"  priority="normal" onTaskError="continueJobExecution"  maxNumberOfExecution="2"  >
   <variables>
-    <variable name="NS_name" value="" model=""/>
-    <variable name="NS_nVMs" value="0" model="PA:Integer"/>
-    <variable name="aws_username" value="" model="PA:HIDDEN"/>
-    <variable name="aws_secret" value="" model="PA:HIDDEN"/>
-    <variable name="security_group" value="" model=""/>
-    <variable name="sshUsername" value="" />
-    <variable name="sshKeyPairName" value="" />
-    <variable name="sshPrivateKey" value=""  model="PA:HIDDEN"/>
-    <variable name="subnet" value="" model=""/>
-    <variable name="image" value="" model=""/>
-    <variable name="rm_host_name" value="" model=""/>
-    <variable name="pa_port" value="" model=""/>
+    <variable name="NS_name" value=""     />
+    <variable name="NS_nVMs" value="0" model="PA:Integer"    />
+    <variable name="aws_username" value="" model="PA:HIDDEN"    />
+    <variable name="aws_secret" value="" model="PA:HIDDEN"    />
+    <variable name="security_group" value=""     />
+    <variable name="sshUsername" value=""     />
+    <variable name="sshKeyPairName" value=""     />
+    <variable name="sshPrivateKey" value="" model="PA:HIDDEN"    />
+    <variable name="subnet" value=""     />
+    <variable name="image" value=""     />
+    <variable name="rm_host_name" value=""     />
+    <variable name="pa_port" value=""     />
   </variables>
   <description>
     <![CDATA[ A workflow that executes Groovy in JVM. ]]>
@@ -114,7 +114,7 @@ return retCode;
         </style>
     </head>
     <body>
-    <div id="workflow-visualization-view"><div id="workflow-visualization" style="position:relative;top:-137.125px;left:-346.5px"><div class="task _jsPlumb_endpoint_anchor_ ui-draggable" id="jsPlumb_1_7" style="top: 142.125px; left: 351.5px;"><a class="task-name" data-toggle="tooltip" data-placement="right" title="Define an AWS NodeSource"><img src="/studio/images/Groovy.png" width="20px">&nbsp;<span class="name">defineAWSNodeSource</span></a></div><div class="_jsPlumb_endpoint source-endpoint dependency-source-endpoint connected _jsPlumb_endpoint_anchor_ ui-draggable ui-droppable" style="position: absolute; height: 20px; width: 20px; left: 410px; top: 172px;"><svg style="position:absolute;left:0px;top:0px" width="20" height="20" pointer-events="all" position="absolute" version="1.1" xmlns="http://www.w3.org/1999/xhtml"><circle cx="10" cy="10" r="10" version="1.1" xmlns="http://www.w3.org/1999/xhtml" fill="#666" stroke="none" style=""></circle></svg></div></div></div>
+    <div id="workflow-visualization-view"><div id="workflow-visualization" style="position:relative;top:-137.1171875px;left:-346.5px"><div class="task _jsPlumb_endpoint_anchor_ ui-draggable" id="jsPlumb_1_1" style="top: 142.125px; left: 351.5px;"><a class="task-name" data-toggle="tooltip" data-placement="right" title="Define an AWS NodeSource"><img src="/studio/images/Groovy.png" width="20px">&nbsp;<span class="name">defineAWSNodeSource</span></a></div><div class="_jsPlumb_endpoint source-endpoint dependency-source-endpoint connected _jsPlumb_endpoint_anchor_ ui-draggable ui-droppable" style="position: absolute; height: 20px; width: 20px; left: 412px; top: 172px;"><svg style="position:absolute;left:0px;top:0px" width="20" height="20" pointer-events="all" position="absolute" version="1.1" xmlns="http://www.w3.org/1999/xhtml"><circle cx="10" cy="10" r="10" version="1.1" xmlns="http://www.w3.org/1999/xhtml" fill="#666" stroke="none" style=""></circle></svg></div></div></div>
     </body>
 </html>
  ]]>

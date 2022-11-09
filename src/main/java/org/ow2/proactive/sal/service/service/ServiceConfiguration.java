@@ -41,9 +41,11 @@ import lombok.Setter;
 @Setter
 public class ServiceConfiguration {
 
-    public static final int MAX_CONNECTION_RETRIES = 10;
+    public static final int MAX_CONNECTION_RETRIES = 5;
 
-    public static final int INTERVAL = 10000;
+    public static final int INTERVAL = 5000;
+
+    public static final int TIMEOUT = 10;
 
     @Value("${pa.url}")
     private String paUrl;

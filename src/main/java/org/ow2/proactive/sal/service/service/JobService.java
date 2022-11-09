@@ -32,8 +32,6 @@ import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -47,10 +45,10 @@ import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @Service("JobService")
 public class JobService {
 

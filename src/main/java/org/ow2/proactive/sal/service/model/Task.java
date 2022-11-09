@@ -31,23 +31,28 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import org.codehaus.jackson.annotate.JsonManagedReference;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @NoArgsConstructor
 @ToString(callSuper = true)
 @Getter
 @Setter
 @Entity
 @Table(name = "TASK")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "taskId")
 public class Task implements Serializable {
     @Id
     @Column(name = "TASK_ID")

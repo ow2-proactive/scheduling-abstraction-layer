@@ -27,12 +27,12 @@ package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.persistence.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 import org.ow2.proactive.scheduler.common.task.TaskVariable;
 
@@ -118,6 +118,7 @@ public class EmsDeploymentRequest implements Serializable {
     @Enumerated(EnumType.STRING)
     private TargetType targetType;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private NodeCandidate targetNodeCandidate;
 

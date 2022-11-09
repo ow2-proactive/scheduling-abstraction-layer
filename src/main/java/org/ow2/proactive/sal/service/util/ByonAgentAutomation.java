@@ -29,13 +29,13 @@ import org.ow2.proactive.sal.service.model.ByonNode;
 
 import com.jcraft.jsch.JSchException;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
 /*
  * This class Automates the deployment of ProActive node agents.
  */
-@Slf4j
+@Log4j2
 public class ByonAgentAutomation {
     private final String username;
 

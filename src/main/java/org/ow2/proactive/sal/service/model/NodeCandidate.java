@@ -39,13 +39,13 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
 /**
  * A node creatable by the system
  */
-@Slf4j
+@Log4j2
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

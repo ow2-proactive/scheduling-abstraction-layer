@@ -26,13 +26,14 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
 import org.apache.commons.lang3.Validate;
-import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
@@ -44,10 +45,10 @@ import org.ow2.proactive_grid_cloud_portal.scheduler.exception.RestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @Service("NodeService")
 public class NodeService {
 
@@ -69,11 +70,11 @@ public class NodeService {
     /**
      * Add nodes to the tasks of a defined job
      * @param sessionId A valid session id
-     * @param nodes An array of nodes information in JSONObject format
+     * @param nodes A list of IaasDefinition instances
      * @param jobId A constructed job identifier
      * @return 0 if nodes has been added properly. A greater than 0 value otherwise.
      */
-    public synchronized Boolean addNodes(String sessionId, List<JSONObject> nodes, String jobId)
+    public synchronized Boolean addNodes(String sessionId, List<IaasDefinition> nodes, String jobId)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -82,16 +83,15 @@ public class NodeService {
 
         nodes.forEach(node -> {
             Deployment newDeployment = new Deployment();
-            newDeployment.setNodeName(node.optString("nodeName"));
+            newDeployment.setNodeName(node.getName());
             newDeployment.setDeploymentType(NodeType.IAAS);
 
-            LOGGER.info("Trying to retrieve node candidate and related iaas node: " +
-                        node.optString("nodeCandidateId"));
-            NodeCandidate nodeCandidate = repositoryService.getNodeCandidate(node.optString("nodeCandidateId"));
+            LOGGER.info("Trying to retrieve node candidate and related iaas node: " + node.getNodeCandidateId());
+            NodeCandidate nodeCandidate = repositoryService.getNodeCandidate(node.getNodeCandidateId());
             if (nodeCandidate == null) {
-                LOGGER.error("Node candidate [{}] does not exist.", node.optString("nodeCandidateId"));
+                LOGGER.error("Node candidate [{}] does not exist.", node.getNodeCandidateId());
                 throw new IllegalArgumentException(String.format("NodeCandidateID [%s] not valid.",
-                                                                 node.optString("nodeCandidateId")));
+                                                                 node.getNodeCandidateId()));
             }
             IaasNode iaasNode = repositoryService.getIaasNode(nodeCandidate.getNodeId());
 
@@ -99,7 +99,7 @@ public class NodeService {
             iaasNode.incDeployedNodes(1L);
             repositoryService.updateIaasNode(iaasNode);
 
-            PACloud cloud = repositoryService.getPACloud(node.optString("cloudID"));
+            PACloud cloud = repositoryService.getPACloud(node.getCloudID());
             cloud.addDeployment(newDeployment);
             if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(newDeployment.getNode()
                                                                                          .getNodeCandidate()
@@ -139,8 +139,8 @@ public class NodeService {
 
             LOGGER.info("Node source defined.");
 
-            LOGGER.info("Trying to retrieve task: " + node.optString("taskName"));
-            Task task = repositoryService.getJob(jobId).findTask(node.optString("taskName"));
+            LOGGER.info("Trying to retrieve task: " + node.getTaskName());
+            Task task = repositoryService.getJob(jobId).findTask(node.getTaskName());
 
             newDeployment.setPaCloud(cloud);
             newDeployment.setTask(task);
@@ -172,10 +172,10 @@ public class NodeService {
         String filename;
         Map<String, String> variables = new HashMap<>();
         variables.put("NS_name", nodeSourceName);
-        variables.put("security_group", cloud.getSecurityGroup());
-        variables.put("sshUsername", cloud.getSshCredentials().getUsername());
-        variables.put("sshKeyPairName", cloud.getSshCredentials().getKeyPairName());
-        variables.put("sshPrivateKey", cloud.getSshCredentials().getPrivateKey());
+        variables.put("security_group", Optional.ofNullable(cloud.getSecurityGroup()).orElse(""));
+        variables.put("sshUsername", Optional.ofNullable(cloud.getSshCredentials().getUsername()).orElse(""));
+        variables.put("sshKeyPairName", Optional.ofNullable(cloud.getSshCredentials().getKeyPairName()).orElse(""));
+        variables.put("sshPrivateKey", Optional.ofNullable(cloud.getSshCredentials().getPrivateKey()).orElse(""));
         try {
             URL endpointPa = (new URL(serviceConfiguration.getPaUrl()));
             variables.put("rm_host_name", endpointPa.getHost());
@@ -196,7 +196,7 @@ public class NodeService {
                     variables.put("instance_type",
                                   deployment.getNode().getNodeCandidate().getHardware().getProviderId());
                     variables.put("region", deployment.getNode().getNodeCandidate().getLocation().getName());
-                    variables.put("subnet", cloud.getSubnet());
+                    variables.put("subnet", Optional.ofNullable(cloud.getSubnet()).orElse(""));
                     break;
                 default:
                     throw new IllegalArgumentException("Unhandled white listed instance type for cloud provider: " +
@@ -212,7 +212,7 @@ public class NodeService {
                     filename = File.separator + "Define_NS_AWS.xml";
                     variables.put("aws_username", cloud.getCredentials().getUserName());
                     variables.put("aws_secret", cloud.getCredentials().getPrivateKey());
-                    variables.put("subnet", cloud.getSubnet());
+                    variables.put("subnet", Optional.ofNullable(cloud.getSubnet()).orElse(""));
                     break;
                 case "openstack":
                     filename = File.separator + "Define_NS_OS.xml";
@@ -257,7 +257,9 @@ public class NodeService {
         }
         resourceManagerGateway.synchronizeDeploymentsIPAddresses(schedulerGateway);
         resourceManagerGateway.synchronizeDeploymentsInstanceIDs();
-        return repositoryService.listDeployments();
+        List<Deployment> allDeployments = repositoryService.listDeployments();
+        LOGGER.info("Fetched deployments size: {}", allDeployments.size());
+        return allDeployments;
     }
 
     /**

@@ -26,7 +26,6 @@
 package org.ow2.proactive.sal.service.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.*;
 

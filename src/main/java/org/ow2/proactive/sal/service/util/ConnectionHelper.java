@@ -36,10 +36,10 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 public class ConnectionHelper {
 
     private ConnectionHelper() {

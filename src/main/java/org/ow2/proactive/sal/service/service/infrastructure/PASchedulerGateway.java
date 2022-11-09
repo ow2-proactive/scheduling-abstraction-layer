@@ -47,10 +47,10 @@ import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.ow2.proactive_grid_cloud_portal.smartproxy.RestSmartProxyImpl;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @Service("PASchedulerGatewayService")
 public class PASchedulerGateway {
 
@@ -381,7 +381,7 @@ public class PASchedulerGateway {
         }
     }
 
-    private void renewSession() {
+    public void renewSession() {
         try {
             LOGGER.debug("Renewing connexion ...");
             restSmartProxy.renewSession();

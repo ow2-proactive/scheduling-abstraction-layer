@@ -31,10 +31,10 @@ import java.util.Set;
 
 import org.jclouds.ec2.domain.InstanceType;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 public class JCloudsInstancesUtils {
 
     private static final Set<String> handledAWSInstanceTypes;

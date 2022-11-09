@@ -43,10 +43,10 @@ import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestExc
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @Service("CloudService")
 public class CloudService {
 
@@ -68,7 +68,7 @@ public class CloudService {
     /**
      * Add clouds to the ProActive Resource Manager
      * @param sessionId A valid session id
-     * @param clouds A list of clouds information in JSONObject format
+     * @param clouds A list of CloudDefinition instances
      * @return 0 if clouds has been added properly. A greater than 0 value otherwise.
      */
     public Integer addClouds(String sessionId, List<CloudDefinition> clouds) throws NotConnectedException {

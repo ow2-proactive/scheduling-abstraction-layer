@@ -25,42 +25,30 @@
  */
 package org.ow2.proactive.sal.service.model;
 
-import java.io.Serializable;
-
-import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 
 
+/**
+ * Attributes defining a IAAS node
+ */
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(callSuper = true)
 @Getter
 @Setter
-@Entity
-@Table(name = "PORT")
-public class Port implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
-    @Column(name = "PORT_ID")
-    private Integer portId;
+@ToString(callSuper = true)
+public class IaasDefinition {
 
-    @Column(name = "VALUE")
-    private Integer value;
+    @JsonProperty("nodeName")
+    private String name = null;
 
-    @JsonIgnore
-    @Column(name = "REQUESTED_NAME")
-    private String requestedName;
+    @JsonProperty("taskName")
+    private String taskName = null;
 
-    public Port(Integer value) {
-        if ((value == -1) || (value >= 0 && value <= 65535)) {
-            this.value = value;
-        } else {
-            throw new IllegalArgumentException(String.format("Invalid port value provided: %d", value));
-        }
-    }
+    @JsonProperty("nodeCandidateId")
+    private String nodeCandidateId = null;
 
+    @JsonProperty("cloudID")
+    private String cloudID = null;
 }

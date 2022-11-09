@@ -40,10 +40,10 @@ import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 public class PAFactory {
 
     private PAFactory() {

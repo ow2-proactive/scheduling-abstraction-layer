@@ -42,14 +42,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.PACloud;
 import org.ow2.proactive.sal.service.util.ConnectionHelper;
-import org.ow2.proactive.sal.service.util.RMConnectionHelper;
 import org.springframework.stereotype.Service;
 
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @Service("PAConnectorIaasGateway")
 public class PAConnectorIaasGateway {
 

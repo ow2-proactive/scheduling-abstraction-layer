@@ -26,6 +26,7 @@
 package org.ow2.proactive.sal.service.util;
 
 import java.security.KeyException;
+import java.util.concurrent.*;
 import java.util.prefs.Preferences;
 
 import javax.security.auth.login.LoginException;
@@ -35,10 +36,10 @@ import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive_grid_cloud_portal.common.RMRestInterface;
 import org.ow2.proactive_grid_cloud_portal.rm.client.RMRestClient;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 public class RMConnectionHelper {
 
     private static final Preferences userPreferences = Preferences.userRoot().node("USER_PREFERENCES");

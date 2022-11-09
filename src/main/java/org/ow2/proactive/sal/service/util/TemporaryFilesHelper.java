@@ -29,10 +29,10 @@ import java.io.*;
 
 import org.apache.commons.io.IOUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 public class TemporaryFilesHelper {
 
     private static final String TMP_SYS_PROPERTY = "java.io.tmpdir";

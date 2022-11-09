@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.Deployment;
+import org.ow2.proactive.sal.service.model.IaasDefinition;
 import org.ow2.proactive.sal.service.service.NodeService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +55,9 @@ public class NodeRest {
     public synchronized ResponseEntity<Boolean>
             addNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A list of nodes information in JSONObject format", required = true)
+    final String sessionId, @ApiParam(value = "A list IaasDefinition instances in json format", required = true)
     @RequestBody
-    final List<JSONObject> nodes, @ApiParam(value = "A job identifier", required = true)
+    final List<IaasDefinition> nodes, @ApiParam(value = "A job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
         return ResponseEntity.ok(nodeService.addNodes(sessionId, nodes, jobId));

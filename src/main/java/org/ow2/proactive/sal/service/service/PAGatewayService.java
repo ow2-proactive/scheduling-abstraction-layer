@@ -41,10 +41,10 @@ import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestExc
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 
-@Slf4j
+@Log4j2
 @Service("PAGatewayServiceService")
 public class PAGatewayService {
 
@@ -159,6 +159,10 @@ public class PAGatewayService {
      * @throws NotConnectedException In case the user is not connected
      */
     public boolean isConnectionActive(String sessionId) throws NotConnectedException {
-        return resourceManagerGateway.isActive(sessionId);
+        boolean isActive = resourceManagerGateway.isActive(sessionId);
+        if (isActive) {
+            schedulerGateway.renewSession();
+        }
+        return isActive;
     }
 }
