@@ -31,12 +31,10 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.codehaus.jackson.annotate.JsonManagedReference;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,7 +50,6 @@ import lombok.extern.log4j.Log4j2;
 @Setter
 @Entity
 @Table(name = "TASK")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "taskId")
 public class Task implements Serializable {
     @Id
     @Column(name = "TASK_ID")
@@ -71,6 +68,7 @@ public class Task implements Serializable {
     @Embedded
     private DockerEnvironment environment;
 
+    @JsonManagedReference
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Deployment> deployments;
 

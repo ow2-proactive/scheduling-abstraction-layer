@@ -31,8 +31,8 @@ import java.util.Optional;
 import javax.persistence.*;
 import javax.ws.rs.NotSupportedException;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,7 +46,6 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "DEPLOYMENT")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "nodeName")
 public class Deployment implements Serializable {
 
     @Id
@@ -56,9 +55,11 @@ public class Deployment implements Serializable {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private EmsDeploymentRequest emsDeployment;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private PACloud paCloud;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     private Task task;
 
@@ -90,6 +91,7 @@ public class Deployment implements Serializable {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private EdgeNode edgeNode;
 
+    @JsonIgnore
     public Node getNode() {
         switch (deploymentType) {
             case IAAS:
