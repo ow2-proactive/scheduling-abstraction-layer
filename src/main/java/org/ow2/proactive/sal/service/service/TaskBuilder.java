@@ -41,6 +41,7 @@ import org.ow2.proactive.scripting.SelectionScript;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -129,9 +130,10 @@ public class TaskBuilder {
                                                      .getRequestedName()));
         }
 
-        if (!(task.getInstallation().getInstall().isEmpty() && task.getInstallation().getPreInstall().isEmpty() &&
-              task.getInstallation().getPostInstall().isEmpty())) {
-            if (!task.getInstallation().getInstall().isEmpty()) {
+        if (!(Strings.isNullOrEmpty(task.getInstallation().getInstall()) &&
+              Strings.isNullOrEmpty(task.getInstallation().getPreInstall()) &&
+              Strings.isNullOrEmpty(task.getInstallation().getPostInstall()))) {
+            if (!Strings.isNullOrEmpty(task.getInstallation().getInstall())) {
                 scriptTaskInstall = PAFactory.createBashScriptTask(task.getName() + "_install" +
                                                                    taskNameSuffix,
                                                                    Utils.getContentWithFileName("export_env_var_script.sh") +
@@ -142,13 +144,13 @@ public class TaskBuilder {
                                                                    "echo \"Installation script is empty. Nothing to be executed.\"");
             }
 
-            if (!task.getInstallation().getPreInstall().isEmpty()) {
+            if (!Strings.isNullOrEmpty(task.getInstallation().getPreInstall())) {
                 scriptTaskInstall.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
                                                                             SCRIPTS_SEPARATION_BASH +
                                                                             task.getInstallation().getPreInstall(),
                                                                             "bash"));
             }
-            if (!task.getInstallation().getPostInstall().isEmpty()) {
+            if (!Strings.isNullOrEmpty(task.getInstallation().getPostInstall())) {
                 scriptTaskInstall.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
                                                                              SCRIPTS_SEPARATION_BASH +
                                                                              task.getInstallation().getPostInstall(),
@@ -161,9 +163,10 @@ public class TaskBuilder {
             scriptTasks.add(scriptTaskInstall);
         }
 
-        if (!(task.getInstallation().getStart().isEmpty() && task.getInstallation().getPreStart().isEmpty() &&
-              task.getInstallation().getPostStart().isEmpty())) {
-            if (!task.getInstallation().getStart().isEmpty()) {
+        if (!(Strings.isNullOrEmpty(task.getInstallation().getStart()) &&
+              Strings.isNullOrEmpty(task.getInstallation().getPreStart()) &&
+              Strings.isNullOrEmpty(task.getInstallation().getPostStart()))) {
+            if (!Strings.isNullOrEmpty(task.getInstallation().getStart())) {
                 scriptTaskStart = PAFactory.createBashScriptTask(task.getName() + "_start" +
                                                                  taskNameSuffix,
                                                                  Utils.getContentWithFileName("export_env_var_script.sh") +
@@ -174,13 +177,13 @@ public class TaskBuilder {
                                                                  "echo \"Installation script is empty. Nothing to be executed.\"");
             }
 
-            if (!task.getInstallation().getPreStart().isEmpty()) {
+            if (!Strings.isNullOrEmpty(task.getInstallation().getPreStart())) {
                 scriptTaskStart.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
                                                                           SCRIPTS_SEPARATION_BASH +
                                                                           task.getInstallation().getPreStart(),
                                                                           "bash"));
             }
-            if (!task.getInstallation().getPostStart().isEmpty()) {
+            if (!Strings.isNullOrEmpty(task.getInstallation().getPostStart())) {
                 scriptTaskStart.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
                                                                            SCRIPTS_SEPARATION_BASH +
                                                                            task.getInstallation().getPostStart(),
@@ -213,7 +216,7 @@ public class TaskBuilder {
     private void addLocalDefaultNSRegexSelectionScript(ScriptTask scriptTask) {
         try {
             String selectionScriptFileName = "check_node_source_regexp.groovy";
-            String[] nodeSourceNameRegex = { "^local$|^Default$|^LocalNodes$" };
+            String[] nodeSourceNameRegex = { "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$" };
             SelectionScript selectionScript = new SelectionScript(Utils.getContentWithFileName(selectionScriptFileName),
                                                                   "groovy",
                                                                   nodeSourceNameRegex,
@@ -398,7 +401,7 @@ public class TaskBuilder {
                                                  .get(0)
                                                  .getRequestedName()));
 
-        if (!task.getInstallation().getUpdateCmd().isEmpty()) {
+        if (!Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
             scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_update" +
                                                               suffix,
                                                               Utils.getContentWithFileName("export_env_var_script.sh") +

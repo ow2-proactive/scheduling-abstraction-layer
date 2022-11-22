@@ -89,7 +89,7 @@ public class CommandsInstallation extends AbstractInstallation {
     private String startDetection;
 
     @Embedded
-    @JsonProperty("operatingSystemType")
+    @JsonProperty("operatingSystem")
     private OperatingSystemType operatingSystemType;
 
     @Override

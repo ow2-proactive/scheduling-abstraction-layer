@@ -775,34 +775,34 @@ public class RepositoryService {
         }
         LOGGER.info("Cleaning Jobs ...");
         jobRepository.deleteAll();
-        LOGGER.info("Cleaning Tasks ...");
-        taskRepository.deleteAll();
-        LOGGER.info("Cleaning PAClouds ...");
-        paCloudRepository.deleteAll();
         LOGGER.info("Cleaning Deployments ...");
         deploymentRepository.deleteAll();
+        LOGGER.info("Cleaning PAClouds ...");
+        paCloudRepository.deleteAll();
+        LOGGER.info("Cleaning Tasks ...");
+        taskRepository.deleteAll();
         LOGGER.info("Cleaning Ports ...");
         portRepository.deleteAll();
         LOGGER.info("Cleaning Credentials ...");
         credentialsRepository.deleteAll();
         LOGGER.info("Cleaning EmsDeploymentRequests ...");
         emsDeploymentRequestRepository.deleteAll();
-        LOGGER.info("Cleaning NodeCandidates ...");
-        nodeCandidateRepository.deleteAll();
         LOGGER.info("Cleaning Clouds ...");
         cloudRepository.deleteAll();
         LOGGER.info("Cleaning Images ...");
         imageRepository.deleteAll();
         LOGGER.info("Cleaning Hardwares ...");
         hardwareRepository.deleteAll();
-        LOGGER.info("Cleaning Jobs ...");
-        locationRepository.deleteAll();
         LOGGER.info("Cleaning IaasNodes ...");
         iaasNodeRepository.deleteAll();
         LOGGER.info("Cleaning ByonNodes ...");
         byonNodeRepository.deleteAll();
         LOGGER.info("Cleaning EdgeNodes ...");
         edgeNodeRepository.deleteAll();
+        LOGGER.info("Cleaning NodeCandidates ...");
+        nodeCandidateRepository.deleteAll();
+        LOGGER.info("Cleaning Locations ...");
+        locationRepository.deleteAll();
         LOGGER.info("Done.");
     }
 

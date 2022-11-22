@@ -78,9 +78,15 @@ public class JobService {
         }
         Validate.notNull(job, "The job received is empty. Nothing to be created.");
 
+        if (repositoryService.getJob(job.getJobInformation().getId()) != null) {
+            LOGGER.warn("Job {} already present. Nothing to be done", job.getJobInformation().getId());
+            return false;
+        }
+
         Job newJob = new Job();
         newJob.setJobId(job.getJobInformation().getId());
         newJob.setName(job.getJobInformation().getName());
+        newJob.setSubmittedJobType(SubmittedJobType.CREATED);
         List<Task> tasks = new LinkedList<>();
         job.getTasks().forEach(taskDefinition -> {
             Task newTask = new Task();
@@ -384,7 +390,8 @@ public class JobService {
         }
         Job submittedJob = repositoryService.getJob(jobId);
         JobResult jobResult = schedulerGateway.waitForJob(String.valueOf(submittedJob.getSubmittedJobId()), timeout);
-        LOGGER.info("Results of job: " + jobId + " fetched successfully: " + jobResult.toString());
+        LOGGER.info("Results of job: " + jobId + " fetched successfully: " +
+                    Optional.ofNullable(jobResult).map(JobResult::toString).orElse(null));
         return jobResult;
     }
 

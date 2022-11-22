@@ -50,7 +50,7 @@ public class NodeCandidateRest {
     @Autowired
     private NodeCandidateService nodeCandidateService;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.POST)
     @ApiOperation(value = "Find node candidates", response = NodeCandidate.class, responseContainer = "List")
     public ResponseEntity<List<NodeCandidate>>
             findNodeCandidates(@ApiParam(value = "Proactive authentication session id", required = true)

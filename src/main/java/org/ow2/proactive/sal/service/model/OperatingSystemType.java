@@ -28,6 +28,8 @@ package org.ow2.proactive.sal.service.model;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.*;
 
 
@@ -39,8 +41,10 @@ import lombok.*;
 @Embeddable
 public class OperatingSystemType {
     @Column(name = "OPERATING_SYSTEM_FAMILY")
+    @JsonProperty("operatingSystemFamily")
     private String operatingSystemFamily;
 
     @Column(name = "OPERATING_SYSTEM_VERSION")
+    @JsonProperty("operatingSystemVersion")
     private float operatingSystemVersion;
 }

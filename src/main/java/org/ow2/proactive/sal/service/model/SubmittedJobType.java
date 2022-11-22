@@ -28,14 +28,13 @@ package org.ow2.proactive.sal.service.model;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-
-import lombok.Getter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 
-@Getter
-@ToString(callSuper = true)
 public enum SubmittedJobType {
+
+    CREATED("CREATED"),
+
     FIRST_DEPLOYMENT("FIRST_DEPLOYMENT"),
 
     SCALE_OUT("SCALE_OUT"),
@@ -50,6 +49,12 @@ public enum SubmittedJobType {
 
     SubmittedJobType(String value) {
         this.value = value;
+    }
+
+    @Override
+    @JsonValue
+    public String toString() {
+        return String.valueOf(value);
     }
 
     @JsonCreator
