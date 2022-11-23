@@ -35,7 +35,7 @@ import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.service.model.*;
-import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
+import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.UserException;
 import org.ow2.proactive.scheduler.common.job.TaskFlowJob;

@@ -41,7 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.service.RepositoryService;
-import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
+import org.ow2.proactive.sal.service.service.infrastructure.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.util.GeoLocationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

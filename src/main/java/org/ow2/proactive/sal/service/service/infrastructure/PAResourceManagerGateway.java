@@ -47,6 +47,7 @@ import org.ow2.proactive.sal.service.model.IpVersion;
 import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.sal.service.service.ServiceConfiguration;
 import org.ow2.proactive.sal.service.service.application.PAFactory;
+import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.sal.service.util.RMConnectionHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.UserException;

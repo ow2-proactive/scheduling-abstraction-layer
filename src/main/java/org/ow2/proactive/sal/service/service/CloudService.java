@@ -35,7 +35,7 @@ import org.json.JSONObject;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.nc.UpdatingNodeCandidatesUtils;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
-import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
+import org.ow2.proactive.sal.service.service.infrastructure.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
 import org.ow2.proactive.sal.service.util.JCloudsInstancesUtils;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;

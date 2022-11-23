@@ -33,9 +33,9 @@ import javax.security.auth.login.LoginException;
 
 import org.ow2.proactive.resourcemanager.common.event.RMNodeEvent;
 import org.ow2.proactive.resourcemanager.exception.RMException;
-import org.ow2.proactive.sal.service.service.application.PAConnectorIaasGateway;
+import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
+import org.ow2.proactive.sal.service.service.infrastructure.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
-import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestException;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -23,7 +23,7 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.service.application;
+package org.ow2.proactive.sal.service.service.infrastructure;
 
 import java.io.OutputStream;
 import java.io.StringWriter;

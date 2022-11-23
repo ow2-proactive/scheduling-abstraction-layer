@@ -26,9 +26,7 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -36,8 +34,8 @@ import java.util.*;
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
+import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
-import org.ow2.proactive.sal.service.service.infrastructure.PASchedulerGateway;
 import org.ow2.proactive.sal.service.util.TemporaryFilesHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.job.JobId;
