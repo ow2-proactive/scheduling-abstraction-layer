@@ -28,12 +28,11 @@ package org.ow2.proactive.sal.service.rest;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.service.model.ByonDefinition;
-import org.ow2.proactive.sal.service.model.ByonNode;
-import org.ow2.proactive.sal.service.service.ByonService;
+import org.ow2.proactive.sal.service.model.EdgeDefinition;
+import org.ow2.proactive.sal.service.model.EdgeNode;
+import org.ow2.proactive.sal.service.service.EdgeService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -45,63 +44,48 @@ import io.swagger.annotations.ApiParam;
 
 
 @RestController
-@RequestMapping(value = "/byon")
+@RequestMapping(value = "/edge")
 @Api(description = "Operations on BYON", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
-public class ByonRest {
+public class EdgeRest {
 
     @Autowired
-    private ByonService byonService;
+    private EdgeService edgeService;
 
     @RequestMapping(value = "/{jobId}", method = RequestMethod.POST)
-    @ApiOperation(value = "Register new BYON nodes passed as ByonDefinition object", response = ByonNode.class)
-    public ResponseEntity<ByonNode>
-            registerNewByonNode(@ApiParam(value = "Proactive authentication session id", required = true)
+    @ApiOperation(value = "Register new BYON nodes passed as EdgeDefinition object", response = EdgeNode.class)
+    public ResponseEntity<EdgeNode>
+            registerNewEdgeNode(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A constructed job identifier", required = true)
     @PathVariable
     final String jobId,
-                    @ApiParam(value = "object of class ByonDefinition that contains the details of the nodes to be registered.", required = true)
+                    @ApiParam(value = "object of class EdgeDefinition that contains the details of the nodes to be registered.", required = true)
                     @RequestBody
-                    final ByonDefinition byonNodeDefinition, @ApiParam(value = "the Byon agent will be deployed automatically if the value is set to True", defaultValue = "true")
-                    @RequestParam
-                    @DefaultValue("true")
-                    final Boolean automate) throws NotConnectedException {
-        return ResponseEntity.ok(byonService.registerNewByonNode(sessionId, byonNodeDefinition, jobId, automate));
+                    final EdgeDefinition edgeNodeDefinition) throws NotConnectedException {
+        return ResponseEntity.ok(edgeService.registerNewEdgeNode(sessionId, edgeNodeDefinition, jobId));
     }
 
     @RequestMapping(value = "/{jobId}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get all registered clouds", response = ByonNode.class, responseContainer = "List")
-    public ResponseEntity<List<ByonNode>>
-            getByonNodes(@ApiParam(value = "Proactive authentication session id", required = true)
+    @ApiOperation(value = "Get all registered clouds", response = EdgeNode.class, responseContainer = "List")
+    public ResponseEntity<List<EdgeNode>>
+            getEdgeNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A constructed job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(byonService.getByonNodes(sessionId, jobId));
+        return ResponseEntity.ok(edgeService.getEdgeNodes(sessionId, jobId));
     }
 
     @RequestMapping(value = "/{jobId}", method = RequestMethod.PUT)
     @ApiOperation(value = "Adding BYON nodes to a job component", response = Boolean.class)
     public ResponseEntity<Boolean>
-            addByonNodes(@ApiParam(value = "Proactive authentication session id", required = true)
+            addEdgeNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A mapping between byon nodes and job components", required = true)
+    final String sessionId, @ApiParam(value = "A mapping between edge nodes and job components", required = true)
     @RequestBody
-    final Map<String, String> byonIdPerComponent, @ApiParam(value = "A constructed job identifier", required = true)
+    final Map<String, String> edgeIdPerComponent, @ApiParam(value = "A constructed job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(byonService.addByonNodes(sessionId, byonIdPerComponent, jobId));
+        return ResponseEntity.ok(edgeService.addEdgeNodes(sessionId, edgeIdPerComponent, jobId));
     }
-
-    @RequestMapping(method = RequestMethod.DELETE)
-    @ApiOperation(value = "Remove Byon nodes", response = Boolean.class)
-    public ResponseEntity<Boolean>
-            deleteByonNode(@ApiParam(value = "Proactive authentication session id", required = true)
-    @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "The id of the node to be removed", required = true)
-    @RequestParam
-    final String byonId) throws NotConnectedException {
-        return ResponseEntity.ok(byonService.deleteByonNode(sessionId, byonId));
-    }
-
 }
