@@ -461,7 +461,7 @@ public class PAResourceManagerGateway {
                                                                     publicIPAddr);
                                 LOGGER.info("ipAddress: " + ipAddress.toString());
                                 deployment.setIpAddress(ipAddress);
-                                repositoryService.updateDeployment(deployment);
+                                repositoryService.saveDeployment(deployment);
                             }
                         } else {
                             LOGGER.warn("The node " + deployment.getNodeName() + " is not reachable in RM.");
@@ -514,7 +514,7 @@ public class PAResourceManagerGateway {
                         if (!nodeURLs.isEmpty()) {
                             String instanceId = nodeURLs.get(0).substring(nodeURLs.get(0).lastIndexOf("__") + 2);
                             deployment.setInstanceId(instanceId);
-                            repositoryService.updateDeployment(deployment);
+                            repositoryService.saveDeployment(deployment);
                             LOGGER.info("Deployment " + deployment.getNodeName() + "instance ID set to: " + instanceId);
                         } else {
                             LOGGER.warn("The node " + deployment.getNodeName() + " is not reachable in RM.");

@@ -257,7 +257,7 @@ public class EmsDeploymentRequest implements Serializable {
         return result;
     }
 
-    public EmsDeploymentRequest clone(String nodeId) {
+    public EmsDeploymentRequest copy(String nodeId) {
         EmsDeploymentRequest req = new EmsDeploymentRequest(authorizationBearer,
                                                             baguetteIp,
                                                             baguette_port,

@@ -115,7 +115,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param byonNode is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized ByonNode updateByonNode(ByonNode byonNode) {
+    public synchronized ByonNode saveByonNode(ByonNode byonNode) {
         return byonNodeRepository.saveAndFlush(byonNode);
     }
 
@@ -175,7 +175,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param cloud is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Cloud updateCloud(Cloud cloud) {
+    public synchronized Cloud saveCloud(Cloud cloud) {
         return cloudRepository.saveAndFlush(cloud);
     }
 
@@ -212,7 +212,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param credentials is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Credentials updateCredentials(Credentials credentials) {
+    public synchronized Credentials saveCredentials(Credentials credentials) {
         return credentialsRepository.saveAndFlush(credentials);
     }
 
@@ -249,7 +249,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param deployment is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Deployment updateDeployment(Deployment deployment) {
+    public synchronized Deployment saveDeployment(Deployment deployment) {
         return deploymentRepository.saveAndFlush(deployment);
     }
 
@@ -295,7 +295,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param edgeNode is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized EdgeNode updateEdgeNode(EdgeNode edgeNode) {
+    public synchronized EdgeNode saveEdgeNode(EdgeNode edgeNode) {
         return edgeNodeRepository.saveAndFlush(edgeNode);
     }
 
@@ -332,7 +332,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param emsDeploymentRequest is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized EmsDeploymentRequest updateEmsDeploymentRequest(EmsDeploymentRequest emsDeploymentRequest) {
+    public synchronized EmsDeploymentRequest saveEmsDeploymentRequest(EmsDeploymentRequest emsDeploymentRequest) {
         return emsDeploymentRequestRepository.saveAndFlush(emsDeploymentRequest);
     }
 
@@ -369,7 +369,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param hardware is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Hardware updateHardware(Hardware hardware) {
+    public synchronized Hardware saveHardware(Hardware hardware) {
         return hardwareRepository.saveAndFlush(hardware);
     }
 
@@ -406,7 +406,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param iaasNode is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized IaasNode updateIaasNode(IaasNode iaasNode) {
+    public synchronized IaasNode saveIaasNode(IaasNode iaasNode) {
         return iaasNodeRepository.saveAndFlush(iaasNode);
     }
 
@@ -427,13 +427,13 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param node is the instance data to add or update, its instance id will be use as a key
      */
-    public Node updateNode(Node node) {
+    public Node saveNode(Node node) {
         if (node instanceof EdgeNode) {
-            this.updateEdgeNode((EdgeNode) node);
+            this.saveEdgeNode((EdgeNode) node);
         } else if (node instanceof ByonNode) {
-            this.updateByonNode((ByonNode) node);
+            this.saveByonNode((ByonNode) node);
         } else {
-            this.updateIaasNode((IaasNode) node);
+            this.saveIaasNode((IaasNode) node);
         }
         return node;
     }
@@ -458,7 +458,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param image is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Image updateImage(Image image) {
+    public synchronized Image saveImage(Image image) {
         return imageRepository.saveAndFlush(image);
     }
 
@@ -495,7 +495,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param job is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Job updateJob(Job job) {
+    public synchronized Job saveJob(Job job) {
         return jobRepository.saveAndFlush(job);
     }
 
@@ -532,7 +532,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param location is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Location updateLocation(Location location) {
+    public synchronized Location saveLocation(Location location) {
         return locationRepository.saveAndFlush(location);
     }
 
@@ -582,7 +582,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param nodeCandidate is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized NodeCandidate updateNodeCandidate(NodeCandidate nodeCandidate) {
+    public synchronized NodeCandidate saveNodeCandidate(NodeCandidate nodeCandidate) {
         return nodeCandidateRepository.saveAndFlush(nodeCandidate);
     }
 
@@ -644,7 +644,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param paCloud is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized PACloud updatePACloud(PACloud paCloud) {
+    public synchronized PACloud savePACloud(PACloud paCloud) {
         return paCloudRepository.saveAndFlush(paCloud);
     }
 
@@ -690,7 +690,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param port is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Port updatePort(Port port) {
+    public synchronized Port savePort(Port port) {
         return portRepository.saveAndFlush(port);
     }
 
@@ -727,7 +727,7 @@ public class RepositoryService {
      * Add or update the instance data given in param
      * @param task is the instance data to add or update, its instance id will be use as a key
      */
-    public synchronized Task updateTask(Task task) {
+    public synchronized Task saveTask(Task task) {
         return taskRepository.saveAndFlush(task);
     }
 

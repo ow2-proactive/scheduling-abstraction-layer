@@ -99,8 +99,8 @@ public class MonitoringService {
                                                                     isUsingHttps,
                                                                     deployment.getNodeName());
                 deployment.setEmsDeployment(req);
-                repositoryService.updateEmsDeploymentRequest(req);
-                repositoryService.updateDeployment(deployment);
+                repositoryService.saveEmsDeploymentRequest(req);
+                repositoryService.saveDeployment(deployment);
             });
 
             repositoryService.flush();

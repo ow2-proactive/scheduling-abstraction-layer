@@ -136,7 +136,7 @@ public class ByonUtils {
         nc.setImage(image);
         nc.setHardware(hardware);
         nc.setLocation(location);
-        repositoryService.updateNodeCandidate(nc);
+        repositoryService.saveNodeCandidate(nc);
         LOGGER.info("{} node candidate created.", nodeType.toUpperCase());
         return nc;
     }
@@ -162,7 +162,7 @@ public class ByonUtils {
         newCloud.setId(nodeType);
 
         //Add the Byon cloud to the database
-        repositoryService.updateCloud(newCloud);
+        repositoryService.saveCloud(newCloud);
         LOGGER.info("Dummy {} cloud created.", nodeType.toUpperCase());
         return newCloud;
 

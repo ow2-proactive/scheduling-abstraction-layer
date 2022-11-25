@@ -95,7 +95,7 @@ public class NodeService {
 
             newDeployment.setIaasNode(iaasNode);
             iaasNode.incDeployedNodes(1L);
-            repositoryService.updateIaasNode(iaasNode);
+            repositoryService.saveIaasNode(iaasNode);
 
             PACloud cloud = repositoryService.getPACloud(node.getCloudID());
             cloud.addDeployment(newDeployment);
@@ -143,14 +143,14 @@ public class NodeService {
             newDeployment.setPaCloud(cloud);
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
-            repositoryService.updateDeployment(newDeployment);
+            repositoryService.saveDeployment(newDeployment);
             LOGGER.debug("Deployment created: " + newDeployment.toString());
 
-            repositoryService.updatePACloud(cloud);
+            repositoryService.savePACloud(cloud);
             LOGGER.info("Deployment added to the related cloud: " + cloud.toString());
 
             task.addDeployment(newDeployment);
-            repositoryService.updateTask(task);
+            repositoryService.saveTask(task);
         });
 
         repositoryService.flush();
