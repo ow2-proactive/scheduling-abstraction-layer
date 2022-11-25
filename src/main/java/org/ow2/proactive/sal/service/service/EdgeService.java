@@ -94,7 +94,7 @@ public class EdgeService {
                                                              newEdgeNode.getId());
         newEdgeNode.setNodeCandidate(edgeNC);
 
-        repositoryService.updateEdgeNode(newEdgeNode);
+        repositoryService.saveEdgeNode(newEdgeNode);
         repositoryService.flush();
         LOGGER.info("EDGE node registered.");
 
@@ -173,7 +173,7 @@ public class EdgeService {
             cloud.setSshCredentials(sshCred);
             cloud.addDeployment(newDeployment);
             newDeployment.setPaCloud(cloud);
-            repositoryService.updatePACloud(cloud);
+            repositoryService.savePACloud(cloud);
 
             List<EdgeNode> edgeNodeList = new LinkedList<>();
             edgeNodeList.add(edgeNode);
@@ -184,11 +184,11 @@ public class EdgeService {
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
-            repositoryService.updateDeployment(newDeployment);
+            repositoryService.saveDeployment(newDeployment);
             LOGGER.debug("Deployment created: " + newDeployment.toString());
 
             task.addDeployment(newDeployment);
-            repositoryService.updateTask(task);
+            repositoryService.saveTask(task);
         });
 
         repositoryService.flush();

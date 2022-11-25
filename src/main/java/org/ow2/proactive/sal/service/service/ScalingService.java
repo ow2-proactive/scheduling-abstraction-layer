@@ -42,6 +42,7 @@ import org.ow2.proactive.scheduler.common.job.TaskFlowJob;
 import org.ow2.proactive.scheduler.common.task.ScriptTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -76,7 +77,8 @@ public class ScalingService {
      * @param taskName the name of the task whose node are to be allocated
      * @return 0 if the operation went successful, 1 if the scaling failed because no job/task was node found, 2 if the scaling failed because no deployment to clone are available.
      */
-    public Boolean addScaleOutTask(String sessionId, String jobId, String taskName, List<String> nodeNames)
+    @Transactional
+    public synchronized Boolean addScaleOutTask(String sessionId, String jobId, String taskName, List<String> nodeNames)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -116,37 +118,49 @@ public class ScalingService {
             LOGGER.error(String.format("The previous deployment is a BYON/EDGE node [%s] ", oldDeployment));
             return false;
         }
-        nodeNames.stream().map(nodeName -> {
+
+        nodeNames.forEach(nodeName -> {
+            Deployment deployment = repositoryService.getDeployment(nodeName);
+            if (deployment != null) {
+                LOGGER.info("Node name not valid. Deployment [{}] found: {}", nodeName, deployment.toString());
+                return;
+            }
+
+            // Handling EMS monitoring request
             EmsDeploymentRequest newEmsDeploymentReq = oldDeployment.getEmsDeployment() == null ? null
                                                                                                 : oldDeployment.getEmsDeployment()
-                                                                                                               .clone(nodeName);
-            oldDeployment.getIaasNode().incDeployedNodes(1L);
-            return new Deployment(nodeName,
-                                  newEmsDeploymentReq,
-                                  oldDeployment.getPaCloud(),
-                                  oldDeployment.getTask(),
-                                  false,
-                                  null,
-                                  null,
-                                  null,
-                                  null,
-                                  NodeType.IAAS,
-                                  oldDeployment.getIaasNode(),
-                                  null,
-                                  null);
-        }).forEach(deployment -> {
+                                                                                                               .copy(nodeName);
+            if (newEmsDeploymentReq != null) {
+                repositoryService.saveEmsDeploymentRequest(newEmsDeploymentReq);
+            }
+
+            // Creating the new Deployment
+            deployment = new Deployment();
+
+            deployment.setNodeName(nodeName);
+            deployment.setTask(oldDeployment.getTask());
+            deployment.setDeploymentType(NodeType.IAAS);
+            deployment.setEmsDeployment(newEmsDeploymentReq);
+
+            // Updating the IaasNode
+            deployment.setIaasNode(oldDeployment.getIaasNode());
+            deployment.getIaasNode().incDeployedNodes(1L);
+            repositoryService.saveNode(deployment.getNode());
+
             // Persist new deployment data
+            deployment.setPaCloud(oldDeployment.getPaCloud());
             deployment.setNumber(optTask.get().getNextDeploymentID());
+            repositoryService.saveDeployment(deployment);
+            LOGGER.debug("Scaling deployment created: " + deployment.toString());
+
+            // Updating the PACloud
+            deployment.getPaCloud().addDeployment(deployment);
+            repositoryService.savePACloud(deployment.getPaCloud());
+
+            // Updating the Task
             newNodesNumbers.add(optTask.get().getNextDeploymentID());
             optTask.get().addDeployment(deployment);
-            if (deployment.getEmsDeployment() != null) {
-                repositoryService.updateEmsDeploymentRequest(deployment.getEmsDeployment());
-            }
-            deployment.getPaCloud().addDeployment(deployment);
-            repositoryService.updateDeployment(deployment);
-            repositoryService.updateTask(optTask.get());
-            repositoryService.updateNode(deployment.getNode());
-            repositoryService.updatePACloud(deployment.getPaCloud());
+            repositoryService.saveTask(optTask.get());
         });
 
         repositoryService.flush();
@@ -171,7 +185,7 @@ public class ScalingService {
 
             if (scriptTasks != null && !scriptTasks.isEmpty()) {
                 addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-                repositoryService.updateTask(task);
+                repositoryService.saveTask(task);
             }
         });
 
@@ -184,7 +198,7 @@ public class ScalingService {
         job.setSubmittedJobId(submittedJobId);
         job.setSubmittedJobType(SubmittedJobType.SCALE_OUT);
 
-        repositoryService.updateJob(job);
+        repositoryService.saveJob(job);
         repositoryService.flush();
         LOGGER.info("Scaling out of task \'" + scaledTaskName + "\' job, submitted successfully. ID = " +
                     submittedJobId);
@@ -259,7 +273,7 @@ public class ScalingService {
      * @param taskName the name of the task whose nodes are to be removed
      * @return 0 if the operation went successful, 2 if the operation avorted to prevent last node to be removed.
      */
-    public Boolean addScaleInTask(String sessionId, String jobId, String taskName, List<String> nodeNames)
+    public synchronized Boolean addScaleInTask(String sessionId, String jobId, String taskName, List<String> nodeNames)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -315,11 +329,11 @@ public class ScalingService {
         // For every node, I remove the deployment entree
         deployments.forEach(deployment -> {
             deployment.getTask().removeDeployment(deployment);
-            repositoryService.updateTask(deployment.getTask());
+            repositoryService.saveTask(deployment.getTask());
             deployment.getPaCloud().removeDeployment(deployment);
-            repositoryService.updatePACloud(deployment.getPaCloud());
+            repositoryService.savePACloud(deployment.getPaCloud());
             deployment.getIaasNode().decDeployedNodes(1L);
-            repositoryService.updateIaasNode(deployment.getIaasNode());
+            repositoryService.saveIaasNode(deployment.getIaasNode());
             repositoryService.deleteDeployment(deployment);
         });
         // I commit the removal of deployed node
@@ -347,7 +361,7 @@ public class ScalingService {
 
             if (scriptTasks != null && !scriptTasks.isEmpty()) {
                 addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-                repositoryService.updateTask(task);
+                repositoryService.saveTask(task);
             }
         });
 
@@ -360,7 +374,7 @@ public class ScalingService {
         job.setSubmittedJobId(submittedJobId);
         job.setSubmittedJobType(SubmittedJobType.SCALE_IN);
 
-        repositoryService.updateJob(job);
+        repositoryService.saveJob(job);
         repositoryService.flush();
         LOGGER.info("Scaling out of task \'" + scaledTaskName + "\' job, submitted successfully. ID = " +
                     submittedJobId);

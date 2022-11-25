@@ -92,7 +92,7 @@ public class ByonService {
                                                              newByonNode.getId());
         newByonNode.setNodeCandidate(byonNC);
 
-        repositoryService.updateByonNode(newByonNode);
+        repositoryService.saveByonNode(newByonNode);
         repositoryService.flush();
         LOGGER.info("BYON node registered.");
         if (automate) {
@@ -174,7 +174,7 @@ public class ByonService {
             cloud.setSshCredentials(sshCred);
             cloud.addDeployment(newDeployment);
             newDeployment.setPaCloud(cloud);
-            repositoryService.updatePACloud(cloud);
+            repositoryService.savePACloud(cloud);
 
             List<ByonNode> byonNodeList = new LinkedList<>();
             byonNodeList.add(byonNode);
@@ -185,11 +185,11 @@ public class ByonService {
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
-            repositoryService.updateDeployment(newDeployment);
+            repositoryService.saveDeployment(newDeployment);
             LOGGER.debug("Deployment created: " + newDeployment.toString());
 
             task.addDeployment(newDeployment);
-            repositoryService.updateTask(task);
+            repositoryService.saveTask(task);
         });
 
         repositoryService.flush();

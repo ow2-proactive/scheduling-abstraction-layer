@@ -263,7 +263,7 @@ public class NodeCandidateUtils {
             }
             hardware.setLocation(createLocation(nodeCandidateJSON, paCloud));
 
-            repositoryService.updateHardware(hardware);
+            repositoryService.saveHardware(hardware);
         }
 
         return hardware;
@@ -281,7 +281,7 @@ public class NodeCandidateUtils {
             location.setIsAssignable(true);
             location.setGeoLocation(createGeoLocation(paCloud.getCloudProviderName(), location.getName()));
 
-            repositoryService.updateLocation(location);
+            repositoryService.saveLocation(location);
         }
         return location;
     }
@@ -326,7 +326,7 @@ public class NodeCandidateUtils {
             image.setOperatingSystem(os);
             image.setLocation(createLocation(nodeCandidateJSON, paCloud));
 
-            repositoryService.updateImage(image);
+            repositoryService.saveImage(image);
         }
 
         return image;
@@ -342,7 +342,7 @@ public class NodeCandidateUtils {
             cloud.setCredential(new CloudCredential());
             cloud.setCloudConfiguration(new CloudConfiguration("", new HashMap<>()));
 
-            repositoryService.updateCloud(cloud);
+            repositoryService.saveCloud(cloud);
         }
         return cloud;
     }
@@ -373,7 +373,7 @@ public class NodeCandidateUtils {
         return myJson;
     }
 
-    public void updateNodeCandidates(List<String> newCloudIds) {
+    public void saveNodeCandidates(List<String> newCloudIds) {
         newCloudIds.forEach(newCloudId -> {
             PACloud paCloud = repositoryService.getPACloud(newCloudId);
             LOGGER.info("Getting blacklisted regions...");
@@ -434,11 +434,11 @@ public class NodeCandidateUtils {
                 JSONObject nodeCandidate = (JSONObject) nc;
                 createLocation(nodeCandidate, paCloud);
                 NodeCandidate newNodeCandidate = createNodeCandidate(nodeCandidate, image, paCloud);
-                repositoryService.updateNodeCandidate(newNodeCandidate);
+                repositoryService.saveNodeCandidate(newNodeCandidate);
                 IaasNode newIaasNode = new IaasNode(newNodeCandidate);
-                repositoryService.updateIaasNode(newIaasNode);
+                repositoryService.saveIaasNode(newIaasNode);
                 newNodeCandidate.setNodeId(newIaasNode.getId());
-                repositoryService.updateNodeCandidate(newNodeCandidate);
+                repositoryService.saveNodeCandidate(newNodeCandidate);
             });
         } catch (ExecutionException ee) {
             LOGGER.error("Could not get node candidates from cache: ", ee);

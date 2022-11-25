@@ -102,14 +102,14 @@ public class CloudService {
             credentials.setUserName(cloud.getCredentials().getUser());
             credentials.setPrivateKey(cloud.getCredentials().getSecret());
             credentials.setDomain(cloud.getCredentials().getDomain());
-            repositoryService.updateCredentials(credentials);
+            repositoryService.saveCredentials(credentials);
             newCloud.setCredentials(credentials);
 
             String dummyInfraName = "iamadummy" + newCloud.getCloudProviderName();
             connectorIaasGateway.defineInfrastructure(dummyInfraName, newCloud, "");
             newCloud.setDummyInfrastructureName(dummyInfraName);
 
-            repositoryService.updatePACloud(newCloud);
+            repositoryService.savePACloud(newCloud);
             LOGGER.debug("Cloud created: " + newCloud.toString());
             savedCloudIds.add(newCloud.getCloudID());
         });

@@ -45,7 +45,7 @@ public class UpdatingNodeCandidatesUtils {
     public void asyncUpdate(List<String> newCloudIds) throws InterruptedException {
         LOGGER.info("Thread updating node candidates related to clouds " + newCloudIds.toString() + " started.");
         nodeCandidateUtils.initNodeCandidateUtils();
-        nodeCandidateUtils.updateNodeCandidates(newCloudIds);
+        nodeCandidateUtils.saveNodeCandidates(newCloudIds);
         LOGGER.info("Thread updating node candidates related to clouds " + newCloudIds.toString() + " ended properly.");
     }
 

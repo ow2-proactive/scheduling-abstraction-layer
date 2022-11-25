@@ -97,17 +97,17 @@ public class JobService {
             newTask.setInstallationByType(taskDefinition.getInstallation());
 
             List<Port> portsToOpen = extractListOfPortsToOpen(taskDefinition.getPorts(), job);
-            portsToOpen.forEach(repositoryService::updatePort);
+            portsToOpen.forEach(repositoryService::savePort);
             newTask.setPortsToOpen(portsToOpen);
             newTask.setParentTasks(extractParentTasks(job, taskDefinition));
 
-            repositoryService.updateTask(newTask);
+            repositoryService.saveTask(newTask);
             tasks.add(newTask);
         });
 
         newJob.setTasks(tasks);
 
-        repositoryService.updateJob(newJob);
+        repositoryService.saveJob(newJob);
 
         repositoryService.flush();
 
@@ -295,7 +295,7 @@ public class JobService {
             List<ScriptTask> scriptTasks = taskBuilder.buildPATask(task, jobToSubmit);
 
             addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-            repositoryService.updateTask(task);
+            repositoryService.saveTask(task);
         });
 
         setAllMandatoryDependencies(paJob, jobToSubmit);
@@ -313,7 +313,7 @@ public class JobService {
             LOGGER.warn("The job " + jobId + " is already deployed. Nothing to be submitted here.");
         }
 
-        repositoryService.updateJob(jobToSubmit);
+        repositoryService.saveJob(jobToSubmit);
         repositoryService.flush();
 
         return (submittedJobId);
@@ -439,15 +439,15 @@ public class JobService {
 
             taskIaasDeployments.forEach(deployment -> {
                 deployment.getTask().removeDeployment(deployment);
-                repositoryService.updateTask(deployment.getTask());
+                repositoryService.saveTask(deployment.getTask());
                 deployment.getPaCloud().removeDeployment(deployment);
-                repositoryService.updatePACloud(deployment.getPaCloud());
+                repositoryService.savePACloud(deployment.getPaCloud());
                 repositoryService.deleteDeployment(deployment);
             });
 
             taskByonDeployments.forEach(deployment -> {
                 deployment.getTask().removeDeployment(deployment);
-                repositoryService.updateTask(deployment.getTask());
+                repositoryService.saveTask(deployment.getTask());
                 repositoryService.deleteDeployment(deployment);
             });
 
@@ -457,7 +457,7 @@ public class JobService {
                 .filter(Deployment::getIsDeployed)
                 .forEach(deployment -> {
                     deployment.getIaasNode().decDeployedNodes(1L);
-                    repositoryService.updateIaasNode(deployment.getIaasNode());
+                    repositoryService.saveIaasNode(deployment.getIaasNode());
                 }
 
             );
@@ -481,7 +481,7 @@ public class JobService {
         //TODO: This should be updated if a stopping workflow will be submitted in future.
         // Please think of the impact of this on PaGateway.getJobState()
         //        job.setSubmittedJobId(0L);
-        repositoryService.updateJob(job);
+        repositoryService.saveJob(job);
 
         repositoryService.flush();
 

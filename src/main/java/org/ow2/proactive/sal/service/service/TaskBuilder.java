@@ -376,7 +376,7 @@ public class TaskBuilder {
             // Creating infra deployment tasks
             String token = task.getTaskId() + deployment.getNumber();
             String suffix = "_" + deployment.getNumber();
-            scriptTasks.add(createScalingChildUpdateTask(task, suffix, token, job));
+            scriptTasks.add(createScalingChildsaveTask(task, suffix, token, job));
         });
         task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
                                                             .getName()
@@ -389,7 +389,7 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private ScriptTask createScalingChildUpdateTask(Task task, String suffix, String token, Job job) {
+    private ScriptTask createScalingChildsaveTask(Task task, String suffix, String token, Job job) {
         ScriptTask scriptTaskUpdate = null;
 
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
