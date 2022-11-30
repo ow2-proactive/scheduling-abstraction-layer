@@ -30,7 +30,7 @@ import java.util.Optional;
 
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.common.model.*;
 import org.ow2.proactive.sal.service.service.CloudService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;

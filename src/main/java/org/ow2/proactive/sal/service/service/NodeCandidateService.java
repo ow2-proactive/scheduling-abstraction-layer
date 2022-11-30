@@ -28,8 +28,8 @@ package org.ow2.proactive.sal.service.service;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.ow2.proactive.sal.service.model.NodeCandidate;
-import org.ow2.proactive.sal.service.model.Requirement;
+import org.ow2.proactive.sal.common.model.NodeCandidate;
+import org.ow2.proactive.sal.common.model.Requirement;
 import org.ow2.proactive.sal.service.nc.NodeCandidateUtils;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.util.JCloudsInstancesUtils;

@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.service.model.NodeCandidate;
-import org.ow2.proactive.sal.service.model.Requirement;
+import org.ow2.proactive.sal.common.model.NodeCandidate;
+import org.ow2.proactive.sal.common.model.Requirement;
 import org.ow2.proactive.sal.service.service.NodeCandidateService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;

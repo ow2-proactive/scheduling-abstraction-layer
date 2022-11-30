@@ -30,8 +30,8 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.service.model.EdgeDefinition;
-import org.ow2.proactive.sal.service.model.EdgeNode;
+import org.ow2.proactive.sal.common.model.EdgeDefinition;
+import org.ow2.proactive.sal.common.model.EdgeNode;
 import org.ow2.proactive.sal.service.service.EdgeService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;

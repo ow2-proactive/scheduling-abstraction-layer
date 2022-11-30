@@ -32,8 +32,8 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.ow2.proactive.sal.common.model.User;
 import org.ow2.proactive.sal.service.fixtures.UserFixture;
-import org.ow2.proactive.sal.service.model.User;
 
 
 /**

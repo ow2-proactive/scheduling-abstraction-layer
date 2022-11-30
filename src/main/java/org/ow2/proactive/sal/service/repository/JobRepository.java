@@ -25,7 +25,7 @@
  */
 package org.ow2.proactive.sal.service.repository;
 
-import org.ow2.proactive.sal.service.model.Job;
+import org.ow2.proactive.sal.common.model.Job;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

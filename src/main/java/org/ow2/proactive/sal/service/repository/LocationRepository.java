@@ -27,7 +27,7 @@ package org.ow2.proactive.sal.service.repository;
 
 import java.util.List;
 
-import org.ow2.proactive.sal.service.model.Location;
+import org.ow2.proactive.sal.common.model.Location;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -33,7 +33,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.common.model.*;
 import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.sal.service.service.infrastructure.PAResourceManagerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;

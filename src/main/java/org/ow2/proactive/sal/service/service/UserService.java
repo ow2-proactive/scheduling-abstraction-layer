@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.ow2.proactive.sal.service.model.User;
+import org.ow2.proactive.sal.common.model.User;
 import org.springframework.stereotype.Service;
 
 
