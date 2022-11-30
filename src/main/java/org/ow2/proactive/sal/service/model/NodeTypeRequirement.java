@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -39,8 +40,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@JsonTypeName(value = "NodeTypeRequirement")
 public class NodeTypeRequirement extends Requirement {
-    @JsonProperty("nodeType")
+    @JsonProperty("nodeTypes")
     private List<NodeType> nodeTypes;
 
     @JsonProperty("jobIdForByon")
@@ -48,6 +50,17 @@ public class NodeTypeRequirement extends Requirement {
 
     @JsonProperty("jobIdForEDGE")
     private String jobIdForEDGE;
+
+    public NodeTypeRequirement() {
+        this.type = RequirementType.NODE_TYPE;
+    }
+
+    public NodeTypeRequirement(List<NodeType> nodeTypes, String jobIdForBYON, String jobIdForEDGE) {
+        this.type = RequirementType.NODE_TYPE;
+        this.nodeTypes = nodeTypes;
+        this.jobIdForBYON = jobIdForBYON;
+        this.jobIdForEDGE = jobIdForEDGE;
+    }
 
     /**
      * Get nodeType

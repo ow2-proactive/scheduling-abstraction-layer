@@ -25,40 +25,59 @@
  */
 package org.ow2.proactive.sal.service.model;
 
+import java.util.Locale;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
+
+import lombok.Getter;
+import lombok.Setter;
 
 
 /**
  * polymorphic Superclass, only subtypes are allowed
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+@Getter
+@Setter
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
 @JsonSubTypes({ @JsonSubTypes.Type(value = AttributeRequirement.class, name = "AttributeRequirement"),
                 @JsonSubTypes.Type(value = NodeTypeRequirement.class, name = "NodeTypeRequirement"), })
 
-public class Requirement {
-    @JsonProperty("type")
-    private String type = null;
-
-    public Requirement type(String type) {
-        this.type = type;
-        return this;
-    }
+public abstract class Requirement {
 
     /**
-     * Get type
-     * @return type
-     **/
-    public String getType() {
-        return type;
+     * Port type
+     */
+    enum RequirementType {
+        ATTRIBUTE("AttributeRequirement"),
+
+        NODE_TYPE("NodeTypeRequirement");
+
+        private final String value;
+
+        RequirementType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static RequirementType fromValue(String text) {
+            for (RequirementType b : RequirementType.values()) {
+                if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
+                    return b;
+                }
+            }
+            return null;
+        }
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+    @JsonProperty("type")
+    protected RequirementType type;
 
     @Override
     public boolean equals(Object o) {
