@@ -43,7 +43,7 @@ public abstract class AbstractPortDefinition implements PortDefinition {
     @JsonProperty("name")
     protected String name = null;
 
-    @JsonProperty("name")
+    @JsonProperty("type")
     protected PortDefinition.PortType type = null;
 
 }

@@ -28,89 +28,41 @@ package org.ow2.proactive.sal.service.model;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import lombok.Getter;
+import lombok.Setter;
 
 
 /**
  * Subtype of Requirement
  */
+@Getter
+@Setter
+@JsonTypeName(value = "AttributeRequirement")
 public class AttributeRequirement extends Requirement {
     @JsonProperty("requirementClass")
-    private String requirementClass = null;
+    private String requirementClass;
 
     @JsonProperty("requirementAttribute")
-    private String requirementAttribute = null;
+    private String requirementAttribute;
 
     @JsonProperty("requirementOperator")
-    private RequirementOperator requirementOperator = null;
+    private RequirementOperator requirementOperator;
 
     @JsonProperty("value")
-    private String value = null;
+    private String value;
 
-    public AttributeRequirement requirementClass(String requirementClass) {
+    public AttributeRequirement() {
+        this.type = RequirementType.ATTRIBUTE;
+    }
+
+    public AttributeRequirement(String requirementClass, String requirementAttribute,
+            RequirementOperator requirementOperator, String value) {
+        this.type = RequirementType.ATTRIBUTE;
         this.requirementClass = requirementClass;
-        return this;
-    }
-
-    /**
-     * Get requirementClass
-     * @return requirementClass
-     **/
-    public String getRequirementClass() {
-        return requirementClass;
-    }
-
-    public void setRequirementClass(String requirementClass) {
-        this.requirementClass = requirementClass;
-    }
-
-    public AttributeRequirement requirementAttribute(String requirementAttribute) {
         this.requirementAttribute = requirementAttribute;
-        return this;
-    }
-
-    /**
-     * Get requirementAttribute
-     * @return requirementAttribute
-     **/
-    public String getRequirementAttribute() {
-        return requirementAttribute;
-    }
-
-    public void setRequirementAttribute(String requirementAttribute) {
-        this.requirementAttribute = requirementAttribute;
-    }
-
-    public AttributeRequirement requirementOperator(RequirementOperator requirementOperator) {
         this.requirementOperator = requirementOperator;
-        return this;
-    }
-
-    /**
-     * Get requirementOperator
-     * @return requirementOperator
-     **/
-    public RequirementOperator getRequirementOperator() {
-        return requirementOperator;
-    }
-
-    public void setRequirementOperator(RequirementOperator requirementOperator) {
-        this.requirementOperator = requirementOperator;
-    }
-
-    public AttributeRequirement value(String value) {
-        this.value = value;
-        return this;
-    }
-
-    /**
-     * Get value
-     * @return value
-     **/
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
         this.value = value;
     }
 

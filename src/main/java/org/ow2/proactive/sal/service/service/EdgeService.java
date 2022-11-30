@@ -34,7 +34,6 @@ import java.util.*;
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.service.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
-import org.ow2.proactive.sal.service.util.ByonAgentAutomation;
 import org.ow2.proactive.sal.service.util.ByonUtils;
 import org.ow2.proactive.sal.service.util.TemporaryFilesHelper;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
