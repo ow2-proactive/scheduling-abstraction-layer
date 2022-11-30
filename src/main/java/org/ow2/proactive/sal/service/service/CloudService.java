@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.common.model.*;
 import org.ow2.proactive.sal.service.nc.UpdatingNodeCandidatesUtils;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.infrastructure.PAConnectorIaasGateway;

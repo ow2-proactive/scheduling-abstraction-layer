@@ -40,7 +40,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.ow2.proactive.sal.service.model.PACloud;
+import org.ow2.proactive.sal.common.model.PACloud;
 import org.ow2.proactive.sal.service.util.ConnectionHelper;
 import org.springframework.stereotype.Service;
 

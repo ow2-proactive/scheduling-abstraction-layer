@@ -39,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.javatuples.Quartet;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.common.model.*;
 import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.sal.service.service.infrastructure.PAConnectorIaasGateway;
 import org.ow2.proactive.sal.service.util.GeoLocationUtils;

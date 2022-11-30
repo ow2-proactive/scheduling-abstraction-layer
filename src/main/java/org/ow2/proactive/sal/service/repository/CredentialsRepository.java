@@ -25,7 +25,7 @@
  */
 package org.ow2.proactive.sal.service.repository;
 
-import org.ow2.proactive.sal.service.model.Credentials;
+import org.ow2.proactive.sal.common.model.Credentials;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

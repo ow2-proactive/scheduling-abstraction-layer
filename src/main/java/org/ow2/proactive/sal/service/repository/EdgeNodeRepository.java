@@ -25,7 +25,7 @@
  */
 package org.ow2.proactive.sal.service.repository;
 
-import org.ow2.proactive.sal.service.model.EdgeNode;
+import org.ow2.proactive.sal.common.model.EdgeNode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

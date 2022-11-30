@@ -29,7 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import org.ow2.proactive.sal.service.model.*;
+import org.ow2.proactive.sal.common.model.*;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.application.PAFactory;
 import org.ow2.proactive.sal.service.util.ByonUtils;

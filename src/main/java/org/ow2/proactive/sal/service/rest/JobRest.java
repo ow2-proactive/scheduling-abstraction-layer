@@ -31,9 +31,9 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ow2.proactive.sal.service.model.Job;
-import org.ow2.proactive.sal.service.model.JobDefinition;
-import org.ow2.proactive.sal.service.model.SubmittedJobType;
+import org.ow2.proactive.sal.common.model.Job;
+import org.ow2.proactive.sal.common.model.JobDefinition;
+import org.ow2.proactive.sal.common.model.SubmittedJobType;
 import org.ow2.proactive.sal.service.service.JobService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.job.JobResult;

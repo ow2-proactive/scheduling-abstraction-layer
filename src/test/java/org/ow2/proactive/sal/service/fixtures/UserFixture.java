@@ -25,7 +25,7 @@
  */
 package org.ow2.proactive.sal.service.fixtures;
 
-import org.ow2.proactive.sal.service.model.User;
+import org.ow2.proactive.sal.common.model.User;
 
 
 /**

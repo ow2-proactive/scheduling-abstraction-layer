@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.ow2.proactive.sal.service.model.GeoLocationData;
+import org.ow2.proactive.sal.common.model.GeoLocationData;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;

@@ -29,7 +29,7 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.service.model.EmsDeploymentRequest;
+import org.ow2.proactive.sal.common.model.EmsDeploymentRequest;
 import org.ow2.proactive.sal.service.service.MonitoringService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
