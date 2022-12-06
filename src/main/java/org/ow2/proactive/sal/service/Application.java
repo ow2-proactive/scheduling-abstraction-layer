@@ -59,14 +59,14 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 /**
  * @author ActiveEon Team
  */
-@SpringBootApplication(scanBasePackages = { "org.ow2.proactive.sal.service", "org.ow2.proactive.sal.common" })
+@SpringBootApplication(scanBasePackages = { "org.ow2.proactive.sal.service", "org.ow2.proactive.sal.model" })
 @EnableAutoConfiguration(exclude = { MultipartAutoConfiguration.class })
 @EnableSwagger2
 @EnableAsync
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
                    @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/${PROPERTIES_FILENAME}.properties", ignoreResourceNotFound = true) })
-@EntityScan(basePackages = "org.ow2.proactive.sal.common.model")
-@EntityScanRoot("classpath:/org/ow2/proactive/sal/common/model")
+@EntityScan(basePackages = "org.ow2.proactive.sal.model")
+@EntityScanRoot("classpath:/org/ow2/proactive/sal/model")
 @EnableTransactionManagement
 public class Application extends WebMvcConfigurerAdapter {
 

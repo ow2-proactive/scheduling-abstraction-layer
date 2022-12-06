@@ -39,7 +39,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.ow2.proactive.sal.common.model.User;
+import org.ow2.proactive.sal.model.User;
 import org.ow2.proactive.sal.service.fixtures.UserFixture;
 import org.ow2.proactive.sal.service.service.UserService;
 import org.springframework.http.HttpStatus;

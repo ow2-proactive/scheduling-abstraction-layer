@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.common.model.Deployment;
-import org.ow2.proactive.sal.common.model.IaasDefinition;
+import org.ow2.proactive.sal.model.Deployment;
+import org.ow2.proactive.sal.model.IaasDefinition;
 import org.ow2.proactive.sal.service.service.NodeService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -31,8 +31,8 @@ import java.util.Map;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.common.model.ByonDefinition;
-import org.ow2.proactive.sal.common.model.ByonNode;
+import org.ow2.proactive.sal.model.ByonDefinition;
+import org.ow2.proactive.sal.model.ByonNode;
 import org.ow2.proactive.sal.service.service.ByonService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;

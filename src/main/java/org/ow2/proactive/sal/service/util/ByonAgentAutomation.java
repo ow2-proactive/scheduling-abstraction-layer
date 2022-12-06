@@ -25,7 +25,7 @@
  */
 package org.ow2.proactive.sal.service.util;
 
-import org.ow2.proactive.sal.common.model.ByonNode;
+import org.ow2.proactive.sal.model.ByonNode;
 
 import com.jcraft.jsch.JSchException;
 

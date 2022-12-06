@@ -32,10 +32,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
-import org.ow2.proactive.sal.common.model.Deployment;
-import org.ow2.proactive.sal.common.model.EmsDeploymentRequest;
-import org.ow2.proactive.sal.common.model.PACloud;
-import org.ow2.proactive.sal.common.model.Port;
+import org.ow2.proactive.sal.model.Deployment;
+import org.ow2.proactive.sal.model.EmsDeploymentRequest;
+import org.ow2.proactive.sal.model.PACloud;
+import org.ow2.proactive.sal.model.Port;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
