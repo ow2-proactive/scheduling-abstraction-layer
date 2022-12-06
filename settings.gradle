@@ -1,1 +1,2 @@
 rootProject.name = 'scheduling-abstraction-layer'
+include 'sal-common'

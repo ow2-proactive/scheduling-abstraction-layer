@@ -36,7 +36,7 @@ import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ow2.proactive.sal.common.model.User;
+import org.ow2.proactive.sal.model.User;
 import org.ow2.proactive.sal.service.Application;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;

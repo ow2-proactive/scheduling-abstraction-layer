@@ -30,7 +30,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 import java.util.List;
 import java.util.Optional;
 
-import org.ow2.proactive.sal.common.model.*;
+import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.repository.*;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;

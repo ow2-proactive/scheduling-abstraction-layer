@@ -29,7 +29,7 @@ import java.util.Collection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ow2.proactive.sal.common.model.User;
+import org.ow2.proactive.sal.model.User;
 import org.ow2.proactive.sal.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

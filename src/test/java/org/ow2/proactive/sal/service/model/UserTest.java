@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.ow2.proactive.sal.common.model.User;
+import org.ow2.proactive.sal.model.User;
 import org.ow2.proactive.sal.service.fixtures.UserFixture;
 
 

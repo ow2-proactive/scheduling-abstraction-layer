@@ -32,7 +32,7 @@ import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ow2.proactive.sal.common.model.*;
+import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.UserException;
