@@ -189,21 +189,22 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.hateoas:spring-hateoas'
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
-    providedRuntime 'org.hsqldb:hsqldb'
-    runtime('org.hibernate:hibernate-hikaricp') {
-        exclude group: 'org.javassist', module: 'javassist'
-    }
-
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
     compile 'io.springfox:springfox-spring-web'
     compile 'io.springfox:springfox-swagger2'
     compile 'io.springfox:springfox-swagger-ui'
     compile 'com.google.guava:guava'
 
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.core:jackson-annotations'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
+    compile group: 'org.apache.commons', name: 'commons-configuration2', version: '2.7'
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.4'
+    compile group: 'org.jasypt', name: 'jasypt', version: '1.9.2'
+    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.1'
+    compile group: 'org.json', name: 'json', version: '20200518'
+    compile group: 'org.javatuples', name: 'javatuples', version: '1.2'
+    compile group: 'com.jcraft', name: 'jsch', version: '0.1.55'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+    compile group: 'org.apache.jclouds.api', name: 'ec2', version: '2.2.1'
+    compile group: 'org.junit.jupiter', name:'junit-jupiter', version: '5.6.2'
 
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'com.google.truth:truth'
@@ -215,21 +216,12 @@ dependencies {
     testCompile 'com.jayway.restassured:rest-assured'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
 
-    compile group: 'org.apache.commons', name: 'commons-configuration2', version: '2.7'
-    compile group: 'org.ow2.proactive_grid_cloud_portal', name: 'rest-smartproxy', version: "$version"
-    compile group: 'org.ow2.proactive_grid_cloud_portal', name: 'rest-api', version: "$version"
-    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.4'
-    compile group: 'org.jasypt', name: 'jasypt', version: '1.9.2'
-    compile group: 'org.hibernate', name: 'hibernate-entitymanager'
-    compile group: 'org.hibernate', name: 'hibernate-core'
-    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.1'
-    compile group: 'org.json', name: 'json', version: '20200518'
-    compile group: 'org.javatuples', name: 'javatuples', version: '1.2'
-    compile group: 'com.jcraft', name: 'jsch', version: '0.1.55'
-    compile group: 'org.eclipse.emf', name: 'org.eclipse.emf.common', version: '2.20.0'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
-    compile group: 'org.apache.jclouds.api', name: 'ec2', version: '2.2.1'
-    compile group: 'org.junit.jupiter', name:'junit-jupiter', version: '5.6.2'
+    providedRuntime 'org.hsqldb:hsqldb'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    runtime('org.hibernate:hibernate-hikaricp') {
+        exclude group: 'org.javassist', module: 'javassist'
+    }
 }
 
 test {
