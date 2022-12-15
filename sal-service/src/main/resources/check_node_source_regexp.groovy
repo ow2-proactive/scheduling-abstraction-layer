@@ -5,7 +5,7 @@
  * node source name (regexp)
  */
 
-import com.google.common.base.Strings
+import Strings
 
 import java.util.regex.Pattern;
 

@@ -30,6 +30,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Optional;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.ow2.proactive.sal.model.User;
@@ -75,7 +76,7 @@ public class UserServiceTest {
     public void findAllUsers() {
         userService.saveUser(user);
 
-        assertThat(userService.findAllUsers().iterator().next(), is(user));
+        assertThat(userService.findAllUsers().iterator().next(), CoreMatchers.is(user));
     }
 
     @Test
