@@ -1,18 +1,3 @@
-apply plugin: 'spring-boot'
-apply plugin: "io.spring.dependency-management"
-apply plugin: 'eclipse'
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'war'
-
-group = 'org.ow2.proactive'
-version = version
-
-repositories {
-    mavenCentral()
-    maven { url 'http://repository.activeeon.com/content/groups/proactive/' }
-}
-
 dependencies {
     compile "org.ow2.proactive:microservices-common:$version"
 

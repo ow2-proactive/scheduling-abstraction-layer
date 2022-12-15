@@ -1,0 +1,66 @@
+apply plugin: 'war'
+
+dependencies {
+    compile project(":sal-common")
+
+    compile "org.ow2.proactive:microservices-common:$version"
+
+    compile 'org.projectlombok:lombok'
+    compile 'commons-fileupload:commons-fileupload'
+
+    //Logger
+    compile 'org.apache.logging.log4j:log4j-web'
+    compile 'org.apache.logging.log4j:log4j-core'
+    compile 'org.apache.logging.log4j:log4j-web'
+    compile 'org.apache.logging.log4j:log4j-slf4j-impl'
+
+    // This allows log4j logging for spring boot. This dependency is needed for standalone but will
+    // clash with the ProActive Scheduler dependencies when included. It is excluded in configurations above.
+    compile('org.springframework.boot:spring-boot-starter-log4j2') {
+        exclude group: "org.apache.logging.log4j"
+    }
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.hateoas:spring-hateoas'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    compile 'io.springfox:springfox-spring-web'
+    compile 'io.springfox:springfox-swagger2'
+    compile 'io.springfox:springfox-swagger-ui'
+    compile 'com.google.guava:guava'
+
+    compile group: 'org.apache.commons', name: 'commons-configuration2', version: '2.7'
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.4'
+    compile group: 'org.jasypt', name: 'jasypt', version: '1.9.2'
+    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.1'
+    compile group: 'org.json', name: 'json', version: '20200518'
+    compile group: 'org.javatuples', name: 'javatuples', version: '1.2'
+    compile group: 'com.jcraft', name: 'jsch', version: '0.1.55'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+    compile group: 'org.apache.jclouds.api', name: 'ec2', version: '2.2.1'
+    compile group: 'org.junit.jupiter', name:'junit-jupiter', version: '5.6.2'
+
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'nl.jqno.equalsverifier:equalsverifier'
+
+    testCompile 'com.google.code.gson:gson'
+    testCompile 'com.jayway.restassured:rest-assured'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+    providedRuntime 'org.hsqldb:hsqldb'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    runtime('org.hibernate:hibernate-hikaricp') {
+        exclude group: 'org.javassist', module: 'javassist'
+    }
+}
+
+def mainClassName = 'org.ow2.proactive.sal.service.Application'
+
+war {
+    baseName = "scheduling-abstraction-layer"
+    version = version
+    manifest {
+        attributes 'Main-Class': mainClassName
+        attributes 'Class-Path': "."
+    }
+}

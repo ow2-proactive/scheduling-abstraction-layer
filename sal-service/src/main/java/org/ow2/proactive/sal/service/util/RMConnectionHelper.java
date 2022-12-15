@@ -26,7 +26,6 @@
 package org.ow2.proactive.sal.service.util;
 
 import java.security.KeyException;
-import java.util.concurrent.*;
 import java.util.prefs.Preferences;
 
 import javax.security.auth.login.LoginException;
