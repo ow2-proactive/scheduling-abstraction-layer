@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
     <Properties>
-        <Property name="pa.scheduler.home">${env:PA_HOME}</Property>
+        <Property name="pa.scheduler.home">${env:PA_HOME:-.}</Property>
     </Properties>
 
     <Appenders>
