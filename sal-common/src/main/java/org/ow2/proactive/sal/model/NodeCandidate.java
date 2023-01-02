@@ -34,6 +34,7 @@ import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -357,6 +358,7 @@ public class NodeCandidate implements Serializable {
      * Check if a node candidate is of BYON type
      * @return true if yes, false if not
      */
+    @JsonIgnore
     public boolean isByonNodeCandidate() {
         if (nodeCandidateType.equals(NodeCandidateTypeEnum.BYON)) {
             LOGGER.info("   Is BYON:       YES");
@@ -371,6 +373,7 @@ public class NodeCandidate implements Serializable {
      * Check if a node candidate is of BYON type
      * @return true if yes, false if not
      */
+    @JsonIgnore
     public boolean isEdgeNodeCandidate() {
         if (nodeCandidateType.equals(NodeCandidateTypeEnum.EDGE)) {
             LOGGER.info("   Is EDGE:       YES");
