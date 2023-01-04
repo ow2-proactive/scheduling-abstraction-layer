@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.tuple.Pair;
+import org.javatuples.Pair;
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -364,7 +364,7 @@ public class JobService {
         Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
-            return Pair.of(SubmittedJobType.UNKNOWN, null);
+            return new Pair<>(SubmittedJobType.UNKNOWN, null);
         }
         Job submittedJob = optJob.get();
         LOGGER.info("Job " + jobId + " mapped to the submitted ProActive job: " + submittedJob.getSubmittedJobId() +
@@ -374,7 +374,7 @@ public class JobService {
             jobState = schedulerGateway.getJobState(String.valueOf(submittedJob.getSubmittedJobId()));
             LOGGER.info("Returned state: " + jobState.getStatus().toString() + " for job: " + jobId);
         }
-        return Pair.of(submittedJob.getSubmittedJobType(), jobState);
+        return new Pair<>(submittedJob.getSubmittedJobType(), jobState);
     }
 
     /**

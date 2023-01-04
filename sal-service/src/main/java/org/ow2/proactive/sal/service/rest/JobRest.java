@@ -30,7 +30,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.javatuples.Pair;
 import org.ow2.proactive.sal.model.Job;
 import org.ow2.proactive.sal.model.JobDefinition;
 import org.ow2.proactive.sal.model.SubmittedJobType;
