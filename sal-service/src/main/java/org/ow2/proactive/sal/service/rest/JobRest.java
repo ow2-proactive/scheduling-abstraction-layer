@@ -33,11 +33,10 @@ import javax.ws.rs.core.MediaType;
 import org.javatuples.Pair;
 import org.ow2.proactive.sal.model.Job;
 import org.ow2.proactive.sal.model.JobDefinition;
-import org.ow2.proactive.sal.model.SubmittedJobType;
+import org.ow2.proactive.sal.model.JobState;
 import org.ow2.proactive.sal.service.service.JobService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.job.JobResult;
-import org.ow2.proactive.scheduler.common.job.JobState;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -117,7 +116,7 @@ public class JobRest {
 
     @RequestMapping(value = "/{jobId}/status", method = RequestMethod.GET)
     @ApiOperation(value = "Get a ProActive job state", response = Pair.class)
-    public ResponseEntity<Pair<SubmittedJobType, JobState>>
+    public ResponseEntity<JobState>
             getJobState(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A job ID", required = true)
