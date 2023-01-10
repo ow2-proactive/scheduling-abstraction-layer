@@ -38,7 +38,7 @@ import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.UserException;
 import org.ow2.proactive.scheduler.common.job.JobInfo;
 import org.ow2.proactive.scheduler.common.job.JobResult;
-import org.ow2.proactive.scheduler.common.job.JobState;
+import org.ow2.proactive.scheduler.common.job.JobStatus;
 import org.ow2.proactive.scheduler.common.job.TaskFlowJob;
 import org.ow2.proactive.scheduler.common.task.ScriptTask;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
@@ -356,7 +356,7 @@ public class JobService {
      * @param jobId A job ID
      * @return The job state
      */
-    public Pair<SubmittedJobType, JobState> getJobState(String sessionId, String jobId) throws NotConnectedException {
+    public JobState getJobState(String sessionId, String jobId) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
@@ -364,17 +364,17 @@ public class JobService {
         Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
-            return new Pair<>(SubmittedJobType.UNKNOWN, null);
+            return new JobState(SubmittedJobType.UNKNOWN, null);
         }
         Job submittedJob = optJob.get();
         LOGGER.info("Job " + jobId + " mapped to the submitted ProActive job: " + submittedJob.getSubmittedJobId() +
                     " of type: " + submittedJob.getSubmittedJobType());
-        JobState jobState = null;
+        JobStatus jobStatus = null;
         if (submittedJob.getSubmittedJobId() != 0L) {
-            jobState = schedulerGateway.getJobState(String.valueOf(submittedJob.getSubmittedJobId()));
-            LOGGER.info("Returned state: " + jobState.getStatus().toString() + " for job: " + jobId);
+            jobStatus = schedulerGateway.getJobState(String.valueOf(submittedJob.getSubmittedJobId())).getStatus();
+            LOGGER.info("Returned state: " + jobStatus.toString() + " for job: " + jobId);
         }
-        return new Pair<>(submittedJob.getSubmittedJobType(), jobState);
+        return new JobState(submittedJob.getSubmittedJobType(), jobStatus);
     }
 
     /**
