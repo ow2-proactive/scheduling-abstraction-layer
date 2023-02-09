@@ -26,6 +26,8 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
+import java.util.concurrent.Future;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -49,6 +51,8 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Service("CloudService")
 public class CloudService {
+
+    private static final List<Future<Boolean>> ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS = new ArrayList<>();
 
     @Autowired
     private PAGatewayService paGatewayService;
@@ -118,13 +122,33 @@ public class CloudService {
 
         LOGGER.info("Clouds created properly.");
 
+        cleanDoneAsyncProcesses();
         try {
-            updatingNodeCandidatesUtils.asyncUpdate(savedCloudIds);
+            ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncUpdate(savedCloudIds));
         } catch (InterruptedException ie) {
             LOGGER.warn("Thread updating node candidates interrupted!", ie);
         }
 
         return 0;
+    }
+
+    private void cleanDoneAsyncProcesses() {
+        LOGGER.info("Cleaning ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS structure ...");
+        ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.stream()
+                                               .filter(Future::isDone)
+                                               .forEach(ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS::remove);
+    }
+
+    /**
+     * Verify if there is any asynchronous fetching/cleaning node candidates process in progress
+     * @param sessionId A valid session id
+     * @return true if at least one asynchronous node candidates process is in progress, false otherwise
+     */
+    public Boolean isAnyAsyncNodeCandidatesProcessesInProgress(String sessionId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        return ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.stream().parallel().anyMatch(result -> !result.isDone());
     }
 
     /**
@@ -218,7 +242,7 @@ public class CloudService {
             cloud.clearDeployments();
             LOGGER.info("Cleaning node candidates");
             try {
-                updatingNodeCandidatesUtils.asyncClean(cloudIDs);
+                ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncClean(cloudIDs));
             } catch (InterruptedException ie) {
                 LOGGER.warn("Thread cleaning node candidates interrupted!", ie);
             }
