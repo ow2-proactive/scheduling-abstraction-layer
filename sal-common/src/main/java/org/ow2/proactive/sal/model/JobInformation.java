@@ -25,6 +25,8 @@
  */
 package org.ow2.proactive.sal.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
@@ -38,7 +40,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString(callSuper = true)
-public class JobInformation {
+public class JobInformation implements Serializable {
 
     @JsonProperty("id")
     private String id;

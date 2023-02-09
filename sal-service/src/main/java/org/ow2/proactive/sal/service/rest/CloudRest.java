@@ -60,6 +60,15 @@ public class CloudRest {
         return ResponseEntity.ok(cloudService.addClouds(sessionId, clouds));
     }
 
+    @RequestMapping(value = "/async", method = RequestMethod.GET)
+    @ApiOperation(value = "Is any async node candidates process in progress?", response = Integer.class)
+    public ResponseEntity<Boolean> isAnyAsyncNodeCandidatesProcessesInProgress(
+            @ApiParam(value = "Proactive authentication session id", required = true)
+            @RequestHeader(value = "sessionid")
+            final String sessionId) throws NotConnectedException {
+        return ResponseEntity.ok(cloudService.isAnyAsyncNodeCandidatesProcessesInProgress(sessionId));
+    }
+
     @RequestMapping(method = RequestMethod.GET)
     @ApiOperation(value = "Get all registered clouds", response = PACloud.class, responseContainer = "List")
     public ResponseEntity<List<PACloud>>

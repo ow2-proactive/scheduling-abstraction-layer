@@ -25,6 +25,7 @@
  */
 package org.ow2.proactive.sal.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,7 +41,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString(callSuper = true)
-public class TaskDefinition {
+public class TaskDefinition implements Serializable {
 
     @JsonProperty("name")
     private String name;
