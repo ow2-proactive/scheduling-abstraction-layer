@@ -70,6 +70,8 @@ public class MonitoringService {
         }
         Validate.notNull(authorizationBearer, "The provided authorization bearer cannot be empty");
 
+        LOGGER.info("Adding EMS monitors for nodes: [{}], with bearer: [{}]", nodeNames, authorizationBearer);
+
         AtomicInteger failedDeploymentIdentification = new AtomicInteger();
         URL endpointPa;
         try {
@@ -80,6 +82,8 @@ public class MonitoringService {
 
             // For supplied node ...
             nodeNames.forEach(node -> {
+                LOGGER.info("Adding monitors for node [{}] ...", node);
+
                 Deployment deployment = repositoryService.getDeployment(node);
                 PACloud cloud = deployment.getPaCloud();
 
@@ -101,13 +105,14 @@ public class MonitoringService {
                 deployment.setEmsDeployment(req);
                 repositoryService.saveEmsDeploymentRequest(req);
                 repositoryService.saveDeployment(deployment);
+                LOGGER.info("Monitors added for node [{}].", node);
             });
 
             repositoryService.flush();
         } catch (MalformedURLException me) {
             LOGGER.error(String.valueOf(me.getStackTrace()));
         }
-        LOGGER.info("EMS deployment definition finished.");
+        LOGGER.info("EMS deployment definition finished for nodes: [{}].", nodeNames);
         return failedDeploymentIdentification.get();
     }
 
