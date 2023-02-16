@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
+import org.ow2.proactive.sal.model.EmsDeploymentDefinition;
 import org.ow2.proactive.sal.model.EmsDeploymentRequest;
 import org.ow2.proactive.sal.service.service.MonitoringService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -54,13 +55,10 @@ public class MonitoringRest {
     public ResponseEntity<Integer>
             addEmsDeployment(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "Names of the nodes to which to add EMS deployment", required = true)
-    @RequestParam(value = "nodeNames")
-    final List<String> nodeNames,
-                    @ApiParam(value = "The authorization bearer used by upperware's components to authenticate with each other. Needed by the EMS.", required = true)
-                    @RequestParam
-                    final String authorizationBearer) throws NotConnectedException {
-        return ResponseEntity.ok(monitoringService.addEmsDeployment(sessionId, nodeNames, authorizationBearer));
+    final String sessionId, @ApiParam(value = "An EMS deployment definition", required = true)
+    @RequestBody
+    final EmsDeploymentDefinition emsDeploymentDefinition) throws NotConnectedException {
+        return ResponseEntity.ok(monitoringService.addEmsDeployment(sessionId, emsDeploymentDefinition));
     }
 
     @RequestMapping(method = RequestMethod.GET)

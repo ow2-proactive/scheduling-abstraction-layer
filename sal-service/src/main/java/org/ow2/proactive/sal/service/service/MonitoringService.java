@@ -32,10 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
-import org.ow2.proactive.sal.model.Deployment;
-import org.ow2.proactive.sal.model.EmsDeploymentRequest;
-import org.ow2.proactive.sal.model.PACloud;
-import org.ow2.proactive.sal.model.Port;
+import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,18 +56,18 @@ public class MonitoringService {
     /**
      * Add an EMS deployment to a defined job
      * @param sessionId A valid session id
-     * @param nodeNames Names of the nodes to which to add EMS deployment
-     * @param authorizationBearer The authorization bearer used by upperware's components to authenticate with each other. Needed by the EMS.
+     * @param emsDeploymentDefinition An EMS deployment definition
      * @return return 0 if the deployment task is properly added.
      */
-    public Integer addEmsDeployment(String sessionId, List<String> nodeNames, String authorizationBearer)
+    public Integer addEmsDeployment(String sessionId, EmsDeploymentDefinition emsDeploymentDefinition)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Validate.notNull(authorizationBearer, "The provided authorization bearer cannot be empty");
+        Validate.notNull(emsDeploymentDefinition.getAuthorizationBearer(),
+                         "The provided authorization bearer cannot be empty");
 
-        LOGGER.info("Adding EMS monitors for nodes: [{}], with bearer: [{}]", nodeNames, authorizationBearer);
+        LOGGER.info("Adding EMS monitors for request definition: {}", emsDeploymentDefinition);
 
         AtomicInteger failedDeploymentIdentification = new AtomicInteger();
         URL endpointPa;
@@ -81,13 +78,13 @@ public class MonitoringService {
             boolean isUsingHttps = true;
 
             // For supplied node ...
-            nodeNames.forEach(node -> {
+            emsDeploymentDefinition.getNodeNames().forEach(node -> {
                 LOGGER.info("Adding monitors for node [{}] ...", node);
 
                 Deployment deployment = repositoryService.getDeployment(node);
                 PACloud cloud = deployment.getPaCloud();
 
-                EmsDeploymentRequest req = new EmsDeploymentRequest(authorizationBearer,
+                EmsDeploymentRequest req = new EmsDeploymentRequest(emsDeploymentDefinition.getAuthorizationBearer(),
                                                                     baguetteIp,
                                                                     baguettePort,
                                                                     deployment.getDeploymentType().getName(),
@@ -112,7 +109,7 @@ public class MonitoringService {
         } catch (MalformedURLException me) {
             LOGGER.error(String.valueOf(me.getStackTrace()));
         }
-        LOGGER.info("EMS deployment definition finished for nodes: [{}].", nodeNames);
+        LOGGER.info("EMS deployment definition finished for nodes: [{}].", emsDeploymentDefinition.getNodeNames());
         return failedDeploymentIdentification.get();
     }
 
