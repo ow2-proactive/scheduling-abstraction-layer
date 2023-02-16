@@ -271,6 +271,7 @@ public class PASchedulerGateway {
                                                                     "",
                                                                     "",
                                                                     "",
+                                                                    "",
                                                                     null),
                                               DEFAULT_JOB_SORT_PARAMS);
             LOGGER.info("List of jobs retrieved: " + jobInfos.toString());
