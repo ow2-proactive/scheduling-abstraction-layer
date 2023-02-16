@@ -261,17 +261,13 @@ public class PASchedulerGateway {
         try {
             jobInfos = restSmartProxy.getJobs(index,
                                               limit,
-                                              new JobFilterCriteria(false,
-                                                                    true,
-                                                                    true,
-                                                                    true,
-                                                                    false,
-                                                                    true,
-                                                                    "",
-                                                                    "",
-                                                                    "",
-                                                                    "",
-                                                                    null),
+                                              new JobFilterCriteriaBuilder().myJobsOnly(false)
+                                                                            .pending(true)
+                                                                            .running(true)
+                                                                            .finished(true)
+                                                                            .withIssuesOnly(false)
+                                                                            .childJobs(true)
+                                                                            .build(),
                                               DEFAULT_JOB_SORT_PARAMS);
             LOGGER.info("List of jobs retrieved: " + jobInfos.toString());
         } catch (NotConnectedException nce) {
