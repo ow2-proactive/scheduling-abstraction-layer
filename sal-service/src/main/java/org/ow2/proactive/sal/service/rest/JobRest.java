@@ -59,7 +59,7 @@ public class JobRest {
     @ApiOperation(value = "Create a ProActive job skeleton")
     public ResponseEntity<Boolean> createJob(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A job skeleton definition in JSON format", required = true)
+    final String sessionId, @ApiParam(value = "A job skeleton definition", required = true)
     @RequestBody
     final JobDefinition job) throws NotConnectedException {
         return ResponseEntity.ok(jobService.createJob(sessionId, job));
