@@ -38,7 +38,7 @@ import javax.security.auth.login.LoginException;
 import org.ow2.proactive.db.SortOrder;
 import org.ow2.proactive.db.SortParameter;
 import org.ow2.proactive.sal.service.util.SchedulerConnectionHelper;
-import org.ow2.proactive.scheduler.common.JobFilterCriteria;
+import org.ow2.proactive.scheduler.common.JobFilterCriteriaBuilder;
 import org.ow2.proactive.scheduler.common.JobSortParameter;
 import org.ow2.proactive.scheduler.common.Page;
 import org.ow2.proactive.scheduler.common.exception.*;
