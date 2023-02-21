@@ -98,6 +98,7 @@ public class MonitoringService {
                                                                               .collect(Collectors.toList())
                                                                               .toString(),
                                                                     isUsingHttps,
+                                                                    emsDeploymentDefinition.isPrivateIP(),
                                                                     deployment.getNodeName());
                 deployment.setEmsDeployment(req);
                 repositoryService.saveEmsDeploymentRequest(req);
