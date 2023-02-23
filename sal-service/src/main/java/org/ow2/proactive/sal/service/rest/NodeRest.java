@@ -77,7 +77,7 @@ public class NodeRest {
     public ResponseEntity<Boolean> removeNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A comma separated list of node names to remove", required = true)
-    @RequestParam(value = "nodeNames")
+    @RequestBody
     final List<String> nodeNames,
             @ApiParam(value = "If true remove node immediately without waiting for it to be freed", defaultValue = "false")
             @RequestHeader(value = "preempt", defaultValue = "false")

@@ -54,8 +54,6 @@ import io.swagger.annotations.ApiParam;
 @Api(description = "Operations on Proactive gateway", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class PAGatewayRest {
 
-    //TODO: Make init and connect automatically configurable if values are set
-
     @Autowired
     private PAGatewayService paGatewayService;
 

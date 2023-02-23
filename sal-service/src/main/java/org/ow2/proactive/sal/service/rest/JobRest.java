@@ -78,7 +78,7 @@ public class JobRest {
     public ResponseEntity<Long> stopJobs(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "List of job IDs to stop", required = true)
-    @RequestParam(value = "jobIds")
+    @RequestBody
     final List<String> jobIds) throws NotConnectedException {
         return ResponseEntity.ok(jobService.stopJobs(sessionId, jobIds));
     }

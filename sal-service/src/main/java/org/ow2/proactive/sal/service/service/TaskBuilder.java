@@ -495,13 +495,13 @@ public class TaskBuilder {
         scriptTasks.addAll(appTasks);
     }
 
-    private List<ScriptTask> createParentScaledTask(Task task, Job job) {
+    private List<ScriptTask> createParentScaledTask(Task task) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         task.getDeployments().stream().filter(Deployment::getIsDeployed).forEach(deployment -> {
             // Creating infra deployment tasks
             String token = task.getTaskId() + deployment.getNumber();
             String suffix = "_" + deployment.getNumber();
-            scriptTasks.add(createScalingParentInfraPreparationTask(task, suffix, token, job));
+            scriptTasks.add(createScalingParentInfraPreparationTask(task, suffix, token));
         });
         task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
                                                             .getName()
@@ -514,7 +514,7 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private ScriptTask createScalingParentInfraPreparationTask(Task task, String suffix, String token, Job job) {
+    private ScriptTask createScalingParentInfraPreparationTask(Task task, String suffix, String token) {
         ScriptTask prepareInfraTask;
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
         String taskName = "parentPrepareInfra_" + task.getName() + suffix;
@@ -616,7 +616,7 @@ public class TaskBuilder {
         if (scaledTask.getParentTasks().contains(task.getName())) {
             // When the scaled task is a child the task to be built
             LOGGER.info("Building task " + task.getName() + " as a parent of task " + scaledTaskName);
-            scriptTasks.addAll(createParentScaledTask(task, job));
+            scriptTasks.addAll(createParentScaledTask(task));
         } else {
             // Using buildScalingInPATask because it handles all the remaining cases
             LOGGER.info("Moving to building with buildScalingInPATask() method");

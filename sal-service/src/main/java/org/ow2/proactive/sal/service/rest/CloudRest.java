@@ -84,7 +84,7 @@ public class CloudRest {
             undeployClouds(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "List of cloud IDs to undeploy", required = true)
-    @RequestParam(value = "cloudIDs")
+    @RequestBody
     final List<String> cloudIDs,
                     @ApiParam(value = "If true undeploy node source immediately without waiting for nodes to be freed", defaultValue = "false")
                     @RequestHeader(value = "preempt", defaultValue = "false")
@@ -98,7 +98,7 @@ public class CloudRest {
             removeClouds(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "List of cloud IDs to remove", required = true)
-    @RequestParam(value = "cloudIDs")
+    @RequestBody
     final List<String> cloudIDs,
                     @ApiParam(value = "If true undeploy node source immediately without waiting for nodes to be freed", defaultValue = "false")
                     @RequestHeader(value = "preempt", defaultValue = "false")
