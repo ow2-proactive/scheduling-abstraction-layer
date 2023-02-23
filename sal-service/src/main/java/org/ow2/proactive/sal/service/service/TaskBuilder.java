@@ -51,27 +51,41 @@ import lombok.extern.log4j.Log4j2;
 public class TaskBuilder {
 
     private static final String NEW_LINE = System.getProperty("line.separator");
+
     private static final String SCRIPTS_SEPARATION_BASH = NEW_LINE + NEW_LINE + "# Main script" + NEW_LINE + NEW_LINE;
+
     private static final String SCRIPTS_SEPARATION_GROOVY = NEW_LINE + NEW_LINE + "// Separation script" + NEW_LINE +
                                                             NEW_LINE;
-    private static  final String EMS_DEPLOY_PRESCRIPT = "emsdeploy_prescript.sh";
-    private static  final String EMS_DEPLOY_PRESCRIPT_PRIVATE = "emsdeploy_prescript_private.sh";
-    private static  final String EMS_DEPLOY_MAIN_SCRIPT = "emsdeploy_mainscript.groovy";
-    private static  final String EMS_DEPLOY_POSTSCRIPT = "emsdeploy_postscript.sh";
-    private static  final String EXPORT_ENV_VAR_SCRIPT = "export_env_var_script.sh";
-    private static  final String COLLECT_IP_ADDR_RESULTS = "collect_ip_addr_results.groovy";
-    private static  final String START_DOCKER_APP = "start_docker_app.sh";
-    private static  final String CHECK_NODE_SOURCE_REGEXP = "check_node_source_regexp.groovy";
-    private static  final String ACQUIRE_NODE_AWS_SCRIPT = "acquire_node_aws_script.groovy";
-    private static  final String PRE_ACQUIRE_NODE_SCRIPT = "pre_acquire_node_script.groovy";
-    private static  final String ACQUIRE_NODE_BYON_SCRIPT = "acquire_node_BYON_script.groovy";
-    private static  final String POST_PREPARE_INFRA_SCRIPT = "post_prepare_infra_script.groovy";
-    private static  final String PREPARE_INFRA_SCRIPT = "prepare_infra_script.sh";
-    private static  final String WAIT_FOR_LOCK_SCRIPT = "wait_for_lock_script.sh";
-    private static  final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$";
 
+    private static final String EMS_DEPLOY_PRESCRIPT = "emsdeploy_prescript.sh";
 
+    private static final String EMS_DEPLOY_PRESCRIPT_PRIVATE = "emsdeploy_prescript_private.sh";
 
+    private static final String EMS_DEPLOY_MAIN_SCRIPT = "emsdeploy_mainscript.groovy";
+
+    private static final String EMS_DEPLOY_POSTSCRIPT = "emsdeploy_postscript.sh";
+
+    private static final String EXPORT_ENV_VAR_SCRIPT = "export_env_var_script.sh";
+
+    private static final String COLLECT_IP_ADDR_RESULTS = "collect_ip_addr_results.groovy";
+
+    private static final String START_DOCKER_APP = "start_docker_app.sh";
+
+    private static final String CHECK_NODE_SOURCE_REGEXP = "check_node_source_regexp.groovy";
+
+    private static final String ACQUIRE_NODE_AWS_SCRIPT = "acquire_node_aws_script.groovy";
+
+    private static final String PRE_ACQUIRE_NODE_SCRIPT = "pre_acquire_node_script.groovy";
+
+    private static final String ACQUIRE_NODE_BYON_SCRIPT = "acquire_node_BYON_script.groovy";
+
+    private static final String POST_PREPARE_INFRA_SCRIPT = "post_prepare_infra_script.groovy";
+
+    private static final String PREPARE_INFRA_SCRIPT = "prepare_infra_script.sh";
+
+    private static final String WAIT_FOR_LOCK_SCRIPT = "wait_for_lock_script.sh";
+
+    private static final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$";
 
     private ScriptTask createEmsDeploymentTask(EmsDeploymentRequest emsDeploymentRequest, String taskNameSuffix,
             String nodeToken) {
@@ -85,7 +99,7 @@ public class TaskBuilder {
                                                                                   "groovy",
                                                                                   preScriptFileName,
                                                                                   "bash",
-                                                                                  EMS_DEPLOY_POSTSCRIPT ,
+                                                                                  EMS_DEPLOY_POSTSCRIPT,
                                                                                   "bash");
         Map<String, TaskVariable> variablesMap = emsDeploymentRequest.getWorkflowMap();
         emsDeploymentTask.addGenericInformation("NODE_ACCESS_TOKEN", nodeToken);
@@ -321,8 +335,7 @@ public class TaskBuilder {
         LOGGER.debug("Acquiring node AWS script file: " +
                      getClass().getResource(File.separator + ACQUIRE_NODE_AWS_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireAWSNode_" + task.getName() +
-                                                                             taskNameSuffix,
-                                                                             ACQUIRE_NODE_AWS_SCRIPT);
+                                                                             taskNameSuffix, ACQUIRE_NODE_AWS_SCRIPT);
 
         deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
@@ -340,8 +353,7 @@ public class TaskBuilder {
         LOGGER.debug("Acquiring node OS script file: " +
                      getClass().getResource(File.separator + ACQUIRE_NODE_AWS_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireOSNode_" + task.getName() +
-                                                                             taskNameSuffix,
-                                                                             ACQUIRE_NODE_AWS_SCRIPT);
+                                                                             taskNameSuffix, ACQUIRE_NODE_AWS_SCRIPT);
 
         deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
@@ -369,10 +381,10 @@ public class TaskBuilder {
         String nodeType = deployment.getDeploymentType().getName();
         System.out.println("the nodeType name is: " + nodeType);
         LOGGER.debug("Acquiring node " + nodeType + " script file: " +
-                     getClass().getResource(File.separator + ACQUIRE_NODE_BYON_SCRIPT ).toString());
+                     getClass().getResource(File.separator + ACQUIRE_NODE_BYON_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquire" + nodeType + "Node_" +
                                                                              task.getName() + taskNameSuffix,
-                                                                             ACQUIRE_NODE_BYON_SCRIPT );
+                                                                             ACQUIRE_NODE_BYON_SCRIPT);
 
         deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
