@@ -48,4 +48,7 @@ public class EmsDeploymentDefinition implements Serializable {
 
     @JsonProperty("authorizationBearer")
     private String authorizationBearer;
+
+    @JsonProperty("isPrivateIp")
+    private boolean isPrivateIP;
 }

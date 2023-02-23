@@ -135,12 +135,15 @@ public class EmsDeploymentRequest implements Serializable {
     @Column(name = "ISUSINGHTTP")
     private boolean isUsingHttps;
 
+    @Column(name = "ISPRIVATEIP")
+    private boolean isPrivateIP;
+
     @Column(name = "NODEID")
     private String nodeId;
 
     private EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port,
             TargetType targetType, NodeCandidate targetNodeCandidate, String targetName, TargetProvider targetProvider,
-            String targetOpenPorts, boolean isUsingHttps, String id) {
+            String targetOpenPorts, boolean isUsingHttps, boolean isPrivateIP, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
         this.baguette_port = baguette_port;
@@ -150,12 +153,13 @@ public class EmsDeploymentRequest implements Serializable {
         this.targetProvider = targetProvider;
         this.targetOpenPorts = targetOpenPorts;
         this.isUsingHttps = isUsingHttps;
+        this.isPrivateIP = isPrivateIP;
         this.nodeId = id;
     }
 
     public EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port, String targetType,
             NodeCandidate targetNodeCandidate, String targetName, TargetProvider targetProvider, String targetOpenPorts,
-            boolean isUsingHttps, String id) {
+            boolean isUsingHttps, boolean isPrivateIP, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
         this.baguette_port = baguette_port;
@@ -165,6 +169,7 @@ public class EmsDeploymentRequest implements Serializable {
         this.targetProvider = targetProvider;
         this.targetOpenPorts = targetOpenPorts;
         this.isUsingHttps = isUsingHttps;
+        this.isPrivateIP = isPrivateIP;
         this.nodeId = id;
     }
 
@@ -267,6 +272,7 @@ public class EmsDeploymentRequest implements Serializable {
                                                             targetProvider,
                                                             targetOpenPorts,
                                                             isUsingHttps,
+                                                            isPrivateIP,
                                                             nodeId);
         return req;
     }

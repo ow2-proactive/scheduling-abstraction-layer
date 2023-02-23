@@ -60,10 +60,14 @@ public class TaskBuilder {
     private ScriptTask createEmsDeploymentTask(EmsDeploymentRequest emsDeploymentRequest, String taskNameSuffix,
             String nodeToken) {
         LOGGER.debug("Preparing EMS deployment task");
+        String preScriptFileName = "emsdeploy_prescript.sh";
+        if (emsDeploymentRequest.isPrivateIP()) {
+            preScriptFileName = "emsdeploy_prescript_private.sh";
+        }
         ScriptTask emsDeploymentTask = PAFactory.createComplexScriptTaskFromFiles("emsDeployment" + taskNameSuffix,
                                                                                   "emsdeploy_mainscript.groovy",
                                                                                   "groovy",
-                                                                                  "emsdeploy_prescript.sh",
+                                                                                  preScriptFileName,
                                                                                   "bash",
                                                                                   "emsdeploy_postscript.sh",
                                                                                   "bash");
