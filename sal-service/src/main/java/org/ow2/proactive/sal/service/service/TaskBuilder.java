@@ -57,21 +57,21 @@ public class TaskBuilder {
     private static final String SCRIPTS_SEPARATION_GROOVY = NEW_LINE + NEW_LINE + "// Separation script" + NEW_LINE +
                                                             NEW_LINE;
 
-    private static final String EMS_DEPLOY_PRESCRIPT = "emsdeploy_prescript.sh";
+    private static final String EMS_DEPLOY_PRE_SCRIPT = "emsdeploy_prescript.sh";
 
-    private static final String EMS_DEPLOY_PRESCRIPT_PRIVATE = "emsdeploy_prescript_private.sh";
+    private static final String EMS_DEPLOY_PRIVATE_PRE_SCRIPT = "emsdeploy_prescript_private.sh";
 
     private static final String EMS_DEPLOY_MAIN_SCRIPT = "emsdeploy_mainscript.groovy";
 
-    private static final String EMS_DEPLOY_POSTSCRIPT = "emsdeploy_postscript.sh";
+    private static final String EMS_DEPLOY_POST_SCRIPT = "emsdeploy_postscript.sh";
 
     private static final String EXPORT_ENV_VAR_SCRIPT = "export_env_var_script.sh";
 
-    private static final String COLLECT_IP_ADDR_RESULTS = "collect_ip_addr_results.groovy";
+    private static final String COLLECT_IP_ADDR_RESULTS_SCRIPT = "collect_ip_addr_results.groovy";
 
-    private static final String START_DOCKER_APP = "start_docker_app.sh";
+    private static final String START_DOCKER_APP_SCRIPT = "start_docker_app.sh";
 
-    private static final String CHECK_NODE_SOURCE_REGEXP = "check_node_source_regexp.groovy";
+    private static final String CHECK_NODE_SOURCE_REGEXP_SCRIPT = "check_node_source_regexp.groovy";
 
     private static final String ACQUIRE_NODE_AWS_SCRIPT = "acquire_node_aws_script.groovy";
 
@@ -90,16 +90,16 @@ public class TaskBuilder {
     private ScriptTask createEmsDeploymentTask(EmsDeploymentRequest emsDeploymentRequest, String taskNameSuffix,
             String nodeToken) {
         LOGGER.debug("Preparing EMS deployment task");
-        String preScriptFileName = EMS_DEPLOY_PRESCRIPT;
+        String preScriptFileName = EMS_DEPLOY_PRE_SCRIPT;
         if (emsDeploymentRequest.isPrivateIP()) {
-            preScriptFileName = EMS_DEPLOY_PRESCRIPT_PRIVATE;
+            preScriptFileName = EMS_DEPLOY_PRIVATE_PRE_SCRIPT;
         }
         ScriptTask emsDeploymentTask = PAFactory.createComplexScriptTaskFromFiles("emsDeployment" + taskNameSuffix,
                                                                                   EMS_DEPLOY_MAIN_SCRIPT,
                                                                                   "groovy",
                                                                                   preScriptFileName,
                                                                                   "bash",
-                                                                                  EMS_DEPLOY_POSTSCRIPT,
+                                                                                  EMS_DEPLOY_POST_SCRIPT,
                                                                                   "bash");
         Map<String, TaskVariable> variablesMap = emsDeploymentRequest.getWorkflowMap();
         emsDeploymentTask.addGenericInformation("NODE_ACCESS_TOKEN", nodeToken);
@@ -124,7 +124,7 @@ public class TaskBuilder {
                                                                taskNameSuffix,
                                                                Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                                SCRIPTS_SEPARATION_BASH +
-                                                                               Utils.getContentWithFileName(START_DOCKER_APP));
+                                                                               Utils.getContentWithFileName(START_DOCKER_APP_SCRIPT));
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
 
         if (!task.getParentTasks().isEmpty()) {
@@ -249,9 +249,8 @@ public class TaskBuilder {
 
     private void addLocalDefaultNSRegexSelectionScript(ScriptTask scriptTask) {
         try {
-            String selectionScriptFileName = CHECK_NODE_SOURCE_REGEXP;
             String[] nodeSourceNameRegex = { NODE_SOURCE_NAME_REGEX };
-            SelectionScript selectionScript = new SelectionScript(Utils.getContentWithFileName(selectionScriptFileName),
+            SelectionScript selectionScript = new SelectionScript(Utils.getContentWithFileName(CHECK_NODE_SOURCE_REGEXP_SCRIPT),
                                                                   "groovy",
                                                                   nodeSourceNameRegex,
                                                                   true);
@@ -444,7 +443,7 @@ public class TaskBuilder {
                                                               "echo \"Installation script is empty. Nothing to be executed.\"");
         }
 
-        scriptTaskUpdate.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_RESULTS, "groovy"));
+        scriptTaskUpdate.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_RESULTS_SCRIPT, "groovy"));
 
         scriptTaskUpdate.setVariables(taskVariablesMap);
         scriptTaskUpdate.addGenericInformation("NODE_ACCESS_TOKEN", token);
@@ -576,7 +575,7 @@ public class TaskBuilder {
             prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
             prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(POST_PREPARE_INFRA_SCRIPT) +
                                                                         SCRIPTS_SEPARATION_GROOVY +
-                                                                        Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS),
+                                                                        Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS_SCRIPT),
                                                                         "groovy"));
             //TODO: Taking into consideration multiple provided ports
             taskVariablesMap.put("providedPortName",
@@ -595,7 +594,7 @@ public class TaskBuilder {
             }
         } else if (!task.getParentTasks().isEmpty()) {
             prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
-            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS),
+            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS_SCRIPT),
                                                                         "groovy"));
             //TODO: Taking into consideration multiple parent tasks with multiple communications
             taskVariablesMap.put("requestedPortName",
