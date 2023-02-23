@@ -495,7 +495,7 @@ public class TaskBuilder {
         scriptTasks.addAll(appTasks);
     }
 
-    private List<ScriptTask> createParentScaledTask(Task task, Job job) {
+    private List<ScriptTask> createParentScaledTask(Task task) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         task.getDeployments().stream().filter(Deployment::getIsDeployed).forEach(deployment -> {
             // Creating infra deployment tasks
@@ -616,7 +616,7 @@ public class TaskBuilder {
         if (scaledTask.getParentTasks().contains(task.getName())) {
             // When the scaled task is a child the task to be built
             LOGGER.info("Building task " + task.getName() + " as a parent of task " + scaledTaskName);
-            scriptTasks.addAll(createParentScaledTask(task, job));
+            scriptTasks.addAll(createParentScaledTask(task));
         } else {
             // Using buildScalingInPATask because it handles all the remaining cases
             LOGGER.info("Moving to building with buildScalingInPATask() method");
