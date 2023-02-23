@@ -501,7 +501,7 @@ public class TaskBuilder {
             // Creating infra deployment tasks
             String token = task.getTaskId() + deployment.getNumber();
             String suffix = "_" + deployment.getNumber();
-            scriptTasks.add(createScalingParentInfraPreparationTask(task, suffix, token, job));
+            scriptTasks.add(createScalingParentInfraPreparationTask(task, suffix, token));
         });
         task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
                                                             .getName()
@@ -514,7 +514,7 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private ScriptTask createScalingParentInfraPreparationTask(Task task, String suffix, String token, Job job) {
+    private ScriptTask createScalingParentInfraPreparationTask(Task task, String suffix, String token) {
         ScriptTask prepareInfraTask;
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
         String taskName = "parentPrepareInfra_" + task.getName() + suffix;

@@ -58,7 +58,7 @@ public class ScalingRest {
     final String jobId, @ApiParam(value = "The name of the task whose node are to be allocated", required = true)
     @PathVariable
     final String taskName, @ApiParam(value = "Name of the nodes to be created and provisioned", required = true)
-    @RequestParam(value = "nodeNames")
+    @RequestBody
     final List<String> nodeNames) throws NotConnectedException {
         return ResponseEntity.ok(scalingService.addScaleOutTask(sessionId, jobId, taskName, nodeNames));
     }
@@ -73,7 +73,7 @@ public class ScalingRest {
     final String jobId, @ApiParam(value = "The name of the task whose nodes are to be removed", required = true)
     @PathVariable
     final String taskName, @ApiParam(value = "A list of node to be removed", required = true)
-    @RequestParam(value = "nodeNames")
+    @RequestBody
     final List<String> nodeNames) throws NotConnectedException {
         return ResponseEntity.ok(scalingService.addScaleInTask(sessionId, jobId, taskName, nodeNames));
     }
