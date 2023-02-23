@@ -83,6 +83,7 @@ public class MonitoringService {
 
                 Deployment deployment = repositoryService.getDeployment(node);
                 PACloud cloud = deployment.getPaCloud();
+                LOGGER.info("The Monitors isPrivateIp is set to [{}] ...", emsDeploymentDefinition.isPrivateIP());
 
                 EmsDeploymentRequest req = new EmsDeploymentRequest(emsDeploymentDefinition.getAuthorizationBearer(),
                                                                     baguetteIp,
