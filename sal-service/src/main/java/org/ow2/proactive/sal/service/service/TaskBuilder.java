@@ -57,19 +57,49 @@ public class TaskBuilder {
     private static final String SCRIPTS_SEPARATION_GROOVY = NEW_LINE + NEW_LINE + "// Separation script" + NEW_LINE +
                                                             NEW_LINE;
 
+    private static final String EMS_DEPLOY_PRE_SCRIPT = "emsdeploy_prescript.sh";
+
+    private static final String EMS_DEPLOY_PRIVATE_PRE_SCRIPT = "emsdeploy_prescript_private.sh";
+
+    private static final String EMS_DEPLOY_MAIN_SCRIPT = "emsdeploy_mainscript.groovy";
+
+    private static final String EMS_DEPLOY_POST_SCRIPT = "emsdeploy_postscript.sh";
+
+    private static final String EXPORT_ENV_VAR_SCRIPT = "export_env_var_script.sh";
+
+    private static final String COLLECT_IP_ADDR_RESULTS_SCRIPT = "collect_ip_addr_results.groovy";
+
+    private static final String START_DOCKER_APP_SCRIPT = "start_docker_app.sh";
+
+    private static final String CHECK_NODE_SOURCE_REGEXP_SCRIPT = "check_node_source_regexp.groovy";
+
+    private static final String ACQUIRE_NODE_AWS_SCRIPT = "acquire_node_aws_script.groovy";
+
+    private static final String PRE_ACQUIRE_NODE_SCRIPT = "pre_acquire_node_script.groovy";
+
+    private static final String ACQUIRE_NODE_BYON_SCRIPT = "acquire_node_BYON_script.groovy";
+
+    private static final String POST_PREPARE_INFRA_SCRIPT = "post_prepare_infra_script.groovy";
+
+    private static final String PREPARE_INFRA_SCRIPT = "prepare_infra_script.sh";
+
+    private static final String WAIT_FOR_LOCK_SCRIPT = "wait_for_lock_script.sh";
+
+    private static final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$";
+
     private ScriptTask createEmsDeploymentTask(EmsDeploymentRequest emsDeploymentRequest, String taskNameSuffix,
             String nodeToken) {
         LOGGER.debug("Preparing EMS deployment task");
-        String preScriptFileName = "emsdeploy_prescript.sh";
+        String preScriptFileName = EMS_DEPLOY_PRE_SCRIPT;
         if (emsDeploymentRequest.isPrivateIP()) {
-            preScriptFileName = "emsdeploy_prescript_private.sh";
+            preScriptFileName = EMS_DEPLOY_PRIVATE_PRE_SCRIPT;
         }
         ScriptTask emsDeploymentTask = PAFactory.createComplexScriptTaskFromFiles("emsDeployment" + taskNameSuffix,
-                                                                                  "emsdeploy_mainscript.groovy",
+                                                                                  EMS_DEPLOY_MAIN_SCRIPT,
                                                                                   "groovy",
                                                                                   preScriptFileName,
                                                                                   "bash",
-                                                                                  "emsdeploy_postscript.sh",
+                                                                                  EMS_DEPLOY_POST_SCRIPT,
                                                                                   "bash");
         Map<String, TaskVariable> variablesMap = emsDeploymentRequest.getWorkflowMap();
         emsDeploymentTask.addGenericInformation("NODE_ACCESS_TOKEN", nodeToken);
@@ -92,9 +122,9 @@ public class TaskBuilder {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         ScriptTask scriptTask = PAFactory.createBashScriptTask(task.getName() + "_start" +
                                                                taskNameSuffix,
-                                                               Utils.getContentWithFileName("export_env_var_script.sh") +
+                                                               Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                                SCRIPTS_SEPARATION_BASH +
-                                                                               Utils.getContentWithFileName("start_docker_app.sh"));
+                                                                               Utils.getContentWithFileName(START_DOCKER_APP_SCRIPT));
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
 
         if (!task.getParentTasks().isEmpty()) {
@@ -140,7 +170,7 @@ public class TaskBuilder {
             if (!Strings.isNullOrEmpty(task.getInstallation().getInstall())) {
                 scriptTaskInstall = PAFactory.createBashScriptTask(task.getName() + "_install" +
                                                                    taskNameSuffix,
-                                                                   Utils.getContentWithFileName("export_env_var_script.sh") +
+                                                                   Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                                    SCRIPTS_SEPARATION_BASH +
                                                                                    task.getInstallation().getInstall());
             } else {
@@ -149,13 +179,13 @@ public class TaskBuilder {
             }
 
             if (!Strings.isNullOrEmpty(task.getInstallation().getPreInstall())) {
-                scriptTaskInstall.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
+                scriptTaskInstall.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                             SCRIPTS_SEPARATION_BASH +
                                                                             task.getInstallation().getPreInstall(),
                                                                             "bash"));
             }
             if (!Strings.isNullOrEmpty(task.getInstallation().getPostInstall())) {
-                scriptTaskInstall.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
+                scriptTaskInstall.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                              SCRIPTS_SEPARATION_BASH +
                                                                              task.getInstallation().getPostInstall(),
                                                                              "bash"));
@@ -173,7 +203,7 @@ public class TaskBuilder {
             if (!Strings.isNullOrEmpty(task.getInstallation().getStart())) {
                 scriptTaskStart = PAFactory.createBashScriptTask(task.getName() + "_start" +
                                                                  taskNameSuffix,
-                                                                 Utils.getContentWithFileName("export_env_var_script.sh") +
+                                                                 Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                                  SCRIPTS_SEPARATION_BASH +
                                                                                  task.getInstallation().getStart());
             } else {
@@ -182,13 +212,13 @@ public class TaskBuilder {
             }
 
             if (!Strings.isNullOrEmpty(task.getInstallation().getPreStart())) {
-                scriptTaskStart.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
+                scriptTaskStart.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                           SCRIPTS_SEPARATION_BASH +
                                                                           task.getInstallation().getPreStart(),
                                                                           "bash"));
             }
             if (!Strings.isNullOrEmpty(task.getInstallation().getPostStart())) {
-                scriptTaskStart.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("export_env_var_script.sh") +
+                scriptTaskStart.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                            SCRIPTS_SEPARATION_BASH +
                                                                            task.getInstallation().getPostStart(),
                                                                            "bash"));
@@ -219,9 +249,8 @@ public class TaskBuilder {
 
     private void addLocalDefaultNSRegexSelectionScript(ScriptTask scriptTask) {
         try {
-            String selectionScriptFileName = "check_node_source_regexp.groovy";
-            String[] nodeSourceNameRegex = { "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$" };
-            SelectionScript selectionScript = new SelectionScript(Utils.getContentWithFileName(selectionScriptFileName),
+            String[] nodeSourceNameRegex = { NODE_SOURCE_NAME_REGEX };
+            SelectionScript selectionScript = new SelectionScript(Utils.getContentWithFileName(CHECK_NODE_SOURCE_REGEXP_SCRIPT),
                                                                   "groovy",
                                                                   nodeSourceNameRegex,
                                                                   true);
@@ -303,12 +332,11 @@ public class TaskBuilder {
     private ScriptTask createInfraIAASTaskForAWS(Task task, Deployment deployment, String taskNameSuffix,
             String nodeToken) {
         LOGGER.debug("Acquiring node AWS script file: " +
-                     getClass().getResource(File.separator + "acquire_node_aws_script.groovy").toString());
+                     getClass().getResource(File.separator + ACQUIRE_NODE_AWS_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireAWSNode_" + task.getName() +
-                                                                             taskNameSuffix,
-                                                                             "acquire_node_aws_script.groovy");
+                                                                             taskNameSuffix, ACQUIRE_NODE_AWS_SCRIPT);
 
-        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle("pre_acquire_node_script.groovy", "groovy"));
+        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
         Map<String, TaskVariable> variablesMap = createVariablesMapForAcquiringIAASNode(task, deployment, nodeToken);
         LOGGER.debug("Variables to be added to the task acquiring AWS IAAS node: " + variablesMap.toString());
@@ -322,12 +350,11 @@ public class TaskBuilder {
     private ScriptTask createInfraIAASTaskForOS(Task task, Deployment deployment, String taskNameSuffix,
             String nodeToken) {
         LOGGER.debug("Acquiring node OS script file: " +
-                     getClass().getResource(File.separator + "acquire_node_aws_script.groovy").toString());
+                     getClass().getResource(File.separator + ACQUIRE_NODE_AWS_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireOSNode_" + task.getName() +
-                                                                             taskNameSuffix,
-                                                                             "acquire_node_aws_script.groovy");
+                                                                             taskNameSuffix, ACQUIRE_NODE_AWS_SCRIPT);
 
-        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle("pre_acquire_node_script.groovy", "groovy"));
+        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
         Map<String, TaskVariable> variablesMap = createVariablesMapForAcquiringIAASNode(task, deployment, nodeToken);
         LOGGER.debug("Variables to be added to the task acquiring OS IAAS node: " + variablesMap.toString());
@@ -353,12 +380,12 @@ public class TaskBuilder {
         String nodeType = deployment.getDeploymentType().getName();
         System.out.println("the nodeType name is: " + nodeType);
         LOGGER.debug("Acquiring node " + nodeType + " script file: " +
-                     getClass().getResource(File.separator + "acquire_node_BYON_script.groovy").toString());
+                     getClass().getResource(File.separator + ACQUIRE_NODE_BYON_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquire" + nodeType + "Node_" +
                                                                              task.getName() + taskNameSuffix,
-                                                                             "acquire_node_BYON_script.groovy");
+                                                                             ACQUIRE_NODE_BYON_SCRIPT);
 
-        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle("pre_acquire_node_script.groovy", "groovy"));
+        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
         Map<String, TaskVariable> variablesMap = new HashMap<>();
         String NsName = deployment.getPaCloud().getNodeSourceNamePrefix();
@@ -408,7 +435,7 @@ public class TaskBuilder {
         if (!Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
             scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_update" +
                                                               suffix,
-                                                              Utils.getContentWithFileName("export_env_var_script.sh") +
+                                                              Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                       SCRIPTS_SEPARATION_BASH +
                                                                       task.getInstallation().getUpdateCmd());
         } else {
@@ -416,7 +443,7 @@ public class TaskBuilder {
                                                               "echo \"Installation script is empty. Nothing to be executed.\"");
         }
 
-        scriptTaskUpdate.setPreScript(PAFactory.createSimpleScriptFromFIle("collect_ip_addr_results.groovy", "groovy"));
+        scriptTaskUpdate.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_RESULTS_SCRIPT, "groovy"));
 
         scriptTaskUpdate.setVariables(taskVariablesMap);
         scriptTaskUpdate.addGenericInformation("NODE_ACCESS_TOKEN", token);
@@ -520,8 +547,8 @@ public class TaskBuilder {
         String taskName = "parentPrepareInfra_" + task.getName() + suffix;
 
         if (!task.getPortsToOpen().isEmpty()) {
-            prepareInfraTask = PAFactory.createGroovyScriptTaskFromFile(taskName, "post_prepare_infra_script.groovy");
-            prepareInfraTask.setPreScript(PAFactory.createSimpleScriptFromFIle("prepare_infra_script.sh", "bash"));
+            prepareInfraTask = PAFactory.createGroovyScriptTaskFromFile(taskName, POST_PREPARE_INFRA_SCRIPT);
+            prepareInfraTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PREPARE_INFRA_SCRIPT, "bash"));
             //TODO: Taking into consideration multiple provided ports
             taskVariablesMap.put("providedPortName",
                                  new TaskVariable("providedPortName", task.getPortsToOpen().get(0).getRequestedName()));
@@ -545,10 +572,10 @@ public class TaskBuilder {
         String taskName = "prepareInfra_" + task.getName() + suffix;
 
         if (!task.getPortsToOpen().isEmpty()) {
-            prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, "prepare_infra_script.sh");
-            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("post_prepare_infra_script.groovy") +
+            prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
+            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(POST_PREPARE_INFRA_SCRIPT) +
                                                                         SCRIPTS_SEPARATION_GROOVY +
-                                                                        Utils.getContentWithFileName("collect_ip_addr_results.groovy"),
+                                                                        Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS_SCRIPT),
                                                                         "groovy"));
             //TODO: Taking into consideration multiple provided ports
             taskVariablesMap.put("providedPortName",
@@ -566,8 +593,8 @@ public class TaskBuilder {
                                                          .getRequestedName()));
             }
         } else if (!task.getParentTasks().isEmpty()) {
-            prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, "prepare_infra_script.sh");
-            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName("collect_ip_addr_results.groovy"),
+            prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
+            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS_SCRIPT),
                                                                         "groovy"));
             //TODO: Taking into consideration multiple parent tasks with multiple communications
             taskVariablesMap.put("requestedPortName",
@@ -592,7 +619,7 @@ public class TaskBuilder {
                             " is meant to be executed in: " +
                             task.getInstallation().getOperatingSystemType().getOperatingSystemFamily() + " version: " +
                             task.getInstallation().getOperatingSystemType().getOperatingSystemVersion());
-                prepareInfraTask.setPreScript(PAFactory.createSimpleScriptFromFIle("wait_for_lock_script.sh", "bash"));
+                prepareInfraTask.setPreScript(PAFactory.createSimpleScriptFromFIle(WAIT_FOR_LOCK_SCRIPT, "bash"));
             }
         }
 
