@@ -103,13 +103,16 @@ public class ByonUtils {
         //Define the properties that depend on the node type
 
         if (nodeType.equals("byon")) {
-
+            String bid = RandomStringUtils.randomAlphanumeric(16);
             //set the image name
-            image.setId("byon-image-" + RandomStringUtils.randomAlphanumeric(16));
+            image.setId("byon-image-" + bid);
+            //set the image Name
+            image.setName("byon-image-name-" + np.getOperatingSystem().getOperatingSystemFamily() + "-" +
+                          np.getOperatingSystem().getOperatingSystemArchitecture());
             //set the hardware
-            hardware.setId("byon-hardware-" + RandomStringUtils.randomAlphanumeric(16));
+            hardware.setId("byon-hardware-" + bid);
             //set the location
-            location.setId("byon-location-" + RandomStringUtils.randomAlphanumeric(16));
+            location.setId("byon-location-" + bid);
             //set the nc parameters
             nc.setNodeCandidateType(NodeCandidate.NodeCandidateTypeEnum.BYON);
             // set the nc jobIdForBYON
@@ -117,13 +120,16 @@ public class ByonUtils {
             // set the nc jobIdForEDGE
             nc.setJobIdForEDGE(null);
         } else { //the node type is EDGE
-
-            //set the image name
-            image.setId("edge-image-" + RandomStringUtils.randomAlphanumeric(16));
+            String eid = RandomStringUtils.randomAlphanumeric(16);
+            //set the image id
+            image.setId("edge-image-" + eid);
+            //set the image Name
+            image.setName("edge-image-name-" + np.getOperatingSystem().getOperatingSystemFamily() + "-" +
+                          np.getOperatingSystem().getOperatingSystemArchitecture());
             //set the hardware
-            hardware.setId("edge-hardware-" + RandomStringUtils.randomAlphanumeric(16));
+            hardware.setId("edge-hardware-" + eid);
             //set the location
-            location.setId("edge-location-" + RandomStringUtils.randomAlphanumeric(16));
+            location.setId("edge-location-" + eid);
             //set the nc parameters
             nc.setNodeCandidateType(NodeCandidate.NodeCandidateTypeEnum.EDGE);
             // set the nc jobIdForBYON
@@ -133,8 +139,11 @@ public class ByonUtils {
         }
 
         nc.setCloud(dummyCloud);
+        repositoryService.saveImage(image);
         nc.setImage(image);
+        repositoryService.saveHardware(hardware);
         nc.setHardware(hardware);
+        repositoryService.saveLocation(location);
         nc.setLocation(location);
         repositoryService.saveNodeCandidate(nc);
         LOGGER.info("{} node candidate created.", nodeType.toUpperCase());
