@@ -51,7 +51,7 @@ public class ByonAgentAutomation {
 
     private final String SCRIPT_DIR = "/tmp/proactive-agent.sh";
 
-    private final String DEBIAN_SCRIPT = "https://raw.githubusercontent.com/alijawadfahs/Byon-setup/main/scripts/configure-byon-Debian.sh";
+    private final String DEBIAN_SCRIPT = "https://raw.githubusercontent.com/ow2-proactive/utility-scripts/main/morphemic-scripts/configure-byon-Debian-13.1.0-SNAPSHOT.sh";
 
     public ByonAgentAutomation(ByonNode byonNode) {
         logFile = "/var/log/byonSSH." + byonNode.getId() + ".log";

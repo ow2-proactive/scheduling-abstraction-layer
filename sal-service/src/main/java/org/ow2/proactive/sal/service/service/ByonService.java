@@ -113,6 +113,11 @@ public class ByonService {
      * @return List of ByonNode objects that contains information about the registered Nodes
      */
     public List<ByonNode> getByonNodes(String sessionId, String jobId) throws NotConnectedException {
+        if (jobId.equals("0")) {
+            LOGGER.info("getByonNodes endpoint is called for all Byon Nodes");
+        } else {
+            LOGGER.info("getByonNodes endpoint is called for job " + jobId);
+        }
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
@@ -143,6 +148,7 @@ public class ByonService {
      */
     public Boolean addByonNodes(String sessionId, Map<String, String> byonIdPerComponent, String jobId)
             throws NotConnectedException {
+        LOGGER.info("addByonNodes endpoint is called for job " + jobId);
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
