@@ -26,13 +26,16 @@
 package org.ow2.proactive.sal.service.rest;
 
 import java.util.Map;
+
 import javax.ws.rs.core.MediaType;
+
 import org.ow2.proactive.sal.model.ByonNode;
 import org.ow2.proactive.sal.service.service.VaultService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
