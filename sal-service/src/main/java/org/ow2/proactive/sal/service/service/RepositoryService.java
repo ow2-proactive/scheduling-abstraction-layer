@@ -95,6 +95,9 @@ public class RepositoryService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private VaultService vaultService;
+
     /**
      * Find the byonNode that match with the byonNodeId
      * @param byonNodeId the id of the instance
@@ -773,6 +776,8 @@ public class RepositoryService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
+        LOGGER.info("Cleaning ProActive Vault...");
+        vaultService.removeAllSecrets(sessionId);
         LOGGER.info("Cleaning Jobs ...");
         jobRepository.deleteAll();
         LOGGER.info("Cleaning Deployments ...");

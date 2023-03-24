@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -344,6 +345,32 @@ public class PASchedulerGateway {
             LOGGER.error("ERROR: Unknown task name: " + ute.toString());
         }
         return taskResult;
+    }
+
+    /**
+     * Add a secret to ProActive vault
+     * @param key The key to be defined
+     * @param value The value to be assigned to the key
+     */
+    public void putThirdPartyCredential(String key, String value) throws SchedulerException {
+        restSmartProxy.putThirdPartyCredential(key, value);
+    }
+
+    /**
+     * Get all secrets names from ProActive vault
+     * @return A set of keys as strings
+     */
+    public Set<String> thirdPartyCredentialsKeySet() throws SchedulerException {
+        reconnectIfDisconnected();
+        return restSmartProxy.thirdPartyCredentialsKeySet();
+    }
+
+    /**
+     * remove a secret from the ProActive vault
+     * @param key The key to be defined
+     */
+    public void removeThirdPartyCredential(String key) throws SchedulerException {
+        restSmartProxy.removeThirdPartyCredential(key);
     }
 
     /**
