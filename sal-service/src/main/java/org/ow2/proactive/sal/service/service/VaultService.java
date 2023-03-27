@@ -103,7 +103,8 @@ public class VaultService {
         LOGGER.info("removeSecret endpoint is called to remove key: \"{}\".", key);
         if (!existingKeys.contains(key)) {
             LOGGER.error("The key \"{}\" does not exist in the vault!", key);
-            throw new RuntimeException("the key does not exist in the vault!");
+            Throwable e = new Throwable("The key does not exist in the vault!");
+            throw new SchedulerException(e);
         }
         try {
             schedulerGateway.removeThirdPartyCredential(key);
