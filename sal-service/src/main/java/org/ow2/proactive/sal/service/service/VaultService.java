@@ -26,9 +26,9 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.Validate;
-import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.SchedulerException;
@@ -51,22 +51,29 @@ public class VaultService {
     @Autowired
     private ServiceConfiguration serviceConfiguration;
 
-    private Set<String> getKeys() {
+    private Set<String> getKeys() throws SchedulerException {
         try {
-            Set<String> keys = schedulerGateway.thirdPartyCredentialsKeySet();
-            return keys;
+            return schedulerGateway.thirdPartyCredentialsKeySet();
         } catch (SchedulerException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("An error occurred while getting the keys.\n" + e);
+            throw new SchedulerException(e);
         }
     }
 
-    public Boolean registerNewSecrets(String sessionId, Map<String, String> secret) throws NotConnectedException {
+    /**
+     * Register new secrets in the ProActive Vault
+     * @param sessionId A valid session id
+     * @param secrets A map of keys/values to be added as secrets to ProActive Vault
+     * @return true if the process finished with no errors
+     */
+    public Boolean registerNewSecrets(String sessionId, Map<String, String> secrets) throws SchedulerException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Validate.notNull(secret, "No secret where received in the request body.");
+        Validate.notNull(secrets, "No secret where received in the request body.");
         Set<String> keys = getKeys();
-        secret.forEach((key, value) -> {
+        for (String key : secrets.keySet()) {
+            String value = secrets.get(key);
             LOGGER.info("registerNewSecrets endpoint is called to add key: \"{}\".", key);
             if (keys.contains(key)) {
                 LOGGER.warn("A secret with the same key \"{}\" exist! the value will be overwritten!", key);
@@ -74,13 +81,20 @@ public class VaultService {
             try {
                 schedulerGateway.putThirdPartyCredential(key, value);
             } catch (SchedulerException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("An error occurred while adding a secret.\n" + e);
+                throw new SchedulerException(e);
             }
-        });
+        }
         return true;
     }
 
-    public Boolean removeSecret(String sessionId, String key) throws NotConnectedException {
+    /**
+     * Remove a secret from the ProActive Vault
+     * @param sessionId A valid session id
+     * @param key A key of a secret to be deleted
+     * @return true if the process finished with no errors
+     */
+    public Boolean removeSecret(String sessionId, String key) throws SchedulerException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
@@ -94,26 +108,9 @@ public class VaultService {
         try {
             schedulerGateway.removeThirdPartyCredential(key);
         } catch (SchedulerException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("An error occurred while removing the key.\n" + e);
+            throw new SchedulerException(e);
         }
         return true;
     }
-
-    public Boolean removeAllSecrets(String sessionId) throws NotConnectedException {
-        if (!paGatewayService.isConnectionActive(sessionId)) {
-            throw new NotConnectedException();
-        }
-        LOGGER.info("removeAllSecrets endpoint is called.");
-        Set<String> keys = getKeys();
-        keys.forEach(key -> {
-            try {
-                LOGGER.info("Removing key \"{}\" from ProActive Vault.", key);
-                schedulerGateway.removeThirdPartyCredential(key);
-            } catch (SchedulerException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return true;
-    }
-
 }
