@@ -26,9 +26,10 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
+import org.ow2.proactive.sal.model.VaultKey;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.SchedulerException;
@@ -49,15 +50,18 @@ public class VaultService {
     private PASchedulerGateway schedulerGateway;
 
     @Autowired
-    private ServiceConfiguration serviceConfiguration;
+    private RepositoryService repositoryService;
 
-    private Set<String> getKeys() throws SchedulerException {
-        try {
-            return schedulerGateway.thirdPartyCredentialsKeySet();
-        } catch (SchedulerException e) {
-            LOGGER.error("An error occurred while getting the keys.\n" + e);
-            throw new SchedulerException(e);
+    /**
+     * Get all added vault keys
+     * @param sessionId A valid session id
+     * @return List of all table VaultKey's entries
+     */
+    public List<VaultKey> getVaultKeys(String sessionId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
         }
+        return repositoryService.listVaultKeys();
     }
 
     /**
@@ -71,20 +75,24 @@ public class VaultService {
             throw new NotConnectedException();
         }
         Validate.notNull(secrets, "No secret where received in the request body.");
-        Set<String> keys = getKeys();
+        Set<String> keys = getVaultKeys(sessionId).stream().map(VaultKey::getKeyName).collect(Collectors.toSet());
         for (String key : secrets.keySet()) {
             String value = secrets.get(key);
-            LOGGER.info("registerNewSecrets endpoint is called to add key: \"{}\".", key);
-            if (keys.contains(key)) {
-                LOGGER.warn("A secret with the same key \"{}\" exist! the value will be overwritten!", key);
-            }
+            LOGGER.info("Registering vault key: \"{}\".", key);
             try {
                 schedulerGateway.putThirdPartyCredential(key, value);
             } catch (SchedulerException e) {
-                LOGGER.error("An error occurred while adding a secret.\n" + e);
-                throw new SchedulerException(e);
+                LOGGER.error("An error occurred while adding a secret.\n", e);
+                throw e;
             }
+            if (keys.contains(key)) {
+                LOGGER.warn("A secret with the same key \"{}\" exist! the value will be overwritten!", key);
+            } else {
+                repositoryService.saveVaultKey(new VaultKey(key));
+            }
+            LOGGER.info("Vault key \"{}\" registered successfully.", key);
         }
+        repositoryService.flush();
         return true;
     }
 
@@ -99,19 +107,20 @@ public class VaultService {
             throw new NotConnectedException();
         }
         Validate.notNull(key, "No key was received in the request path.");
-        Set<String> existingKeys = getKeys();
-        LOGGER.info("removeSecret endpoint is called to remove key: \"{}\".", key);
-        if (!existingKeys.contains(key)) {
-            LOGGER.error("The key \"{}\" does not exist in the vault!", key);
-            Throwable e = new Throwable("The key does not exist in the vault!");
-            throw new SchedulerException(e);
+        LOGGER.info("Removing vault key: \"{}\".", key);
+        VaultKey vaultKey = repositoryService.getVaultKey(key);
+        if (vaultKey == null) {
+            LOGGER.error("VaultKey {} not found, nothing to be removed.", key);
+            return false;
         }
         try {
             schedulerGateway.removeThirdPartyCredential(key);
         } catch (SchedulerException e) {
-            LOGGER.error("An error occurred while removing the key.\n" + e);
-            throw new SchedulerException(e);
+            LOGGER.error("An error occurred while removing the key.\n", e);
+            throw e;
         }
+        repositoryService.deleteVaultKey(key);
+        LOGGER.info("Vault key \"{}\" deleted.", key);
         return true;
     }
 }

@@ -25,11 +25,13 @@
  */
 package org.ow2.proactive.sal.service.rest;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
 import org.ow2.proactive.sal.model.ByonNode;
+import org.ow2.proactive.sal.model.VaultKey;
 import org.ow2.proactive.sal.service.service.VaultService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.exception.SchedulerException;
@@ -58,6 +60,15 @@ public class VaultRest {
     @RequestBody
     final Map<String, String> secret) throws SchedulerException {
         return ResponseEntity.ok(vaultService.registerNewSecrets(sessionId, secret));
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    @ApiOperation(value = "Get all added vaults", response = VaultKey.class, responseContainer = "List")
+    public ResponseEntity<List<VaultKey>>
+            getVaultKeys(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        return ResponseEntity.ok(vaultService.getVaultKeys(sessionId));
     }
 
     @RequestMapping(value = "/{key}", method = RequestMethod.DELETE)
