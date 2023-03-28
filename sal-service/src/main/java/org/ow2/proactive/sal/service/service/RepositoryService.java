@@ -95,6 +95,9 @@ public class RepositoryService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private VaultKeyRepository vaultKeyRepository;
+
     /**
      * Find the byonNode that match with the byonNodeId
      * @param byonNodeId the id of the instance
@@ -745,6 +748,42 @@ public class RepositoryService {
     }
 
     /**
+     * Find the vaultKey that match with the vaultKeyId
+     * @param vaultKeyId the id of the instance
+     * @return the vaultKey that match with the vaultKeyId
+     */
+    public VaultKey getVaultKey(String vaultKeyId) {
+        return vaultKeyRepository.findOne(vaultKeyId);
+    }
+
+    /**
+     * List all VaultKey entries
+     */
+    public List<VaultKey> listVaultKeys() {
+        return vaultKeyRepository.findAll();
+    }
+
+    /**
+     * Add or update the instance data given in param
+     * @param vaultKey is the instance data to add or update, its instance id will be use as a key
+     */
+    public synchronized VaultKey saveVaultKey(VaultKey vaultKey) {
+        return vaultKeyRepository.saveAndFlush(vaultKey);
+    }
+
+    /**
+     * Delete the vaultKey that match with the vaultKeyId
+     * @param vaultKeyId the id of the instance
+     * @return the deleted vaultKey
+     */
+    @Modifying(clearAutomatically = true)
+    public VaultKey deleteVaultKey(String vaultKeyId) {
+        VaultKey instanceToRemove = getVaultKey(vaultKeyId);
+        vaultKeyRepository.delete(vaultKeyId);
+        return instanceToRemove;
+    }
+
+    /**
      * Flush all DB entries
      */
     public synchronized void flush() {
@@ -763,6 +802,7 @@ public class RepositoryService {
         iaasNodeRepository.flush();
         byonNodeRepository.flush();
         edgeNodeRepository.flush();
+        vaultKeyRepository.flush();
     }
 
     /**
@@ -803,6 +843,8 @@ public class RepositoryService {
         nodeCandidateRepository.deleteAll();
         LOGGER.info("Cleaning Locations ...");
         locationRepository.deleteAll();
+        LOGGER.info("Cleaning Vault Keys ...");
+        vaultKeyRepository.deleteAll();
         LOGGER.info("Done.");
     }
 
