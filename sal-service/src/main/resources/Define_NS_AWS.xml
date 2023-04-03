@@ -60,7 +60,7 @@ def infrastructureParameters = [variables.get("aws_username"), //username
                                 protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/rest/node.jar", //node jar url
                                 "-Dproactive.useIPaddress=true", //additionalProperties"
                                 "300000", //timeout
-                                "",
+                                 "mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget -nv --no-check-certificate %nodeJarUrl% ; nohup jre/bin/java -Xmx600m -jar node.jar -Dproactive.communication.protocol=%protocol% -Dpython.path=%jythonPath% -Dproactive.pamr.router.address=%rmHostname% -D%instanceIdNodeProperty%=%instanceId% -r %rmUrl% -s %nodeSourceName% %nodeNamingOption% -v %credentials% -w %numberOfNodesPerInstance% %additionalProperties% &",
                                 ""]
 def infrastructureFileParameters = [variables.get("sshPrivateKey")]
 def policyType = "org.ow2.proactive.resourcemanager.nodesource.policy.EmptyPolicy"
