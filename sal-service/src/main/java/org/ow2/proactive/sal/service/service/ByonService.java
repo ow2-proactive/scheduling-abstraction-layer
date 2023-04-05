@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
@@ -154,10 +155,16 @@ public class ByonService {
         }
         Validate.notNull(byonIdPerComponent,
                          "The received byonIdPerComponent structure is empty. Nothing to be added.");
-        byonIdPerComponent.forEach((byonNodeId, nodeNameAndcomponentName) -> {
+        byonIdPerComponent.forEach((byonNodeId, nodeNameAndComponentName) -> {
             ByonNode byonNode = repositoryService.getByonNode(byonNodeId);
-            String nodeName = nodeNameAndcomponentName.split("/")[0];
-            String componentName = nodeNameAndcomponentName.split("/")[1];
+            if (StringUtils.countMatches(nodeNameAndComponentName, "/") != 1) {
+                LOGGER.error("Invalid nodeNameAndComponentName \"{}\"! the string should contain exactly 1 \"/\" char.",
+                             nodeNameAndComponentName);
+                throw new IllegalArgumentException(String.format("Invalid nodeNameAndComponentName \"%s\"! the string should contain exactly 1 \"/\" char.",
+                                                                 nodeNameAndComponentName));
+            }
+            String nodeName = nodeNameAndComponentName.split("/")[0];
+            String componentName = nodeNameAndComponentName.split("/")[1];
             LOGGER.info("Byon Node {} to be assigned to {}.", nodeName, componentName);
             Task task = repositoryService.getTask(jobId + componentName);
 
