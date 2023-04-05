@@ -154,7 +154,6 @@ public class EdgeService {
             LOGGER.info("Edge Node {} to be assigned to {}.", nodeName, componentName);
             Task task = repositoryService.getTask(jobId + componentName);
 
-
             assert edgeNode != null : "The EDGE ID passed in the mapping does not exist in the database";
             assert task != null : "The componentId passed in the mapping does not exist in the database";
 
