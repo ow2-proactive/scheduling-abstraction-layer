@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
@@ -147,15 +148,24 @@ public class EdgeService {
         Validate.notNull(edgeIdPerComponent,
                          "The received byonIdPerComponent structure is empty. Nothing to be added.");
 
-        edgeIdPerComponent.forEach((edgeNodeId, componentName) -> {
+        edgeIdPerComponent.forEach((edgeNodeId, nodeNameAndComponentName) -> {
             EdgeNode edgeNode = repositoryService.getEdgeNode(edgeNodeId);
+            if (StringUtils.countMatches(nodeNameAndComponentName, "/") != 1) {
+                LOGGER.error("Invalid nodeNameAndComponentName \"{}\"! the string should contain exactly 1 \"/\" char.",
+                             nodeNameAndComponentName);
+                throw new IllegalArgumentException(String.format("Invalid nodeNameAndComponentName \"%s\"! the string should contain exactly 1 \"/\" char.",
+                                                                 nodeNameAndComponentName));
+            }
+            String nodeName = nodeNameAndComponentName.split("/")[0];
+            String componentName = nodeNameAndComponentName.split("/")[1];
+            LOGGER.info("Edge Node {} to be assigned to {}.", nodeName, componentName);
             Task task = repositoryService.getTask(jobId + componentName);
 
             assert edgeNode != null : "The EDGE ID passed in the mapping does not exist in the database";
             assert task != null : "The componentId passed in the mapping does not exist in the database";
 
             Deployment newDeployment = new Deployment();
-            newDeployment.setNodeName(edgeNode.getName());
+            newDeployment.setNodeName(nodeName);
             newDeployment.setDeploymentType(NodeType.EDGE);
             newDeployment.setEdgeNode(edgeNode);
 
@@ -179,7 +189,7 @@ public class EdgeService {
             LOGGER.info("EDGE node Added: " + edgeNode.getName() + " Ip: " +
                         edgeNode.getIpAddresses().get(0).getValue());
             defineEdgeNodeSource(edgeNodeList, nodeSourceName);
-            LOGGER.info("EDGE node source EDGE_NS_" + edgeNode.getId() + " is defined");
+            LOGGER.info("EDGE node source EDGE_NS_" + edgeNode.getId() + " is defined.");
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
