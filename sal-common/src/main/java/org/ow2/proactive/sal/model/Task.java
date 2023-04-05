@@ -68,7 +68,7 @@ public class Task implements Serializable {
     @Embedded
     private DockerEnvironment environment;
 
-    @JsonManagedReference
+    @JsonManagedReference(value = "taskReference")
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Deployment> deployments;
 
