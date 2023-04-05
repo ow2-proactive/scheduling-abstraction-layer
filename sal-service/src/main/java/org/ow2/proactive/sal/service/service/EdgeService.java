@@ -147,15 +147,19 @@ public class EdgeService {
         Validate.notNull(edgeIdPerComponent,
                          "The received byonIdPerComponent structure is empty. Nothing to be added.");
 
-        edgeIdPerComponent.forEach((edgeNodeId, componentName) -> {
+        edgeIdPerComponent.forEach((edgeNodeId, nodeNameAndcomponentName) -> {
             EdgeNode edgeNode = repositoryService.getEdgeNode(edgeNodeId);
+            String nodeName = nodeNameAndcomponentName.split("/")[0];
+            String componentName = nodeNameAndcomponentName.split("/")[1];
+            LOGGER.info("Edge Node {} to be assigned to {}.", nodeName, componentName);
             Task task = repositoryService.getTask(jobId + componentName);
+
 
             assert edgeNode != null : "The EDGE ID passed in the mapping does not exist in the database";
             assert task != null : "The componentId passed in the mapping does not exist in the database";
 
             Deployment newDeployment = new Deployment();
-            newDeployment.setNodeName(edgeNode.getName());
+            newDeployment.setNodeName(nodeName);
             newDeployment.setDeploymentType(NodeType.EDGE);
             newDeployment.setEdgeNode(edgeNode);
 
@@ -179,7 +183,7 @@ public class EdgeService {
             LOGGER.info("EDGE node Added: " + edgeNode.getName() + " Ip: " +
                         edgeNode.getIpAddresses().get(0).getValue());
             defineEdgeNodeSource(edgeNodeList, nodeSourceName);
-            LOGGER.info("EDGE node source EDGE_NS_" + edgeNode.getId() + " is defined");
+            LOGGER.info("EDGE node source EDGE_NS_" + edgeNode.getId() + " is defined.");
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());

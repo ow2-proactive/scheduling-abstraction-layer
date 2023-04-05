@@ -32,6 +32,8 @@ import java.net.URL;
 import java.util.*;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
+import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.sal.service.util.ByonAgentAutomation;
@@ -148,25 +150,26 @@ public class ByonService {
      */
     public Boolean addByonNodes(String sessionId, Map<String, String> byonIdPerComponent, String jobId)
             throws NotConnectedException {
-        LOGGER.info("addByonNodes endpoint is called for job " + jobId);
+        LOGGER.info("addByonNodes endpoint is called for job {}.", jobId);
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
         Validate.notNull(byonIdPerComponent,
                          "The received byonIdPerComponent structure is empty. Nothing to be added.");
-
-        byonIdPerComponent.forEach((byonNodeId, componentName) -> {
+        byonIdPerComponent.forEach((byonNodeId, nodeNameAndcomponentName) -> {
             ByonNode byonNode = repositoryService.getByonNode(byonNodeId);
+            String nodeName = nodeNameAndcomponentName.split("/")[0];
+            String componentName = nodeNameAndcomponentName.split("/")[1];
+            LOGGER.info("Byon Node {} to be assigned to {}.", nodeName, componentName);
             Task task = repositoryService.getTask(jobId + componentName);
 
             assert byonNode != null : "The BYON ID passed in the mapping does not exist in the database";
             assert task != null : "The componentId passed in the mapping does not exist in the database";
 
             Deployment newDeployment = new Deployment();
-            newDeployment.setNodeName(byonNode.getName());
+            newDeployment.setNodeName(nodeName);
             newDeployment.setDeploymentType(NodeType.BYON);
             newDeployment.setByonNode(byonNode);
-
             SSHCredentials sshCred = new SSHCredentials();
             sshCred.setUsername(byonNode.getLoginCredential().getUsername());
             sshCred.setUsername(byonNode.getLoginCredential().getPassword());
@@ -187,7 +190,7 @@ public class ByonService {
             LOGGER.info("BYON node Added: " + byonNode.getName() + " Ip: " +
                         byonNode.getIpAddresses().get(0).getValue());
             defineByonNodeSource(byonNodeList, nodeSourceName);
-            LOGGER.info("BYON node source BYON_NS_" + byonNode.getId() + " is defined");
+            LOGGER.info("BYON node source BYON_NS_" + byonNode.getId() + " is defined.");
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
