@@ -52,11 +52,11 @@ public class Deployment implements Serializable {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private EmsDeploymentRequest emsDeployment;
 
-    @JsonBackReference
+    @JsonBackReference(value = "pacloudReference")
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private PACloud paCloud;
 
-    @JsonBackReference
+    @JsonBackReference(value = "taskReference")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     private Task task;
 

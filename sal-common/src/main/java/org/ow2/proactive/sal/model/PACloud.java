@@ -102,7 +102,7 @@ public class PACloud implements Serializable {
     @ElementCollection(targetClass = String.class)
     private Map<String, String> deployedWhiteListedRegions;
 
-    @JsonManagedReference
+    @JsonManagedReference(value = "pacloudReference")
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Deployment> deployments;
 
