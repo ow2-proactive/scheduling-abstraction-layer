@@ -179,6 +179,7 @@ public class EdgeService {
             cloud.setCloudID(nodeSourceName);
             cloud.setNodeSourceNamePrefix(nodeSourceName);
             cloud.setCloudType(CloudType.EDGE);
+            cloud.setCloudProviderName("EDGE");
             cloud.setSshCredentials(sshCred);
             cloud.addDeployment(newDeployment);
             newDeployment.setPaCloud(cloud);

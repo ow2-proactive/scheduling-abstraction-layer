@@ -81,8 +81,10 @@ public class EmsDeploymentRequest implements Serializable {
         GCE("gce"),
         // OpenStack NOVA
         OPENSTACKNOVA("openstack"),
-        // BYON, to be used for on-premise baremetal & Edge
-        BYON("byon");
+        // BYON, to be used for on-premise baremetal
+        BYON("byon"),
+        // EDGE nodes
+        EDGE("edge");
 
         TargetProvider(String upperwareVal) {
             this.upperwareValue = upperwareVal;
