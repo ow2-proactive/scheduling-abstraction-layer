@@ -167,9 +167,16 @@ public class ByonService {
             String componentName = nodeNameAndComponentName.split("/")[1];
             LOGGER.info("Byon Node {} to be assigned to {}.", nodeName, componentName);
             Task task = repositoryService.getTask(jobId + componentName);
-
-            assert byonNode != null : "The BYON ID passed in the mapping does not exist in the database";
-            assert task != null : "The componentId passed in the mapping does not exist in the database";
+            if (byonNode == null) {
+                LOGGER.error("The passed byonNodeId \"{}\"is not Found in the database", byonNodeId);
+                throw new IllegalArgumentException(String.format("The passed byonNodeId \"%s\" is not Found in the database",
+                                                                 byonNodeId));
+            }
+            if (task == null) {
+                LOGGER.error("The passed componentName \"{}\"is not Found in the database", componentName);
+                throw new IllegalArgumentException(String.format("The passed componentName \"%s\" is not Found in the database",
+                                                                 componentName));
+            }
 
             Deployment newDeployment = new Deployment();
             newDeployment.setNodeName(nodeName);
@@ -181,7 +188,7 @@ public class ByonService {
             sshCred.setUsername(byonNode.getLoginCredential().getPrivateKey());
 
             PACloud cloud = new PACloud();
-            String nodeSourceName = "BYON_NS_" + byonNode.getId();
+            String nodeSourceName = byonNode.composeNodeSourceName();
             cloud.setCloudID(nodeSourceName);
             cloud.setNodeSourceNamePrefix(nodeSourceName);
             cloud.setCloudType(CloudType.BYON);
@@ -195,8 +202,8 @@ public class ByonService {
             byonNodeList.add(byonNode);
             LOGGER.info("BYON node Added: " + byonNode.getName() + " Ip: " +
                         byonNode.getIpAddresses().get(0).getValue());
-            defineByonNodeSource(byonNodeList, nodeSourceName);
-            LOGGER.info("BYON node source BYON_NS_" + byonNode.getId() + " is defined.");
+            defineByonNodeSource(byonNodeList);
+            LOGGER.info("BYON node source {} is defined.", byonNode.composeNodeSourceName());
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
@@ -216,9 +223,8 @@ public class ByonService {
     /**
      * Define a BYON node source
      * @param byonNodeList a list of BYON nodes to be connected to the server.
-     * @param nodeSourceName The name of the node source
      */
-    private void defineByonNodeSource(List<ByonNode> byonNodeList, String nodeSourceName) {
+    private void defineByonNodeSource(List<ByonNode> byonNodeList) {
         Map<String, String> variables = new HashMap<>();
         String filename;
         String byonIPs = "";
@@ -246,7 +252,7 @@ public class ByonService {
         assert !byonNodeList.isEmpty();
         ByonNode byonNode = byonNodeList.get(0);
         filename = File.separator + "Define_NS_BYON.xml";
-        variables.put("NS_name", nodeSourceName);
+        variables.put("NS_name", byonNode.composeNodeSourceName());
         variables.put("pa_protocol", "http");
         variables.put("tokens", "BYON_" + byonNode.getJobId());
         variables.put("ssh_username", byonNode.getLoginCredential().getUsername());
@@ -272,7 +278,7 @@ public class ByonService {
         }
         assert fXmlFile != null;
         LOGGER.info("Submitting the file: " + fXmlFile.toString());
-        LOGGER.info("Trying to deploy the NS: " + nodeSourceName);
+        LOGGER.info("Trying to deploy the NS: " + byonNode.composeNodeSourceName());
         JobId jobId = schedulerGateway.submit(fXmlFile, variables);
         LOGGER.info("Job submitted with ID: " + jobId);
         TemporaryFilesHelper.delete(fXmlFile);
@@ -296,7 +302,7 @@ public class ByonService {
         }
 
         LOGGER.info("Deleting the corresponding PACloud from the database ...");
-        PACloud paCloud = repositoryService.getPACloud("BYON_NS_" + byonNode.getId());
+        PACloud paCloud = repositoryService.getPACloud(byonNode.composeNodeSourceName());
         if (paCloud != null) {
             if (paCloud.getDeployments() != null) {
                 LOGGER.info("Cleaning deployments from related tasks {}", paCloud.getDeployments().toString());
@@ -309,7 +315,7 @@ public class ByonService {
             LOGGER.warn("The PACloud related to the byonNode {} is not found.", byonNode.getName());
         }
 
-        if (!ByonUtils.undeployNs(byonId, "byon", "", false, true)) {
+        if (!ByonUtils.undeployNs(byonNode.composeNodeSourceName(), false, true)) {
             LOGGER.warn("The BYON node source undeploy finished with errors!");
         }
         repositoryService.deleteByonNode(byonNode);

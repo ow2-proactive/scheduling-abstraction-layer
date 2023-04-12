@@ -145,6 +145,10 @@ public class EdgeNode extends AbstractNode {
         return this;
     }
 
+    public String composeNodeSourceName() {
+        return "EDGE_NS_" + this.systemArch + "_" + this.id;
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -153,37 +157,36 @@ public class EdgeNode extends AbstractNode {
             return false;
         }
         EdgeNode edgeNode = (EdgeNode) o;
-        return Objects.equals(this.getName(), edgeNode.getName()) &&
-               Objects.equals(this.getLoginCredential(), edgeNode.getLoginCredential()) &&
-               Objects.equals(this.getIpAddresses(), edgeNode.getIpAddresses()) &&
-               Objects.equals(this.getNodeProperties(), edgeNode.getNodeProperties()) &&
-               Objects.equals(this.getReason(), edgeNode.getReason()) &&
-               Objects.equals(this.getDiagnostic(), edgeNode.getDiagnostic()) &&
-               Objects.equals(this.getNodeCandidate(), edgeNode.getNodeCandidate()) &&
-               Objects.equals(this.getId(), edgeNode.getId()) &&
-               Objects.equals(this.getUserId(), edgeNode.getUserId()) &&
-               Objects.equals(this.getAllocated(), edgeNode.getAllocated()) &&
-               Objects.equals(this.getJobId(), edgeNode.getJobId()) &&
-               Objects.equals(systemArch, edgeNode.getSystemArch()) &&
-               Objects.equals(scriptURL, edgeNode.getScriptURL()) && Objects.equals(jarURL, edgeNode.getJarURL());
+        return Objects.equals(this.name, edgeNode.getName()) &&
+               Objects.equals(this.loginCredential, edgeNode.getLoginCredential()) &&
+               Objects.equals(this.ipAddresses, edgeNode.getIpAddresses()) &&
+               Objects.equals(this.nodeProperties, edgeNode.getNodeProperties()) &&
+               Objects.equals(this.reason, edgeNode.getReason()) &&
+               Objects.equals(this.diagnostic, edgeNode.getDiagnostic()) &&
+               Objects.equals(this.nodeCandidate, edgeNode.getNodeCandidate()) &&
+               Objects.equals(this.id, edgeNode.getId()) && Objects.equals(this.userId, edgeNode.getUserId()) &&
+               Objects.equals(this.allocated, edgeNode.getAllocated()) &&
+               Objects.equals(this.jobId, edgeNode.getJobId()) &&
+               Objects.equals(this.systemArch, edgeNode.getSystemArch()) &&
+               Objects.equals(this.scriptURL, edgeNode.getScriptURL()) && Objects.equals(jarURL, edgeNode.getJarURL());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getName(),
-                            this.getLoginCredential(),
-                            this.getIpAddresses(),
-                            this.getNodeProperties(),
-                            this.getReason(),
-                            this.getDiagnostic(),
-                            this.getNodeCandidate(),
-                            this.getId(),
-                            this.getUserId(),
-                            this.getAllocated(),
-                            this.getJobId(),
-                            systemArch,
-                            scriptURL,
-                            jarURL);
+        return Objects.hash(this.name,
+                            this.id,
+                            this.loginCredential,
+                            this.ipAddresses,
+                            this.nodeProperties,
+                            this.reason,
+                            this.diagnostic,
+                            this.nodeProperties,
+                            this.userId,
+                            this.allocated,
+                            this.jobId,
+                            this.systemArch,
+                            this.scriptURL,
+                            this.jarURL);
     }
 
     @Override
@@ -191,20 +194,20 @@ public class EdgeNode extends AbstractNode {
         StringBuilder sb = new StringBuilder();
         sb.append("class EdgeNode {\n");
 
-        sb.append("    name: ").append(toIndentedString(this.getName())).append("\n");
-        sb.append("    loginCredential: ").append(toIndentedString(this.getLoginCredential())).append("\n");
-        sb.append("    ipAddresses: ").append(toIndentedString(this.getIpAddresses())).append("\n");
-        sb.append("    nodeProperties: ").append(toIndentedString(this.getNodeProperties())).append("\n");
-        sb.append("    reason: ").append(toIndentedString(this.getReason())).append("\n");
-        sb.append("    diagnostic: ").append(toIndentedString(this.getDiagnostic())).append("\n");
-        sb.append("    nodeCandidate: ").append(toIndentedString(this.getNodeCandidate())).append("\n");
-        sb.append("    id: ").append(toIndentedString(this.getId())).append("\n");
-        sb.append("    userId: ").append(toIndentedString(this.getUserId())).append("\n");
-        sb.append("    allocated: ").append(toIndentedString(this.getAllocated())).append("\n");
-        sb.append("    jobId: ").append(toIndentedString(this.getJobId())).append("\n");
-        sb.append("    systemArch: ").append(toIndentedString(systemArch)).append("\n");
-        sb.append("    scriptURL: ").append(toIndentedString(scriptURL)).append("\n");
-        sb.append("    jarURL: ").append(toIndentedString(jarURL)).append("\n");
+        sb.append("    name: ").append(toIndentedString(this.name)).append("\n");
+        sb.append("    id: ").append(toIndentedString(this.id)).append("\n");
+        sb.append("    loginCredential: ").append(toIndentedString(this.loginCredential)).append("\n");
+        sb.append("    ipAddresses: ").append(toIndentedString(this.ipAddresses)).append("\n");
+        sb.append("    nodeProperties: ").append(toIndentedString(this.nodeProperties)).append("\n");
+        sb.append("    reason: ").append(toIndentedString(this.reason)).append("\n");
+        sb.append("    diagnostic: ").append(toIndentedString(this.diagnostic)).append("\n");
+        sb.append("    nodeCandidate: ").append(toIndentedString(this.nodeCandidate)).append("\n");
+        sb.append("    userId: ").append(toIndentedString(this.userId)).append("\n");
+        sb.append("    allocated: ").append(toIndentedString(this.allocated)).append("\n");
+        sb.append("    jobId: ").append(toIndentedString(this.jobId)).append("\n");
+        sb.append("    systemArch: ").append(toIndentedString(this.systemArch)).append("\n");
+        sb.append("    scriptURL: ").append(toIndentedString(this.scriptURL)).append("\n");
+        sb.append("    jarURL: ").append(toIndentedString(this.jarURL)).append("\n");
         sb.append("}");
         return sb.toString();
     }

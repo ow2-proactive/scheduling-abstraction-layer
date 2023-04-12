@@ -245,22 +245,12 @@ public class ByonUtils {
 
     /**
      * Undeploy or remove the node source of BYON or Edge node
-     * @param id of ByonNode or EdgeNode to be undeployed or removed.
-     * @param nodeType the type of node source to be removed: Byon or Edge.
-     * @param systemArch the system architecture for Edge nodes.
+     * @param nodeSourceName of ByonNode or EdgeNode to be undeployed or removed.
      * @param preempt If true undeploy or remove node source immediately without waiting for nodes to be freed
      * @param remove If true completely remove the node source, if false only undeply the node source
      * @return  true if the resourceManagerGateway return no errors, false otherwise
      */
-    public static Boolean undeployNs(String id, String nodeType, String systemArch, Boolean preempt, Boolean remove) {
-        assert id != null : "A null value was passed for id, A node source must have a BYON/EDGE ID";
-        String nodeSourceName;
-        if (nodeType.equals("byon")) {
-            nodeSourceName = "BYON_NS_" + id;
-        } else {
-            nodeSourceName = "EDGE_" + systemArch + "_NS_" + id;
-        }
-
+    public static Boolean undeployNs(String nodeSourceName, Boolean preempt, Boolean remove) {
         if (remove) {
             try {
                 LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server");

@@ -192,7 +192,11 @@ public class ByonNode extends AbstractNode {
      * @return allocated
      **/
     public Boolean isAllocated() {
-        return allocated;
+        return this.allocated;
+    }
+
+    public String composeNodeSourceName() {
+        return "BYON_NS_" + this.id;
     }
 
     @Override
@@ -216,16 +220,16 @@ public class ByonNode extends AbstractNode {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name,
-                            loginCredential,
-                            ipAddresses,
-                            nodeProperties,
-                            reason,
-                            diagnostic,
-                            nodeCandidate,
-                            id,
-                            userId,
-                            allocated);
+        return Objects.hash(this.name,
+                            this.id,
+                            this.loginCredential,
+                            this.ipAddresses,
+                            this.nodeProperties,
+                            this.reason,
+                            this.diagnostic,
+                            this.nodeCandidate,
+                            this.userId,
+                            this.allocated);
     }
 
     @Override
@@ -233,17 +237,17 @@ public class ByonNode extends AbstractNode {
         StringBuilder sb = new StringBuilder();
         sb.append("class ByonNode {\n");
 
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    loginCredential: ").append(toIndentedString(loginCredential)).append("\n");
-        sb.append("    ipAddresses: ").append(toIndentedString(ipAddresses)).append("\n");
-        sb.append("    nodeProperties: ").append(toIndentedString(nodeProperties)).append("\n");
-        sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
-        sb.append("    diagnostic: ").append(toIndentedString(diagnostic)).append("\n");
-        sb.append("    nodeCandidate: ").append(toIndentedString(nodeCandidate)).append("\n");
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
-        sb.append("    allocated: ").append(toIndentedString(allocated)).append("\n");
-        sb.append("    jobId: ").append(toIndentedString(jobId)).append("\n");
+        sb.append("    name: ").append(toIndentedString(this.name)).append("\n");
+        sb.append("    id: ").append(toIndentedString(this.id)).append("\n");
+        sb.append("    loginCredential: ").append(toIndentedString(this.loginCredential)).append("\n");
+        sb.append("    ipAddresses: ").append(toIndentedString(this.ipAddresses)).append("\n");
+        sb.append("    nodeProperties: ").append(toIndentedString(this.nodeProperties)).append("\n");
+        sb.append("    reason: ").append(toIndentedString(this.reason)).append("\n");
+        sb.append("    diagnostic: ").append(toIndentedString(this.diagnostic)).append("\n");
+        sb.append("    nodeCandidate: ").append(toIndentedString(this.nodeCandidate)).append("\n");
+        sb.append("    userId: ").append(toIndentedString(this.userId)).append("\n");
+        sb.append("    allocated: ").append(toIndentedString(this.allocated)).append("\n");
+        sb.append("    jobId: ").append(toIndentedString(this.jobId)).append("\n");
         sb.append("}");
         return sb.toString();
     }
