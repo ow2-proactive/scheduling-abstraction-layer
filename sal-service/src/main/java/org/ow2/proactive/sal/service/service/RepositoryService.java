@@ -133,28 +133,27 @@ public class RepositoryService {
     }
 
     /**
-     * Deleting the BYON node and its Node candidate from the data base
+     * Deleting the BYON node and its Node candidate from the database
      * @param byonNode an object of class ByonNode to be removed.
      * @return the deleted byonNode
      */
     @Modifying(clearAutomatically = true)
     public ByonNode deleteByonNode(ByonNode byonNode) {
         LOGGER.info("Removing the BYON node " + byonNode.getId() + " from the database...");
-        Location byonLocation = byonNode.getNodeCandidate().getLocation();
-        Hardware byonHardware = byonNode.getNodeCandidate().getHardware();
-        Image byonImage = byonNode.getNodeCandidate().getImage();
-
+        NodeCandidate byonNC = byonNode.getNodeCandidate();
+        Location byonLocation = byonNC.getLocation();
+        Hardware byonHardware = byonNC.getHardware();
+        Image byonImage = byonNC.getImage();
         LOGGER.info("Removing the BYON Location " + byonLocation.getId() + " from the database...");
         locationRepository.delete(byonLocation);
         LOGGER.info("Removing the BYON Hardware " + byonHardware.getId() + " from the database...");
         hardwareRepository.delete(byonHardware);
         LOGGER.info("Removing the BYON Image " + byonImage.getId() + " from the database...");
         imageRepository.delete(byonImage);
-
-        byonNode.setNodeCandidate(null);
+        LOGGER.info("Removing the BYON Node Candidate " + byonNC.getId() + " from the database...");
+        nodeCandidateRepository.delete(byonNC);
         byonNodeRepository.delete(byonNode);
         byonNodeRepository.flush();
-
         return byonNode;
     }
 
@@ -309,10 +308,32 @@ public class RepositoryService {
      */
     @Modifying(clearAutomatically = true)
     public EdgeNode deleteEdgeNode(String edgeNodeId) {
-        EdgeNode instanceToRemove = getEdgeNode(edgeNodeId);
-        //TODO To Complete removing
-        edgeNodeRepository.delete(edgeNodeId);
-        return instanceToRemove;
+        return deleteEdgeNode(getEdgeNode(edgeNodeId));
+    }
+
+    /**
+     * Deleting the Edge node and its Node candidate from the database
+     * @param edgeNode an object of class EdgeNode to be removed.
+     * @return the deleted EdgeNode
+     */
+    @Modifying(clearAutomatically = true)
+    public EdgeNode deleteEdgeNode(EdgeNode edgeNode) {
+        LOGGER.info("Removing the EDGE node " + edgeNode.getId() + " from the database...");
+        NodeCandidate edgeNC = edgeNode.getNodeCandidate();
+        Location edgeLocation = edgeNC.getLocation();
+        Hardware edgeHardware = edgeNC.getHardware();
+        Image edgeImage = edgeNC.getImage();
+        LOGGER.info("Removing the EDGE Location " + edgeLocation.getId() + " from the database...");
+        locationRepository.delete(edgeLocation);
+        LOGGER.info("Removing the EDGE Hardware " + edgeHardware.getId() + " from the database...");
+        hardwareRepository.delete(edgeHardware);
+        LOGGER.info("Removing the EDGE Image " + edgeImage.getId() + " from the database...");
+        imageRepository.delete(edgeImage);
+        LOGGER.info("Removing the EDGE Node Candidate " + edgeNC.getId() + " from the database...");
+        nodeCandidateRepository.delete(edgeNC);
+        edgeNodeRepository.delete(edgeNode);
+        edgeNodeRepository.flush();
+        return edgeNode;
     }
 
     /**

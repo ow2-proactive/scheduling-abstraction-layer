@@ -93,13 +93,13 @@ public class ByonRest {
         return ResponseEntity.ok(byonService.addByonNodes(sessionId, byonIdPerComponent, jobId));
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{byonId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Remove Byon nodes", response = Boolean.class)
     public ResponseEntity<Boolean>
             deleteByonNode(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "The id of the node to be removed", required = true)
-    @RequestParam
+    @PathVariable
     final String byonId) throws NotConnectedException {
         return ResponseEntity.ok(byonService.deleteByonNode(sessionId, byonId));
     }

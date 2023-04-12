@@ -244,18 +244,16 @@ public class ByonUtils {
     }
 
     /**
-     * Undeploy or remove the node source of a BYON node
-     * @param byonNode an object of class ByonNode to be undeployed or removed.
+     * Undeploy or remove the node source of BYON or Edge node
+     * @param nodeSourceName of ByonNode or EdgeNode to be undeployed or removed.
      * @param preempt If true undeploy or remove node source immediately without waiting for nodes to be freed
      * @param remove If true completely remove the node source, if false only undeply the node source
      * @return  true if the resourceManagerGateway return no errors, false otherwise
      */
-    public static Boolean undeployByonNs(ByonNode byonNode, Boolean preempt, Boolean remove) {
-        assert byonNode != null : "A null value was passed for byonNode, A node source must have a BYON ID";
-        String nodeSourceName = "BYON_NS_" + byonNode.getId();
+    public static Boolean undeployNs(String nodeSourceName, Boolean preempt, Boolean remove) {
         if (remove) {
             try {
-                LOGGER.info("Removing BYON node source " + nodeSourceName + " from the ProActive server");
+                LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server");
                 if (resourceManagerGateway.getNodeSourceNames("all").contains(nodeSourceName)) {
                     resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
                 } else {
@@ -267,7 +265,7 @@ public class ByonUtils {
             }
         } else {
             try {
-                LOGGER.info("Undeploying BYON node source " + nodeSourceName + " from the ProActive server");
+                LOGGER.info("Undeploying node source " + nodeSourceName + " from the ProActive server");
                 if (resourceManagerGateway.getNodeSourceNames("deployed").contains(nodeSourceName)) {
                     resourceManagerGateway.undeployNodeSource(nodeSourceName, preempt);
                 } else {
@@ -278,7 +276,7 @@ public class ByonUtils {
                 return false;
             }
         }
-        LOGGER.info("BYON node source was removed with no errors");
+        LOGGER.info("node source was removed with no errors");
         return true;
     }
 }

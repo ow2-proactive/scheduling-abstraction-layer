@@ -161,8 +161,16 @@ public class EdgeService {
             LOGGER.info("Edge Node {} to be assigned to {}.", nodeName, componentName);
             Task task = repositoryService.getTask(jobId + componentName);
 
-            assert edgeNode != null : "The EDGE ID passed in the mapping does not exist in the database";
-            assert task != null : "The componentId passed in the mapping does not exist in the database";
+            if (edgeNode == null) {
+                LOGGER.error("The passed edgeNodeId \"{}\"is not Found in the database", edgeNodeId);
+                throw new IllegalArgumentException(String.format("The passed edgeNodeId \"%s\" is not Found in the database",
+                                                                 edgeNodeId));
+            }
+            if (task == null) {
+                LOGGER.error("The passed componentName \"{}\"is not Found in the database", componentName);
+                throw new IllegalArgumentException(String.format("The passed componentName \"%s\" is not Found in the database",
+                                                                 componentName));
+            }
 
             Deployment newDeployment = new Deployment();
             newDeployment.setNodeName(nodeName);
@@ -175,7 +183,7 @@ public class EdgeService {
             sshCred.setUsername(edgeNode.getLoginCredential().getPrivateKey());
 
             PACloud cloud = new PACloud();
-            String nodeSourceName = "EDGE_" + edgeNode.getSystemArch() + "_NS_" + edgeNode.getId();
+            String nodeSourceName = edgeNode.composeNodeSourceName();
             cloud.setCloudID(nodeSourceName);
             cloud.setNodeSourceNamePrefix(nodeSourceName);
             cloud.setCloudType(CloudType.EDGE);
@@ -189,8 +197,8 @@ public class EdgeService {
             edgeNodeList.add(edgeNode);
             LOGGER.info("EDGE node Added: " + edgeNode.getName() + " Ip: " +
                         edgeNode.getIpAddresses().get(0).getValue());
-            defineEdgeNodeSource(edgeNodeList, nodeSourceName);
-            LOGGER.info("EDGE node source EDGE_NS_" + edgeNode.getId() + " is defined.");
+            defineEdgeNodeSource(edgeNodeList);
+            LOGGER.info("EDGE node source {} is defined.", nodeSourceName);
 
             newDeployment.setTask(task);
             newDeployment.setNumber(task.getNextDeploymentID());
@@ -210,9 +218,8 @@ public class EdgeService {
     /**
      * Define an EDGE node source
      * @param edgeNodeList a list of EDGE nodes to be connected to the server.
-     * @param nodeSourceName The name of the node source
      */
-    private void defineEdgeNodeSource(List<EdgeNode> edgeNodeList, String nodeSourceName) {
+    private void defineEdgeNodeSource(List<EdgeNode> edgeNodeList) {
         Map<String, String> variables = new HashMap<>();
         String filename;
         String edgeIPs = "";
@@ -234,7 +241,7 @@ public class EdgeService {
         assert !edgeNodeList.isEmpty();
         EdgeNode edgeNode = edgeNodeList.get(0);
         filename = File.separator + "Define_NS_EDGE.xml";
-        variables.put("NS_name", nodeSourceName);
+        variables.put("NS_name", edgeNode.composeNodeSourceName());
         variables.put("pa_protocol", "http");
         variables.put("tokens", "EDGE_" + edgeNode.getJobId());
         variables.put("ssh_username", edgeNode.getLoginCredential().getUsername());
@@ -284,9 +291,48 @@ public class EdgeService {
         }
         assert fXmlFile != null;
         LOGGER.info("Submitting the file: " + fXmlFile.toString());
-        LOGGER.info("Trying to deploy the NS: " + nodeSourceName);
+        LOGGER.info("Trying to deploy the NS: " + edgeNode.composeNodeSourceName());
         JobId jobId = schedulerGateway.submit(fXmlFile, variables);
         LOGGER.info("Job submitted with ID: " + jobId);
         TemporaryFilesHelper.delete(fXmlFile);
+    }
+
+    /**
+     * Delete Edge nodes
+     * @param sessionId A valid session id
+     * @param edgeId the id of the node to be removed
+     * @return  true if the deletion was done with no errors, false otherwise
+     */
+    public boolean deleteEdgeNode(String sessionId, String edgeId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        EdgeNode edgeNode = repositoryService.getEdgeNode(edgeId);
+
+        if (edgeNode == null) {
+            LOGGER.error("The passed EDGE ID is not Found in the database");
+            throw new IllegalArgumentException("The passed EDGE ID \"" + edgeId + "\" is not Found in the database");
+        }
+
+        LOGGER.info("Deleting the corresponding PACloud from the database ...");
+        PACloud paCloud = repositoryService.getPACloud(edgeNode.composeNodeSourceName());
+        if (paCloud != null) {
+            if (paCloud.getDeployments() != null) {
+                LOGGER.info("Cleaning deployments from related tasks {}", paCloud.getDeployments().toString());
+                paCloud.getDeployments().forEach(deployment -> deployment.getTask().removeDeployment(deployment));
+                LOGGER.info("Cleaning deployments from paCloud {}", paCloud.getCloudID());
+                paCloud.clearDeployments();
+            }
+            repositoryService.deletePACloud(paCloud);
+        } else {
+            LOGGER.warn("The PACloud related to the edgeNode {} is not found.", edgeNode.getName());
+        }
+
+        if (Boolean.FALSE.equals(ByonUtils.undeployNs(edgeNode.composeNodeSourceName(), false, true))) {
+            LOGGER.warn("The Edge node source undeploy finished with errors!");
+        }
+        repositoryService.deleteEdgeNode(edgeNode);
+
+        return true;
     }
 }
