@@ -289,4 +289,44 @@ public class EdgeService {
         LOGGER.info("Job submitted with ID: " + jobId);
         TemporaryFilesHelper.delete(fXmlFile);
     }
+
+    /**
+     * Delete Edge nodes
+     * @param sessionId A valid session id
+     * @param edgeId the id of the node to be removed
+     * @return  true if the deletion was done with no errors, false otherwise
+     */
+    public boolean deleteEdgeNode(String sessionId, String edgeId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        EdgeNode edgeNode = repositoryService.getEdgeNode(edgeId);
+
+        if (edgeNode == null) {
+            LOGGER.error("The passed EDGE ID is not Found in the database");
+            throw new IllegalArgumentException("The passed EDGE ID \"" + edgeId + "\" is not Found in the database");
+        }
+
+        LOGGER.info("Deleting the corresponding PACloud from the database ...");
+        String nodeSourceName = "EDGE_" + edgeNode.getSystemArch() + "_NS_" + edgeNode.getId();
+        PACloud paCloud = repositoryService.getPACloud(nodeSourceName);
+        if (paCloud != null) {
+            if (paCloud.getDeployments() != null) {
+                LOGGER.info("Cleaning deployments from related tasks {}", paCloud.getDeployments().toString());
+                paCloud.getDeployments().forEach(deployment -> deployment.getTask().removeDeployment(deployment));
+                LOGGER.info("Cleaning deployments from paCloud {}", paCloud.getCloudID());
+                paCloud.clearDeployments();
+            }
+            repositoryService.deletePACloud(paCloud);
+        } else {
+            LOGGER.warn("The PACloud related to the edgeNode {} is not found.", edgeNode.getName());
+        }
+
+        if (!ByonUtils.undeployNs(edgeId, "edge", edgeNode.getSystemArch(), false, true)) {
+            LOGGER.warn("The BYON node source undeploy finished with errors!");
+        }
+        repositoryService.deleteEdgeNode(edgeNode);
+
+        return true;
+    }
 }

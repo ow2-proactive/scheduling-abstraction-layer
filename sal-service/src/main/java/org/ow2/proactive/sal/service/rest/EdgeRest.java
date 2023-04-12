@@ -45,7 +45,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/edge")
-@Api(description = "Operations on BYON", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(description = "Operations on Edge", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class EdgeRest {
 
     @Autowired
@@ -87,5 +87,16 @@ public class EdgeRest {
     @PathVariable
     final String jobId) throws NotConnectedException {
         return ResponseEntity.ok(edgeService.addEdgeNodes(sessionId, edgeIdPerComponent, jobId));
+    }
+
+    @RequestMapping(value = "/{edgeId}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Remove Edge nodes", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            deleteEdgeNode(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "The id of the node to be removed", required = true)
+    @PathVariable
+    final String edgeId) throws NotConnectedException {
+        return ResponseEntity.ok(edgeService.deleteEdgeNode(sessionId, edgeId));
     }
 }
