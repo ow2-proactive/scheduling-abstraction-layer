@@ -328,7 +328,7 @@ public class EdgeService {
             LOGGER.warn("The PACloud related to the edgeNode {} is not found.", edgeNode.getName());
         }
 
-        if (!ByonUtils.undeployNs(edgeNode.composeNodeSourceName(), false, true)) {
+        if (Boolean.FALSE.equals(ByonUtils.undeployNs(edgeNode.composeNodeSourceName(), false, true))) {
             LOGGER.warn("The Edge node source undeploy finished with errors!");
         }
         repositoryService.deleteEdgeNode(edgeNode);

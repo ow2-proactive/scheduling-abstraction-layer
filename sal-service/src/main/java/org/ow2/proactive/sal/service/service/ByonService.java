@@ -315,7 +315,7 @@ public class ByonService {
             LOGGER.warn("The PACloud related to the byonNode {} is not found.", byonNode.getName());
         }
 
-        if (!ByonUtils.undeployNs(byonNode.composeNodeSourceName(), false, true)) {
+        if (Boolean.FALSE.equals(ByonUtils.undeployNs(byonNode.composeNodeSourceName(), false, true))) {
             LOGGER.warn("The BYON node source undeploy finished with errors!");
         }
         repositoryService.deleteByonNode(byonNode);
