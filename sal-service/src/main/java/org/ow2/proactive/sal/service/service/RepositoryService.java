@@ -98,6 +98,8 @@ public class RepositoryService {
     @Autowired
     private VaultKeyRepository vaultKeyRepository;
 
+    private static final String DATABASE_LOGS_SIGNATURE = "from the database ...";
+
     /**
      * Find the byonNode that match with the byonNodeId
      * @param byonNodeId the id of the instance
@@ -139,21 +141,22 @@ public class RepositoryService {
      */
     @Modifying(clearAutomatically = true)
     public ByonNode deleteByonNode(ByonNode byonNode) {
-        LOGGER.info("Removing the BYON node " + byonNode.getId() + " from the database...");
+        LOGGER.info("Removing the BYON node {} {}", byonNode.getId(), DATABASE_LOGS_SIGNATURE);
         NodeCandidate byonNC = byonNode.getNodeCandidate();
         Location byonLocation = byonNC.getLocation();
         Hardware byonHardware = byonNC.getHardware();
         Image byonImage = byonNC.getImage();
-        LOGGER.info("Removing the BYON Location " + byonLocation.getId() + " from the database...");
+        LOGGER.info("Removing the BYON Location {} {}", byonLocation.getId(), DATABASE_LOGS_SIGNATURE);
         locationRepository.delete(byonLocation);
-        LOGGER.info("Removing the BYON Hardware " + byonHardware.getId() + " from the database...");
+        LOGGER.info("Removing the BYON Hardware {} {}", byonHardware.getId(), DATABASE_LOGS_SIGNATURE);
         hardwareRepository.delete(byonHardware);
-        LOGGER.info("Removing the BYON Image " + byonImage.getId() + " from the database...");
+        LOGGER.info("Removing the BYON Image {} {}", byonImage.getId(), DATABASE_LOGS_SIGNATURE);
         imageRepository.delete(byonImage);
-        LOGGER.info("Removing the BYON Node Candidate " + byonNC.getId() + " from the database...");
+        LOGGER.info("Removing the BYON Node Candidate {} {}", byonNC.getId(), DATABASE_LOGS_SIGNATURE);
         nodeCandidateRepository.delete(byonNC);
         byonNodeRepository.delete(byonNode);
         byonNodeRepository.flush();
+        LOGGER.info("BYON node {} removed.", byonNode.getId());
         return byonNode;
     }
 
@@ -318,21 +321,22 @@ public class RepositoryService {
      */
     @Modifying(clearAutomatically = true)
     public EdgeNode deleteEdgeNode(EdgeNode edgeNode) {
-        LOGGER.info("Removing the EDGE node " + edgeNode.getId() + " from the database...");
+        LOGGER.info("Removing the EDGE node {} {}", edgeNode.getId(), DATABASE_LOGS_SIGNATURE);
         NodeCandidate edgeNC = edgeNode.getNodeCandidate();
         Location edgeLocation = edgeNC.getLocation();
         Hardware edgeHardware = edgeNC.getHardware();
         Image edgeImage = edgeNC.getImage();
-        LOGGER.info("Removing the EDGE Location " + edgeLocation.getId() + " from the database...");
+        LOGGER.info("Removing the EDGE Location {} {}", edgeLocation.getId(), DATABASE_LOGS_SIGNATURE);
         locationRepository.delete(edgeLocation);
-        LOGGER.info("Removing the EDGE Hardware " + edgeHardware.getId() + " from the database...");
+        LOGGER.info("Removing the EDGE Hardware {} {}", edgeHardware.getId(), DATABASE_LOGS_SIGNATURE);
         hardwareRepository.delete(edgeHardware);
-        LOGGER.info("Removing the EDGE Image " + edgeImage.getId() + " from the database...");
+        LOGGER.info("Removing the EDGE Image {} {}", edgeImage.getId(), DATABASE_LOGS_SIGNATURE);
         imageRepository.delete(edgeImage);
-        LOGGER.info("Removing the EDGE Node Candidate " + edgeNC.getId() + " from the database...");
+        LOGGER.info("Removing the EDGE Node Candidate {} {}", edgeNC.getId(), DATABASE_LOGS_SIGNATURE);
         nodeCandidateRepository.delete(edgeNC);
         edgeNodeRepository.delete(edgeNode);
         edgeNodeRepository.flush();
+        LOGGER.info("EDGE node {} removed.", edgeNode.getId());
         return edgeNode;
     }
 

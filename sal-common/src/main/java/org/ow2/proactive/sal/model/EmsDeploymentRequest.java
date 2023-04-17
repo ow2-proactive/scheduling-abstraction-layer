@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.*;
 
@@ -49,11 +50,11 @@ import lombok.*;
 public class EmsDeploymentRequest implements Serializable {
 
     public enum TargetType {
-        vm("IAAS"),
-        container("PAAS"),
-        edge("EDGE"),
-        baremetal("BYON"),
-        faas("FAAS");
+        VM("IAAS"),
+        CONTAINER("PAAS"),
+        EDGE("EDGE"),
+        BAREMETAL("BYON"),
+        FAAS("FAAS");
 
         TargetType(String adapterVal) {
             this.adapterVal = adapterVal;
@@ -114,7 +115,7 @@ public class EmsDeploymentRequest implements Serializable {
     private String baguetteIp;
 
     @Column(name = "BAGUETTEPORT")
-    private int baguette_port;
+    private int baguettePort;
 
     @Column(name = "TARGETTYPE")
     @Enumerated(EnumType.STRING)
@@ -143,12 +144,12 @@ public class EmsDeploymentRequest implements Serializable {
     @Column(name = "NODEID")
     private String nodeId;
 
-    private EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port,
-            TargetType targetType, NodeCandidate targetNodeCandidate, String targetName, TargetProvider targetProvider,
-            String targetOpenPorts, boolean isUsingHttps, boolean isPrivateIP, String id) {
+    private EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguettePort, TargetType targetType,
+            NodeCandidate targetNodeCandidate, String targetName, TargetProvider targetProvider, String targetOpenPorts,
+            boolean isUsingHttps, boolean isPrivateIP, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
-        this.baguette_port = baguette_port;
+        this.baguettePort = baguettePort;
         this.targetType = targetType;
         this.targetNodeCandidate = targetNodeCandidate;
         this.targetName = targetName;
@@ -159,12 +160,12 @@ public class EmsDeploymentRequest implements Serializable {
         this.nodeId = id;
     }
 
-    public EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguette_port, String targetType,
+    public EmsDeploymentRequest(String authorizationBearer, String baguetteIp, int baguettePort, String targetType,
             NodeCandidate targetNodeCandidate, String targetName, TargetProvider targetProvider, String targetOpenPorts,
             boolean isUsingHttps, boolean isPrivateIP, String id) {
         this.authorizationBearer = authorizationBearer;
         this.baguetteIp = baguetteIp;
-        this.baguette_port = baguette_port;
+        this.baguettePort = baguettePort;
         this.targetType = TargetType.fromValue(targetType);
         this.targetNodeCandidate = targetNodeCandidate;
         this.targetName = targetName;
@@ -184,7 +185,7 @@ public class EmsDeploymentRequest implements Serializable {
         result.put("authorization_bearer",
                    new TaskVariable("authorization_bearer", this.authorizationBearer, "", false));
         result.put("baguette_ip", new TaskVariable("baguette_ip", baguetteIp, "", false));
-        result.put("baguette_port", new TaskVariable("baguette_port", String.valueOf(baguette_port), "", false));
+        result.put("baguette_port", new TaskVariable("baguette_port", String.valueOf(baguettePort), "", false));
         result.put("target_os_name",
                    new TaskVariable("target_os_name",
                                     targetNodeCandidate.getImage()
@@ -241,22 +242,32 @@ public class EmsDeploymentRequest implements Serializable {
         result.put("region", new TaskVariable("region", targetNodeCandidate.getLocation().getName(), "", false));
         result.put("location_country",
                    new TaskVariable("location_country",
-                                    targetNodeCandidate.getLocation().getGeoLocation().getCountry(),
+                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
+                                            .map(GeoLocation::getCountry)
+                                            .orElse(null),
                                     "",
                                     false));
         result.put("location_city",
                    new TaskVariable("location_city",
-                                    targetNodeCandidate.getLocation().getGeoLocation().getCity(),
+                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
+                                            .map(GeoLocation::getCity)
+                                            .orElse(null),
                                     "",
                                     false));
         result.put("location_longitude",
                    new TaskVariable("location_longitude",
-                                    targetNodeCandidate.getLocation().getGeoLocation().getLongitude().toString(),
+                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
+                                            .map(GeoLocation::getLongitude)
+                                            .orElse((double) 0)
+                                            .toString(),
                                     "",
                                     false));
         result.put("location_latitude",
                    new TaskVariable("location_latitude",
-                                    targetNodeCandidate.getLocation().getGeoLocation().getLatitude().toString(),
+                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
+                                            .map(GeoLocation::getLatitude)
+                                            .orElse((double) 0)
+                                            .toString(),
                                     "",
                                     false));
         result.put("using_https", new TaskVariable("using_https", isUsingHttps + "", "PA:Boolean", false));
@@ -265,17 +276,16 @@ public class EmsDeploymentRequest implements Serializable {
     }
 
     public EmsDeploymentRequest copy(String nodeId) {
-        EmsDeploymentRequest req = new EmsDeploymentRequest(authorizationBearer,
-                                                            baguetteIp,
-                                                            baguette_port,
-                                                            targetType,
-                                                            targetNodeCandidate,
-                                                            targetName,
-                                                            targetProvider,
-                                                            targetOpenPorts,
-                                                            isUsingHttps,
-                                                            isPrivateIP,
-                                                            nodeId);
-        return req;
+        return new EmsDeploymentRequest(authorizationBearer,
+                                        baguetteIp,
+                                        baguettePort,
+                                        targetType,
+                                        targetNodeCandidate,
+                                        targetName,
+                                        targetProvider,
+                                        targetOpenPorts,
+                                        isUsingHttps,
+                                        isPrivateIP,
+                                        nodeId);
     }
 }

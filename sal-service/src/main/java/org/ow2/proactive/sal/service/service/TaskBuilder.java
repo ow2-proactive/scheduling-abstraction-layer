@@ -113,9 +113,9 @@ public class TaskBuilder {
                 return createCommandsTask(task, taskNameSuffix, taskToken, job);
             case "docker":
                 return createDockerTask(task, taskNameSuffix, taskToken, job);
+            default:
+                return new LinkedList<>();
         }
-
-        return new LinkedList<>();
     }
 
     private List<ScriptTask> createDockerTask(Task task, String taskNameSuffix, String taskToken, Job job) {
@@ -242,9 +242,9 @@ public class TaskBuilder {
             case BYON:
             case EDGE:
                 return createInfraBYONandEDGETask(task, deployment, taskNameSuffix, nodeToken);
+            default:
+                return new ScriptTask();
         }
-
-        return new ScriptTask();
     }
 
     private void addLocalDefaultNSRegexSelectionScript(ScriptTask scriptTask) {
@@ -371,14 +371,15 @@ public class TaskBuilder {
                 return createInfraIAASTaskForAWS(task, deployment, taskNameSuffix, nodeToken);
             case "openstack":
                 return createInfraIAASTaskForOS(task, deployment, taskNameSuffix, nodeToken);
+            default:
+                return new ScriptTask();
         }
-        return new ScriptTask();
     }
 
     private ScriptTask createInfraBYONandEDGETask(Task task, Deployment deployment, String taskNameSuffix,
             String nodeToken) {
         String nodeType = deployment.getDeploymentType().getName();
-        System.out.println("the nodeType name is: " + nodeType);
+        LOGGER.info("the nodeType name is: " + nodeType);
         LOGGER.debug("Acquiring node " + nodeType + " script file: " +
                      getClass().getResource(File.separator + ACQUIRE_NODE_BYON_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquire" + nodeType + "Node_" +
