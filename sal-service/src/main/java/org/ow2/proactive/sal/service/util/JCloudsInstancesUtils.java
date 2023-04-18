@@ -61,16 +61,10 @@ public class JCloudsInstancesUtils {
      * @return true if the instance type is handled by jclouds, false otherwise
      */
     public static boolean isHandledHardwareInstanceType(String providerName, String instanceType) {
-        if ("aws-ec2".equals(providerName))
-            if (handledAWSInstanceTypes.contains(instanceType)) {
-                LOGGER.info("   Is aws handled by JClouds:       YES");
-                return true;
-            } else {
-                LOGGER.info("   Is aws handled by JClouds:       NO");
-                return false;
-            }
+        if ("aws-ec2".equals(providerName)) {
+            return handledAWSInstanceTypes.contains(instanceType);
+        }
         // TODO: To check if for other cloud providers all instance types are handled by JClouds
-        LOGGER.info("   Is handled by JClouds:       YES");
         return true;
     }
 }
