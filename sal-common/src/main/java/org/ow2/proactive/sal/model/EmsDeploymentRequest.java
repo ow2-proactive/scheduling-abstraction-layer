@@ -32,9 +32,10 @@ import java.util.Map;
 
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 import org.ow2.proactive.scheduler.common.task.TaskVariable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.*;
 
