@@ -242,25 +242,25 @@ public class EmsDeploymentRequest implements Serializable {
         result.put("region", new TaskVariable("region", targetNodeCandidate.getLocation().getName(), "", false));
         if (targetNodeCandidate.getLocation().getGeoLocation() != null) {
             result.put("location_country",
-                    new TaskVariable("location_country",
-                            targetNodeCandidate.getLocation().getGeoLocation().getCountry(),
-                            "",
-                            false));
+                       new TaskVariable("location_country",
+                                        targetNodeCandidate.getLocation().getGeoLocation().getCountry(),
+                                        "",
+                                        false));
             result.put("location_city",
-                    new TaskVariable("location_city",
-                            targetNodeCandidate.getLocation().getGeoLocation().getCity(),
-                            "",
-                            false));
+                       new TaskVariable("location_city",
+                                        targetNodeCandidate.getLocation().getGeoLocation().getCity(),
+                                        "",
+                                        false));
             result.put("location_longitude",
-                    new TaskVariable("location_longitude",
-                            targetNodeCandidate.getLocation().getGeoLocation().getLongitude().toString(),
-                            "",
-                            false));
+                       new TaskVariable("location_longitude",
+                                        targetNodeCandidate.getLocation().getGeoLocation().getLongitude().toString(),
+                                        "",
+                                        false));
             result.put("location_latitude",
-                    new TaskVariable("location_latitude",
-                            targetNodeCandidate.getLocation().getGeoLocation().getLatitude().toString(),
-                            "",
-                            false));
+                       new TaskVariable("location_latitude",
+                                        targetNodeCandidate.getLocation().getGeoLocation().getLatitude().toString(),
+                                        "",
+                                        false));
         }
         result.put("using_https", new TaskVariable("using_https", isUsingHttps + "", "PA:Boolean", false));
         result.put("id", new TaskVariable("id", nodeId, "", false));
