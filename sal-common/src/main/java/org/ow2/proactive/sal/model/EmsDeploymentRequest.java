@@ -29,11 +29,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.persistence.*;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 import org.ow2.proactive.scheduler.common.task.TaskVariable;
 
@@ -180,6 +179,7 @@ public class EmsDeploymentRequest implements Serializable {
      * Provide the variable Array to be used in the EMS deployment workflow, structured to be ysed with the submit PA API
      * @return The structured map.
      */
+    @JsonIgnore
     public Map<String, TaskVariable> getWorkflowMap() {
         Map<String, TaskVariable> result = new HashMap<>();
         result.put("authorization_bearer",

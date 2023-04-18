@@ -31,6 +31,7 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -64,6 +65,7 @@ public class DockerEnvironment extends AbstractInstallation {
         return InstallationType.DOCKER;
     }
 
+    @JsonIgnore
     public String getEnvVarsAsCommandString() {
         StringBuilder commandString = new StringBuilder();
         for (Map.Entry<String, String> entry : environmentVars.entrySet()) {
