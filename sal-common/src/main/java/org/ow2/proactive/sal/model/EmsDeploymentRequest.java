@@ -240,36 +240,28 @@ public class EmsDeploymentRequest implements Serializable {
         result.put("target_image_id",
                    new TaskVariable("target_image_id", targetNodeCandidate.getImage().getProviderId(), "", false));
         result.put("region", new TaskVariable("region", targetNodeCandidate.getLocation().getName(), "", false));
-        result.put("location_country",
-                   new TaskVariable("location_country",
-                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
-                                            .map(GeoLocation::getCountry)
-                                            .orElse(null),
-                                    "",
-                                    false));
-        result.put("location_city",
-                   new TaskVariable("location_city",
-                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
-                                            .map(GeoLocation::getCity)
-                                            .orElse(null),
-                                    "",
-                                    false));
-        result.put("location_longitude",
-                   new TaskVariable("location_longitude",
-                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
-                                            .map(GeoLocation::getLongitude)
-                                            .orElse((double) 0)
-                                            .toString(),
-                                    "",
-                                    false));
-        result.put("location_latitude",
-                   new TaskVariable("location_latitude",
-                                    Optional.ofNullable(targetNodeCandidate.getLocation().getGeoLocation())
-                                            .map(GeoLocation::getLatitude)
-                                            .orElse((double) 0)
-                                            .toString(),
-                                    "",
-                                    false));
+        if (targetNodeCandidate.getLocation().getGeoLocation() != null) {
+            result.put("location_country",
+                    new TaskVariable("location_country",
+                            targetNodeCandidate.getLocation().getGeoLocation().getCountry(),
+                            "",
+                            false));
+            result.put("location_city",
+                    new TaskVariable("location_city",
+                            targetNodeCandidate.getLocation().getGeoLocation().getCity(),
+                            "",
+                            false));
+            result.put("location_longitude",
+                    new TaskVariable("location_longitude",
+                            targetNodeCandidate.getLocation().getGeoLocation().getLongitude().toString(),
+                            "",
+                            false));
+            result.put("location_latitude",
+                    new TaskVariable("location_latitude",
+                            targetNodeCandidate.getLocation().getGeoLocation().getLatitude().toString(),
+                            "",
+                            false));
+        }
         result.put("using_https", new TaskVariable("using_https", isUsingHttps + "", "PA:Boolean", false));
         result.put("id", new TaskVariable("id", nodeId, "", false));
         return result;
