@@ -79,7 +79,14 @@ public class NodeService {
         }
         Validate.notNull(nodes, "The received nodes structure is empty. Nothing to be created.");
 
+        Job job = repositoryService.getJob(jobId);
+        if (job == null) {
+            LOGGER.error("Job [{}] does not exist.", jobId);
+            throw new IllegalArgumentException(String.format("jobId [%s] not valid.", jobId));
+        }
+
         nodes.forEach(node -> {
+            LOGGER.info("Adding IAAS node {} to job [{}]", node.toString(), jobId);
             Deployment newDeployment = new Deployment();
             newDeployment.setNodeName(node.getName());
             newDeployment.setDeploymentType(NodeType.IAAS);
@@ -88,7 +95,7 @@ public class NodeService {
             NodeCandidate nodeCandidate = repositoryService.getNodeCandidate(node.getNodeCandidateId());
             if (nodeCandidate == null) {
                 LOGGER.error("Node candidate [{}] does not exist.", node.getNodeCandidateId());
-                throw new IllegalArgumentException(String.format("NodeCandidateID [%s] not valid.",
+                throw new IllegalArgumentException(String.format("node.nodeCandidateID [%s] not valid.",
                                                                  node.getNodeCandidateId()));
             }
             IaasNode iaasNode = repositoryService.getIaasNode(nodeCandidate.getNodeId());
@@ -98,6 +105,10 @@ public class NodeService {
             repositoryService.saveIaasNode(iaasNode);
 
             PACloud cloud = repositoryService.getPACloud(node.getCloudID());
+            if (cloud == null) {
+                LOGGER.error("Cloud [{}] does not exist.", node.getCloudID());
+                throw new IllegalArgumentException(String.format("node.cloudId [%s] not valid.", node.getCloudID()));
+            }
             cloud.addDeployment(newDeployment);
             if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(newDeployment.getNode()
                                                                                          .getNodeCandidate()
@@ -138,7 +149,11 @@ public class NodeService {
             LOGGER.info("Node source defined.");
 
             LOGGER.info("Trying to retrieve task: " + node.getTaskName());
-            Task task = repositoryService.getJob(jobId).findTask(node.getTaskName());
+            Task task = job.findTask(node.getTaskName());
+            if (task == null) {
+                LOGGER.error("Task [{}] does not exist in job [{}].", node.getTaskName(), jobId);
+                throw new IllegalArgumentException(String.format("node.taskName [%s] not valid.", node.getTaskName()));
+            }
 
             newDeployment.setPaCloud(cloud);
             newDeployment.setTask(task);

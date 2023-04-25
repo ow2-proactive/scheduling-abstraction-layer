@@ -83,12 +83,15 @@ public class JobService {
             return false;
         }
 
+        LOGGER.info("Creating new job [{}] ...", job);
+
         Job newJob = new Job();
         newJob.setJobId(job.getJobInformation().getId());
         newJob.setName(job.getJobInformation().getName());
         newJob.setSubmittedJobType(SubmittedJobType.CREATED);
         List<Task> tasks = new LinkedList<>();
         job.getTasks().forEach(taskDefinition -> {
+            LOGGER.info("Creating for job [{}] new task [{}] ...", job.getJobInformation().getId(), taskDefinition);
             Task newTask = new Task();
             newTask.setTaskId(newJob.getJobId() + taskDefinition.getName());
             newTask.setName(taskDefinition.getName());
@@ -103,6 +106,7 @@ public class JobService {
 
             repositoryService.saveTask(newTask);
             tasks.add(newTask);
+            LOGGER.info("Task [{}] created for job [{}]", newTask.getTaskId(), job);
         });
 
         newJob.setTasks(tasks);
@@ -147,7 +151,7 @@ public class JobService {
                 if (portDefinition instanceof PortRequired) {
                     LOGGER.debug("Mandatory required port detected");
                     String providedPortName = findProvidedPort(job, ((PortRequired) portDefinition).getName());
-                    parentTasks.add(findTaskByProvidedPort(job.getTasks(), providedPortName));
+                    parentTasks.add(findTaskByProvidedPort(job, providedPortName));
                 }
             });
         }
@@ -160,15 +164,24 @@ public class JobService {
             if (Objects.equals(requiredPortName, communication.getPortRequired()))
                 return communication.getPortProvided();
         }
-        throw new NotFoundException("Required port " + requiredPortName + " not found in communications.");
+        LOGGER.error("Required port [{}] not found in communications of job [{}]",
+                     requiredPortName,
+                     job.getJobInformation().getId());
+        throw new NotFoundException("Required port [" + requiredPortName + "] not found in communications of job: " +
+                                    job.getJobInformation().getId());
     }
 
-    private String findTaskByProvidedPort(List<TaskDefinition> tasks, String providedPortName) {
+    private String findTaskByProvidedPort(JobDefinition job, String providedPortName) {
+        List<TaskDefinition> tasks = job.getTasks();
         for (TaskDefinition task : tasks) {
             if (taskProvidesPort(task, providedPortName))
                 return task.getName();
         }
-        throw new NotFoundException("Task that provides port " + providedPortName + " was not found in job.");
+        LOGGER.error("Task that provides port [{}] was not found in job [{}].",
+                     providedPortName,
+                     job.getJobInformation().getId());
+        throw new NotFoundException("Task that provides port [" + providedPortName + "] was not found in job: " +
+                                    job.getJobInformation().getId());
     }
 
     private boolean taskProvidesPort(TaskDefinition task, String providedPortName) {
