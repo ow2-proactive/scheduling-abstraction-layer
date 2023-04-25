@@ -151,7 +151,7 @@ public class NodeService {
             LOGGER.info("Trying to retrieve task: " + node.getTaskName());
             Task task = job.findTask(node.getTaskName());
             if (task == null) {
-                LOGGER.error("Task [{}] does not exist.", node.getTaskName());
+                LOGGER.error("Task [{}] does not exist in job [{}].", node.getTaskName(), jobId);
                 throw new IllegalArgumentException(String.format("node.taskName [%s] not valid.", node.getTaskName()));
             }
 
