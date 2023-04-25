@@ -83,12 +83,15 @@ public class JobService {
             return false;
         }
 
+        LOGGER.info("Creating new job [{}] ...", job);
+
         Job newJob = new Job();
         newJob.setJobId(job.getJobInformation().getId());
         newJob.setName(job.getJobInformation().getName());
         newJob.setSubmittedJobType(SubmittedJobType.CREATED);
         List<Task> tasks = new LinkedList<>();
         job.getTasks().forEach(taskDefinition -> {
+            LOGGER.info("Creating for job [{}] new task [{}] ...", job.getJobInformation().getId(), taskDefinition);
             Task newTask = new Task();
             newTask.setTaskId(newJob.getJobId() + taskDefinition.getName());
             newTask.setName(taskDefinition.getName());
@@ -103,6 +106,7 @@ public class JobService {
 
             repositoryService.saveTask(newTask);
             tasks.add(newTask);
+            LOGGER.info("Task [{}] created for job [{}]", newTask.getTaskId(), job);
         });
 
         newJob.setTasks(tasks);
@@ -160,6 +164,7 @@ public class JobService {
             if (Objects.equals(requiredPortName, communication.getPortRequired()))
                 return communication.getPortProvided();
         }
+        LOGGER.error("Required port " + requiredPortName + " not found in communications.");
         throw new NotFoundException("Required port " + requiredPortName + " not found in communications.");
     }
 
@@ -168,6 +173,7 @@ public class JobService {
             if (taskProvidesPort(task, providedPortName))
                 return task.getName();
         }
+        LOGGER.error("Task that provides port " + providedPortName + " was not found in job.");
         throw new NotFoundException("Task that provides port " + providedPortName + " was not found in job.");
     }
 
