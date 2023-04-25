@@ -82,8 +82,7 @@ public class NodeService {
         Job job = repositoryService.getJob(jobId);
         if (job == null) {
             LOGGER.error("Job [{}] does not exist.", jobId);
-            throw new IllegalArgumentException(String.format("jobId [%s] not valid.",
-                    jobId));
+            throw new IllegalArgumentException(String.format("jobId [%s] not valid.", jobId));
         }
 
         nodes.forEach(node -> {
@@ -108,8 +107,7 @@ public class NodeService {
             PACloud cloud = repositoryService.getPACloud(node.getCloudID());
             if (cloud == null) {
                 LOGGER.error("Cloud [{}] does not exist.", node.getCloudID());
-                throw new IllegalArgumentException(String.format("node.cloudId [%s] not valid.",
-                        node.getCloudID()));
+                throw new IllegalArgumentException(String.format("node.cloudId [%s] not valid.", node.getCloudID()));
             }
             cloud.addDeployment(newDeployment);
             if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(newDeployment.getNode()
@@ -154,8 +152,7 @@ public class NodeService {
             Task task = job.findTask(node.getTaskName());
             if (task == null) {
                 LOGGER.error("Task [{}] does not exist.", node.getTaskName());
-                throw new IllegalArgumentException(String.format("node.taskName [%s] not valid.",
-                        node.getTaskName()));
+                throw new IllegalArgumentException(String.format("node.taskName [%s] not valid.", node.getTaskName()));
             }
 
             newDeployment.setPaCloud(cloud);
