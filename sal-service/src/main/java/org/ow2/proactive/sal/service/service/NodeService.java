@@ -79,8 +79,7 @@ public class NodeService {
         }
         Validate.notNull(nodes, "The received nodes structure is empty. Nothing to be created.");
 
-        Job job = repositoryService.getJob(jobId);
-        if (job == null) {
+        if (repositoryService.getJob(jobId) == null) {
             LOGGER.error("Job [{}] does not exist.", jobId);
             throw new IllegalArgumentException(String.format("jobId [%s] not valid.", jobId));
         }
@@ -114,10 +113,10 @@ public class NodeService {
                                                                                          .getNodeCandidate()
                                                                                          .getHardware()
                                                                                          .getProviderId())) {
-                if (!cloud.isWhiteListedRegionDeployed(newDeployment.getNode()
-                                                                    .getNodeCandidate()
-                                                                    .getLocation()
-                                                                    .getName())) {
+                if (Boolean.FALSE.equals(cloud.isWhiteListedRegionDeployed(newDeployment.getNode()
+                                                                                        .getNodeCandidate()
+                                                                                        .getLocation()
+                                                                                        .getName()))) {
                     String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() +
                                             newDeployment.getNode().getNodeCandidate().getLocation().getName();
                     this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
@@ -131,7 +130,10 @@ public class NodeService {
                                                                     .getProviderId());
                 }
             } else {
-                if (!cloud.isRegionDeployed(newDeployment.getNode().getNodeCandidate().getLocation().getName())) {
+                if (Boolean.FALSE.equals(cloud.isRegionDeployed(newDeployment.getNode()
+                                                                             .getNodeCandidate()
+                                                                             .getLocation()
+                                                                             .getName()))) {
                     String nodeSourceName = cloud.getNodeSourceNamePrefix() +
                                             newDeployment.getNode().getNodeCandidate().getLocation().getName();
                     this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
@@ -149,7 +151,7 @@ public class NodeService {
             LOGGER.info("Node source defined.");
 
             LOGGER.info("Trying to retrieve task: " + node.getTaskName());
-            Task task = job.findTask(node.getTaskName());
+            Task task = repositoryService.getJob(jobId).findTask(node.getTaskName());
             if (task == null) {
                 LOGGER.error("Task [{}] does not exist in job [{}].", node.getTaskName(), jobId);
                 throw new IllegalArgumentException(String.format("node.taskName [%s] not valid.", node.getTaskName()));
