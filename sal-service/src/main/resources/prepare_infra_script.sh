@@ -17,4 +17,9 @@ if [[ ! -z $PROVIDED_PORT_NAME ]]; then
   fi
 
     echo "$IP_ADDR" > $PROVIDED_PORT_NAME"_ip"
+
+    NODE_HOST_PRV_IP=$(echo ${variables_PA_NODE_HOST%%.*} | sed -e 's/ip-//' -e 's/-/./g')
+    echo Private adress: $NODE_HOST_PRV_IP
+
+    echo "$NODE_HOST_PRV_IP" > $PROVIDED_PORT_NAME"_prv_ip"
 fi
