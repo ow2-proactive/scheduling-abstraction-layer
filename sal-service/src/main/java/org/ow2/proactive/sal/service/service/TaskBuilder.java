@@ -108,10 +108,10 @@ public class TaskBuilder {
     }
 
     private List<ScriptTask> createAppTasks(Task task, String taskNameSuffix, String taskToken, Job job) {
-        switch (task.getType()) {
-            case "commands":
+        switch (Objects.requireNonNull(Installation.InstallationType.fromValue(task.getType()))) {
+            case COMMANDS:
                 return createCommandsTask(task, taskNameSuffix, taskToken, job);
-            case "docker":
+            case DOCKER:
                 return createDockerTask(task, taskNameSuffix, taskToken, job);
             default:
                 return new LinkedList<>();
@@ -408,7 +408,7 @@ public class TaskBuilder {
             // Creating infra deployment tasks
             String token = task.getTaskId() + deployment.getNumber();
             String suffix = "_" + deployment.getNumber();
-            scriptTasks.add(createScalingChildsaveTask(task, suffix, token, job));
+            scriptTasks.add(createScalingChildSaveTask(task, suffix, token, job));
         });
         task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
                                                             .getName()
@@ -421,7 +421,7 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private ScriptTask createScalingChildsaveTask(Task task, String suffix, String token, Job job) {
+    private ScriptTask createScalingChildSaveTask(Task task, String suffix, String token, Job job) {
         ScriptTask scriptTaskUpdate = null;
 
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
@@ -433,7 +433,8 @@ public class TaskBuilder {
                                                  .get(0)
                                                  .getRequestedName()));
 
-        if (!Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
+        if (Installation.InstallationType.COMMANDS.getValue().equals(task.getType()) &&
+            !Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
             scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_update" +
                                                               suffix,
                                                               Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
@@ -609,7 +610,7 @@ public class TaskBuilder {
                                                               "echo \"No ports to open and not parent tasks. Nothing to be prepared in VM.\"");
         }
 
-        if (task.getType().equals("commands")) {
+        if (Installation.InstallationType.COMMANDS.getValue().equals(task.getType())) {
             if (task.getInstallation()
                     .getOperatingSystemType()
                     .getOperatingSystemFamily()
