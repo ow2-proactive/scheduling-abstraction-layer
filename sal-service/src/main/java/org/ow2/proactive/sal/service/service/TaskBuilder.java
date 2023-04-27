@@ -433,7 +433,8 @@ public class TaskBuilder {
                                                  .get(0)
                                                  .getRequestedName()));
 
-        if (Installation.InstallationType.COMMANDS.getValue().equals(task.getType()) && !Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
+        if (Installation.InstallationType.COMMANDS.getValue().equals(task.getType()) &&
+            !Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
             scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_update" +
                                                               suffix,
                                                               Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
