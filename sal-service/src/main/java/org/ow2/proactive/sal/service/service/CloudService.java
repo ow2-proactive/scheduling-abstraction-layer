@@ -207,49 +207,94 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        cloudIDs.forEach(cloudID -> {
+        Boolean flag = true;
+        Boolean tempFlag;
+        for (String cloudID : cloudIDs) {
             PACloud cloud = repositoryService.getPACloud(cloudID);
             if (cloud == null) {
                 LOGGER.info("Cloud {} not found, nothing to be removed.", cloudID);
-                return;
+                flag = tempFlag = false;
+            } else if (cloud.getCloudType() == CloudType.PUBLIC || cloud.getCloudType() == CloudType.PRIVATE) {
+                tempFlag = removeIaasCloudNS(sessionId, cloud, preempt);
+                flag = flag & tempFlag;
+            } else if (cloud.getCloudType() == CloudType.BYON || cloud.getCloudType() == CloudType.EDGE) {
+                tempFlag = removeByonCloudNS(sessionId, cloud, preempt);
+                flag = flag & tempFlag;
+            } else {
+                flag = tempFlag = false;
+                LOGGER.error("The provided Cloud Type \"{}\" is not supported by the removeClouds endpoint",
+                             cloud.getCloudType());
             }
-            LOGGER.info("Removing cloud : " + cloud.toString());
-            connectorIaasGateway.deleteInfrastructure(cloud.getDummyInfrastructureName());
-            for (Map.Entry<String, String> entry : cloud.getDeployedRegions().entrySet()) {
-                try {
-                    String nodeSourceName = cloud.getNodeSourceNamePrefix() + entry.getKey();
-                    LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
-                    resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
-                } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
-                    LOGGER.error("Removing cloud crashed. Error: ", e);
+            if (Boolean.TRUE.equals(tempFlag)) {
+                if (cloud.getDeployments() != null) {
+                    LOGGER.info("Cleaning deployments from related tasks " + cloud.getDeployments().toString());
+                    cloud.getDeployments().forEach(deployment -> deployment.getTask().removeDeployment(deployment));
                 }
-            }
-            for (Map.Entry<String, String> entry : cloud.getDeployedWhiteListedRegions().entrySet()) {
+                LOGGER.info("Cleaning deployments from the cloud entry");
+                cloud.clearDeployments();
+                LOGGER.info("Cleaning node candidates");
+                List<String> cloudId = new ArrayList<>();
+                cloudId.add(cloud.getCloudID());
                 try {
-                    String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() +
-                                            entry.getKey();
-                    LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
-                    resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
-                } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
-                    LOGGER.error("Removing WL cloud crashed. Error: ", e);
+                    ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncClean(cloudId));
+                } catch (InterruptedException ie) {
+                    LOGGER.warn("Thread cleaning node candidates interrupted!", ie);
                 }
+                repositoryService.deletePACloud(cloud);
+                LOGGER.info("Cloud removed.");
+                repositoryService.flush();
             }
-            if (cloud.getDeployments() != null) {
-                LOGGER.info("Cleaning deployments from related tasks " + cloud.getDeployments().toString());
-                cloud.getDeployments().forEach(deployment -> deployment.getTask().removeDeployment(deployment));
-            }
-            LOGGER.info("Cleaning deployments from the cloud entry");
-            cloud.clearDeployments();
-            LOGGER.info("Cleaning node candidates");
+        }
+        return flag;
+    }
+
+    /**
+     * Remove an IAAS Cloud
+     * @param sessionId A valid session id
+     * @param cloud A PACloud Object for a cloud to be deleted
+     * @param preempt If true undeploy node source immediately without waiting for nodes to be freed
+     */
+    public Boolean removeIaasCloudNS(String sessionId, PACloud cloud, Boolean preempt) {
+        LOGGER.info("Removing {} cloud : {}", cloud.getCloudType(), cloud.toString());
+        connectorIaasGateway.deleteInfrastructure(cloud.getDummyInfrastructureName());
+        for (Map.Entry<String, String> entry : cloud.getDeployedRegions().entrySet()) {
             try {
-                ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncClean(cloudIDs));
-            } catch (InterruptedException ie) {
-                LOGGER.warn("Thread cleaning node candidates interrupted!", ie);
+                String nodeSourceName = cloud.getNodeSourceNamePrefix() + entry.getKey();
+                LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
+                resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
+            } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
+                LOGGER.error("Removing cloud crashed. Error: ", e);
             }
-            repositoryService.deletePACloud(cloud);
-            LOGGER.info("Cloud removed.");
-        });
-        repositoryService.flush();
+        }
+        for (Map.Entry<String, String> entry : cloud.getDeployedWhiteListedRegions().entrySet()) {
+            try {
+                String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() +
+                                        entry.getKey();
+                LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
+                resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
+            } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
+                LOGGER.error("Removing WL cloud crashed. Error: ", e);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Remove an BYON/EDGE Cloud
+     * @param sessionId A valid session id
+     * @param cloud A PACloud Object for a cloud to be deleted
+     * @param preempt If true undeploy node source immediately without waiting for nodes to be freed
+     */
+    public Boolean removeByonCloudNS(String sessionId, PACloud cloud, Boolean preempt) {
+        LOGGER.info("Removing {} cloud : {}", cloud.getCloudType(), cloud.toString());
+        try {
+            String nodeSourceName = cloud.getCloudID();
+            LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
+            resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
+        } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
+            LOGGER.error("Removing cloud crashed. Error: ", e);
+        }
+
         return true;
     }
 
