@@ -216,10 +216,10 @@ public class CloudService {
                 flag = tempFlag = false;
             } else if (cloud.getCloudType() == CloudType.PUBLIC || cloud.getCloudType() == CloudType.PRIVATE) {
                 tempFlag = removeIaasCloudNS(sessionId, cloud, preempt);
-                flag = flag & tempFlag;
+                flag = flag && tempFlag;
             } else if (cloud.getCloudType() == CloudType.BYON || cloud.getCloudType() == CloudType.EDGE) {
                 tempFlag = removeByonCloudNS(sessionId, cloud, preempt);
-                flag = flag & tempFlag;
+                flag = flag && tempFlag;
             } else {
                 flag = tempFlag = false;
                 LOGGER.error("The provided Cloud Type \"{}\" is not supported by the removeClouds endpoint",
@@ -260,7 +260,7 @@ public class CloudService {
         for (Map.Entry<String, String> entry : cloud.getDeployedRegions().entrySet()) {
             try {
                 String nodeSourceName = cloud.getNodeSourceNamePrefix() + entry.getKey();
-                LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
+                LOGGER.info("Removing IAAS node source \"{}\" from the ProActive server.", nodeSourceName);
                 resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
             } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
                 LOGGER.error("Removing cloud crashed. Error: ", e);
@@ -270,7 +270,7 @@ public class CloudService {
             try {
                 String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() +
                                         entry.getKey();
-                LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
+                LOGGER.info("Removing white listed IAAS node source \"{}\" from the ProActive server.", nodeSourceName);
                 resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
             } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
                 LOGGER.error("Removing WL cloud crashed. Error: ", e);
@@ -289,7 +289,9 @@ public class CloudService {
         LOGGER.info("Removing {} cloud : {}", cloud.getCloudType(), cloud.toString());
         try {
             String nodeSourceName = cloud.getCloudID();
-            LOGGER.info("Removing node source " + nodeSourceName + " from the ProActive server.");
+            LOGGER.info("Removing {} node source \"{}\" from the ProActive server.",
+                        cloud.getCloudType(),
+                        nodeSourceName);
             resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
         } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
             LOGGER.error("Removing cloud crashed. Error: ", e);
