@@ -59,7 +59,7 @@ public class Task implements Serializable {
     private String name;
 
     @Column(name = "TYPE")
-    private String type;
+    private Installation.InstallationType type;
 
     // Are these two attributes able to be merged into one common abstract?
     @Embedded
