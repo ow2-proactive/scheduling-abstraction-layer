@@ -361,10 +361,8 @@ public class NodeCandidate implements Serializable {
     @JsonIgnore
     public boolean isByonNodeCandidate() {
         if (nodeCandidateType.equals(NodeCandidateTypeEnum.BYON)) {
-            LOGGER.info("   Is BYON:       YES");
             return true;
         } else {
-            LOGGER.info("   Is BYON:       NO");
             return false;
         }
     }
@@ -376,10 +374,8 @@ public class NodeCandidate implements Serializable {
     @JsonIgnore
     public boolean isEdgeNodeCandidate() {
         if (nodeCandidateType.equals(NodeCandidateTypeEnum.EDGE)) {
-            LOGGER.info("   Is EDGE:       YES");
             return true;
         } else {
-            LOGGER.info("   Is EDGE:       NO");
             return false;
         }
     }

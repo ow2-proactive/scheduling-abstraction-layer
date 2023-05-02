@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.lang3.Validate;
-import org.javatuples.Pair;
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.application.PASchedulerGateway;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -96,7 +95,11 @@ public class JobService {
             newTask.setTaskId(newJob.getJobId() + taskDefinition.getName());
             newTask.setName(taskDefinition.getName());
             Installation installation = taskDefinition.getInstallation();
-            newTask.setType(installation.getType().getValue());
+            newTask.setType(installation.getType());
+            LOGGER.info("New task [{}] from job [{}] identified as a [{}] task ...",
+                        taskDefinition.getName(),
+                        job.getJobInformation().getId(),
+                        newTask.getType());
             newTask.setInstallationByType(taskDefinition.getInstallation());
 
             List<Port> portsToOpen = extractListOfPortsToOpen(taskDefinition.getPorts(), job);

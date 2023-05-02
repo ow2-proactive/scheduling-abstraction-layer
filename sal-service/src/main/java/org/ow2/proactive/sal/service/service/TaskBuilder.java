@@ -108,7 +108,7 @@ public class TaskBuilder {
     }
 
     private List<ScriptTask> createAppTasks(Task task, String taskNameSuffix, String taskToken, Job job) {
-        switch (Objects.requireNonNull(Installation.InstallationType.fromValue(task.getType()))) {
+        switch (Objects.requireNonNull(task.getType())) {
             case COMMANDS:
                 return createCommandsTask(task, taskNameSuffix, taskToken, job);
             case DOCKER:
@@ -433,7 +433,7 @@ public class TaskBuilder {
                                                  .get(0)
                                                  .getRequestedName()));
 
-        if (Installation.InstallationType.COMMANDS.getValue().equals(task.getType()) &&
+        if (task.getType() == Installation.InstallationType.COMMANDS &&
             !Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
             scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_update" +
                                                               suffix,
@@ -610,7 +610,7 @@ public class TaskBuilder {
                                                               "echo \"No ports to open and not parent tasks. Nothing to be prepared in VM.\"");
         }
 
-        if (Installation.InstallationType.COMMANDS.getValue().equals(task.getType())) {
+        if (task.getType() == Installation.InstallationType.COMMANDS) {
             if (task.getInstallation()
                     .getOperatingSystemType()
                     .getOperatingSystemFamily()

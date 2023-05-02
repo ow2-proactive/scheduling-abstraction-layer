@@ -31,18 +31,16 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class WhiteListedInstanceTypesUtils {
 
+    private WhiteListedInstanceTypesUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Says if a hardware type's family is white listed for a specific cloud provider
      * @param instanceType The instance type to check
      * @return True if the instance type family is while listed, false otherwise
      */
     public static boolean isHandledHardwareInstanceType(String instanceType) {
-        if (AwsWhiteListedInstanceTypes.isAwsWhiteListedHardwareInstanceType(instanceType)) {
-            LOGGER.info("   Is aws white list family:       YES");
-            return true;
-        } else {
-            LOGGER.info("   Is aws white list family:       NO");
-            return false;
-        }
+        return AwsWhiteListedInstanceTypes.isAwsWhiteListedHardwareInstanceType(instanceType);
     }
 }
