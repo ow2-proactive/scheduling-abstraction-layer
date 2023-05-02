@@ -360,11 +360,7 @@ public class NodeCandidate implements Serializable {
      */
     @JsonIgnore
     public boolean isByonNodeCandidate() {
-        if (nodeCandidateType.equals(NodeCandidateTypeEnum.BYON)) {
-            return true;
-        } else {
-            return false;
-        }
+        return nodeCandidateType.equals(NodeCandidateTypeEnum.BYON);
     }
 
     /**
@@ -373,11 +369,7 @@ public class NodeCandidate implements Serializable {
      */
     @JsonIgnore
     public boolean isEdgeNodeCandidate() {
-        if (nodeCandidateType.equals(NodeCandidateTypeEnum.EDGE)) {
-            return true;
-        } else {
-            return false;
-        }
+        return nodeCandidateType.equals(NodeCandidateTypeEnum.EDGE);
     }
 
     @Override
