@@ -111,7 +111,8 @@ public class Deployment implements Serializable {
                        '\'' + ", instanceId='" + instanceId + '\'' + ", ipAddress='" + ipAddress + '\'' +
                        ", nodeAccessToken='" + nodeAccessToken + '\'' + ", number='" + number + '\'' + ", paCloud='" +
                        Optional.ofNullable(paCloud).map(PACloud::getNodeSourceNamePrefix).orElse(null) + '\'' +
-                       ", task='" + task.getName() + '\'' + ", iaasNode='" + iaasNode + '\'' + '}';
+                       ", task='" + Optional.ofNullable(task).map(Task::getName).orElse(null) + '\'' + ", iaasNode='" +
+                       iaasNode + '\'' + '}';
             case BYON:
                 return "Deployment{" + "nodeName='" + nodeName + '\'' + ", isDeployed='" + isDeployed.toString() +
                        '\'' + ", instanceId='" + instanceId + '\'' + ", ipAddress='" + ipAddress + '\'' +
