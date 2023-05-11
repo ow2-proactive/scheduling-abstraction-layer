@@ -137,6 +137,10 @@ public class NodeCandidateUtils {
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getDisk(),
                                                         Double.valueOf(attributeRequirement.getValue()));
+                case "fpga":
+                    return attributeRequirement.getRequirementOperator()
+                                               .compare(nodeCandidate.getHardware().getFpga(),
+                                                        Integer.valueOf(attributeRequirement.getValue()));
             }
         }
         if (attributeRequirement.getRequirementClass().equals("location")) {
@@ -256,6 +260,8 @@ public class NodeCandidateUtils {
             hardware.setProviderId(hardwareJSON.optString("type"));
             hardware.setCores(Math.round(Float.parseFloat(hardwareJSON.optString("minCores"))));
             hardware.setRam(Long.valueOf(hardwareJSON.optString("minRam")));
+            hardware.setFpga(hardwareJSON.optString("type"));
+
             if ("aws-ec2".equals(nodeCandidateJSON.optString("cloud"))) {
                 hardware.setDisk((double) 8);
             } else {

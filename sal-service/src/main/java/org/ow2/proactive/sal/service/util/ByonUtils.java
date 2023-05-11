@@ -96,6 +96,7 @@ public class ByonUtils {
         hardware.setCores(np.getNumberOfCores());
         hardware.setDisk((double) np.getDisk());
         hardware.setRam(np.getMemory());
+        hardware.setFpga("");
         //Define the location
         Location location = new Location();
         location.setGeoLocation(np.getGeoLocation());

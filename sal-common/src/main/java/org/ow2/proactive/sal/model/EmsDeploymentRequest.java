@@ -236,6 +236,11 @@ public class EmsDeploymentRequest implements Serializable {
                                     targetNodeCandidate.getHardware().getDisk().toString(),
                                     "",
                                     false));
+        result.put("target_hdw_fpga",
+                   new TaskVariable("target_hdw_fpga",
+                                    targetNodeCandidate.getHardware().getFpga().toString(),
+                                    "",
+                                    false));
         result.put("target_provider", new TaskVariable("target_provider", targetProvider.name(), "", false));
         result.put("target_open_ports", new TaskVariable("target_open_ports", targetOpenPorts, "", false));
         result.put("target_image_id",

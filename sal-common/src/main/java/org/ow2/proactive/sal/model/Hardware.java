@@ -69,6 +69,10 @@ public class Hardware implements Serializable {
     @JsonProperty("disk")
     private Double disk = null;
 
+    @Column(name = "FPGA")
+    @JsonProperty("fpga")
+    private Integer fpga = null;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonProperty("location")
     private Location location = null;
@@ -167,6 +171,26 @@ public class Hardware implements Serializable {
         this.ram = ram;
     }
 
+    public Integer getFpga() {
+        return fpga;
+    }
+
+    public void setFpga(String machineType) {
+        switch (machineType) {
+            case "f1.2xlarge":
+                this.fpga = 1;
+                break;
+            case "f1.4xlarge":
+                this.fpga = 2;
+                break;
+            case "f1.16xlarge":
+                this.fpga = 8;
+                break;
+            default:
+                this.fpga = 0;
+        }
+    }
+
     public Hardware disk(Double disk) {
         this.disk = disk;
         return this;
@@ -247,13 +271,13 @@ public class Hardware implements Serializable {
         return Objects.equals(this.id, hardware.id) && Objects.equals(this.name, hardware.name) &&
                Objects.equals(this.providerId, hardware.providerId) && Objects.equals(this.cores, hardware.cores) &&
                Objects.equals(this.ram, hardware.ram) && Objects.equals(this.disk, hardware.disk) &&
-               Objects.equals(this.location, hardware.location) && Objects.equals(this.state, hardware.state) &&
-               Objects.equals(this.owner, hardware.owner);
+               Objects.equals(this.fpga, hardware.fpga) && Objects.equals(this.location, hardware.location) &&
+               Objects.equals(this.state, hardware.state) && Objects.equals(this.owner, hardware.owner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, providerId, cores, ram, disk, location, state, owner);
+        return Objects.hash(id, name, providerId, cores, ram, disk, fpga, location, state, owner);
     }
 
     @Override
@@ -267,6 +291,7 @@ public class Hardware implements Serializable {
         sb.append("    cores: ").append(toIndentedString(cores)).append("\n");
         sb.append("    ram: ").append(toIndentedString(ram)).append("\n");
         sb.append("    disk: ").append(toIndentedString(disk)).append("\n");
+        sb.append("    fpga: ").append(toIndentedString(fpga)).append("\n");
         sb.append("    location: ").append(toIndentedString(location)).append("\n");
         sb.append("    state: ").append(toIndentedString(state)).append("\n");
         sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
