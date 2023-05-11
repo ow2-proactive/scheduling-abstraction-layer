@@ -257,6 +257,7 @@ public class CloudService {
     public Boolean removeIaasCloudNS(String sessionId, PACloud cloud, Boolean preempt) {
         LOGGER.info("Removing {} cloud : {}", cloud.getCloudType(), cloud.toString());
         connectorIaasGateway.deleteInfrastructure(cloud.getDummyInfrastructureName());
+        Boolean flag = true;
         for (Map.Entry<String, String> entry : cloud.getDeployedRegions().entrySet()) {
             try {
                 String nodeSourceName = cloud.getNodeSourceNamePrefix() + entry.getKey();
@@ -264,6 +265,7 @@ public class CloudService {
                 resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
             } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
                 LOGGER.error("Removing cloud crashed. Error: ", e);
+                flag = false;
             }
         }
         for (Map.Entry<String, String> entry : cloud.getDeployedWhiteListedRegions().entrySet()) {
@@ -274,9 +276,10 @@ public class CloudService {
                 resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
             } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
                 LOGGER.error("Removing WL cloud crashed. Error: ", e);
+                flag = false;
             }
         }
-        return true;
+        return flag;
     }
 
     /**
