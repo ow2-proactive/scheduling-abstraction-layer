@@ -290,6 +290,7 @@ public class CloudService {
      */
     public Boolean removeByonCloudNS(String sessionId, PACloud cloud, Boolean preempt) {
         LOGGER.info("Removing {} cloud : {}", cloud.getCloudType(), cloud.toString());
+        Boolean flag = true;
         try {
             String nodeSourceName = cloud.getCloudID();
             LOGGER.info("Removing {} node source \"{}\" from the ProActive server.",
@@ -298,9 +299,10 @@ public class CloudService {
             resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
         } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
             LOGGER.error("Removing cloud crashed. Error: ", e);
+            flag = false;
         }
 
-        return true;
+        return flag;
     }
 
     /**
