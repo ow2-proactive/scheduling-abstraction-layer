@@ -108,7 +108,7 @@ public class TaskBuilder {
     }
 
     private List<ScriptTask> createAppTasks(Task task, String taskNameSuffix, String taskToken, Job job) {
-        LOGGER.debug("Creating app tasks for task: {}, with Type: {} ", task.getTaskId(), task.getType());
+        LOGGER.debug("Creating app PA task: {}, with Type: {} ", task.getTaskId(), task.getType());
         switch (Objects.requireNonNull(task.getType())) {
             case COMMANDS:
                 return createCommandsTask(task, taskNameSuffix, taskToken, job);
