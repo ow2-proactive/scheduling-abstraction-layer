@@ -108,6 +108,7 @@ public class TaskBuilder {
     }
 
     private List<ScriptTask> createAppTasks(Task task, String taskNameSuffix, String taskToken, Job job) {
+        LOGGER.debug("Creating app PA task: {}, with Type: {} ", task.getTaskId(), task.getType());
         switch (Objects.requireNonNull(task.getType())) {
             case COMMANDS:
                 return createCommandsTask(task, taskNameSuffix, taskToken, job);
@@ -688,7 +689,7 @@ public class TaskBuilder {
      */
     public List<ScriptTask> buildPATask(Task task, Job job) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
-
+        LOGGER.debug("Building PA task for: {}", task.getTaskId());
         if (task.getDeployments() == null || task.getDeployments().isEmpty()) {
             LOGGER.warn("The task " + task.getName() +
                         " does not have a deployment. It will be scheduled on any free node.");
