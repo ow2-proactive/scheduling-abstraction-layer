@@ -120,8 +120,7 @@ public class EmsDeploymentRequest implements Serializable {
     @Column(name = "TARGETTYPE")
     @Enumerated(EnumType.STRING)
     private TargetType targetType;
-
-    @JsonIgnore
+    
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private NodeCandidate targetNodeCandidate;
 
