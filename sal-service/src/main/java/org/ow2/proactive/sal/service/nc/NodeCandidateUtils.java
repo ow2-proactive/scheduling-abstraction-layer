@@ -250,7 +250,7 @@ public class NodeCandidateUtils {
 
     private Hardware createHardware(JSONObject nodeCandidateJSON, PACloud paCloud) {
         JSONObject hardwareJSON = nodeCandidateJSON.optJSONObject("hw");
-        String hardwareId = paCloud.getCloudID() + "/" + nodeCandidateJSON.optString("region") + "/" +
+        String hardwareId = paCloud.getCloudId() + "/" + nodeCandidateJSON.optString("region") + "/" +
                             hardwareJSON.optString("type");
         Hardware hardware = repositoryService.getHardware(hardwareId);
         if (hardware == null) {
@@ -276,7 +276,7 @@ public class NodeCandidateUtils {
     }
 
     private Location createLocation(JSONObject nodeCandidateJSON, PACloud paCloud) {
-        String locationId = paCloud.getCloudID() + "/" + nodeCandidateJSON.optString("region");
+        String locationId = paCloud.getCloudId() + "/" + nodeCandidateJSON.optString("region");
         Location location = repositoryService.getLocation(locationId);
         if (location == null) {
             location = new Location();
@@ -308,7 +308,7 @@ public class NodeCandidateUtils {
     }
 
     private Image createImage(JSONObject nodeCandidateJSON, JSONObject imageJSON, PACloud paCloud) {
-        String imageId = paCloud.getCloudID() + "/" + imageJSON.optString("id");
+        String imageId = paCloud.getCloudId() + "/" + imageJSON.optString("id");
         Image image = repositoryService.getImage(imageId);
         if (image == null) {
             image = new Image();
@@ -339,10 +339,10 @@ public class NodeCandidateUtils {
     }
 
     private Cloud createCloud(JSONObject nodeCandidateJSON, PACloud paCloud) {
-        Cloud cloud = repositoryService.getCloud(paCloud.getCloudID());
+        Cloud cloud = repositoryService.getCloud(paCloud.getCloudId());
         if (cloud == null) {
             cloud = new Cloud();
-            cloud.setId(paCloud.getCloudID());
+            cloud.setId(paCloud.getCloudId());
             cloud.setCloudType(paCloud.getCloudType());
             cloud.setApi(new Api(nodeCandidateJSON.optString("cloud")));
             cloud.setCredential(new CloudCredential());
@@ -390,7 +390,7 @@ public class NodeCandidateUtils {
             JSONArray images = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
             if (images == null) {
                 LOGGER.warn(String.format("No available images were found for the cloud [%s]. Please check your configuration.",
-                                          paCloud.getCloudID()));
+                                          paCloud.getCloudId()));
                 return;
             }
             LOGGER.info("Returned images: {}", images);

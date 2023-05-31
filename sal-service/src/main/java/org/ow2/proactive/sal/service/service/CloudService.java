@@ -84,9 +84,9 @@ public class CloudService {
         List<String> savedCloudIds = new LinkedList<>();
         clouds.forEach(cloud -> {
             PACloud newCloud = new PACloud();
-            String nodeSourceNamePrefix = cloud.getCloudProviderName() + cloud.getCloudID();
+            String nodeSourceNamePrefix = cloud.getCloudProviderName() + cloud.getCloudId();
             newCloud.setNodeSourceNamePrefix(nodeSourceNamePrefix);
-            newCloud.setCloudID(cloud.getCloudID());
+            newCloud.setCloudId(cloud.getCloudId());
             newCloud.setCloudProviderName(cloud.getCloudProviderName());
             newCloud.setCloudType(cloud.getCloudType());
             newCloud.setDeployedRegions(new HashMap<>());
@@ -115,7 +115,7 @@ public class CloudService {
 
             repositoryService.savePACloud(newCloud);
             LOGGER.debug("Cloud created: " + newCloud.toString());
-            savedCloudIds.add(newCloud.getCloudID());
+            savedCloudIds.add(newCloud.getCloudId());
         });
 
         repositoryService.flush();
@@ -166,16 +166,16 @@ public class CloudService {
     /**
      * Undeploy clouds
      * @param sessionId A valid session id
-     * @param cloudIDs List of cloud IDs to remove
+     * @param cloudIds List of cloud IDs to remove
      * @param preempt If true undeploy node source immediately without waiting for nodes to be freed
      */
-    public Boolean undeployClouds(String sessionId, List<String> cloudIDs, Boolean preempt)
+    public Boolean undeployClouds(String sessionId, List<String> cloudIds, Boolean preempt)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        cloudIDs.forEach(cloudID -> {
-            PACloud cloud = repositoryService.getPACloud(cloudID);
+        cloudIds.forEach(cloudId -> {
+            PACloud cloud = repositoryService.getPACloud(cloudId);
             for (Map.Entry<String, String> entry : cloud.getDeployedRegions().entrySet()) {
                 try {
                     resourceManagerGateway.undeployNodeSource(cloud.getNodeSourceNamePrefix() + entry.getKey(),
@@ -200,19 +200,19 @@ public class CloudService {
     /**
      * Remove clouds
      * @param sessionId A valid session id
-     * @param cloudIDs List of cloud IDs to remove
+     * @param cloudIds List of cloud IDs to remove
      * @param preempt If true undeploy node source immediately without waiting for nodes to be freed
      */
-    public Boolean removeClouds(String sessionId, List<String> cloudIDs, Boolean preempt) throws NotConnectedException {
+    public Boolean removeClouds(String sessionId, List<String> cloudIds, Boolean preempt) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
         Boolean flag = true;
         Boolean tempFlag;
-        for (String cloudID : cloudIDs) {
-            PACloud cloud = repositoryService.getPACloud(cloudID);
+        for (String cloudId : cloudIds) {
+            PACloud cloud = repositoryService.getPACloud(cloudId);
             if (cloud == null) {
-                LOGGER.info("Cloud {} not found, nothing to be removed.", cloudID);
+                LOGGER.info("Cloud {} not found, nothing to be removed.", cloudId);
                 flag = tempFlag = false;
             } else if (cloud.getCloudType() == CloudType.PUBLIC || cloud.getCloudType() == CloudType.PRIVATE) {
                 tempFlag = removeIaasCloudNS(sessionId, cloud, preempt);
@@ -233,10 +233,8 @@ public class CloudService {
                 LOGGER.info("Cleaning deployments from the cloud entry");
                 cloud.clearDeployments();
                 LOGGER.info("Cleaning node candidates");
-                List<String> cloudId = new ArrayList<>();
-                cloudId.add(cloud.getCloudID());
                 try {
-                    ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncClean(cloudId));
+                    ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncClean(Collections.singletonList(cloud.getCloudId())));
                 } catch (InterruptedException ie) {
                     LOGGER.warn("Thread cleaning node candidates interrupted!", ie);
                 }
@@ -292,7 +290,7 @@ public class CloudService {
         LOGGER.info("Removing {} cloud : {}", cloud.getCloudType(), cloud.toString());
         Boolean flag = true;
         try {
-            String nodeSourceName = cloud.getCloudID();
+            String nodeSourceName = cloud.getCloudId();
             LOGGER.info("Removing {} node source \"{}\" from the ProActive server.",
                         cloud.getCloudType(),
                         nodeSourceName);
@@ -308,24 +306,24 @@ public class CloudService {
     /**
      * This function returns the list of all available images related to a registered cloud
      * @param sessionId A valid session id
-     * @param cloudID A valid cloud identifier
+     * @param cloudId A valid cloud identifier
      * @return A list of available images
      */
-    public List<Image> getCloudImages(String sessionId, String cloudID) throws NotConnectedException {
+    public List<Image> getCloudImages(String sessionId, String cloudId) throws NotConnectedException {
         List<Image> allImages = getAllCloudImages(sessionId);
         List<Image> filteredImages = new LinkedList<>();
-        PACloud paCloud = repositoryService.getPACloud(cloudID);
+        PACloud paCloud = repositoryService.getPACloud(cloudId);
         if (paCloud != null) {
             JSONArray imagesArray = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
             List<String> imagesIDs = IntStream.range(0, imagesArray.length())
                                               .mapToObj(imagesArray::get)
-                                              .map(image -> cloudID + "/" + ((JSONObject) image).optString("id"))
+                                              .map(image -> cloudId + "/" + ((JSONObject) image).optString("id"))
                                               .collect(Collectors.toList());
-            LOGGER.debug("Filtering images related to cloud ID \'" + cloudID + "\'.");
+            LOGGER.debug("Filtering images related to cloud ID \'" + cloudId + "\'.");
             allImages.stream().filter(blaTest -> imagesIDs.contains(blaTest.getId())).forEach(filteredImages::add);
             return filteredImages;
         } else {
-            LOGGER.warn("Cloud ID \'" + cloudID + "\' is not found in DB. getAllCloudImages() will return all images.");
+            LOGGER.warn("Cloud ID \'" + cloudId + "\' is not found in DB. getAllCloudImages() will return all images.");
             return allImages;
         }
     }
@@ -345,10 +343,10 @@ public class CloudService {
     /**
      * This function returns the list of all available hardwares related to a registered cloud
      * @param sessionId A valid session id
-     * @param cloudID A valid cloud identifier
+     * @param cloudId A valid cloud identifier
      * @return A list of available hardwares
      */
-    public List<Hardware> getCloudHardwares(String sessionId, String cloudID) throws NotConnectedException {
+    public List<Hardware> getCloudHardwares(String sessionId, String cloudId) throws NotConnectedException {
         LOGGER.warn("Feature not implemented yet. All hardwares will be returned.");
         return getAllCloudHardwares(sessionId);
     }
@@ -377,10 +375,10 @@ public class CloudService {
     /**
      * This function returns the list of all available locations related to a registered cloud
      * @param sessionId A valid session id
-     * @param cloudID A valid cloud identifier
+     * @param cloudId A valid cloud identifier
      * @return A list of available locations
      */
-    public List<Location> getCloudLocations(String sessionId, String cloudID) throws NotConnectedException {
+    public List<Location> getCloudLocations(String sessionId, String cloudId) throws NotConnectedException {
         LOGGER.warn("Feature not implemented yet. All locations will be returned.");
         return getAllCloudLocations(sessionId);
     }

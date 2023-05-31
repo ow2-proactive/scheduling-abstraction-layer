@@ -49,6 +49,6 @@ public class IaasDefinition {
     @JsonProperty("nodeCandidateId")
     private String nodeCandidateId = null;
 
-    @JsonProperty("cloudID")
-    private String cloudID = null;
+    @JsonProperty("cloudId")
+    private String cloudId = null;
 }

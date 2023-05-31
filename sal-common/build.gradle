@@ -6,9 +6,9 @@ dependencies {
     compile group: 'org.ow2.proactive_grid_cloud_portal', name: 'rest-smartproxy', version: "$version"
     compile group: 'org.ow2.proactive_grid_cloud_portal', name: 'rest-api', version: "$version"
 
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.core:jackson-annotations'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.15.1'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.15.1'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.1'
 
     compile group: 'org.hibernate', name: 'hibernate-entitymanager'
     compile group: 'org.hibernate', name: 'hibernate-core'

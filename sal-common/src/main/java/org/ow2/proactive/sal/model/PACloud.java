@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,19 +39,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
 @Table(name = "PA_CLOUD")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "cloudId", scope = PACloud.class)
 public class PACloud implements Serializable {
 
     public static final String WHITE_LISTED_NAME_PREFIX = "WLH";
 
     @Id
     @Column(name = "CLOUD_ID")
-    private String cloudID;
+    private String cloudId;
 
     @Column(name = "NODE_SOURCE_NAME_PREFIX")
     private String nodeSourceNamePrefix;
@@ -102,12 +102,25 @@ public class PACloud implements Serializable {
     @ElementCollection(targetClass = String.class)
     private Map<String, String> deployedWhiteListedRegions;
 
-    @JsonManagedReference(value = "pacloudReference")
+    //    @JsonManagedReference(value = "pacloudReference")
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("deploymentNodeNames")
     private List<Deployment> deployments;
 
     @OneToOne
     private Credentials credentials;
+
+    public static PACloud fromId(String cloudId) {
+        PACloud paCloud = new PACloud();
+        paCloud.cloudId = cloudId;
+        return paCloud;
+    }
+
+    @JsonSetter("deploymentNodeNames")
+    public void setDeploymentsByIds(List<String> deployments) {
+        this.deployments = deployments.stream().map(Deployment::fromId).collect(Collectors.toList());
+    }
 
     public void addDeployment(Deployment deployment) {
         if (deployments == null) {
@@ -153,7 +166,7 @@ public class PACloud implements Serializable {
                                                                    .map(Deployment::getNodeName)
                                                                    .collect(Collectors.toList())
                                                                    .toString();
-        return "PACloud{" + "cloudID='" + cloudID + '\'' + ", nodeSourceNamePrefix='" + nodeSourceNamePrefix + '\'' +
+        return "PACloud{" + "cloudId='" + cloudId + '\'' + ", nodeSourceNamePrefix='" + nodeSourceNamePrefix + '\'' +
                ", cloudProviderName='" + cloudProviderName + '\'' + ", cloudType='" + cloudType.toString() + '\'' +
                ", subnet='" + subnet + '\'' + ", securityGroup='" + securityGroup + '\'' + ", sshCredentials='" +
                Optional.ofNullable(sshCredentials).map(SSHCredentials::toString).orElse(null) + '\'' + ", endpoint='" +
