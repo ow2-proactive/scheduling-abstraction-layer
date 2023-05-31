@@ -52,7 +52,6 @@ import lombok.extern.log4j.Log4j2;
 @Entity
 @Table(name = "TASK")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "taskId", scope = Task.class)
-//@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Task implements Serializable {
     @Id
     @Column(name = "TASK_ID")
@@ -71,7 +70,6 @@ public class Task implements Serializable {
     @Embedded
     private DockerEnvironment environment;
 
-    //    @JsonManagedReference(value = "taskReference")
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonProperty("deploymentNodeNames")
