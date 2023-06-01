@@ -31,6 +31,10 @@ import java.util.Optional;
 import javax.persistence.*;
 import javax.ws.rs.NotSupportedException;
 
+import org.ow2.proactive.sal.SpringConfiguration;
+import org.ow2.proactive.sal.repository.DeploymentRepository;
+import org.springframework.context.ApplicationContext;
+
 import com.fasterxml.jackson.annotation.*;
 
 import lombok.*;
@@ -105,19 +109,29 @@ public class Deployment implements Serializable {
     }
 
     public static Deployment fromId(String nodeName) {
-        Deployment deployment = new Deployment();
-        deployment.nodeName = nodeName;
+        Deployment deployment = null;
+        ApplicationContext applicationContext = SpringConfiguration.contextProvider().getApplicationContext();
+        if (applicationContext != null) {
+            DeploymentRepository deploymentRepository = (DeploymentRepository) applicationContext.getBean("deploymentRepository");
+            deployment = deploymentRepository.findOne(nodeName);
+        }
+        if (deployment == null) {
+            deployment = new Deployment();
+            deployment.nodeName = nodeName;
+        }
         return deployment;
     }
 
     @JsonSetter("cloudId")
     public void setPaCloudById(String cloudId) {
         this.paCloud = PACloud.fromId(cloudId);
+        this.paCloud.addDeployment(this);
     }
 
     @JsonSetter("taskId")
     public void setTaskById(String taskId) {
         this.task = Task.fromId(taskId);
+        this.task.addDeployment(this);
     }
 
     @Override

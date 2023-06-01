@@ -23,13 +23,24 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.repository;
+package org.ow2.proactive.sal;
 
-import org.ow2.proactive.sal.model.ByonNode;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 
-@Repository
-public interface ByonNodeRepository extends JpaRepository<ByonNode, String> {
+@Component
+public class ApplicationContextProvider implements ApplicationContextAware {
+
+    private static ApplicationContext context;
+
+    public ApplicationContext getApplicationContext() {
+        return context;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext ctx) {
+        context = ctx;
+    }
 }

@@ -13,6 +13,8 @@ dependencies {
     compile group: 'org.hibernate', name: 'hibernate-entitymanager'
     compile group: 'org.hibernate', name: 'hibernate-core'
 
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+
     compile group: 'org.eclipse.emf', name: 'org.eclipse.emf.common', version: '2.20.0'
 
     testCompile 'junit:junit:4.12'

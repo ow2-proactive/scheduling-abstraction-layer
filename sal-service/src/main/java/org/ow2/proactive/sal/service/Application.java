@@ -37,6 +37,7 @@ import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -65,6 +66,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableAsync
 @PropertySources({ @PropertySource(value = "classpath:application.properties"),
                    @PropertySource(value = "file:${EXTERNAL_CONFIG_DIR}/${PROPERTIES_FILENAME}.properties", ignoreResourceNotFound = true) })
+@EnableJpaRepositories(basePackages = "org.ow2.proactive.sal.repository")
 @EntityScan(basePackages = "org.ow2.proactive.sal.model")
 @EntityScanRoot("classpath:/org/ow2/proactive/sal/model")
 @EnableTransactionManagement

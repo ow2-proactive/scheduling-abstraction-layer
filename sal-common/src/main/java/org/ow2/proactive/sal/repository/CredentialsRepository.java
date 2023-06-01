@@ -23,21 +23,13 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.repository;
+package org.ow2.proactive.sal.repository;
 
-import java.util.List;
-
-import org.ow2.proactive.sal.model.Image;
+import org.ow2.proactive.sal.model.Credentials;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
-public interface ImageRepository extends JpaRepository<Image, String> {
-
-    @Transactional(readOnly = true)
-    @Query(value = "SELECT id FROM Image WHERE id NOT IN (SELECT image.id FROM NodeCandidate GROUP BY image.id)")
-    List<String> getOrphanImageIds();
+public interface CredentialsRepository extends JpaRepository<Credentials, Integer> {
 }

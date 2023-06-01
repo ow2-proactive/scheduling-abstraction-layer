@@ -23,21 +23,13 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.repository;
+package org.ow2.proactive.sal.repository;
 
-import java.util.List;
-
-import org.ow2.proactive.sal.model.Cloud;
+import org.ow2.proactive.sal.model.ByonNode;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
-public interface CloudRepository extends JpaRepository<Cloud, String> {
-
-    @Transactional(readOnly = true)
-    @Query(value = "SELECT id FROM Cloud WHERE id NOT IN (SELECT cloud.id FROM NodeCandidate GROUP BY cloud.id)")
-    List<String> getOrphanCloudIds();
+public interface ByonNodeRepository extends JpaRepository<ByonNode, String> {
 }

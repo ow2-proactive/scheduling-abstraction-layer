@@ -23,13 +23,21 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.repository;
+package org.ow2.proactive.sal;
 
-import org.ow2.proactive.sal.model.EdgeNode;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 
-@Repository
-public interface EdgeNodeRepository extends JpaRepository<EdgeNode, String> {
+@Configuration
+public class SpringConfiguration {
+
+    private SpringConfiguration() {
+    }
+
+    @Bean
+    public static ApplicationContextProvider contextProvider() {
+        return new ApplicationContextProvider();
+    }
+
 }

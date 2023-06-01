@@ -23,13 +23,13 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.service.repository;
+package org.ow2.proactive.sal.repository;
 
-import org.ow2.proactive.sal.model.Task;
+import org.ow2.proactive.sal.model.Port;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, String> {
+public interface PortRepository extends JpaRepository<Port, Integer> {
 }
