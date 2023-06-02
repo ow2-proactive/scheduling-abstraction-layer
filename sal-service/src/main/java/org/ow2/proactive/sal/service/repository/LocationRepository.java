@@ -23,13 +23,21 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.repository;
+package org.ow2.proactive.sal.service.repository;
 
-import org.ow2.proactive.sal.model.NodeCandidate;
+import java.util.List;
+
+import org.ow2.proactive.sal.model.Location;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
-public interface NodeCandidateRepository extends JpaRepository<NodeCandidate, String> {
+public interface LocationRepository extends JpaRepository<Location, String> {
+
+    @Transactional(readOnly = true)
+    @Query(value = "SELECT id FROM Location WHERE id NOT IN (SELECT location.id FROM NodeCandidate GROUP BY location.id)")
+    List<String> getOrphanLocationIds();
 }

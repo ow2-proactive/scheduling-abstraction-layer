@@ -31,10 +31,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.*;
 
-import org.ow2.proactive.sal.SpringConfiguration;
-import org.ow2.proactive.sal.repository.PACloudRepository;
-import org.springframework.context.ApplicationContext;
-
 import com.fasterxml.jackson.annotation.*;
 
 import lombok.Getter;
@@ -113,23 +109,15 @@ public class PACloud implements Serializable {
     @OneToOne
     private Credentials credentials;
 
-    public static PACloud fromId(String cloudId) {
-        PACloud paCloud = null;
-        ApplicationContext applicationContext = SpringConfiguration.contextProvider().getApplicationContext();
-        if (applicationContext != null) {
-            PACloudRepository paCloudRepository = (PACloudRepository) applicationContext.getBean("paCloudRepository");
-            paCloud = paCloudRepository.findOne(cloudId);
-        }
-        if (paCloud == null) {
-            paCloud = new PACloud();
-            paCloud.cloudId = cloudId;
-        }
-        return paCloud;
+    //    This is added for deserialization testing purpose
+    public PACloud(String cloudId) {
+        this.cloudId = cloudId;
     }
 
+    //    This is added for deserialization testing purpose
     @JsonSetter("deploymentNodeNames")
-    public void setDeploymentsByIds(List<String> deployments) {
-        this.deployments = deployments.stream().map(Deployment::fromId).collect(Collectors.toList());
+    private void setDeploymentsByIds(List<String> deployments) {
+        this.deployments = deployments.stream().map(Deployment::new).collect(Collectors.toList());
         this.deployments.forEach(deployment -> deployment.setPaCloud(this));
     }
 

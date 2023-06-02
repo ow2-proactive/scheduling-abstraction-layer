@@ -34,9 +34,6 @@ import javax.persistence.*;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.ow2.proactive.sal.SpringConfiguration;
-import org.ow2.proactive.sal.repository.TaskRepository;
-import org.springframework.context.ApplicationContext;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -99,23 +96,15 @@ public class Task implements Serializable {
     @Column(name = "NEXT_DEPLOYMENT_ID")
     private Long nextDeploymentID = 0L;
 
-    public static Task fromId(String taskId) {
-        Task task = null;
-        ApplicationContext applicationContext = SpringConfiguration.contextProvider().getApplicationContext();
-        if (applicationContext != null) {
-            TaskRepository taskRepository = (TaskRepository) applicationContext.getBean("taskRepository");
-            task = taskRepository.findOne(taskId);
-        }
-        if (task == null) {
-            task = new Task();
-            task.taskId = taskId;
-        }
-        return task;
+    //    This is added for deserialization testing purpose
+    public Task(String taskId) {
+        this.taskId = taskId;
     }
 
+    //    This is added for deserialization testing purpose
     @JsonSetter("deploymentNodeNames")
-    public void setDeploymentsByIds(List<String> deployments) {
-        this.deployments = deployments.stream().map(Deployment::fromId).collect(Collectors.toList());
+    private void setDeploymentsByIds(List<String> deployments) {
+        this.deployments = deployments.stream().map(Deployment::new).collect(Collectors.toList());
         this.deployments.forEach(deployment -> deployment.setTask(this));
     }
 
