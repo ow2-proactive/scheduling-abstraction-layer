@@ -189,7 +189,7 @@ public class ByonService {
 
             PACloud cloud = new PACloud();
             String nodeSourceName = byonNode.composeNodeSourceName();
-            cloud.setCloudID(nodeSourceName);
+            cloud.setCloudId(nodeSourceName);
             cloud.setNodeSourceNamePrefix(nodeSourceName);
             cloud.setCloudType(CloudType.BYON);
             cloud.setCloudProviderName("BYON");
@@ -307,7 +307,7 @@ public class ByonService {
             if (paCloud.getDeployments() != null) {
                 LOGGER.info("Cleaning deployments from related tasks {}", paCloud.getDeployments().toString());
                 paCloud.getDeployments().forEach(deployment -> deployment.getTask().removeDeployment(deployment));
-                LOGGER.info("Cleaning deployments from paCloud {}", paCloud.getCloudID());
+                LOGGER.info("Cleaning deployments from paCloud {}", paCloud.getCloudId());
                 paCloud.clearDeployments();
             }
             repositoryService.deletePACloud(paCloud);

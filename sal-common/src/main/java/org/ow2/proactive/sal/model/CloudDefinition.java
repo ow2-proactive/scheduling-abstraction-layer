@@ -44,8 +44,8 @@ import lombok.*;
 @ToString(callSuper = true)
 public class CloudDefinition implements Serializable {
 
-    @JsonProperty("cloudID")
-    private String cloudID = null;
+    @JsonProperty("cloudId")
+    private String cloudId = null;
 
     @JsonProperty("cloudProviderName")
     private String cloudProviderName = null;

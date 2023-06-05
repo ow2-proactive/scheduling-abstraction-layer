@@ -103,10 +103,10 @@ public class NodeService {
             iaasNode.incDeployedNodes(1L);
             repositoryService.saveIaasNode(iaasNode);
 
-            PACloud cloud = repositoryService.getPACloud(node.getCloudID());
+            PACloud cloud = repositoryService.getPACloud(node.getCloudId());
             if (cloud == null) {
-                LOGGER.error("Cloud [{}] does not exist.", node.getCloudID());
-                throw new IllegalArgumentException(String.format("node.cloudId [%s] not valid.", node.getCloudID()));
+                LOGGER.error("Cloud [{}] does not exist.", node.getCloudId());
+                throw new IllegalArgumentException(String.format("node.cloudId [%s] not valid.", node.getCloudId()));
             }
             cloud.addDeployment(newDeployment);
             if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(newDeployment.getNode()

@@ -31,18 +31,17 @@ import java.util.Optional;
 import javax.persistence.*;
 import javax.ws.rs.NotSupportedException;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 
 import lombok.*;
 
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
 @Table(name = "DEPLOYMENT")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "nodeName", scope = Deployment.class)
 public class Deployment implements Serializable {
 
     @Id
@@ -52,12 +51,14 @@ public class Deployment implements Serializable {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private EmsDeploymentRequest emsDeployment;
 
-    @JsonBackReference(value = "pacloudReference")
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("cloudId")
     private PACloud paCloud;
 
-    @JsonBackReference(value = "taskReference")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("taskId")
     private Task task;
 
     @Column(name = "IS_DEPLOYED")
@@ -101,6 +102,25 @@ public class Deployment implements Serializable {
                 throw new NotSupportedException(String.format("Deployment type [%s] not supported yet.",
                                                               deploymentType));
         }
+    }
+
+    //    This is added for deserialization testing purpose
+    public Deployment(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    //    This is added for deserialization testing purpose
+    @JsonSetter("cloudId")
+    private void setPaCloudById(String cloudId) {
+        this.paCloud = new PACloud(cloudId);
+        this.paCloud.addDeployment(this);
+    }
+
+    //    This is added for deserialization testing purpose
+    @JsonSetter("taskId")
+    private void setTaskById(String taskId) {
+        this.task = new Task(taskId);
+        this.task.addDeployment(this);
     }
 
     @Override

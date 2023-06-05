@@ -85,11 +85,11 @@ public class CloudRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "List of cloud IDs to undeploy", required = true)
     @RequestBody
-    final List<String> cloudIDs,
+    final List<String> cloudIds,
                     @ApiParam(value = "If true undeploy node source immediately without waiting for nodes to be freed", defaultValue = "false")
                     @RequestHeader(value = "preempt", defaultValue = "false")
                     final Boolean preempt) throws NotConnectedException {
-        return ResponseEntity.ok(cloudService.undeployClouds(sessionId, cloudIDs, preempt));
+        return ResponseEntity.ok(cloudService.undeployClouds(sessionId, cloudIds, preempt));
     }
 
     @RequestMapping(value = "/remove", method = RequestMethod.DELETE)
@@ -99,11 +99,11 @@ public class CloudRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "List of cloud IDs to remove", required = true)
     @RequestBody
-    final List<String> cloudIDs,
+    final List<String> cloudIds,
                     @ApiParam(value = "If true undeploy node source immediately without waiting for nodes to be freed", defaultValue = "false")
                     @RequestHeader(value = "preempt", defaultValue = "false")
                     final Boolean preempt) throws NotConnectedException {
-        return ResponseEntity.ok(cloudService.removeClouds(sessionId, cloudIDs, preempt));
+        return ResponseEntity.ok(cloudService.removeClouds(sessionId, cloudIds, preempt));
     }
 
     @RequestMapping(value = "/images", method = RequestMethod.GET)
@@ -113,9 +113,9 @@ public class CloudRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A valid cloud identifier")
     @RequestParam(value = "cloudid")
-    final Optional<String> cloudID) throws NotConnectedException {
-        if (cloudID.isPresent()) {
-            return ResponseEntity.ok(cloudService.getCloudImages(sessionId, cloudID.get()));
+    final Optional<String> cloudId) throws NotConnectedException {
+        if (cloudId.isPresent()) {
+            return ResponseEntity.ok(cloudService.getCloudImages(sessionId, cloudId.get()));
         } else {
             return ResponseEntity.ok(cloudService.getAllCloudImages(sessionId));
         }
@@ -128,9 +128,9 @@ public class CloudRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A valid cloud identifier")
     @RequestParam(value = "cloudid")
-    final Optional<String> cloudID) throws NotConnectedException {
-        if (cloudID.isPresent()) {
-            return ResponseEntity.ok(cloudService.getCloudHardwares(sessionId, cloudID.get()));
+    final Optional<String> cloudId) throws NotConnectedException {
+        if (cloudId.isPresent()) {
+            return ResponseEntity.ok(cloudService.getCloudHardwares(sessionId, cloudId.get()));
         } else {
             return ResponseEntity.ok(cloudService.getAllCloudHardwares(sessionId));
         }
@@ -143,9 +143,9 @@ public class CloudRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A valid cloud identifier")
     @RequestParam(value = "cloudid")
-    final Optional<String> cloudID) throws NotConnectedException {
-        if (cloudID.isPresent()) {
-            return ResponseEntity.ok(cloudService.getCloudLocations(sessionId, cloudID.get()));
+    final Optional<String> cloudId) throws NotConnectedException {
+        if (cloudId.isPresent()) {
+            return ResponseEntity.ok(cloudService.getCloudLocations(sessionId, cloudId.get()));
         } else {
             return ResponseEntity.ok(cloudService.getAllCloudLocations(sessionId));
         }

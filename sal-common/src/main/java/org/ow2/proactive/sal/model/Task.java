@@ -28,13 +28,14 @@ package org.ow2.proactive.sal.model;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.*;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,6 +51,7 @@ import lombok.extern.log4j.Log4j2;
 @Setter
 @Entity
 @Table(name = "TASK")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "taskId", scope = Task.class)
 public class Task implements Serializable {
     @Id
     @Column(name = "TASK_ID")
@@ -68,8 +70,9 @@ public class Task implements Serializable {
     @Embedded
     private DockerEnvironment environment;
 
-    @JsonManagedReference(value = "taskReference")
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("deploymentNodeNames")
     private List<Deployment> deployments;
 
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
@@ -92,6 +95,18 @@ public class Task implements Serializable {
 
     @Column(name = "NEXT_DEPLOYMENT_ID")
     private Long nextDeploymentID = 0L;
+
+    //    This is added for deserialization testing purpose
+    public Task(String taskId) {
+        this.taskId = taskId;
+    }
+
+    //    This is added for deserialization testing purpose
+    @JsonSetter("deploymentNodeNames")
+    private void setDeploymentsByIds(List<String> deployments) {
+        this.deployments = deployments.stream().map(Deployment::new).collect(Collectors.toList());
+        this.deployments.forEach(deployment -> deployment.setTask(this));
+    }
 
     public void addDeployment(Deployment deployment) {
         if (deployments == null) {
