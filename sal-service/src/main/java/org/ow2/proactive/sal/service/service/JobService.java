@@ -533,6 +533,19 @@ public class JobService {
     }
 
     /**
+     * Get a specific job skeleton
+     * @param sessionId A valid session id
+     * @param taskId A valid task identifier
+     * @return A Job instance
+     */
+    public Task getTask(String sessionId, String taskId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        return repositoryService.getTask(taskId);
+    }
+
+    /**
      * Wait for a task
      * @param sessionId A valid session id
      * @param jobId A job ID
