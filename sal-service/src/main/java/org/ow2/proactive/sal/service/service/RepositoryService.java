@@ -244,6 +244,15 @@ public class RepositoryService {
     }
 
     /**
+     * Find deployments that match with the node names list
+     * @param nodeNames valid deployment node names
+     * @return deployments that match with the node names list
+     */
+    public List<Deployment> findAllDeployments(List<String> nodeNames) {
+        return deploymentRepository.findAll(nodeNames);
+    }
+
+    /**
      * List all Deployment entries
      */
     public List<Deployment> listDeployments() {
@@ -872,5 +881,4 @@ public class RepositoryService {
         vaultKeyRepository.deleteAll();
         LOGGER.info("Done.");
     }
-
 }

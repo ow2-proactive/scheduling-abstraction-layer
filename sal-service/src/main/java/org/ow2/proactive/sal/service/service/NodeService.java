@@ -278,6 +278,23 @@ public class NodeService {
     }
 
     /**
+     * Get all added nodes with specific node names
+     * @param sessionId A valid session id
+     * @param nodeNames Valid node names
+     * @return List of all table Deployment's entries
+     */
+    public List<Deployment> getNodesByNames(String sessionId, List<String> nodeNames) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        resourceManagerGateway.synchronizeDeploymentsIPAddresses(schedulerGateway);
+        resourceManagerGateway.synchronizeDeploymentsInstanceIDs();
+        List<Deployment> allDeployments = repositoryService.findAllDeployments(nodeNames);
+        LOGGER.info("Fetched deployments size: {} for node names [{}]", allDeployments.size(), nodeNames);
+        return allDeployments;
+    }
+
+    /**
      * Remove nodes
      * @param sessionId A valid session id
      * @param nodeNames List of node names to remove

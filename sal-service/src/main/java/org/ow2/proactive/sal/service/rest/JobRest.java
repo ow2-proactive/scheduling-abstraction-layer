@@ -34,6 +34,7 @@ import org.javatuples.Pair;
 import org.ow2.proactive.sal.model.Job;
 import org.ow2.proactive.sal.model.JobDefinition;
 import org.ow2.proactive.sal.model.JobState;
+import org.ow2.proactive.sal.model.Task;
 import org.ow2.proactive.sal.service.service.JobService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive.scheduler.common.job.JobResult;
@@ -156,6 +157,16 @@ public class JobRest {
     @PathVariable
     final String jobId) throws NotConnectedException {
         return ResponseEntity.ok(jobService.killJob(sessionId, jobId));
+    }
+
+    @RequestMapping(value = "/task/{taskId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get a specific task", response = Task.class)
+    public ResponseEntity<Task> getTask(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "A task identifier", required = true)
+    @PathVariable
+    final String taskId) throws NotConnectedException {
+        return ResponseEntity.ok(jobService.getTask(sessionId, taskId));
     }
 
     @RequestMapping(value = "/{jobId}/{taskName}/wait", method = RequestMethod.GET)

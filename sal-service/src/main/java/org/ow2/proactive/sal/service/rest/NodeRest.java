@@ -26,6 +26,7 @@
 package org.ow2.proactive.sal.service.rest;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.MediaType;
 
@@ -68,8 +69,13 @@ public class NodeRest {
     public ResponseEntity<List<Deployment>>
             getNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId) throws NotConnectedException {
-        return ResponseEntity.ok(nodeService.getNodes(sessionId));
+    final String sessionId, @RequestParam
+    final Optional<List<String>> nodeNames) throws NotConnectedException {
+        if (nodeNames.isPresent()) {
+            return ResponseEntity.ok(nodeService.getNodesByNames(sessionId, nodeNames.get()));
+        } else {
+            return ResponseEntity.ok(nodeService.getNodes(sessionId));
+        }
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
