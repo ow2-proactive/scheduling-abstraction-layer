@@ -164,6 +164,19 @@ public class CloudService {
     }
 
     /**
+     * Get all added clouds with specific ids
+     * @param sessionId A valid session id
+     * @param cloudIds Valid cloud ids
+     * @return List of all table PACloud's entries
+     */
+    public List<PACloud> findCloudsByIds(String sessionId, List<String> cloudIds) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        return repositoryService.findAllPAClouds(cloudIds);
+    }
+
+    /**
      * Undeploy clouds
      * @param sessionId A valid session id
      * @param cloudIds List of cloud IDs to remove

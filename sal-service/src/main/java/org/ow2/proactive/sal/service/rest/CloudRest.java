@@ -74,8 +74,13 @@ public class CloudRest {
     public ResponseEntity<List<PACloud>>
             getAllClouds(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId) throws NotConnectedException {
-        return ResponseEntity.ok(cloudService.getAllClouds(sessionId));
+    final String sessionId, @RequestParam
+    final Optional<List<String>> cloudIds) throws NotConnectedException {
+        if (cloudIds.isPresent()) {
+            return ResponseEntity.ok(cloudService.findCloudsByIds(sessionId, cloudIds.get()));
+        } else {
+            return ResponseEntity.ok(cloudService.getAllClouds(sessionId));
+        }
     }
 
     @RequestMapping(value = "/undeploy", method = RequestMethod.POST)

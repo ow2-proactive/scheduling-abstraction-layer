@@ -671,6 +671,15 @@ public class RepositoryService {
     }
 
     /**
+     * Find clouds that match with the cloud ids list
+     * @param cloudIds valid cloud ids
+     * @return clouds that match with the cloud ids list
+     */
+    public List<PACloud> findAllPAClouds(List<String> cloudIds) {
+        return paCloudRepository.findAll(cloudIds);
+    }
+
+    /**
      * List all PACloud entries
      */
     public List<PACloud> listPACloud() {
