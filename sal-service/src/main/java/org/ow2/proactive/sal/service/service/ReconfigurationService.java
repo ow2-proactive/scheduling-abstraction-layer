@@ -53,4 +53,12 @@ public class ReconfigurationService {
         return false;
     }
 
+    public Boolean isJobInReconfiguration(String sessionId, String jobId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        Validate.notNull(jobId, "The job id received is null. Nothing to be created.");
+
+        return false;
+    }
 }

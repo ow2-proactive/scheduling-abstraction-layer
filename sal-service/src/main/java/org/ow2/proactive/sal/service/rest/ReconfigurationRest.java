@@ -60,4 +60,15 @@ public class ReconfigurationRest {
         return ResponseEntity.ok(reconfigurationService.reconfigureJob(sessionId, jobId, reconfigurationPlan));
     }
 
+    @GetMapping(value = "/async")
+    @ApiOperation(value = "Is any async node candidates process in progress?", response = Integer.class)
+    public ResponseEntity<Boolean> isJobInReconfiguration(
+            @ApiParam(value = "Proactive authentication session id", required = true)
+            @RequestHeader(value = "sessionid")
+            final String sessionId, @ApiParam(value = "A job identifier", required = true)
+    @RequestParam(value = "jobId")
+    final String jobId) throws NotConnectedException {
+        return ResponseEntity.ok(reconfigurationService.isJobInReconfiguration(sessionId, jobId));
+    }
+
 }
