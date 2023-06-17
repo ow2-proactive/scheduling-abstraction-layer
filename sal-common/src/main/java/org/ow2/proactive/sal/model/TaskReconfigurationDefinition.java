@@ -25,47 +25,21 @@
  */
 package org.ow2.proactive.sal.model;
 
-import java.util.Locale;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
-public enum SubmittedJobType {
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class TaskReconfigurationDefinition {
 
-    CREATED("CREATED"),
+    @JsonProperty("task")
+    TaskDefinition task;
 
-    FIRST_DEPLOYMENT("FIRST_DEPLOYMENT"),
-
-    RECONFIGURATION("RECONFIGURATION"),
-
-    SCALE_OUT("SCALE_OUT"),
-
-    SCALE_IN("SCALE_IN"),
-
-    STOP("STOP"),
-
-    UNKNOWN("UNKNOWN");
-
-    private final String value;
-
-    SubmittedJobType(String value) {
-        this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-        return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static SubmittedJobType fromValue(String text) {
-        for (SubmittedJobType b : SubmittedJobType.values()) {
-            if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
-                return b;
-            }
-        }
-        return UNKNOWN;
-    }
+    @JsonProperty("iaasNodeSelection")
+    IaasDefinition iaasNodeSelection;
 }

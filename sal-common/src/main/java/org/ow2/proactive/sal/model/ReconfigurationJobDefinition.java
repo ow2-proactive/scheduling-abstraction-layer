@@ -25,47 +25,31 @@
  */
 package org.ow2.proactive.sal.model;
 
-import java.util.Locale;
+import java.io.Serializable;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.*;
 
 
-public enum SubmittedJobType {
+/**
+ * Attributes defining a Job Reconfiguration Plan
+ */
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class ReconfigurationJobDefinition implements Serializable {
 
-    CREATED("CREATED"),
+    @JsonProperty("communications")
+    private List<Communication> communications;
 
-    FIRST_DEPLOYMENT("FIRST_DEPLOYMENT"),
+    @JsonProperty("unchangedTasks")
+    private List<String> unchangedTasks;
 
-    RECONFIGURATION("RECONFIGURATION"),
+    @JsonProperty("deleteTasks")
+    private List<String> deletedTasks;
 
-    SCALE_OUT("SCALE_OUT"),
-
-    SCALE_IN("SCALE_IN"),
-
-    STOP("STOP"),
-
-    UNKNOWN("UNKNOWN");
-
-    private final String value;
-
-    SubmittedJobType(String value) {
-        this.value = value;
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-        return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static SubmittedJobType fromValue(String text) {
-        for (SubmittedJobType b : SubmittedJobType.values()) {
-            if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
-                return b;
-            }
-        }
-        return UNKNOWN;
-    }
+    @JsonProperty("addTasks")
+    private List<TaskReconfigurationDefinition> addedTasks;
 }
