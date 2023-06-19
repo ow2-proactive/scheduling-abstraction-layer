@@ -29,23 +29,23 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
+/**
+ * Attributes defining an EMS request for a specific node
+ */
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class TaskReconfigurationDefinition implements Serializable {
+@Getter
+@Setter
+@ToString(callSuper = true)
+public class EmsDeploymentDefinitionForNode implements Serializable {
 
-    @JsonProperty("task")
-    TaskDefinition task;
+    @JsonProperty("authorizationBearer")
+    private String authorizationBearer;
 
-    @JsonProperty("iaasNodeSelection")
-    IaasDefinition iaasNodeSelection;
-
-    @JsonProperty("emsDeploymentDefinition")
-    private EmsDeploymentDefinitionForNode emsDeploymentDefinition;
+    @JsonProperty("isPrivateIp")
+    private boolean isPrivateIP;
 
 }

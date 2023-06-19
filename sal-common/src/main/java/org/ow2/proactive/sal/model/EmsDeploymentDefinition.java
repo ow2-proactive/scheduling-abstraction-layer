@@ -46,6 +46,7 @@ public class EmsDeploymentDefinition implements Serializable {
     @JsonProperty("nodeNames")
     private List<String> nodeNames;
 
+    //TODO: This should be refactored to extend EmsDeploymentDefinitionForNode class (After Morphemic)
     @JsonProperty("authorizationBearer")
     private String authorizationBearer;
 
