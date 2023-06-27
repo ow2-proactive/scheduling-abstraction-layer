@@ -70,7 +70,8 @@ public class Task implements Serializable {
     @Embedded
     private DockerEnvironment environment;
 
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = { CascadeType.MERGE, CascadeType.REFRESH,
+                                                                         CascadeType.REMOVE })
     @JsonIdentityReference(alwaysAsId = true)
     @JsonProperty("deploymentNodeNames")
     private List<Deployment> deployments;

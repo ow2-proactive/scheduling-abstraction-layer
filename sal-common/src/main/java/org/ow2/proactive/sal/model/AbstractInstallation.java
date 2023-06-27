@@ -25,6 +25,8 @@
  */
 package org.ow2.proactive.sal.model;
 
+import javax.persistence.Column;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -35,6 +37,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
                 @JsonSubTypes.Type(value = DockerEnvironment.class, name = "docker") })
 public abstract class AbstractInstallation implements Installation {
 
+    @Column(name = "INSTALLATION_TYPE")
     @JsonProperty("type")
     protected InstallationType type;
 

@@ -93,15 +93,20 @@ public class PACloud implements Serializable {
     @Column(name = "BLACKLIST")
     private String blacklist;
 
-    @Column(name = "DEPLOYED_REGIONS")
-    @ElementCollection(targetClass = String.class)
+    @ElementCollection
+    @CollectionTable(name = "PACLOUD_DEPLOYED_REGIONS_MAPPING", joinColumns = { @JoinColumn(name = "CLOUD_ID", referencedColumnName = "CLOUD_ID") })
+    @MapKeyColumn(name = "REGION")
+    @Column(name = "AMI")
     private Map<String, String> deployedRegions;
 
-    @Column(name = "DEPLOYED_WHITE_LISTED_REGIONS")
-    @ElementCollection(targetClass = String.class)
+    @ElementCollection
+    @CollectionTable(name = "PACLOUD_DEPLOYED_WL_REGIONS_MAPPING", joinColumns = { @JoinColumn(name = "CLOUD_ID", referencedColumnName = "CLOUD_ID") })
+    @MapKeyColumn(name = "REGION")
+    @Column(name = "AMI")
     private Map<String, String> deployedWhiteListedRegions;
 
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = { CascadeType.MERGE, CascadeType.REFRESH,
+                                                                         CascadeType.REMOVE })
     @JsonIdentityReference(alwaysAsId = true)
     @JsonProperty("deploymentNodeNames")
     private List<Deployment> deployments;

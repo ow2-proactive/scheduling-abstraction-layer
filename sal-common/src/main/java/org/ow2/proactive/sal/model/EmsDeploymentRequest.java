@@ -106,6 +106,7 @@ public class EmsDeploymentRequest implements Serializable {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    @Column(name = "ID")
     private String id;
 
     @Column(name = "AUTHORIZATIONBEARER")

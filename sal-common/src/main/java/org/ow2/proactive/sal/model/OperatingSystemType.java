@@ -25,6 +25,8 @@
  */
 package org.ow2.proactive.sal.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -39,7 +41,7 @@ import lombok.*;
 @Getter
 @Setter
 @Embeddable
-public class OperatingSystemType {
+public class OperatingSystemType implements Serializable {
     @Column(name = "OPERATING_SYSTEM_FAMILY")
     @JsonProperty("operatingSystemFamily")
     private String operatingSystemFamily;

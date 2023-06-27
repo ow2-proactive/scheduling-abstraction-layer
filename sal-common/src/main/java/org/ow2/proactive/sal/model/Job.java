@@ -60,10 +60,14 @@ public class Job implements Serializable {
     @Enumerated(EnumType.STRING)
     private SubmittedJobType submittedJobType;
 
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.REFRESH)
     private List<Task> tasks;
 
     public Task findTask(String taskName) {
         return tasks.stream().filter(task -> task.getName().equals(taskName)).findAny().orElse(null);
+    }
+
+    public void addTask(Task newTask) {
+        tasks.add(newTask);
     }
 }
