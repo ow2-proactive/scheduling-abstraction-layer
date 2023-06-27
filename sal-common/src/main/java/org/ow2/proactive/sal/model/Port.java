@@ -48,6 +48,9 @@ public class Port implements Serializable {
     @Column(name = "PORT_ID")
     private Integer portId;
 
+    @Column(name = "NAME")
+    private String name;
+
     @Column(name = "VALUE")
     private Integer value;
 
@@ -55,7 +58,8 @@ public class Port implements Serializable {
     @Column(name = "REQUESTED_NAME")
     private String requestedName;
 
-    public Port(Integer value) {
+    public Port(String name, Integer value) {
+        this.name = name;
         if ((value == -1) || (value >= 0 && value <= 65535)) {
             this.value = value;
         } else {

@@ -27,9 +27,7 @@ package org.ow2.proactive.sal.model;
 
 import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -55,9 +53,10 @@ public class DockerEnvironment extends AbstractInstallation {
     @JsonProperty("port")
     private String port;
 
-    @Column(name = "ENV_VARS")
-    @ElementCollection(targetClass = String.class)
-    @JsonProperty("environmentVars")
+    @ElementCollection
+    @CollectionTable(name = "DOCKER_ENV_VARS_MAPPING", joinColumns = { @JoinColumn(name = "DOCKER_TASK_ID") })
+    @MapKeyColumn(name = "ENVVAR_KEY")
+    @Column(name = "ENVVAR_VALUE")
     private Map<String, String> environmentVars;
 
     @Override

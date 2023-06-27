@@ -28,6 +28,7 @@ package org.ow2.proactive.sal.service.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
@@ -424,15 +425,15 @@ public class TaskBuilder {
 
     private ScriptTask createScalingChildSaveTask(Task task, String suffix, String token, Job job) {
         ScriptTask scriptTaskUpdate = null;
-
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
         //TODO: Taking into consideration multiple parent tasks with multiple communications
-        taskVariablesMap.put("requestedPortName",
-                             new TaskVariable("requestedPortName",
-                                              job.findTask(task.getParentTasks().get(0))
-                                                 .getPortsToOpen()
-                                                 .get(0)
-                                                 .getRequestedName()));
+        if (!task.getParentTasks().isEmpty())
+            taskVariablesMap.put("requestedPortName",
+                                 new TaskVariable("requestedPortName",
+                                                  job.findTask(task.getParentTasks().get(0))
+                                                     .getPortsToOpen()
+                                                     .get(0)
+                                                     .getRequestedName()));
 
         if (task.getType() == Installation.InstallationType.COMMANDS &&
             !Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
@@ -442,7 +443,7 @@ public class TaskBuilder {
                                                                       SCRIPTS_SEPARATION_BASH +
                                                                       task.getInstallation().getUpdateCmd());
         } else {
-            scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_install" + suffix,
+            scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_update" + suffix,
                                                               "echo \"Installation script is empty. Nothing to be executed.\"");
         }
 
@@ -632,6 +633,29 @@ public class TaskBuilder {
         return prepareInfraTask;
     }
 
+    private List<ScriptTask> buildUnchangedPATask(Task task, Job job) {
+        List<ScriptTask> scriptTasks = new LinkedList<>();
+        task.getDeployments().forEach(deployment -> {
+            // Creating infra deployment tasks
+            String token = task.getTaskId() + deployment.getNumber();
+            String suffix = "_" + deployment.getNumber();
+            scriptTasks.add(createScalingParentInfraPreparationTask(task, suffix, token));
+            scriptTasks.add(createScalingChildSaveTask(task, suffix, token, job));
+            scriptTasks.get(scriptTasks.size() - 1).addDependence(scriptTasks.get(scriptTasks.size() - 2));
+        });
+        task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
+                                                            .getName()
+                                                            .substring(0,
+                                                                       scriptTasks.get(0).getName().lastIndexOf("_")));
+        task.setDeploymentLastSubmittedTaskName(scriptTasks.get(scriptTasks.size() - 1)
+                                                           .getName()
+                                                           .substring(0,
+                                                                      scriptTasks.get(scriptTasks.size() - 1)
+                                                                                 .getName()
+                                                                                 .lastIndexOf("_")));
+        return scriptTasks;
+    }
+
     /**
      * Translate a Morphemic task skeleton into a list of ProActive tasks when the job is being scaled out
      * @param task A Morphemic task skeleton
@@ -676,6 +700,39 @@ public class TaskBuilder {
             scriptTasks.addAll(createChildScaledTask(task, job));
         } else {
             LOGGER.debug("Task " + task.getName() + " is not impacted by the scaling of task " + scaledTaskName);
+        }
+
+        return scriptTasks;
+    }
+
+    /**
+     * Translate a Morphemic task skeleton into a list of ProActive tasks when the job is being reconfigured
+     *
+     * @param task                A Morphemic task skeleton
+     * @param job                 The related job skeleton
+     * @param reconfigurationPlan The corresponding reconfiguration plan
+     * @return A list of ProActive tasks
+     */
+    public List<ScriptTask> buildReconfigurationPATask(Task task, Job job,
+            ReconfigurationJobDefinition reconfigurationPlan) {
+        List<ScriptTask> scriptTasks = new LinkedList<>();
+
+        Set<String> addedTaskNames = reconfigurationPlan.getAddedTasks()
+                                                        .stream()
+                                                        .map(TaskReconfigurationDefinition::getTask)
+                                                        .map(TaskDefinition::getName)
+                                                        .collect(Collectors.toSet());
+
+        if (reconfigurationPlan.getUnchangedTasks().contains(task.getName())) {
+            // When the scaled task is the task to be built
+            LOGGER.info("Building task " + task.getName() + " as it is unchanged");
+            scriptTasks.addAll(buildUnchangedPATask(task, job));
+        } else if (addedTaskNames.contains(task.getName())) {
+            // When the scaled task is a parent of the task to be built
+            LOGGER.info("Building task [{}] as a new added task ", task.getTaskId());
+            scriptTasks.addAll(buildPATask(task, job));
+        } else {
+            LOGGER.warn("Task [{}] is neither unchanged nor added. This should not figure ine job!", task.getTaskId());
         }
 
         return scriptTasks;

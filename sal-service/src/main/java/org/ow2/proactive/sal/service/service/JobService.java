@@ -43,6 +43,7 @@ import org.ow2.proactive.scheduler.common.task.ScriptTask;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -71,6 +72,7 @@ public class JobService {
      * @param sessionId A valid session id
      * @param job A job skeleton definition in JSON format
      */
+    @Transactional
     public Boolean createJob(String sessionId, JobDefinition job) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -116,6 +118,9 @@ public class JobService {
 
         repositoryService.saveJob(newJob);
 
+        // Trying to fix env vars saving issue
+        tasks.forEach(repositoryService::saveTask);
+
         repositoryService.flush();
 
         LOGGER.info("Job created: " + newJob.toString());
@@ -128,7 +133,8 @@ public class JobService {
         if (ports != null) {
             ports.forEach(portDefinition -> {
                 if (portDefinition instanceof PortProvided) {
-                    Port portToOpen = new Port(((PortProvided) portDefinition).getPort());
+                    Port portToOpen = new Port(((PortProvided) portDefinition).getName(),
+                                               ((PortProvided) portDefinition).getPort());
                     portToOpen.setRequestedName(findRequiredPort(job, ((PortProvided) portDefinition).getName()));
                     portsToOpen.add(portToOpen);
                 }
@@ -142,7 +148,7 @@ public class JobService {
             if (Objects.equals(providedPortName, communication.getPortProvided()))
                 return communication.getPortRequired();
         }
-        return "NOTREQUESTED_providedPortName";
+        return "NOTREQUESTED_" + providedPortName;
     }
 
     private List<String> extractParentTasks(JobDefinition job, TaskDefinition task) {
@@ -299,8 +305,6 @@ public class JobService {
             throw new NotConnectedException();
         }
         Job jobToSubmit = repositoryService.getJob(jobId);
-        //        No refreshing method
-        //        EntityManagerHelper.refresh(jobToSubmit);
         LOGGER.info("Job found to submit: " + jobToSubmit.toString());
 
         TaskFlowJob paJob = new TaskFlowJob();
@@ -340,7 +344,7 @@ public class JobService {
             try {
                 paJob.addTask(scriptTask);
             } catch (UserException e) {
-                LOGGER.error("Task " + task.getName() + " could not be added due to: " + e.toString());
+                LOGGER.error("Task [{}] could not be added due to: {}", task.getName(), e.toString());
             }
         });
     }
@@ -619,4 +623,40 @@ public class JobService {
                         .forEach(jobInfo -> schedulerGateway.removeJob(jobInfo.getJobId().value()));
         return true;
     }
+
+    @Transactional
+    public void submitReconfigurationJob(Job job, ReconfigurationJobDefinition reconfigurationPlan) {
+        LOGGER.info("Job [{}] to be reconfigured ...", job.getJobId());
+
+        TaskFlowJob paJob = new TaskFlowJob();
+        paJob.setName(job.getName() + "_Reconfiguration");
+        LOGGER.info("Reconfiguration job created: " + paJob.toString());
+
+        job.getTasks().forEach(task -> {
+            List<ScriptTask> scriptTasks = taskBuilder.buildReconfigurationPATask(task, job, reconfigurationPlan);
+
+            if (scriptTasks != null && !scriptTasks.isEmpty()) {
+                addAllScriptTasksToPAJob(paJob, task, scriptTasks);
+                repositoryService.saveTask(task);
+            }
+        });
+
+        setAllReconfigurationMandatoryDependencies(paJob, job);
+
+        paJob.setMaxNumberOfExecution(2);
+        paJob.setProjectName("Morphemic");
+
+        long submittedJobId = schedulerGateway.submit(paJob).longValue();
+        job.setSubmittedJobId(submittedJobId);
+        job.setSubmittedJobType(SubmittedJobType.RECONFIGURATION);
+
+        repositoryService.saveJob(job);
+        repositoryService.flush();
+        LOGGER.info("Reconfiguration job with [{}] submitted successfully. ID = {}", job.getJobId(), submittedJobId);
+    }
+
+    private void setAllReconfigurationMandatoryDependencies(TaskFlowJob paJob, Job job) {
+        setAllMandatoryDependencies(paJob, job);
+    }
+
 }
