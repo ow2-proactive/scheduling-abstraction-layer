@@ -42,6 +42,7 @@ import org.ow2.proactive.scheduler.common.job.TaskFlowJob;
 import org.ow2.proactive.scheduler.common.task.ScriptTask;
 import org.ow2.proactive.scheduler.common.task.TaskResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -624,8 +625,26 @@ public class JobService {
         return true;
     }
 
+    /**
+     * Delete a task from a job
+     * @param deletedTask The task to be deleted
+     * @param job The job
+     */
+    public void removeTask(Task deletedTask, Job job) {
+        if (job.getTasks().stream().anyMatch(task -> task.getParentTasks().contains(deletedTask.getName())))
+            throw new DataIntegrityViolationException("Some of job [{}] task depends on task [{}]. Task removal from job aborted.");
+        job.removeTask(deletedTask);
+    }
+
+    /**
+     * Submit a reconfiguration job to PA Scheduler
+     * @param job The job to reconfigure
+     * @param reconfigurationPlan The reconfiguration plan
+     * @param deletedTasks The deleted tasks
+     */
     @Transactional
-    public void submitReconfigurationJob(Job job, ReconfigurationJobDefinition reconfigurationPlan) {
+    public void submitReconfigurationJob(Job job, ReconfigurationJobDefinition reconfigurationPlan,
+            Set<Task> deletedTasks) {
         LOGGER.info("Job [{}] to be reconfigured ...", job.getJobId());
 
         TaskFlowJob paJob = new TaskFlowJob();
@@ -643,6 +662,18 @@ public class JobService {
 
         setAllReconfigurationMandatoryDependencies(paJob, job);
 
+        deletedTasks.forEach(deletedTask -> {
+            List<ScriptTask> scriptTasks = taskBuilder.buildReconfigurationDeletedTask(deletedTask,
+                                                                                       job,
+                                                                                       reconfigurationPlan);
+
+            if (scriptTasks != null && !scriptTasks.isEmpty()) {
+                addAllScriptTasksToPAJob(paJob, deletedTask, scriptTasks);
+            }
+        });
+
+        setAllReconfigurationDeletedTaskDependencies(paJob, getLeafTasks(job));
+
         paJob.setMaxNumberOfExecution(2);
         paJob.setProjectName("Morphemic");
 
@@ -653,6 +684,30 @@ public class JobService {
         repositoryService.saveJob(job);
         repositoryService.flush();
         LOGGER.info("Reconfiguration job with [{}] submitted successfully. ID = {}", job.getJobId(), submittedJobId);
+    }
+
+    private void setAllReconfigurationDeletedTaskDependencies(TaskFlowJob paJob, Set<Task> leafTasks) {
+        Set<String> lastSubmittedLeafTaskNames = leafTasks.stream()
+                                                          .map(Task::getDeploymentLastSubmittedTaskName)
+                                                          .collect(Collectors.toSet());
+        paJob.getTasks()
+             .stream()
+             .filter(paTask -> paTask.getName().startsWith("removeNode_"))
+             .forEach(paTask -> paJob.getTasks()
+                                     .stream()
+                                     .filter(paParentTask -> lastSubmittedLeafTaskNames.stream()
+                                                                                       .anyMatch(lastSubmittedLeafTaskName -> paParentTask.getName()
+                                                                                                                                          .startsWith(lastSubmittedLeafTaskName)))
+                                     .forEach(paTask::addDependence));
+    }
+
+    private Set<Task> getLeafTasks(Job job) {
+        return job.getTasks()
+                  .stream()
+                  .filter(task -> job.getTasks()
+                                     .stream()
+                                     .noneMatch(task1 -> task1.getParentTasks().contains(task.getName())))
+                  .collect(Collectors.toSet());
     }
 
     private void setAllReconfigurationMandatoryDependencies(TaskFlowJob paJob, Job job) {

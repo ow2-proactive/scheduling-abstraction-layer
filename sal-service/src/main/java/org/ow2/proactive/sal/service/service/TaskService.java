@@ -225,4 +225,9 @@ public class TaskService {
         }
         return false;
     }
+
+    @Transactional
+    public void cleanDeletedTasksAndDeployments(Set<Task> deletedTasks) {
+        deletedTasks.forEach(repositoryService::deleteTask);
+    }
 }

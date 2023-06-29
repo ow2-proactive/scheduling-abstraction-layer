@@ -286,6 +286,19 @@ public class RepositoryService {
      */
     @Modifying(clearAutomatically = true)
     public Deployment deleteDeployment(Deployment deployment) {
+        // remove deployments from paCloud
+        deployment.getPaCloud().removeDeployment(deployment);
+        savePACloud(deployment.getPaCloud());
+        // decrease iaasnode
+        if (NodeType.IAAS.equals(deployment.getDeploymentType()) && Boolean.TRUE.equals(deployment.getIsDeployed())) {
+            deployment.getIaasNode().decDeployedNodes(1L);
+            saveIaasNode(deployment.getIaasNode());
+        }
+        // ?check byonnode/edge?
+        // remove deployment from task
+        deployment.getTask().removeDeployment(deployment);
+        saveTask(deployment.getTask());
+        // remove deployment
         deploymentRepository.delete(deployment);
         return deployment;
     }
@@ -785,10 +798,20 @@ public class RepositoryService {
      */
     @Modifying(clearAutomatically = true)
     public Task deleteTask(String taskId) {
-        Task instanceToRemove = getTask(taskId);
-        //TODO To Complete removing
-        taskRepository.delete(taskId);
-        return instanceToRemove;
+        return deleteTask(getTask(taskId));
+    }
+
+    /**
+     * Delete the task
+     * @param taskToRemove the task to remove
+     * @return the deleted task
+     */
+    @Modifying(clearAutomatically = true)
+    public Task deleteTask(Task taskToRemove) {
+        while (!taskToRemove.getDeployments().isEmpty())
+            deleteDeployment(taskToRemove.getDeployments().get(0));
+        taskRepository.delete(taskToRemove);
+        return taskToRemove;
     }
 
     /**
