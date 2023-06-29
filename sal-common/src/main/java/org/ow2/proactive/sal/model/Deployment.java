@@ -48,7 +48,7 @@ public class Deployment implements Serializable {
     @Column(name = "NODE_NAME")
     private String nodeName;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
     private EmsDeploymentRequest emsDeployment;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)

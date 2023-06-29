@@ -76,7 +76,7 @@ public class Task implements Serializable {
     @JsonProperty("deploymentNodeNames")
     private List<Deployment> deployments;
 
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
     @Fetch(value = FetchMode.SUBSELECT)
     private List<Port> portsToOpen = new LinkedList<>();
 

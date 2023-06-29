@@ -76,6 +76,8 @@ public class TaskBuilder {
 
     private static final String ACQUIRE_NODE_AWS_SCRIPT = "acquire_node_aws_script.groovy";
 
+    private static final String REMOVE_NODE_SCRIPT = "remove_node_script.groovy";
+
     private static final String PRE_ACQUIRE_NODE_SCRIPT = "pre_acquire_node_script.groovy";
 
     private static final String ACQUIRE_NODE_BYON_SCRIPT = "acquire_node_BYON_script.groovy";
@@ -633,6 +635,29 @@ public class TaskBuilder {
         return prepareInfraTask;
     }
 
+    private ScriptTask createNodeRemovalTask(Task deletedTask, Deployment deployment, String taskNameSuffix) {
+        LOGGER.debug("Removing node script file: " +
+                     Objects.requireNonNull(getClass().getResource(File.separator + REMOVE_NODE_SCRIPT)));
+        ScriptTask removeNodeTask = PAFactory.createGroovyScriptTaskFromFile("removeNode_" + deletedTask.getName() +
+                                                                             taskNameSuffix, REMOVE_NODE_SCRIPT);
+
+        Map<String, TaskVariable> variablesMap = createVariablesMapForIAASNodeRemoval(deployment);
+        LOGGER.debug("Variables to be added to the task remove IAAS node: {}", variablesMap);
+        removeNodeTask.setVariables(variablesMap);
+
+        addLocalDefaultNSRegexSelectionScript(removeNodeTask);
+
+        return removeNodeTask;
+    }
+
+    private Map<String, TaskVariable> createVariablesMapForIAASNodeRemoval(Deployment deployment) {
+        Map<String, TaskVariable> variablesMap = new HashMap<>();
+        variablesMap.put("nodeName",
+                         new TaskVariable("nodeName", deployment.getNodeName(), "PA:NOT_EMPTY_STRING", false));
+        variablesMap.put("preempt", new TaskVariable("preempt", "true", "PA:Boolean", false));
+        return (variablesMap);
+    }
+
     private List<ScriptTask> buildUnchangedPATask(Task task, Job job) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         task.getDeployments().forEach(deployment -> {
@@ -643,17 +668,7 @@ public class TaskBuilder {
             scriptTasks.add(createScalingChildSaveTask(task, suffix, token, job));
             scriptTasks.get(scriptTasks.size() - 1).addDependence(scriptTasks.get(scriptTasks.size() - 2));
         });
-        task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
-                                                            .getName()
-                                                            .substring(0,
-                                                                       scriptTasks.get(0).getName().lastIndexOf("_")));
-        task.setDeploymentLastSubmittedTaskName(scriptTasks.get(scriptTasks.size() - 1)
-                                                           .getName()
-                                                           .substring(0,
-                                                                      scriptTasks.get(scriptTasks.size() - 1)
-                                                                                 .getName()
-                                                                                 .lastIndexOf("_")));
-        return scriptTasks;
+        return setFirstAndLastSubmittedTaskNamesFromScriptTasks(task, scriptTasks);
     }
 
     /**
@@ -707,9 +722,8 @@ public class TaskBuilder {
 
     /**
      * Translate a Morphemic task skeleton into a list of ProActive tasks when the job is being reconfigured
-     *
-     * @param task                A Morphemic task skeleton
-     * @param job                 The related job skeleton
+     * @param task A Morphemic task skeleton
+     * @param job  The related job skeleton
      * @param reconfigurationPlan The corresponding reconfiguration plan
      * @return A list of ProActive tasks
      */
@@ -734,6 +748,40 @@ public class TaskBuilder {
         } else {
             LOGGER.warn("Task [{}] is neither unchanged nor added. This should not figure ine job!", task.getTaskId());
         }
+
+        return scriptTasks;
+    }
+
+    /**
+     * Translate a Morphemic task skeleton into a list of ProActive tasks when the job is being reconfigured
+     * @param deletedTask A Morphemic task skeleton
+     * @param job  The related job skeleton
+     * @param reconfigurationPlan The corresponding reconfiguration plan
+     * @return A list of ProActive tasks
+     */
+    public List<ScriptTask> buildReconfigurationDeletedTask(Task deletedTask, Job job,
+            ReconfigurationJobDefinition reconfigurationPlan) {
+        LOGGER.info("Building task " + deletedTask.getName() + " as it will be deleted");
+        List<ScriptTask> scriptTasks = new LinkedList<>();
+        deletedTask.getDeployments().forEach(deployment -> {
+            // Creating infra removal task
+            String suffix = "_" + deployment.getNumber();
+            scriptTasks.add(createNodeRemovalTask(deletedTask, deployment, suffix));
+        });
+        return setFirstAndLastSubmittedTaskNamesFromScriptTasks(deletedTask, scriptTasks);
+    }
+
+    private List<ScriptTask> setFirstAndLastSubmittedTaskNamesFromScriptTasks(Task task, List<ScriptTask> scriptTasks) {
+        task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
+                                                            .getName()
+                                                            .substring(0,
+                                                                       scriptTasks.get(0).getName().lastIndexOf("_")));
+        task.setDeploymentLastSubmittedTaskName(scriptTasks.get(scriptTasks.size() - 1)
+                                                           .getName()
+                                                           .substring(0,
+                                                                      scriptTasks.get(scriptTasks.size() - 1)
+                                                                                 .getName()
+                                                                                 .lastIndexOf("_")));
 
         return scriptTasks;
     }

@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.NotSupportedException;
-
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -92,11 +90,13 @@ public class ReconfigurationService {
 
         updateUnchangedTasks(job, reconfigurationPlan);
 
-        handleDeletedTasks(job, reconfigurationPlan);
+        Set<Task> deletedTasks = handleDeletedTasks(job, reconfigurationPlan);
 
         addNewTasksAndDeployments(job, reconfigurationPlan);
 
-        jobService.submitReconfigurationJob(job, reconfigurationPlan);
+        jobService.submitReconfigurationJob(job, reconfigurationPlan, deletedTasks);
+
+        taskService.cleanDeletedTasksAndDeployments(deletedTasks);
 
         return true;
     }
@@ -114,10 +114,17 @@ public class ReconfigurationService {
                                                                                 job));
     }
 
-    private void handleDeletedTasks(Job job, ReconfigurationJobDefinition reconfigurationPlan) {
-        if (!reconfigurationPlan.getDeletedTasks().isEmpty())
-            throw new NotSupportedException(String.format("Deleting tasks in reconfiguration plan for job [%s] is not supported yet.",
-                                                          job.getJobId()));
+    private Set<Task> handleDeletedTasks(Job job, ReconfigurationJobDefinition reconfigurationPlan) {
+        // Getting deleted tasks from DB
+        Set<Task> deletedTasks = reconfigurationPlan.getDeletedTasks()
+                                                    .stream()
+                                                    .map(deletedTaskName -> repositoryService.getTask(job.getJobId() +
+                                                                                                      deletedTaskName))
+                                                    .collect(Collectors.toSet());
+
+        deletedTasks.forEach(deletedTask -> jobService.removeTask(deletedTask, job));
+
+        return deletedTasks;
     }
 
     private void addNewTasksAndDeployments(Job job, ReconfigurationJobDefinition reconfigurationPlan) {

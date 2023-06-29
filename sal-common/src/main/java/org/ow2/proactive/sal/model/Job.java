@@ -70,4 +70,8 @@ public class Job implements Serializable {
     public void addTask(Task newTask) {
         tasks.add(newTask);
     }
+
+    public void removeTask(Task taskToDelete) {
+        tasks.remove(taskToDelete);
+    }
 }
