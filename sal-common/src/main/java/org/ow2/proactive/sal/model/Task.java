@@ -28,6 +28,7 @@ package org.ow2.proactive.sal.model;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
@@ -80,9 +81,11 @@ public class Task implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private List<Port> portsToOpen = new LinkedList<>();
 
-    @Column(name = "PARENT_TASKS")
-    @ElementCollection(targetClass = String.class)
-    private List<String> parentTasks;
+    @ElementCollection
+    @CollectionTable(name = "TASK_PARENT_TASK_PORT_MAPPING", joinColumns = { @JoinColumn(name = "TASK_ID", referencedColumnName = "TASK_ID") })
+    @MapKeyColumn(name = "REQUIRED_PORT_NAME")
+    @Column(name = "PARENT_TASK_NAME")
+    private Map<String, String> parentTasks;
 
     @Column(name = "SUBMITTED_TASK_NAMES")
     @ElementCollection(targetClass = String.class)
@@ -137,5 +140,16 @@ public class Task implements Serializable {
         } else {
             throw new IllegalArgumentException("Task type not supported yet.");
         }
+    }
+
+    public String serializePortsToOpenToVariableMap() {
+        if (this.getPortsToOpen().isEmpty())
+            return "[]";
+        StringBuilder portsJson = new StringBuilder("[" + this.getPortsToOpen().get(0).serializeToVariableMap());
+        for (int i = 1; i < this.getPortsToOpen().size(); i++) {
+            portsJson.append(",").append(this.getPortsToOpen().get(i).serializeToVariableMap());
+        }
+        portsJson.append("]");
+        return portsJson.toString();
     }
 }

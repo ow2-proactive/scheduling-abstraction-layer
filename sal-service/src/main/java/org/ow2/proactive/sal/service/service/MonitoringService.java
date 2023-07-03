@@ -100,7 +100,7 @@ public class MonitoringService {
      * @param isPrivateIp If private ip is needed
      */
     @Transactional
-    public void addEmsDeploymentForNode(String nodeName, String authorizationBearer, boolean isPrivateIp) {
+    public synchronized void addEmsDeploymentForNode(String nodeName, String authorizationBearer, boolean isPrivateIp) {
         LOGGER.info("Adding monitors for node [{}] ...", nodeName);
 
         Deployment deployment = repositoryService.getDeployment(nodeName);

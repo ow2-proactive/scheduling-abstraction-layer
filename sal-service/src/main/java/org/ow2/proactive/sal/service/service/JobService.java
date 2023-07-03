@@ -27,6 +27,7 @@ package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import javafx.util.Pair;
 
 import javax.ws.rs.NotFoundException;
 
@@ -91,6 +92,10 @@ public class JobService {
         newJob.setJobId(job.getJobInformation().getId());
         newJob.setName(job.getJobInformation().getName());
         newJob.setSubmittedJobType(SubmittedJobType.CREATED);
+        newJob.setCommunications(job.getCommunications()
+                                    .stream()
+                                    .collect(Collectors.toMap(Communication::getPortProvided,
+                                                              Communication::getPortRequired)));
         List<Task> tasks = new LinkedList<>();
         job.getTasks().forEach(taskDefinition -> {
             LOGGER.info("Creating for job [{}] new task [{}] ...", job.getJobInformation().getId(), taskDefinition);
@@ -136,7 +141,10 @@ public class JobService {
                 if (portDefinition instanceof PortProvided) {
                     Port portToOpen = new Port(((PortProvided) portDefinition).getName(),
                                                ((PortProvided) portDefinition).getPort());
-                    portToOpen.setRequestedName(findRequiredPort(job, ((PortProvided) portDefinition).getName()));
+                    Pair<String, String> requestedPortInformation = findRequiredPortAndComponent(job,
+                                                                                                 ((PortProvided) portDefinition).getName());
+                    portToOpen.setRequestedName(requestedPortInformation.getValue());
+                    portToOpen.setRequiringComponentName(requestedPortInformation.getKey());
                     portsToOpen.add(portToOpen);
                 }
             });
@@ -144,16 +152,29 @@ public class JobService {
         return portsToOpen;
     }
 
-    private String findRequiredPort(JobDefinition job, String providedPortName) {
+    private Pair<String, String> findRequiredPortAndComponent(JobDefinition job, String providedPortName) {
         for (Communication communication : job.getCommunications()) {
-            if (Objects.equals(providedPortName, communication.getPortProvided()))
-                return communication.getPortRequired();
+            if (Objects.equals(providedPortName, communication.getPortProvided())) {
+                return new Pair<>(findRequiringComponent(job, communication.getPortRequired()),
+                                  communication.getPortRequired());
+            }
         }
-        return "NOTREQUESTED_" + providedPortName;
+        return new Pair<>("", "NOTREQUESTED_" + providedPortName);
     }
 
-    private List<String> extractParentTasks(JobDefinition job, TaskDefinition task) {
-        List<String> parentTasks = new LinkedList<>();
+    private String findRequiringComponent(JobDefinition job, String portRequired) {
+        for (TaskDefinition task : job.getTasks()) {
+            for (AbstractPortDefinition portDefinition : task.getPorts()) {
+                if (portDefinition instanceof PortRequired && portRequired.equals(portDefinition.getName())) {
+                    return task.getName();
+                }
+            }
+        }
+        return "";
+    }
+
+    private Map<String, String> extractParentTasks(JobDefinition job, TaskDefinition task) {
+        Map<String, String> parentTasks = new HashMap<>();
         if (task.getPorts() != null) {
             task.getPorts().forEach(portDefinition -> {
                 //                                if (portDefinition instanceof PortRequired
@@ -161,7 +182,7 @@ public class JobService {
                 if (portDefinition instanceof PortRequired) {
                     LOGGER.debug("Mandatory required port detected");
                     String providedPortName = findProvidedPort(job, ((PortRequired) portDefinition).getName());
-                    parentTasks.add(findTaskByProvidedPort(job, providedPortName));
+                    parentTasks.put(portDefinition.getName(), findTaskByProvidedPort(job, providedPortName));
                 }
             });
         }
@@ -272,11 +293,11 @@ public class JobService {
             String childTask = task.getName();
 
             // Get the list of the parent tasks
-            List<String> parentTasks = task.getParentTasks();
+            Map<String, String> parentTasks = task.getParentTasks();
 
             // Check for Mandatory connections
             // If the list is empty there are no mandatory connections
-            parentTasks.forEach(parentTask -> {
+            parentTasks.values().forEach(parentTask -> {
 
                 // Write the dot syntax of the connection between the two tasks
                 dotGraphSyntax.append(parentTask + "->" + childTask + " [fillcolor=red, fontcolor=red, color=red]" +
@@ -312,14 +333,20 @@ public class JobService {
         paJob.setName(jobToSubmit.getName());
         LOGGER.info("Job created: " + paJob.toString());
 
-        jobToSubmit.getTasks().forEach(task -> {
-            List<ScriptTask> scriptTasks = taskBuilder.buildPATask(task, jobToSubmit);
+        jobToSubmit.getTasks()
+                   .stream()
+                   .filter(task -> task.getDeployments() != null && !task.getDeployments().isEmpty())
+                   .forEach(task -> {
+                       List<ScriptTask> scriptTasks = taskBuilder.buildPATask(task, jobToSubmit);
 
-            addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-            repositoryService.saveTask(task);
-        });
+                       addAllScriptTasksToPAJob(paJob, task, scriptTasks);
+                       repositoryService.saveTask(task);
+                   });
 
         setAllMandatoryDependencies(paJob, jobToSubmit);
+
+        addInitChannelsTaskWithDependencies(paJob, jobToSubmit);
+        addCleanChannelsTaskWithDependencies(paJob, jobToSubmit);
 
         paJob.setMaxNumberOfExecution(2);
         paJob.setProjectName("Morphemic");
@@ -353,7 +380,7 @@ public class JobService {
     protected void setAllMandatoryDependencies(TaskFlowJob paJob, Job jobToSubmit) {
         jobToSubmit.getTasks().forEach(task -> {
             if (task.getParentTasks() != null && !task.getParentTasks().isEmpty()) {
-                task.getParentTasks().forEach(parentTaskName -> {
+                task.getParentTasks().forEach((requiredPortName, parentTaskName) -> {
                     paJob.getTasks().forEach(paTask -> {
                         paJob.getTasks().forEach(paParentTask -> {
                             if (paTask.getName().contains(task.getName()) &&
@@ -566,12 +593,11 @@ public class JobService {
         Job submittedJob = repositoryService.getJob(jobId);
         Task createdTask = submittedJob.findTask(taskName);
         Map<String, TaskResult> taskResultsMap = new HashMap<>();
-        createdTask.getSubmittedTaskNames().forEach(submittedTaskName -> {
-            taskResultsMap.put(submittedTaskName,
-                               schedulerGateway.waitForTask(String.valueOf(submittedJob.getSubmittedJobId()),
-                                                            submittedTaskName,
-                                                            timeout));
-        });
+        createdTask.getSubmittedTaskNames()
+                   .forEach(submittedTaskName -> taskResultsMap.put(submittedTaskName,
+                                                                    schedulerGateway.waitForTask(String.valueOf(submittedJob.getSubmittedJobId()),
+                                                                                                 submittedTaskName,
+                                                                                                 timeout)));
         LOGGER.info("Results of task: " + taskName + " fetched successfully: " + taskResultsMap.toString());
         return taskResultsMap;
     }
@@ -591,11 +617,10 @@ public class JobService {
         Job submittedJob = repositoryService.getJob(jobId);
         Task createdTask = submittedJob.findTask(taskName);
         Map<String, TaskResult> taskResultsMap = new HashMap<>();
-        createdTask.getSubmittedTaskNames().forEach(submittedTaskName -> {
-            taskResultsMap.put(submittedTaskName,
-                               schedulerGateway.getTaskResult(String.valueOf(submittedJob.getSubmittedJobId()),
-                                                              submittedTaskName));
-        });
+        createdTask.getSubmittedTaskNames()
+                   .forEach(submittedTaskName -> taskResultsMap.put(submittedTaskName,
+                                                                    schedulerGateway.getTaskResult(String.valueOf(submittedJob.getSubmittedJobId()),
+                                                                                                   submittedTaskName)));
         LOGGER.info("Results of task: " + taskName + " fetched successfully: " + taskResultsMap.toString());
         return taskResultsMap;
     }
@@ -631,7 +656,7 @@ public class JobService {
      * @param job The job
      */
     public void removeTask(Task deletedTask, Job job) {
-        if (job.getTasks().stream().anyMatch(task -> task.getParentTasks().contains(deletedTask.getName())))
+        if (job.getTasks().stream().anyMatch(task -> task.getParentTasks().containsValue(deletedTask.getName())))
             throw new DataIntegrityViolationException("Some of job [{}] task depends on task [{}]. Task removal from job aborted.");
         job.removeTask(deletedTask);
     }
@@ -651,14 +676,17 @@ public class JobService {
         paJob.setName(job.getName() + "_Reconfiguration");
         LOGGER.info("Reconfiguration job created: " + paJob.toString());
 
-        job.getTasks().forEach(task -> {
-            List<ScriptTask> scriptTasks = taskBuilder.buildReconfigurationPATask(task, job, reconfigurationPlan);
+        job.getTasks()
+           .stream()
+           .filter(task -> task.getDeployments() != null && !task.getDeployments().isEmpty())
+           .forEach(task -> {
+               List<ScriptTask> scriptTasks = taskBuilder.buildReconfigurationPATask(task, job, reconfigurationPlan);
 
-            if (scriptTasks != null && !scriptTasks.isEmpty()) {
-                addAllScriptTasksToPAJob(paJob, task, scriptTasks);
-                repositoryService.saveTask(task);
-            }
-        });
+               if (scriptTasks != null && !scriptTasks.isEmpty()) {
+                   addAllScriptTasksToPAJob(paJob, task, scriptTasks);
+                   repositoryService.saveTask(task);
+               }
+           });
 
         setAllReconfigurationMandatoryDependencies(paJob, job);
 
@@ -672,7 +700,10 @@ public class JobService {
             }
         });
 
-        setAllReconfigurationDeletedTaskDependencies(paJob, getLeafTasks(job));
+        setAllReconfigurationDeletedTaskDependencies(paJob, job.getSinkTasks());
+
+        addInitChannelsTaskWithDependencies(paJob, job);
+        addCleanChannelsTaskWithDependencies(paJob, job);
 
         paJob.setMaxNumberOfExecution(2);
         paJob.setProjectName("Morphemic");
@@ -686,8 +717,8 @@ public class JobService {
         LOGGER.info("Reconfiguration job with [{}] submitted successfully. ID = {}", job.getJobId(), submittedJobId);
     }
 
-    private void setAllReconfigurationDeletedTaskDependencies(TaskFlowJob paJob, Set<Task> leafTasks) {
-        Set<String> lastSubmittedLeafTaskNames = leafTasks.stream()
+    private void setAllReconfigurationDeletedTaskDependencies(TaskFlowJob paJob, Set<Task> sinkTasks) {
+        Set<String> lastSubmittedSinkTaskNames = sinkTasks.stream()
                                                           .map(Task::getDeploymentLastSubmittedTaskName)
                                                           .collect(Collectors.toSet());
         paJob.getTasks()
@@ -695,19 +726,54 @@ public class JobService {
              .filter(paTask -> paTask.getName().startsWith("removeNode_"))
              .forEach(paTask -> paJob.getTasks()
                                      .stream()
-                                     .filter(paParentTask -> lastSubmittedLeafTaskNames.stream()
+                                     .filter(paParentTask -> lastSubmittedSinkTaskNames.stream()
                                                                                        .anyMatch(lastSubmittedLeafTaskName -> paParentTask.getName()
                                                                                                                                           .startsWith(lastSubmittedLeafTaskName)))
                                      .forEach(paTask::addDependence));
     }
 
-    private Set<Task> getLeafTasks(Job job) {
-        return job.getTasks()
-                  .stream()
-                  .filter(task -> job.getTasks()
-                                     .stream()
-                                     .noneMatch(task1 -> task1.getParentTasks().contains(task.getName())))
-                  .collect(Collectors.toSet());
+    public void addInitChannelsTaskWithDependencies(TaskFlowJob paJob, Job job) {
+        ScriptTask scriptTask = taskBuilder.buildInitChannelsTask(job);
+        Set<String> firstSubmittedRootTaskNames = job.getRootTasks()
+                                                     .stream()
+                                                     .map(Task::getDeploymentFirstSubmittedTaskName)
+                                                     .collect(Collectors.toSet());
+        //TODO: This to be improved in case of scaling (
+        // lastSubmitted and firstSubmitted task names does not match ALL deployments since some are scaled
+        // and others not.
+        paJob.getTasks()
+             .stream()
+             .filter(paParentTask -> firstSubmittedRootTaskNames.stream()
+                                                                .anyMatch(firstSubmittedRootTaskName -> paParentTask.getName()
+                                                                                                                    .startsWith(firstSubmittedRootTaskName)))
+             .forEach(rootTask -> rootTask.addDependence(scriptTask));
+        try {
+            paJob.addTask(scriptTask);
+        } catch (UserException e) {
+            LOGGER.error("Task [InitChannels] could not be added due to: {}", e.toString());
+        }
+    }
+
+    public void addCleanChannelsTaskWithDependencies(TaskFlowJob paJob, Job job) {
+        ScriptTask scriptTask = taskBuilder.buildCleanChannelsTask(job);
+        Set<String> lastSubmittedSinkTaskNames = job.getSinkTasks()
+                                                    .stream()
+                                                    .map(Task::getDeploymentLastSubmittedTaskName)
+                                                    .collect(Collectors.toSet());
+        //TODO: This to be improved in case of scaling (
+        // lastSubmitted and firstSubmitted task names does not match ALL deployments since some are scaled
+        // and others not.
+        paJob.getTasks()
+             .stream()
+             .filter(paParentTask -> lastSubmittedSinkTaskNames.stream()
+                                                               .anyMatch(lastSubmittedSinkTaskName -> paParentTask.getName()
+                                                                                                                  .startsWith(lastSubmittedSinkTaskName)))
+             .forEach(scriptTask::addDependence);
+        try {
+            paJob.addTask(scriptTask);
+        } catch (UserException e) {
+            LOGGER.error("Task [CleanChannels] could not be added due to: {}", e.toString());
+        }
     }
 
     private void setAllReconfigurationMandatoryDependencies(TaskFlowJob paJob, Job job) {

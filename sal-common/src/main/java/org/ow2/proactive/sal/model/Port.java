@@ -48,6 +48,7 @@ public class Port implements Serializable {
     @Column(name = "PORT_ID")
     private Integer portId;
 
+    @JsonIgnore
     @Column(name = "NAME")
     private String name;
 
@@ -58,6 +59,10 @@ public class Port implements Serializable {
     @Column(name = "REQUESTED_NAME")
     private String requestedName;
 
+    @JsonIgnore
+    @Column(name = "REQUIRING_COMPONENT_NAME")
+    private String requiringComponentName;
+
     public Port(String name, Integer value) {
         this.name = name;
         if ((value == -1) || (value >= 0 && value <= 65535)) {
@@ -67,4 +72,9 @@ public class Port implements Serializable {
         }
     }
 
+    public String serializeToVariableMap() {
+        return "{" + "\"requiringComponentName\":\"" + this.requiringComponentName + "\"" + "," +
+               "\"requiringPortName\":\"" + this.requestedName + "\"" + "," + "\"portValue\":\"" + this.value + "\"" +
+               "}";
+    }
 }
