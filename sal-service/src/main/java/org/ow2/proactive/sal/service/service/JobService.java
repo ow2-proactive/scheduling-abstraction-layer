@@ -27,7 +27,6 @@ package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 
 import javax.ws.rs.NotFoundException;
 
@@ -141,8 +140,8 @@ public class JobService {
                 if (portDefinition instanceof PortProvided) {
                     Port portToOpen = new Port(((PortProvided) portDefinition).getName(),
                                                ((PortProvided) portDefinition).getPort());
-                    Pair<String, String> requestedPortInformation = findRequiredPortAndComponent(job,
-                                                                                                 ((PortProvided) portDefinition).getName());
+                    Map.Entry<String, String> requestedPortInformation = findRequiredPortAndComponent(job,
+                                                                                                      ((PortProvided) portDefinition).getName());
                     portToOpen.setRequestedName(requestedPortInformation.getValue());
                     portToOpen.setRequiringComponentName(requestedPortInformation.getKey());
                     portsToOpen.add(portToOpen);
@@ -152,14 +151,14 @@ public class JobService {
         return portsToOpen;
     }
 
-    private Pair<String, String> findRequiredPortAndComponent(JobDefinition job, String providedPortName) {
+    private Map.Entry<String, String> findRequiredPortAndComponent(JobDefinition job, String providedPortName) {
         for (Communication communication : job.getCommunications()) {
             if (Objects.equals(providedPortName, communication.getPortProvided())) {
-                return new Pair<>(findRequiringComponent(job, communication.getPortRequired()),
-                                  communication.getPortRequired());
+                return new AbstractMap.SimpleEntry<>(findRequiringComponent(job, communication.getPortRequired()),
+                                                     communication.getPortRequired());
             }
         }
-        return new Pair<>("", "NOTREQUESTED_" + providedPortName);
+        return new AbstractMap.SimpleEntry<>("", "NOTREQUESTED_" + providedPortName);
     }
 
     private String findRequiringComponent(JobDefinition job, String portRequired) {

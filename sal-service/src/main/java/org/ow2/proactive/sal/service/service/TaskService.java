@@ -27,7 +27,6 @@ package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 
 import javax.ws.rs.NotFoundException;
 
@@ -82,7 +81,9 @@ public class TaskService {
 
         // Update open to port with new added children tasks
         unchangedTask.getPortsToOpen().forEach(port -> {
-            Pair<String, String> requestedPortInformation = findRequiredPort(reconfigurationPlan, job, port.getName());
+            Map.Entry<String, String> requestedPortInformation = findRequiredPort(reconfigurationPlan,
+                                                                                  job,
+                                                                                  port.getName());
             port.setRequestedName(requestedPortInformation.getValue());
             port.setRequiringComponentName(requestedPortInformation.getKey());
         });
@@ -135,9 +136,9 @@ public class TaskService {
             if (portDefinition instanceof PortProvided) {
                 Port portToOpen = new Port(((PortProvided) portDefinition).getName(),
                                            ((PortProvided) portDefinition).getPort());
-                Pair<String, String> requestedPortInformation = findRequiredPort(reconfigurationPlan,
-                                                                                 job,
-                                                                                 ((PortProvided) portDefinition).getName());
+                Map.Entry<String, String> requestedPortInformation = findRequiredPort(reconfigurationPlan,
+                                                                                      job,
+                                                                                      ((PortProvided) portDefinition).getName());
                 portToOpen.setRequestedName(requestedPortInformation.getValue());
                 portToOpen.setRequiringComponentName(requestedPortInformation.getKey());
                 portsToOpen.add(portToOpen);
@@ -227,15 +228,17 @@ public class TaskService {
         return false;
     }
 
-    private Pair<String, String> findRequiredPort(ReconfigurationJobDefinition reconfigurationPlan, Job job,
+    private Map.Entry<String, String> findRequiredPort(ReconfigurationJobDefinition reconfigurationPlan, Job job,
             String providedPortName) {
         for (Communication communication : reconfigurationPlan.getCommunications()) {
             if (Objects.equals(providedPortName, communication.getPortProvided())) {
-                return new Pair<>(findRequiringComponent(reconfigurationPlan, job, communication.getPortRequired()),
-                                  communication.getPortRequired());
+                return new AbstractMap.SimpleEntry<>(findRequiringComponent(reconfigurationPlan,
+                                                                            job,
+                                                                            communication.getPortRequired()),
+                                                     communication.getPortRequired());
             }
         }
-        return new Pair<>("", "NOTREQUESTED_" + providedPortName);
+        return new AbstractMap.SimpleEntry<>("", "NOTREQUESTED_" + providedPortName);
     }
 
     private String findRequiringComponent(ReconfigurationJobDefinition reconfigurationPlan, Job job,

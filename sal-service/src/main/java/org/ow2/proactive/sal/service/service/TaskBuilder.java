@@ -89,6 +89,8 @@ public class TaskBuilder {
 
     private static final String PREPARE_INFRA_SCRIPT = "prepare_infra_script.sh";
 
+    private static final String PROVIDED_PORTS_VARIABLE_NAME = "providedPorts";
+
     private static final String INIT_SYNC_CHANNELS_SCRIPT = "init_synchronization_channels_script.groovy";
 
     private static final String CLEAN_SYNC_CHANNELS_SCRIPT = "clean_synchronization_channels_script.groovy";
@@ -488,7 +490,7 @@ public class TaskBuilder {
             deployment.setNodeAccessToken(token);
 
             // Creating application deployment tasks
-            createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks, job);
+            createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks);
         });
 
         scriptTasks.forEach(scriptTask -> task.addSubmittedTaskName(scriptTask.getName()));
@@ -496,8 +498,7 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private void createAndAddAppDeploymentTasks(Task task, String suffix, String token, List<ScriptTask> scriptTasks,
-            Job job) {
+    private void createAndAddAppDeploymentTasks(Task task, String suffix, String token, List<ScriptTask> scriptTasks) {
         List<ScriptTask> appTasks = createAppTasks(task, suffix, token);
         task.setDeploymentLastSubmittedTaskName(appTasks.get(appTasks.size() - 1)
                                                         .getName()
@@ -545,8 +546,9 @@ public class TaskBuilder {
         if (!task.getPortsToOpen().isEmpty()) {
             prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
             prepareInfraTask.setPostScript(PAFactory.createSimpleScriptFromFIle(POST_PREPARE_INFRA_SCRIPT, "groovy"));
-            taskVariablesMap.put("providedPorts",
-                                 new TaskVariable("providedPorts", task.serializePortsToOpenToVariableMap()));
+            taskVariablesMap.put(PROVIDED_PORTS_VARIABLE_NAME,
+                                 new TaskVariable(PROVIDED_PORTS_VARIABLE_NAME,
+                                                  task.serializePortsToOpenToVariableMap()));
         } else {
             prepareInfraTask = PAFactory.createBashScriptTask(taskName,
                                                               "echo \"No ports to open and not parent tasks. Nothing to be prepared in VM.\"");
@@ -569,8 +571,9 @@ public class TaskBuilder {
             prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
             prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(POST_PREPARE_INFRA_SCRIPT),
                                                                         "groovy"));
-            taskVariablesMap.put("providedPorts",
-                                 new TaskVariable("providedPorts", task.serializePortsToOpenToVariableMap()));
+            taskVariablesMap.put(PROVIDED_PORTS_VARIABLE_NAME,
+                                 new TaskVariable(PROVIDED_PORTS_VARIABLE_NAME,
+                                                  task.serializePortsToOpenToVariableMap()));
         } else {
             prepareInfraTask = PAFactory.createBashScriptTask(taskName,
                                                               "echo \"No ports to open and not parent tasks. Nothing to be prepared in VM.\"");
@@ -788,7 +791,7 @@ public class TaskBuilder {
                 LOGGER.info("+++ Deployment number: " + deployment.getNumber());
 
                 // Creating application deployment tasks
-                createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks, job);
+                createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks);
             });
             if (!scriptTasks.isEmpty()) {
                 task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
@@ -812,7 +815,7 @@ public class TaskBuilder {
                                                                                 INIT_SYNC_CHANNELS_SCRIPT);
 
         Map<String, TaskVariable> variablesMap = createVariablesMapForSynchronizationChannels(job);
-        LOGGER.debug("Variables to be added to the task remove IAAS node: {}", variablesMap);
+        LOGGER.debug("Variables to be added to the task Init Channels: {}", variablesMap);
         cleanChannelsTask.setVariables(variablesMap);
 
         addLocalDefaultNSRegexSelectionScript(cleanChannelsTask);
@@ -827,7 +830,7 @@ public class TaskBuilder {
                                                                                 CLEAN_SYNC_CHANNELS_SCRIPT);
 
         Map<String, TaskVariable> variablesMap = createVariablesMapForSynchronizationChannels(job);
-        LOGGER.debug("Variables to be added to the task remove IAAS node: {}", variablesMap);
+        LOGGER.debug("Variables to be added to the task clean Channels: {}", variablesMap);
         cleanChannelsTask.setVariables(variablesMap);
 
         addLocalDefaultNSRegexSelectionScript(cleanChannelsTask);
