@@ -1,14 +1,23 @@
 //Post prepare infrastructure script
-def providedPortName = variables.get("providedPortName")
-def providedPortValue = variables.get("providedPortValue")
+import groovy.json.JsonSlurperClassic
 
-if (providedPortName?.trim()){
-    def ipAddr = new File(providedPortName+"_ip").text.trim()
-    def prvIpAddr = new File(providedPortName+"_prv_ip").text.trim()
-    def publicProvidedPort = ipAddr + ":" + providedPortValue
-    def privateProvidedPort = prvIpAddr + ":" + providedPortValue
-    variables.put(providedPortName + variables.get("PA_TASK_ID"), publicProvidedPort)
-    println("Provided variable " + providedPortName + "=" + publicProvidedPort)
-    variables.put(providedPortName + "_prv_" + variables.get("PA_TASK_ID"), privateProvidedPort)
-    println("Provided variable " + providedPortName + "_prv=" + privateProvidedPort)
+def componentName = variables.get("ComponentName")
+def ipAddr = new File(componentName+"_ip").text.trim()
+def prvIpAddr = new File(componentName+"_prv_ip").text.trim()
+def jobId = variables.get("PA_JOB_ID")
+def providedPorts = new JsonSlurperClassic().parseText( variables.get("providedPorts") )
+
+providedPorts.each { providedPort ->
+    if (providedPort["requiringComponentName"]?.trim()) {
+        synchronizationapi.merge(jobId + providedPort["requiringComponentName"],
+                "PUBLIC_" + providedPort["requiringPortName"],
+                ipAddr + ":" + providedPort["portValue"],
+                "{k, x -> x.concat(\"," + ipAddr + ":" + providedPort["portValue"] + "\")}")
+        synchronizationapi.merge(jobId + providedPort["requiringComponentName"],
+                "PRIVATE_" + providedPort["requiringPortName"],
+                prvIpAddr + ":" + providedPort["portValue"],
+                "{k, x -> x.concat(\"," + prvIpAddr + ":" + providedPort["portValue"] + "\")}")
+    } else {
+        println (providedPort["requiringPortName"] + " = " + ipAddr + ":" + providedPort["portValue"])
+    }
 }

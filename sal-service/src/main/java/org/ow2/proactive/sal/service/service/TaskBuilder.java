@@ -28,6 +28,9 @@ package org.ow2.proactive.sal.service.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.ow2.proactive.sal.model.*;
@@ -68,7 +71,7 @@ public class TaskBuilder {
 
     private static final String EXPORT_ENV_VAR_SCRIPT = "export_env_var_script.sh";
 
-    private static final String COLLECT_IP_ADDR_RESULTS_SCRIPT = "collect_ip_addr_results.groovy";
+    private static final String COLLECT_IP_ADDR_TO_ENV_VARS_SCRIPT = "collect_ip_addr_to_env_vars_script.groovy";
 
     private static final String START_DOCKER_APP_SCRIPT = "start_docker_app.sh";
 
@@ -86,9 +89,17 @@ public class TaskBuilder {
 
     private static final String PREPARE_INFRA_SCRIPT = "prepare_infra_script.sh";
 
+    private static final String PROVIDED_PORTS_VARIABLE_NAME = "providedPorts";
+
+    private static final String INIT_SYNC_CHANNELS_SCRIPT = "init_synchronization_channels_script.groovy";
+
+    private static final String CLEAN_SYNC_CHANNELS_SCRIPT = "clean_synchronization_channels_script.groovy";
+
     private static final String WAIT_FOR_LOCK_SCRIPT = "wait_for_lock_script.sh";
 
     private static final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$";
+
+    private static final String COMPONENT_NAME_VARIABLE_NAME = "ComponentName";
 
     private ScriptTask createEmsDeploymentTask(EmsDeploymentRequest emsDeploymentRequest, String taskNameSuffix,
             String nodeToken) {
@@ -110,36 +121,29 @@ public class TaskBuilder {
         return emsDeploymentTask;
     }
 
-    private List<ScriptTask> createAppTasks(Task task, String taskNameSuffix, String taskToken, Job job) {
+    private List<ScriptTask> createAppTasks(Task task, String taskNameSuffix, String taskToken) {
         LOGGER.debug("Creating app PA task: {}, with Type: {} ", task.getTaskId(), task.getType());
         switch (Objects.requireNonNull(task.getType())) {
             case COMMANDS:
-                return createCommandsTask(task, taskNameSuffix, taskToken, job);
+                return createCommandsTask(task, taskNameSuffix, taskToken);
             case DOCKER:
-                return createDockerTask(task, taskNameSuffix, taskToken, job);
+                return createDockerTask(task, taskNameSuffix, taskToken);
             default:
                 return new LinkedList<>();
         }
     }
 
-    private List<ScriptTask> createDockerTask(Task task, String taskNameSuffix, String taskToken, Job job) {
+    private List<ScriptTask> createDockerTask(Task task, String taskNameSuffix, String taskToken) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         ScriptTask scriptTask = PAFactory.createBashScriptTask(task.getName() + "_start" +
                                                                taskNameSuffix,
                                                                Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
                                                                                SCRIPTS_SEPARATION_BASH +
                                                                                Utils.getContentWithFileName(START_DOCKER_APP_SCRIPT));
+        scriptTask.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_TO_ENV_VARS_SCRIPT, "groovy"));
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
-
-        if (!task.getParentTasks().isEmpty()) {
-            //TODO: Taking into consideration multiple parent tasks with multiple communications
-            taskVariablesMap.put("requestedPortName",
-                                 new TaskVariable("requestedPortName",
-                                                  job.findTask(task.getParentTasks().get(0))
-                                                     .getPortsToOpen()
-                                                     .get(0)
-                                                     .getRequestedName()));
-        }
+        taskVariablesMap.put(COMPONENT_NAME_VARIABLE_NAME,
+                             new TaskVariable(COMPONENT_NAME_VARIABLE_NAME, task.getName()));
 
         taskVariablesMap.put("INSTANCE_NAME", new TaskVariable("INSTANCE_NAME", task.getTaskId() + "-$PA_JOB_ID"));
         taskVariablesMap.put("DOCKER_IMAGE", new TaskVariable("DOCKER_IMAGE", task.getEnvironment().getDockerImage()));
@@ -152,48 +156,40 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private List<ScriptTask> createCommandsTask(Task task, String taskNameSuffix, String taskToken, Job job) {
+    private List<ScriptTask> createCommandsTask(Task task, String taskNameSuffix, String taskToken) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         ScriptTask scriptTaskStart = null;
         ScriptTask scriptTaskInstall = null;
 
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
-        if (!task.getParentTasks().isEmpty()) {
-            //TODO: Taking into consideration multiple parent tasks with multiple communications
-            taskVariablesMap.put("requestedPortName",
-                                 new TaskVariable("requestedPortName",
-                                                  job.findTask(task.getParentTasks().get(0))
-                                                     .getPortsToOpen()
-                                                     .get(0)
-                                                     .getRequestedName()));
-        }
+        taskVariablesMap.put(COMPONENT_NAME_VARIABLE_NAME,
+                             new TaskVariable(COMPONENT_NAME_VARIABLE_NAME, task.getName()));
 
         if (!(Strings.isNullOrEmpty(task.getInstallation().getInstall()) &&
               Strings.isNullOrEmpty(task.getInstallation().getPreInstall()) &&
               Strings.isNullOrEmpty(task.getInstallation().getPostInstall()))) {
+            String implementationScript;
             if (!Strings.isNullOrEmpty(task.getInstallation().getInstall())) {
-                scriptTaskInstall = PAFactory.createBashScriptTask(task.getName() + "_install" +
-                                                                   taskNameSuffix,
-                                                                   Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
-                                                                                   SCRIPTS_SEPARATION_BASH +
-                                                                                   task.getInstallation().getInstall());
+                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
+                                       task.getInstallation().getInstall();
             } else {
-                scriptTaskInstall = PAFactory.createBashScriptTask(task.getName() + "_install" + taskNameSuffix,
-                                                                   "echo \"Installation script is empty. Nothing to be executed.\"");
+                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
+                                       "echo \"Installation script is empty. Nothing to be executed.\"";
             }
 
             if (!Strings.isNullOrEmpty(task.getInstallation().getPreInstall())) {
-                scriptTaskInstall.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
-                                                                            SCRIPTS_SEPARATION_BASH +
-                                                                            task.getInstallation().getPreInstall(),
-                                                                            "bash"));
+                implementationScript = task.getInstallation().getPreInstall() + SCRIPTS_SEPARATION_BASH +
+                                       implementationScript;
             }
             if (!Strings.isNullOrEmpty(task.getInstallation().getPostInstall())) {
-                scriptTaskInstall.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
-                                                                             SCRIPTS_SEPARATION_BASH +
-                                                                             task.getInstallation().getPostInstall(),
-                                                                             "bash"));
+                implementationScript = implementationScript + SCRIPTS_SEPARATION_BASH +
+                                       task.getInstallation().getPostInstall();
             }
+
+            scriptTaskInstall = PAFactory.createBashScriptTask(task.getName() + "_install" + taskNameSuffix,
+                                                               implementationScript);
+            scriptTaskInstall.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_TO_ENV_VARS_SCRIPT,
+                                                                                "groovy"));
             if (!task.getParentTasks().isEmpty()) {
                 scriptTaskInstall.setVariables(taskVariablesMap);
             }
@@ -204,29 +200,28 @@ public class TaskBuilder {
         if (!(Strings.isNullOrEmpty(task.getInstallation().getStart()) &&
               Strings.isNullOrEmpty(task.getInstallation().getPreStart()) &&
               Strings.isNullOrEmpty(task.getInstallation().getPostStart()))) {
+            String implementationScript;
             if (!Strings.isNullOrEmpty(task.getInstallation().getStart())) {
-                scriptTaskStart = PAFactory.createBashScriptTask(task.getName() + "_start" +
-                                                                 taskNameSuffix,
-                                                                 Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
-                                                                                 SCRIPTS_SEPARATION_BASH +
-                                                                                 task.getInstallation().getStart());
+                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
+                                       task.getInstallation().getStart();
             } else {
-                scriptTaskStart = PAFactory.createBashScriptTask(task.getName() + "_start" + taskNameSuffix,
-                                                                 "echo \"Installation script is empty. Nothing to be executed.\"");
+                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
+                                       "echo \"Starting script is empty. Nothing to be executed.\"";
             }
 
             if (!Strings.isNullOrEmpty(task.getInstallation().getPreStart())) {
-                scriptTaskStart.setPreScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
-                                                                          SCRIPTS_SEPARATION_BASH +
-                                                                          task.getInstallation().getPreStart(),
-                                                                          "bash"));
+                implementationScript = task.getInstallation().getPreStart() + SCRIPTS_SEPARATION_BASH +
+                                       implementationScript;
             }
             if (!Strings.isNullOrEmpty(task.getInstallation().getPostStart())) {
-                scriptTaskStart.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) +
-                                                                           SCRIPTS_SEPARATION_BASH +
-                                                                           task.getInstallation().getPostStart(),
-                                                                           "bash"));
+                implementationScript = implementationScript + SCRIPTS_SEPARATION_BASH +
+                                       task.getInstallation().getPostStart();
             }
+
+            scriptTaskStart = PAFactory.createBashScriptTask(task.getName() + "_start" + taskNameSuffix,
+                                                             implementationScript);
+            scriptTaskStart.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_TO_ENV_VARS_SCRIPT,
+                                                                              "groovy"));
             if (!task.getParentTasks().isEmpty()) {
                 scriptTaskStart.setVariables(taskVariablesMap);
             }
@@ -406,13 +401,13 @@ public class TaskBuilder {
         return deployNodeTask;
     }
 
-    private List<ScriptTask> createChildScaledTask(Task task, Job job) {
+    private List<ScriptTask> createChildScaledTask(Task task) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         task.getDeployments().stream().filter(Deployment::getIsDeployed).forEach(deployment -> {
             // Creating infra deployment tasks
             String token = task.getTaskId() + deployment.getNumber();
             String suffix = "_" + deployment.getNumber();
-            scriptTasks.add(createScalingChildSaveTask(task, suffix, token, job));
+            scriptTasks.add(createScalingChildSaveTask(task, suffix, token));
         });
         task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
                                                             .getName()
@@ -425,17 +420,11 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private ScriptTask createScalingChildSaveTask(Task task, String suffix, String token, Job job) {
+    private ScriptTask createScalingChildSaveTask(Task task, String suffix, String token) {
         ScriptTask scriptTaskUpdate = null;
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
-        //TODO: Taking into consideration multiple parent tasks with multiple communications
-        if (!task.getParentTasks().isEmpty())
-            taskVariablesMap.put("requestedPortName",
-                                 new TaskVariable("requestedPortName",
-                                                  job.findTask(task.getParentTasks().get(0))
-                                                     .getPortsToOpen()
-                                                     .get(0)
-                                                     .getRequestedName()));
+        taskVariablesMap.put(COMPONENT_NAME_VARIABLE_NAME,
+                             new TaskVariable(COMPONENT_NAME_VARIABLE_NAME, task.getName()));
 
         if (task.getType() == Installation.InstallationType.COMMANDS &&
             !Strings.isNullOrEmpty(task.getInstallation().getUpdateCmd())) {
@@ -446,10 +435,11 @@ public class TaskBuilder {
                                                                       task.getInstallation().getUpdateCmd());
         } else {
             scriptTaskUpdate = PAFactory.createBashScriptTask(task.getName() + "_update" + suffix,
-                                                              "echo \"Installation script is empty. Nothing to be executed.\"");
+                                                              "echo \"Update script is empty. Nothing to be executed.\"");
         }
 
-        scriptTaskUpdate.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_RESULTS_SCRIPT, "groovy"));
+        scriptTaskUpdate.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_TO_ENV_VARS_SCRIPT,
+                                                                           "groovy"));
 
         scriptTaskUpdate.setVariables(taskVariablesMap);
         scriptTaskUpdate.addGenericInformation("NODE_ACCESS_TOKEN", token);
@@ -457,7 +447,7 @@ public class TaskBuilder {
         return scriptTaskUpdate;
     }
 
-    private List<ScriptTask> buildScaledPATask(Task task, Job job) {
+    private List<ScriptTask> buildScaledPATask(Task task) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
 
         task.getDeployments().stream().filter(Deployment::getIsDeployed).forEach(deployment -> {
@@ -465,7 +455,7 @@ public class TaskBuilder {
             String suffix = "_" + deployment.getNumber();
 
             // Creating infra preparation task
-            scriptTasks.add(createInfraPreparationTask(task, suffix, token, job));
+            scriptTasks.add(createInfraPreparationTask(task, suffix, token));
         });
 
         task.setDeploymentLastSubmittedTaskName(scriptTasks.get(0)
@@ -500,7 +490,7 @@ public class TaskBuilder {
             deployment.setNodeAccessToken(token);
 
             // Creating application deployment tasks
-            createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks, job);
+            createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks);
         });
 
         scriptTasks.forEach(scriptTask -> task.addSubmittedTaskName(scriptTask.getName()));
@@ -508,9 +498,8 @@ public class TaskBuilder {
         return scriptTasks;
     }
 
-    private void createAndAddAppDeploymentTasks(Task task, String suffix, String token, List<ScriptTask> scriptTasks,
-            Job job) {
-        List<ScriptTask> appTasks = createAppTasks(task, suffix, token, job);
+    private void createAndAddAppDeploymentTasks(Task task, String suffix, String token, List<ScriptTask> scriptTasks) {
+        List<ScriptTask> appTasks = createAppTasks(task, suffix, token);
         task.setDeploymentLastSubmittedTaskName(appTasks.get(appTasks.size() - 1)
                                                         .getName()
                                                         .substring(0,
@@ -519,7 +508,7 @@ public class TaskBuilder {
                                                                            .lastIndexOf(suffix)));
 
         // Creating infra preparation task
-        appTasks.add(0, createInfraPreparationTask(task, suffix, token, job));
+        appTasks.add(0, createInfraPreparationTask(task, suffix, token));
         appTasks.get(1).addDependence(appTasks.get(0));
 
         // Add dependency between infra and application deployment tasks
@@ -551,16 +540,15 @@ public class TaskBuilder {
         ScriptTask prepareInfraTask;
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
         String taskName = "parentPrepareInfra_" + task.getName() + suffix;
+        taskVariablesMap.put(COMPONENT_NAME_VARIABLE_NAME,
+                             new TaskVariable(COMPONENT_NAME_VARIABLE_NAME, task.getName()));
 
         if (!task.getPortsToOpen().isEmpty()) {
-            prepareInfraTask = PAFactory.createGroovyScriptTaskFromFile(taskName, POST_PREPARE_INFRA_SCRIPT);
-            prepareInfraTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PREPARE_INFRA_SCRIPT, "bash"));
-            //TODO: Taking into consideration multiple provided ports
-            taskVariablesMap.put("providedPortName",
-                                 new TaskVariable("providedPortName", task.getPortsToOpen().get(0).getRequestedName()));
-            taskVariablesMap.put("providedPortValue",
-                                 new TaskVariable("providedPortValue",
-                                                  task.getPortsToOpen().get(0).getValue().toString()));
+            prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
+            prepareInfraTask.setPostScript(PAFactory.createSimpleScriptFromFIle(POST_PREPARE_INFRA_SCRIPT, "groovy"));
+            taskVariablesMap.put(PROVIDED_PORTS_VARIABLE_NAME,
+                                 new TaskVariable(PROVIDED_PORTS_VARIABLE_NAME,
+                                                  task.serializePortsToOpenToVariableMap()));
         } else {
             prepareInfraTask = PAFactory.createBashScriptTask(taskName,
                                                               "echo \"No ports to open and not parent tasks. Nothing to be prepared in VM.\"");
@@ -572,43 +560,20 @@ public class TaskBuilder {
         return prepareInfraTask;
     }
 
-    private ScriptTask createInfraPreparationTask(Task task, String suffix, String token, Job job) {
+    private ScriptTask createInfraPreparationTask(Task task, String suffix, String token) {
         ScriptTask prepareInfraTask;
         Map<String, TaskVariable> taskVariablesMap = new HashMap<>();
         String taskName = "prepareInfra_" + task.getName() + suffix;
+        taskVariablesMap.put(COMPONENT_NAME_VARIABLE_NAME,
+                             new TaskVariable(COMPONENT_NAME_VARIABLE_NAME, task.getName()));
 
         if (!task.getPortsToOpen().isEmpty()) {
             prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
-            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(POST_PREPARE_INFRA_SCRIPT) +
-                                                                        SCRIPTS_SEPARATION_GROOVY +
-                                                                        Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS_SCRIPT),
+            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(POST_PREPARE_INFRA_SCRIPT),
                                                                         "groovy"));
-            //TODO: Taking into consideration multiple provided ports
-            taskVariablesMap.put("providedPortName",
-                                 new TaskVariable("providedPortName", task.getPortsToOpen().get(0).getRequestedName()));
-            taskVariablesMap.put("providedPortValue",
-                                 new TaskVariable("providedPortValue",
-                                                  task.getPortsToOpen().get(0).getValue().toString()));
-            if (!task.getParentTasks().isEmpty()) {
-                //TODO: Taking into consideration multiple parent tasks with multiple communications
-                taskVariablesMap.put("requestedPortName",
-                                     new TaskVariable("requestedPortName",
-                                                      job.findTask(task.getParentTasks().get(0))
-                                                         .getPortsToOpen()
-                                                         .get(0)
-                                                         .getRequestedName()));
-            }
-        } else if (!task.getParentTasks().isEmpty()) {
-            prepareInfraTask = PAFactory.createBashScriptTaskFromFile(taskName, PREPARE_INFRA_SCRIPT);
-            prepareInfraTask.setPostScript(PAFactory.createSimpleScript(Utils.getContentWithFileName(COLLECT_IP_ADDR_RESULTS_SCRIPT),
-                                                                        "groovy"));
-            //TODO: Taking into consideration multiple parent tasks with multiple communications
-            taskVariablesMap.put("requestedPortName",
-                                 new TaskVariable("requestedPortName",
-                                                  job.findTask(task.getParentTasks().get(0))
-                                                     .getPortsToOpen()
-                                                     .get(0)
-                                                     .getRequestedName()));
+            taskVariablesMap.put(PROVIDED_PORTS_VARIABLE_NAME,
+                                 new TaskVariable(PROVIDED_PORTS_VARIABLE_NAME,
+                                                  task.serializePortsToOpenToVariableMap()));
         } else {
             prepareInfraTask = PAFactory.createBashScriptTask(taskName,
                                                               "echo \"No ports to open and not parent tasks. Nothing to be prepared in VM.\"");
@@ -658,14 +623,14 @@ public class TaskBuilder {
         return (variablesMap);
     }
 
-    private List<ScriptTask> buildUnchangedPATask(Task task, Job job) {
+    private List<ScriptTask> buildUnchangedPATask(Task task) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         task.getDeployments().forEach(deployment -> {
             // Creating infra deployment tasks
             String token = task.getTaskId() + deployment.getNumber();
             String suffix = "_" + deployment.getNumber();
             scriptTasks.add(createScalingParentInfraPreparationTask(task, suffix, token));
-            scriptTasks.add(createScalingChildSaveTask(task, suffix, token, job));
+            scriptTasks.add(createScalingChildSaveTask(task, suffix, token));
             scriptTasks.get(scriptTasks.size() - 1).addDependence(scriptTasks.get(scriptTasks.size() - 2));
         });
         return setFirstAndLastSubmittedTaskNamesFromScriptTasks(task, scriptTasks);
@@ -682,14 +647,14 @@ public class TaskBuilder {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         Task scaledTask = job.findTask(scaledTaskName);
 
-        if (scaledTask.getParentTasks().contains(task.getName())) {
+        if (scaledTask.getParentTasks().containsValue(task.getName())) {
             // When the scaled task is a child the task to be built
             LOGGER.info("Building task " + task.getName() + " as a parent of task " + scaledTaskName);
             scriptTasks.addAll(createParentScaledTask(task));
         } else {
             // Using buildScalingInPATask because it handles all the remaining cases
             LOGGER.info("Moving to building with buildScalingInPATask() method");
-            scriptTasks.addAll(buildScalingInPATask(task, job, scaledTaskName));
+            scriptTasks.addAll(buildScalingInPATask(task, scaledTaskName));
         }
 
         return scriptTasks;
@@ -698,21 +663,20 @@ public class TaskBuilder {
     /**
      * Translate a Morphemic task skeleton into a list of ProActive tasks when the job is being scaled in
      * @param task A Morphemic task skeleton
-     * @param job The related job skeleton
      * @param scaledTaskName The scaled task name
      * @return A list of ProActive tasks
      */
-    public List<ScriptTask> buildScalingInPATask(Task task, Job job, String scaledTaskName) {
+    public List<ScriptTask> buildScalingInPATask(Task task, String scaledTaskName) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
 
         if (scaledTaskName.equals(task.getName())) {
             // When the scaled task is the task to be built
             LOGGER.info("Building task " + task.getName() + " as it is scaled out");
-            scriptTasks.addAll(buildScaledPATask(task, job));
-        } else if (task.getParentTasks().contains(scaledTaskName)) {
+            scriptTasks.addAll(buildScaledPATask(task));
+        } else if (task.getParentTasks().containsValue(scaledTaskName)) {
             // When the scaled task is a parent of the task to be built
             LOGGER.info("Building task " + task.getName() + " as a child of task " + scaledTaskName);
-            scriptTasks.addAll(createChildScaledTask(task, job));
+            scriptTasks.addAll(createChildScaledTask(task));
         } else {
             LOGGER.debug("Task " + task.getName() + " is not impacted by the scaling of task " + scaledTaskName);
         }
@@ -740,7 +704,7 @@ public class TaskBuilder {
         if (reconfigurationPlan.getUnchangedTasks().contains(task.getName())) {
             // When the scaled task is the task to be built
             LOGGER.info("Building task " + task.getName() + " as it is unchanged");
-            scriptTasks.addAll(buildUnchangedPATask(task, job));
+            scriptTasks.addAll(buildUnchangedPATask(task));
         } else if (addedTaskNames.contains(task.getName())) {
             // When the scaled task is a parent of the task to be built
             LOGGER.info("Building task [{}] as a new added task ", task.getTaskId());
@@ -772,6 +736,11 @@ public class TaskBuilder {
     }
 
     private List<ScriptTask> setFirstAndLastSubmittedTaskNamesFromScriptTasks(Task task, List<ScriptTask> scriptTasks) {
+        if (scriptTasks.isEmpty()) {
+            LOGGER.warn("Could not set First and Last Submitted Task Names because scriptTasks related to task [{}] is empty.",
+                        task.getTaskId());
+            return scriptTasks;
+        }
         task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
                                                             .getName()
                                                             .substring(0,
@@ -798,7 +767,7 @@ public class TaskBuilder {
         if (task.getDeployments() == null || task.getDeployments().isEmpty()) {
             LOGGER.warn("The task " + task.getName() +
                         " does not have a deployment. It will be scheduled on any free node.");
-            scriptTasks.addAll(createAppTasks(task, "", "", job));
+            scriptTasks.addAll(createAppTasks(task, "", ""));
             task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0).getName());
             task.setDeploymentLastSubmittedTaskName(scriptTasks.get(scriptTasks.size() - 1).getName());
         } else {
@@ -821,7 +790,7 @@ public class TaskBuilder {
                 LOGGER.info("+++ Deployment number: " + deployment.getNumber());
 
                 // Creating application deployment tasks
-                createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks, job);
+                createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks);
             });
             if (!scriptTasks.isEmpty()) {
                 task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
@@ -836,5 +805,50 @@ public class TaskBuilder {
         scriptTasks.forEach(scriptTask -> task.addSubmittedTaskName(scriptTask.getName()));
 
         return scriptTasks;
+    }
+
+    public ScriptTask buildInitChannelsTask(Job job) {
+        LOGGER.debug("Init channels script file: " +
+                     Objects.requireNonNull(getClass().getResource(File.separator + INIT_SYNC_CHANNELS_SCRIPT)));
+        ScriptTask cleanChannelsTask = PAFactory.createGroovyScriptTaskFromFile("InitChannels",
+                                                                                INIT_SYNC_CHANNELS_SCRIPT);
+
+        Map<String, TaskVariable> variablesMap = createVariablesMapForSynchronizationChannels(job);
+        LOGGER.debug("Variables to be added to the task Init Channels: {}", variablesMap);
+        cleanChannelsTask.setVariables(variablesMap);
+
+        addLocalDefaultNSRegexSelectionScript(cleanChannelsTask);
+
+        return cleanChannelsTask;
+    }
+
+    public ScriptTask buildCleanChannelsTask(Job job) {
+        LOGGER.debug("Cleaning channels script file: " +
+                     Objects.requireNonNull(getClass().getResource(File.separator + CLEAN_SYNC_CHANNELS_SCRIPT)));
+        ScriptTask cleanChannelsTask = PAFactory.createGroovyScriptTaskFromFile("CleanChannels",
+                                                                                CLEAN_SYNC_CHANNELS_SCRIPT);
+
+        Map<String, TaskVariable> variablesMap = createVariablesMapForSynchronizationChannels(job);
+        LOGGER.debug("Variables to be added to the task clean Channels: {}", variablesMap);
+        cleanChannelsTask.setVariables(variablesMap);
+
+        addLocalDefaultNSRegexSelectionScript(cleanChannelsTask);
+
+        return cleanChannelsTask;
+    }
+
+    public static <T> Consumer<T> withCounter(BiConsumer<Integer, T> consumer) {
+        AtomicInteger counter = new AtomicInteger(0);
+        return item -> consumer.accept(counter.getAndIncrement(), item);
+    }
+
+    private Map<String, TaskVariable> createVariablesMapForSynchronizationChannels(Job job) {
+        Map<String, TaskVariable> variablesMap = new HashMap<>();
+        job.getTasks().forEach(withCounter((i, task) -> {
+            String variableName = COMPONENT_NAME_VARIABLE_NAME + i;
+            variablesMap.put(variableName,
+                             new TaskVariable(variableName, task.getName(), "PA:NOT_EMPTY_STRING", false));
+        }));
+        return (variablesMap);
     }
 }

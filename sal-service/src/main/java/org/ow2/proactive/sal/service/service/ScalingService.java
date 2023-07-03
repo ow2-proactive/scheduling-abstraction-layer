@@ -191,6 +191,9 @@ public class ScalingService {
 
         setAllScalingOutMandatoryDependencies(paJob, job, scaledTaskName, newNodesNumbers);
 
+        jobService.addInitChannelsTaskWithDependencies(paJob, job);
+        jobService.addCleanChannelsTaskWithDependencies(paJob, job);
+
         paJob.setMaxNumberOfExecution(2);
         paJob.setProjectName("Morphemic");
 
@@ -218,7 +221,7 @@ public class ScalingService {
             List<Long> newNodesNumbers) {
         jobToSubmit.getTasks().forEach(task -> {
             if (task.getParentTasks() != null && !task.getParentTasks().isEmpty()) {
-                task.getParentTasks().forEach(parentTaskName -> {
+                task.getParentTasks().forEach((requiredPortName, parentTaskName) -> {
                     paJob.getTasks().forEach(paTask -> {
                         paJob.getTasks().forEach(paParentTask -> {
                             if (paTask.getName().contains(task.getName()) &&
@@ -287,8 +290,6 @@ public class ScalingService {
             LOGGER.error(String.format("Job [%s] not found", jobId));
             throw new NotFoundException("Job " + jobId + " not found");
         }
-        //        No way to refresh the DB entry
-        //        EntityManagerHelper.refresh(optJob.get());
 
         // Let's find the task:
         Optional<Task> optTask = Optional.ofNullable(optJob.get().findTask(taskName));
@@ -348,8 +349,6 @@ public class ScalingService {
     }
 
     private void submitScalingInJob(Job job, String scaledTaskName) {
-        //        No way to refresh the DB entry
-        //        EntityManagerHelper.refresh(job);
         LOGGER.info("Task: " + scaledTaskName + " of job " + job.toString() + " to be scaled in.");
 
         TaskFlowJob paJob = new TaskFlowJob();
@@ -357,7 +356,7 @@ public class ScalingService {
         LOGGER.info("Job created: " + paJob.toString());
 
         job.getTasks().forEach(task -> {
-            List<ScriptTask> scriptTasks = taskBuilder.buildScalingInPATask(task, job, scaledTaskName);
+            List<ScriptTask> scriptTasks = taskBuilder.buildScalingInPATask(task, scaledTaskName);
 
             if (scriptTasks != null && !scriptTasks.isEmpty()) {
                 addAllScriptTasksToPAJob(paJob, task, scriptTasks);
@@ -366,6 +365,9 @@ public class ScalingService {
         });
 
         jobService.setAllMandatoryDependencies(paJob, job);
+
+        jobService.addInitChannelsTaskWithDependencies(paJob, job);
+        jobService.addCleanChannelsTaskWithDependencies(paJob, job);
 
         paJob.setMaxNumberOfExecution(2);
         paJob.setProjectName("Morphemic");

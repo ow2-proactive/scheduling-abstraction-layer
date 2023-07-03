@@ -52,33 +52,41 @@ public class TaskService {
      * @param job The reconfigured job
      */
     @Transactional
-    public void updateUnchangedTask(Task unchangedTask, ReconfigurationJobDefinition reconfigurationPlan, Job job) {
+    public synchronized void updateUnchangedTask(Task unchangedTask, ReconfigurationJobDefinition reconfigurationPlan,
+            Job job) {
         LOGGER.info("Handling unchanged task [{}] ...", unchangedTask.getTaskId());
-        List<String> updatedParentTasks;
+        Map<String, String> updatedParentTasks;
 
         // Clean parent tasks that will be removed
         updatedParentTasks = unchangedTask.getParentTasks()
+                                          .entrySet()
                                           .stream()
-                                          .filter(parentTask -> !reconfigurationPlan.getDeletedTasks()
-                                                                                    .contains(parentTask))
-                                          .collect(Collectors.toList());
+                                          .filter(parentTaskEntry -> !reconfigurationPlan.getDeletedTasks()
+                                                                                         .contains(parentTaskEntry.getValue()))
+                                          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // Add new added parent tasks
         Set<Task> deletedParentTasks = unchangedTask.getParentTasks()
+                                                    .values()
                                                     .stream()
-                                                    .filter(parentTask -> reconfigurationPlan.getDeletedTasks()
-                                                                                             .contains(parentTask))
+                                                    .filter(parentTaskName -> reconfigurationPlan.getDeletedTasks()
+                                                                                                 .contains(parentTaskName))
                                                     .map(parentTaskName -> repositoryService.getTask(job.getJobId() +
                                                                                                      parentTaskName))
                                                     .collect(Collectors.toSet());
-        updatedParentTasks.addAll(extractNewParentTasks(deletedParentTasks, reconfigurationPlan, job));
+        updatedParentTasks.putAll(extractNewParentTasks(deletedParentTasks, reconfigurationPlan, job));
 
         // Update parent tasks list
         unchangedTask.setParentTasks(updatedParentTasks);
 
         // Update open to port with new added children tasks
-        unchangedTask.getPortsToOpen()
-                     .forEach(port -> port.setRequestedName(findRequiredPort(reconfigurationPlan, port.getName())));
+        unchangedTask.getPortsToOpen().forEach(port -> {
+            Map.Entry<String, String> requestedPortInformation = findRequiredPort(reconfigurationPlan,
+                                                                                  job,
+                                                                                  port.getName());
+            port.setRequestedName(requestedPortInformation.getValue());
+            port.setRequiringComponentName(requestedPortInformation.getKey());
+        });
     }
 
     /**
@@ -102,7 +110,7 @@ public class TaskService {
                     newTask.getType());
         newTask.setInstallationByType(taskDefinition.getInstallation());
 
-        List<Port> portsToOpen = extractListOfPortsToOpen(taskDefinition.getPorts(), reconfigurationPlan);
+        List<Port> portsToOpen = extractListOfPortsToOpen(taskDefinition.getPorts(), reconfigurationPlan, job);
         portsToOpen.forEach(repositoryService::savePort);
         newTask.setPortsToOpen(portsToOpen);
         newTask.setParentTasks(extractParentTasks(taskDefinition, reconfigurationPlan, job));
@@ -113,8 +121,13 @@ public class TaskService {
         LOGGER.info("Task [{}] created for job [{}]", newTask.getTaskId(), job);
     }
 
+    @Transactional
+    public void cleanDeletedTasksAndDeployments(Set<Task> deletedTasks) {
+        deletedTasks.forEach(repositoryService::deleteTask);
+    }
+
     private List<Port> extractListOfPortsToOpen(List<AbstractPortDefinition> ports,
-            ReconfigurationJobDefinition reconfigurationPlan) {
+            ReconfigurationJobDefinition reconfigurationPlan, Job job) {
         List<Port> portsToOpen = new LinkedList<>();
         if (ports == null)
             return portsToOpen;
@@ -123,8 +136,11 @@ public class TaskService {
             if (portDefinition instanceof PortProvided) {
                 Port portToOpen = new Port(((PortProvided) portDefinition).getName(),
                                            ((PortProvided) portDefinition).getPort());
-                portToOpen.setRequestedName(findRequiredPort(reconfigurationPlan,
-                                                             ((PortProvided) portDefinition).getName()));
+                Map.Entry<String, String> requestedPortInformation = findRequiredPort(reconfigurationPlan,
+                                                                                      job,
+                                                                                      ((PortProvided) portDefinition).getName());
+                portToOpen.setRequestedName(requestedPortInformation.getValue());
+                portToOpen.setRequiringComponentName(requestedPortInformation.getKey());
                 portsToOpen.add(portToOpen);
             }
         });
@@ -132,9 +148,9 @@ public class TaskService {
         return portsToOpen;
     }
 
-    private List<String> extractParentTasks(TaskDefinition taskDefinition,
+    private Map<String, String> extractParentTasks(TaskDefinition taskDefinition,
             ReconfigurationJobDefinition reconfigurationPlan, Job job) {
-        List<String> parentTasks = new LinkedList<>();
+        Map<String, String> parentTasks = new HashMap<>();
         if (taskDefinition.getPorts() != null) {
             taskDefinition.getPorts().forEach(portDefinition -> {
                 if (portDefinition instanceof PortRequired) {
@@ -144,7 +160,8 @@ public class TaskService {
                     String providedPortName = findProvidedPortName(reconfigurationPlan,
                                                                    ((PortRequired) portDefinition).getName(),
                                                                    job.getJobId());
-                    parentTasks.add(findTaskByProvidedPortName(reconfigurationPlan, providedPortName, job));
+                    parentTasks.put(portDefinition.getName(),
+                                    findTaskByProvidedPortName(reconfigurationPlan, providedPortName, job));
                 }
             });
         }
@@ -187,16 +204,17 @@ public class TaskService {
                                     "] was not found in reconfiguration plan for job: " + job.getJobId());
     }
 
-    private Set<String> extractNewParentTasks(Set<Task> deletedParentTasks,
+    private Map<String, String> extractNewParentTasks(Set<Task> deletedParentTasks,
             ReconfigurationJobDefinition reconfigurationPlan, Job job) {
-        Set<String> newParentTasks = new HashSet<>();
+        Map<String, String> newParentTasks = new HashMap<>();
         deletedParentTasks.forEach(deletedParentTask -> {
             LOGGER.debug("Mandatory required port detected");
             deletedParentTask.getPortsToOpen().forEach(portToOpen -> {
                 String providedPortName = findProvidedPortName(reconfigurationPlan,
                                                                portToOpen.getRequestedName(),
                                                                job.getJobId());
-                newParentTasks.add(findTaskByProvidedPortName(reconfigurationPlan, providedPortName, job));
+                newParentTasks.put(portToOpen.getRequestedName(),
+                                   findTaskByProvidedPortName(reconfigurationPlan, providedPortName, job));
             });
         });
         return newParentTasks;
@@ -210,12 +228,37 @@ public class TaskService {
         return false;
     }
 
-    private String findRequiredPort(ReconfigurationJobDefinition reconfigurationPlan, String providedPortName) {
+    private Map.Entry<String, String> findRequiredPort(ReconfigurationJobDefinition reconfigurationPlan, Job job,
+            String providedPortName) {
         for (Communication communication : reconfigurationPlan.getCommunications()) {
-            if (Objects.equals(providedPortName, communication.getPortProvided()))
-                return communication.getPortRequired();
+            if (Objects.equals(providedPortName, communication.getPortProvided())) {
+                return new AbstractMap.SimpleEntry<>(findRequiringComponent(reconfigurationPlan,
+                                                                            job,
+                                                                            communication.getPortRequired()),
+                                                     communication.getPortRequired());
+            }
         }
-        return "NOTREQUESTED_" + providedPortName;
+        return new AbstractMap.SimpleEntry<>("", "NOTREQUESTED_" + providedPortName);
+    }
+
+    private String findRequiringComponent(ReconfigurationJobDefinition reconfigurationPlan, Job job,
+            String portRequired) {
+        for (TaskReconfigurationDefinition task : reconfigurationPlan.getAddedTasks()) {
+            for (AbstractPortDefinition portDefinition : task.getTask().getPorts()) {
+                if (portDefinition instanceof PortRequired && portRequired.equals(portDefinition.getName())) {
+                    return task.getTask().getName();
+                }
+            }
+        }
+        for (Task task : job.getTasks()) {
+            for (Port port : task.getPortsToOpen())
+                if (port.getRequestedName().equals(portRequired))
+                    return port.getRequiringComponentName();
+            if (task.getParentTasks().keySet().stream().anyMatch(key -> key.equals(portRequired)))
+                return task.getName();
+        }
+
+        return "";
     }
 
     private boolean taskProvidesPort(Task task, String providedPortName) {
@@ -224,10 +267,5 @@ public class TaskService {
                 return true;
         }
         return false;
-    }
-
-    @Transactional
-    public void cleanDeletedTasksAndDeployments(Set<Task> deletedTasks) {
-        deletedTasks.forEach(repositoryService::deleteTask);
     }
 }
