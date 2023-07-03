@@ -1,4 +1,5 @@
 //Collect public & private IP addresses script
+//TODO: to check if it  is possible to improve this and use a .profile file ?
 def jobId = variables.get("PA_JOB_ID")
 def componentName = variables.get("ComponentName")
 

@@ -356,7 +356,7 @@ public class ScalingService {
         LOGGER.info("Job created: " + paJob.toString());
 
         job.getTasks().forEach(task -> {
-            List<ScriptTask> scriptTasks = taskBuilder.buildScalingInPATask(task, job, scaledTaskName);
+            List<ScriptTask> scriptTasks = taskBuilder.buildScalingInPATask(task, scaledTaskName);
 
             if (scriptTasks != null && !scriptTasks.isEmpty()) {
                 addAllScriptTasksToPAJob(paJob, task, scriptTasks);

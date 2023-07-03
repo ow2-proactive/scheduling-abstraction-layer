@@ -447,7 +447,7 @@ public class TaskBuilder {
         return scriptTaskUpdate;
     }
 
-    private List<ScriptTask> buildScaledPATask(Task task, Job job) {
+    private List<ScriptTask> buildScaledPATask(Task task) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
 
         task.getDeployments().stream().filter(Deployment::getIsDeployed).forEach(deployment -> {
@@ -654,7 +654,7 @@ public class TaskBuilder {
         } else {
             // Using buildScalingInPATask because it handles all the remaining cases
             LOGGER.info("Moving to building with buildScalingInPATask() method");
-            scriptTasks.addAll(buildScalingInPATask(task, job, scaledTaskName));
+            scriptTasks.addAll(buildScalingInPATask(task, scaledTaskName));
         }
 
         return scriptTasks;
@@ -663,17 +663,16 @@ public class TaskBuilder {
     /**
      * Translate a Morphemic task skeleton into a list of ProActive tasks when the job is being scaled in
      * @param task A Morphemic task skeleton
-     * @param job The related job skeleton
      * @param scaledTaskName The scaled task name
      * @return A list of ProActive tasks
      */
-    public List<ScriptTask> buildScalingInPATask(Task task, Job job, String scaledTaskName) {
+    public List<ScriptTask> buildScalingInPATask(Task task, String scaledTaskName) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
 
         if (scaledTaskName.equals(task.getName())) {
             // When the scaled task is the task to be built
             LOGGER.info("Building task " + task.getName() + " as it is scaled out");
-            scriptTasks.addAll(buildScaledPATask(task, job));
+            scriptTasks.addAll(buildScaledPATask(task));
         } else if (task.getParentTasks().containsValue(scaledTaskName)) {
             // When the scaled task is a parent of the task to be built
             LOGGER.info("Building task " + task.getName() + " as a child of task " + scaledTaskName);
