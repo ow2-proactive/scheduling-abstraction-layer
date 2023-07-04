@@ -190,9 +190,7 @@ public class TaskBuilder {
                                                                implementationScript);
             scriptTaskInstall.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_TO_ENV_VARS_SCRIPT,
                                                                                 "groovy"));
-            if (!task.getParentTasks().isEmpty()) {
-                scriptTaskInstall.setVariables(taskVariablesMap);
-            }
+            scriptTaskInstall.setVariables(taskVariablesMap);
             scriptTaskInstall.addGenericInformation("NODE_ACCESS_TOKEN", taskToken);
             scriptTasks.add(scriptTaskInstall);
         }
@@ -222,9 +220,7 @@ public class TaskBuilder {
                                                              implementationScript);
             scriptTaskStart.setPreScript(PAFactory.createSimpleScriptFromFIle(COLLECT_IP_ADDR_TO_ENV_VARS_SCRIPT,
                                                                               "groovy"));
-            if (!task.getParentTasks().isEmpty()) {
-                scriptTaskStart.setVariables(taskVariablesMap);
-            }
+            scriptTaskStart.setVariables(taskVariablesMap);
             if (scriptTaskInstall != null) {
                 scriptTaskStart.addDependence(scriptTaskInstall);
             }
