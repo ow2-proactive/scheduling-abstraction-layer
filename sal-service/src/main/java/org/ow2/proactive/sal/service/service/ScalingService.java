@@ -219,7 +219,7 @@ public class ScalingService {
 
     private void setAllScalingOutMandatoryDependencies(TaskFlowJob paJob, Job jobToSubmit, String scaledTaskName,
             List<Long> newNodesNumbers) {
-        jobToSubmit.getTasks().forEach(task -> {
+        jobToSubmit.getTasks().stream().filter(task -> !task.getDeployments().isEmpty()).forEach(task -> {
             if (task.getParentTasks() != null && !task.getParentTasks().isEmpty()) {
                 task.getParentTasks().forEach((requiredPortName, parentTaskName) -> {
                     paJob.getTasks().forEach(paTask -> {
@@ -230,11 +230,13 @@ public class ScalingService {
                                     if (newNodesNumbers.stream()
                                                        .anyMatch(entry -> paParentTask.getName()
                                                                                       .endsWith(entry.toString()))) {
-                                        if (paTask.getName().contains(task.getDeploymentFirstSubmittedTaskName()) &&
-                                            paParentTask.getName()
-                                                        .contains(jobToSubmit.findTask(parentTaskName)
-                                                                             .getDeploymentLastSubmittedTaskName())) {
-                                            paTask.addDependence(paParentTask);
+                                        if (paTask.getName().contains(task.getDeploymentFirstSubmittedTaskName())) {
+                                            Task maybeParentTask = jobToSubmit.findTask(parentTaskName);
+                                            if (paParentTask.getName()
+                                                            .contains(maybeParentTask.getDeploymentLastSubmittedTaskName())) {
+                                                paTask.addDependence(paParentTask);
+                                            }
+
                                         }
                                     } else {
                                         if (paTask.getName().contains(task.getDeploymentFirstSubmittedTaskName()) &&
@@ -245,18 +247,20 @@ public class ScalingService {
                                 } else if (paTask.getName().contains(scaledTaskName)) {
                                     if (newNodesNumbers.stream().anyMatch(entry -> paTask.getName()
                                                                                          .endsWith(entry.toString()))) {
-                                        if (paTask.getName().contains(task.getDeploymentFirstSubmittedTaskName()) &&
-                                            paParentTask.getName()
-                                                        .contains(jobToSubmit.findTask(parentTaskName)
-                                                                             .getDeploymentLastSubmittedTaskName())) {
-                                            paTask.addDependence(paParentTask);
+                                        if (paTask.getName().contains(task.getDeploymentFirstSubmittedTaskName())) {
+                                            Task maybeParentTask = jobToSubmit.findTask(parentTaskName);
+                                            if (paParentTask.getName()
+                                                            .contains(maybeParentTask.getDeploymentLastSubmittedTaskName())) {
+                                                paTask.addDependence(paParentTask);
+                                            }
                                         }
                                     } else {
-                                        if (paTask.getName().startsWith("prepareInfra") &&
-                                            paParentTask.getName()
-                                                        .contains(jobToSubmit.findTask(parentTaskName)
-                                                                             .getDeploymentLastSubmittedTaskName())) {
-                                            paTask.addDependence(paParentTask);
+                                        if (paTask.getName().startsWith("prepareInfra")) {
+                                            Task maybeParentTask = jobToSubmit.findTask(parentTaskName);
+                                            if (paParentTask.getName()
+                                                            .contains(maybeParentTask.getDeploymentLastSubmittedTaskName())) {
+                                                paTask.addDependence(paParentTask);
+                                            }
                                         }
                                     }
                                 }

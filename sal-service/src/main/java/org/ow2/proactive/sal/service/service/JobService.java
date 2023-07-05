@@ -321,6 +321,7 @@ public class JobService {
      * @param jobId A constructed job identifier
      * @return The submitted job id
      */
+    @Transactional
     public Long submitJob(String sessionId, String jobId) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -377,17 +378,20 @@ public class JobService {
     }
 
     protected void setAllMandatoryDependencies(TaskFlowJob paJob, Job jobToSubmit) {
-        jobToSubmit.getTasks().forEach(task -> {
+        jobToSubmit.getTasks().stream().filter(task -> !task.getDeployments().isEmpty()).forEach(task -> {
             if (task.getParentTasks() != null && !task.getParentTasks().isEmpty()) {
                 task.getParentTasks().forEach((requiredPortName, parentTaskName) -> {
                     paJob.getTasks().forEach(paTask -> {
                         paJob.getTasks().forEach(paParentTask -> {
                             if (paTask.getName().contains(task.getName()) &&
                                 paParentTask.getName().contains(parentTaskName)) {
-                                if (paTask.getName().contains(task.getDeploymentFirstSubmittedTaskName()) &&
-                                    paParentTask.getName().contains(jobToSubmit.findTask(parentTaskName)
-                                                                               .getDeploymentLastSubmittedTaskName())) {
-                                    paTask.addDependence(paParentTask);
+                                if (paTask.getName().contains(task.getDeploymentFirstSubmittedTaskName())) {
+                                    Task maybeParentTask = jobToSubmit.findTask(parentTaskName);
+                                    if (maybeParentTask.getDeploymentLastSubmittedTaskName() != null &&
+                                        paParentTask.getName()
+                                                    .contains(maybeParentTask.getDeploymentLastSubmittedTaskName())) {
+                                        paTask.addDependence(paParentTask);
+                                    }
                                 }
                             }
                         });
