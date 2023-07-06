@@ -13,11 +13,13 @@ providedPorts.each { providedPort ->
                 "PUBLIC_" + providedPort["requiringPortName"],
                 ipAddr + ":" + providedPort["portValue"],
                 "{k, x -> x.concat(\"," + ipAddr + ":" + providedPort["portValue"] + "\")}")
+        println("Component [" + componentName + "] providing: PUBLIC_" + providedPort["requiringPortName"] + "=" + ipAddr + ":" + providedPort["portValue"] + " to [" + providedPort["requiringComponentName"] + "]")
         synchronizationapi.merge(jobId + providedPort["requiringComponentName"],
                 "PRIVATE_" + providedPort["requiringPortName"],
                 prvIpAddr + ":" + providedPort["portValue"],
                 "{k, x -> x.concat(\"," + prvIpAddr + ":" + providedPort["portValue"] + "\")}")
+        println("Component [" + componentName + "] providing: PRIVATE_" + providedPort["requiringPortName"] + "=" + prvIpAddr + ":" + providedPort["portValue"] + " to [" + providedPort["requiringComponentName"] + "]")
     } else {
-        println (providedPort["requiringPortName"] + " = " + ipAddr + ":" + providedPort["portValue"])
+        println ("Component [" + componentName + "] providing: " + providedPort["requiringPortName"] + "=" + ipAddr + ":" + providedPort["portValue"])
     }
 }
