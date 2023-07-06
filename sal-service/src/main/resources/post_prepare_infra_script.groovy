@@ -20,6 +20,6 @@ providedPorts.each { providedPort ->
                 "{k, x -> x.concat(\"," + prvIpAddr + ":" + providedPort["portValue"] + "\")}")
         println("Component [" + componentName + "] providing: PRIVATE_" + providedPort["requiringPortName"] + "=" + prvIpAddr + ":" + providedPort["portValue"] + " to [" + providedPort["requiringComponentName"] + "]")
     } else {
-        println ("Component [" + componentName + "] providing: " + providedPort["requiringPortName"] + " = " + ipAddr + ":" + providedPort["portValue"])
+        println ("Component [" + componentName + "] providing: " + providedPort["requiringPortName"] + "=" + ipAddr + ":" + providedPort["portValue"])
     }
 }
