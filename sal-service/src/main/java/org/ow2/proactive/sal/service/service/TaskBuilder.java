@@ -170,11 +170,9 @@ public class TaskBuilder {
               Strings.isNullOrEmpty(task.getInstallation().getPostInstall()))) {
             String implementationScript;
             if (!Strings.isNullOrEmpty(task.getInstallation().getInstall())) {
-                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
-                                       task.getInstallation().getInstall();
+                implementationScript = task.getInstallation().getInstall();
             } else {
-                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
-                                       "echo \"Installation script is empty. Nothing to be executed.\"";
+                implementationScript = "echo \"Installation script is empty. Nothing to be executed.\"";
             }
 
             if (!Strings.isNullOrEmpty(task.getInstallation().getPreInstall())) {
@@ -185,6 +183,8 @@ public class TaskBuilder {
                 implementationScript = implementationScript + SCRIPTS_SEPARATION_BASH +
                                        task.getInstallation().getPostInstall();
             }
+            implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
+                                   implementationScript;
 
             scriptTaskInstall = PAFactory.createBashScriptTask(task.getName() + "_install" + taskNameSuffix,
                                                                implementationScript);
@@ -200,11 +200,9 @@ public class TaskBuilder {
               Strings.isNullOrEmpty(task.getInstallation().getPostStart()))) {
             String implementationScript;
             if (!Strings.isNullOrEmpty(task.getInstallation().getStart())) {
-                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
-                                       task.getInstallation().getStart();
+                implementationScript = task.getInstallation().getStart();
             } else {
-                implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
-                                       "echo \"Starting script is empty. Nothing to be executed.\"";
+                implementationScript = "echo \"Starting script is empty. Nothing to be executed.\"";
             }
 
             if (!Strings.isNullOrEmpty(task.getInstallation().getPreStart())) {
@@ -215,6 +213,9 @@ public class TaskBuilder {
                 implementationScript = implementationScript + SCRIPTS_SEPARATION_BASH +
                                        task.getInstallation().getPostStart();
             }
+
+            implementationScript = Utils.getContentWithFileName(EXPORT_ENV_VAR_SCRIPT) + SCRIPTS_SEPARATION_BASH +
+                                   implementationScript;
 
             scriptTaskStart = PAFactory.createBashScriptTask(task.getName() + "_start" + taskNameSuffix,
                                                              implementationScript);
