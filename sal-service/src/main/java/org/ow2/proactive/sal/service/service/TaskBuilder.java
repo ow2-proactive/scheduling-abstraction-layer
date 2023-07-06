@@ -56,7 +56,7 @@ public class TaskBuilder {
 
     private static final String NEW_LINE = System.getProperty("line.separator");
 
-    private static final String SCRIPTS_SEPARATION_BASH = NEW_LINE + NEW_LINE + "# Main script" + NEW_LINE + NEW_LINE;
+    private static final String SCRIPTS_SEPARATION_BASH = NEW_LINE + NEW_LINE + "# Separation script" + NEW_LINE + NEW_LINE;
 
     private static final String SCRIPTS_SEPARATION_GROOVY = NEW_LINE + NEW_LINE + "// Separation script" + NEW_LINE +
                                                             NEW_LINE;
