@@ -79,7 +79,7 @@ public class TaskService {
         // Update parent tasks list
         unchangedTask.setParentTasks(updatedParentTasks);
 
-        // Update open to port with new added children tasks
+        // Update ports to open with new added children tasks
         unchangedTask.getPortsToOpen().forEach(port -> {
             Map.Entry<String, String> requestedPortInformation = findRequiredPort(reconfigurationPlan,
                                                                                   job,
@@ -253,9 +253,11 @@ public class TaskService {
         for (Task task : job.getTasks()) {
             for (Port port : task.getPortsToOpen())
                 if (port.getRequestedName().equals(portRequired))
-                    return port.getRequiringComponentName();
+                    return !reconfigurationPlan.getDeletedTasks().contains(port.getRequiringComponentName())
+                                                                                                             ? port.getRequiringComponentName()
+                                                                                                             : "";
             if (task.getParentTasks().keySet().stream().anyMatch(key -> key.equals(portRequired)))
-                return task.getName();
+                return !reconfigurationPlan.getDeletedTasks().contains(task.getName()) ? task.getName() : "";
         }
 
         return "";
