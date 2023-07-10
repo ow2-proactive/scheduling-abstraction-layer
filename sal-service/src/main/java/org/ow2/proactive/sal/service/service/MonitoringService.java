@@ -70,7 +70,7 @@ public class MonitoringService {
      * @return return 0 if the deployment task is properly added.
      */
     @Transactional
-    public Integer addEmsDeployment(String sessionId, EmsDeploymentDefinition emsDeploymentDefinition)
+    public synchronized Integer addEmsDeployment(String sessionId, EmsDeploymentDefinition emsDeploymentDefinition)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -100,7 +100,7 @@ public class MonitoringService {
      * @param isPrivateIp If private ip is needed
      */
     @Transactional
-    public synchronized void addEmsDeploymentForNode(String nodeName, String authorizationBearer, boolean isPrivateIp) {
+    public void addEmsDeploymentForNode(String nodeName, String authorizationBearer, boolean isPrivateIp) {
         LOGGER.info("Adding monitors for node [{}] ...", nodeName);
 
         Deployment deployment = repositoryService.getDeployment(nodeName);
