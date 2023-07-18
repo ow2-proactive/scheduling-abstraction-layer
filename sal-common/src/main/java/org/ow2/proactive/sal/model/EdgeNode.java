@@ -222,4 +222,9 @@ public class EdgeNode extends AbstractNode {
         }
         return o.toString().replace("\n", "\n    ");
     }
+
+    @PreRemove
+    private void cleanMappedDataFirst() {
+        this.ipAddresses.clear();
+    }
 }

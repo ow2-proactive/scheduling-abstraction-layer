@@ -876,6 +876,7 @@ public class RepositoryService {
      * Clean all DB entries
      * @param sessionId A valid session id
      */
+    @Modifying(clearAutomatically = true)
     public void cleanAll(String sessionId) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();

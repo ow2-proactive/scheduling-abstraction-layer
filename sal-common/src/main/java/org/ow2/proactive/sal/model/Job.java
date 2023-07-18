@@ -95,4 +95,10 @@ public class Job implements Serializable {
     public void removeTask(Task taskToDelete) {
         tasks.remove(taskToDelete);
     }
+
+    @PreRemove
+    private void cleanMappedDataFirst() {
+        this.communications.clear();
+        this.variables.clear();
+    }
 }

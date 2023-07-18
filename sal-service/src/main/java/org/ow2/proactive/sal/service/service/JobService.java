@@ -739,6 +739,7 @@ public class JobService {
         ScriptTask scriptTask = taskBuilder.buildInitChannelsTask(job);
         Set<String> firstSubmittedRootTaskNames = job.getRootTasks()
                                                      .stream()
+                                                     .filter(task -> task.getDeployments() != null && !task.getDeployments().isEmpty())
                                                      .map(Task::getDeploymentFirstSubmittedTaskName)
                                                      .collect(Collectors.toSet());
         //TODO: This to be improved in case of scaling (
@@ -761,6 +762,7 @@ public class JobService {
         ScriptTask scriptTask = taskBuilder.buildCleanChannelsTask(job);
         Set<String> lastSubmittedSinkTaskNames = job.getSinkTasks()
                                                     .stream()
+                                                    .filter(task -> task.getDeployments() != null && !task.getDeployments().isEmpty())
                                                     .map(Task::getDeploymentLastSubmittedTaskName)
                                                     .collect(Collectors.toSet());
         //TODO: This to be improved in case of scaling (

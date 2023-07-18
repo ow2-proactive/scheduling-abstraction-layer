@@ -29,10 +29,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -128,5 +125,10 @@ public class CloudConfiguration implements Serializable {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    @PreRemove
+    private void cleanMappedDataFirst() {
+        this.properties.clear();
     }
 }
