@@ -72,4 +72,9 @@ public class DockerEnvironment extends AbstractInstallation {
         }
         return commandString.toString();
     }
+
+    @PreRemove
+    private void cleanMappedDataFirst() {
+        this.environmentVars.clear();
+    }
 }

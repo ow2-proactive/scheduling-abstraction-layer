@@ -180,4 +180,10 @@ public class PACloud implements Serializable {
                blacklist + '\'' + ", deployedRegions=" + deployedRegions + ", deployedWhiteListedRegions=" +
                deployedWhiteListedRegions + ", deployments='" + deploymentsPrint + '\'' + '}';
     }
+
+    @PreRemove
+    private void cleanMappedDataFirst() {
+        this.deployedRegions.clear();
+        this.deployedWhiteListedRegions.clear();
+    }
 }

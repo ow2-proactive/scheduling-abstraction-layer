@@ -152,4 +152,10 @@ public class Task implements Serializable {
         portsJson.append("]");
         return portsJson.toString();
     }
+
+    @PreRemove
+    private void cleanMappedDataFirst() {
+        this.parentTasks.clear();
+        this.submittedTaskNames.clear();
+    }
 }
