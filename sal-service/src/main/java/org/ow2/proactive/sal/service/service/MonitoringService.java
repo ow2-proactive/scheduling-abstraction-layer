@@ -86,7 +86,6 @@ public class MonitoringService {
                                     emsDeploymentDefinition.getAuthorizationBearer(),
                                     emsDeploymentDefinition.isPrivateIP());
             repositoryService.saveDeployment(deployment);
-            repositoryService.flush();
         });
 
         repositoryService.flush();
