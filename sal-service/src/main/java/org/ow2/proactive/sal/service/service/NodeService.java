@@ -42,7 +42,6 @@ import org.ow2.proactive.scheduler.common.job.JobId;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.RestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -73,7 +72,6 @@ public class NodeService {
      * @param jobId A constructed job identifier
      * @return 0 if nodes has been added properly. A greater than 0 value otherwise.
      */
-    @Transactional
     public synchronized Boolean addNodes(String sessionId, List<IaasDefinition> nodes, String jobId)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
@@ -103,8 +101,7 @@ public class NodeService {
      * @param node a Iaas node definition
      * @param job the job
      */
-    @Transactional
-    public void addNode(IaasDefinition node, Job job) {
+    public Deployment addNode(IaasDefinition node, Job job) {
         LOGGER.info("Adding IAAS node {} to job [{}]", node.toString(), job.getJobId());
         Deployment newDeployment = new Deployment();
         newDeployment.setNodeName(node.getName());
@@ -186,6 +183,8 @@ public class NodeService {
         task.addDeployment(newDeployment);
         repositoryService.saveTask(task);
         repositoryService.flush();
+
+        return newDeployment;
     }
 
     /**

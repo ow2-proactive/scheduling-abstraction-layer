@@ -37,7 +37,6 @@ import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Strings;
 
@@ -69,8 +68,7 @@ public class MonitoringService {
      * @param emsDeploymentDefinition An EMS deployment definition
      * @return return 0 if the deployment task is properly added.
      */
-    @Transactional
-    public synchronized Integer addEmsDeployment(String sessionId, EmsDeploymentDefinition emsDeploymentDefinition)
+    public Integer addEmsDeployment(String sessionId, EmsDeploymentDefinition emsDeploymentDefinition)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -82,10 +80,13 @@ public class MonitoringService {
 
         AtomicInteger failedDeploymentIdentification = new AtomicInteger();
         // For supplied node ...
-        emsDeploymentDefinition.getNodeNames()
-                               .forEach(node -> addEmsDeploymentForNode(node,
-                                                                        emsDeploymentDefinition.getAuthorizationBearer(),
-                                                                        emsDeploymentDefinition.isPrivateIP()));
+        emsDeploymentDefinition.getNodeNames().forEach(nodeName -> {
+            Deployment deployment = repositoryService.getDeployment(nodeName);
+            addEmsDeploymentForNode(deployment,
+                                    emsDeploymentDefinition.getAuthorizationBearer(),
+                                    emsDeploymentDefinition.isPrivateIP());
+            repositoryService.saveDeployment(deployment);
+        });
 
         repositoryService.flush();
 
@@ -95,15 +96,13 @@ public class MonitoringService {
 
     /**
      * Add an EMS deployment to a defined node
-     * @param nodeName A valid node name
+     * @param deployment A deployment
      * @param authorizationBearer The ems authorization bearer
      * @param isPrivateIp If private ip is needed
      */
-    @Transactional
-    public void addEmsDeploymentForNode(String nodeName, String authorizationBearer, boolean isPrivateIp) {
-        LOGGER.info("Adding monitors for node [{}] ...", nodeName);
+    public Deployment addEmsDeploymentForNode(Deployment deployment, String authorizationBearer, boolean isPrivateIp) {
+        LOGGER.info("Adding monitors for node [{}] ...", deployment.getNodeName());
 
-        Deployment deployment = repositoryService.getDeployment(nodeName);
         PACloud cloud = deployment.getPaCloud();
         LOGGER.info("The monitors isPrivateIp is set to [{}] ...", isPrivateIp);
 
@@ -125,9 +124,9 @@ public class MonitoringService {
                                                             deployment.getNodeName());
         req = repositoryService.saveEmsDeploymentRequest(req);
         deployment.setEmsDeployment(req);
-        repositoryService.saveDeployment(deployment);
-        repositoryService.flush();
-        LOGGER.info("Monitors added for node [{}].", nodeName);
+
+        LOGGER.info("Monitors added for node [{}].", deployment.getNodeName());
+        return deployment;
     }
 
     /**

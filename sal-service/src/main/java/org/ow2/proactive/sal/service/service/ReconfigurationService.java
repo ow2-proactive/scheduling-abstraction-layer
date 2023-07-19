@@ -134,22 +134,21 @@ public class ReconfigurationService {
                                                                                                reconfigurationPlan,
                                                                                                job));
 
-        // Creating new deployments
-        reconfigurationPlan.getAddedTasks()
-                           .stream()
-                           .map(TaskReconfigurationDefinition::getIaasNodeSelection)
-                           .forEach(iaasDefinition -> nodeService.addNode(iaasDefinition, job));
+        // Creating new deployments with monitors
+        reconfigurationPlan.getAddedTasks().forEach(taskReconfigurationDefinition -> {
+            Deployment newDeployment = nodeService.addNode(taskReconfigurationDefinition.getIaasNodeSelection(), job);
+            if (taskReconfigurationDefinition.getEmsDeploymentDefinition() != null) {
+                newDeployment = monitoringService.addEmsDeploymentForNode(newDeployment,
+                                                                          taskReconfigurationDefinition.getEmsDeploymentDefinition()
+                                                                                                       .getAuthorizationBearer(),
+                                                                          taskReconfigurationDefinition.getEmsDeploymentDefinition()
+                                                                                                       .isPrivateIP());
+                repositoryService.saveDeployment(newDeployment);
+            }
+        });
 
-        // Adding new monitors
-        reconfigurationPlan.getAddedTasks()
-                           .stream()
-                           .filter(taskReconfigurationDefinition -> taskReconfigurationDefinition.getEmsDeploymentDefinition() != null)
-                           .forEach(taskReconfigurationDefinition -> monitoringService.addEmsDeploymentForNode(taskReconfigurationDefinition.getIaasNodeSelection()
-                                                                                                                                            .getName(),
-                                                                                                               taskReconfigurationDefinition.getEmsDeploymentDefinition()
-                                                                                                                                            .getAuthorizationBearer(),
-                                                                                                               taskReconfigurationDefinition.getEmsDeploymentDefinition()
-                                                                                                                                            .isPrivateIP()));
+        // Flushing changes to DB
+        repositoryService.flush();
     }
 
     /**
