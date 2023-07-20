@@ -244,7 +244,7 @@ public class CloudService {
             }
             if (Boolean.TRUE.equals(tempFlag)) {
                 List<Deployment> toBeRemovedDeployments = new ArrayList<>();
-                if (cloud.getDeployments() != null) {
+                if (cloud.getDeployments() != null && !cloud.getDeployments().isEmpty()) {
                     LOGGER.info("Cleaning all deployments related to cloud \"{}\"", cloud.getCloudId());
                     toBeRemovedDeployments.addAll(cloud.getDeployments());
                     for (Deployment deployment : toBeRemovedDeployments) {
@@ -256,11 +256,11 @@ public class CloudService {
                 try {
                     long cleaned = nodeCandidateUtils.cleanNodeCandidates(toBeRemovedClouds);
                     LOGGER.info("Cleaning node candidates related to clouds {} ended properly with {} NC cleaned.",
-                                toBeRemovedClouds.toString(),
+                                toBeRemovedClouds.get(0),
                                 cleaned);
                 } catch (Exception e) {
                     LOGGER.warn("Cleaning node candidates for cloud {} returned an exception!",
-                                toBeRemovedClouds.toString(),
+                                toBeRemovedClouds.get(0),
                                 e);
                 }
                 repositoryService.deletePACloud(cloud);
