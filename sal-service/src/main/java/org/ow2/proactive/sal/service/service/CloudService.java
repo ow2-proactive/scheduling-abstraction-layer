@@ -252,15 +252,15 @@ public class CloudService {
                     }
                 }
                 LOGGER.info("Cleaning node candidates");
-                List<String> toBeRemovedCloud = Collections.singletonList(cloud.getCloudId());
+                List<String> toBeRemovedClouds = Collections.singletonList(cloud.getCloudId());
                 try {
-                    long cleaned = nodeCandidateUtils.cleanNodeCandidates(toBeRemovedCloud);
+                    long cleaned = nodeCandidateUtils.cleanNodeCandidates(toBeRemovedClouds);
                     LOGGER.info("Cleaning node candidates related to clouds {} ended properly with {} NC cleaned.",
-                                toBeRemovedCloud.toString(),
+                                toBeRemovedClouds.toString(),
                                 cleaned);
                 } catch (Exception e) {
                     LOGGER.warn("Cleaning node candidates for cloud {} returned an exception!",
-                                toBeRemovedCloud.toString(),
+                                toBeRemovedClouds.toString(),
                                 e);
                 }
                 repositoryService.deletePACloud(cloud);
