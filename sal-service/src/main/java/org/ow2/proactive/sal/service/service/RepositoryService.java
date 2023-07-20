@@ -287,6 +287,7 @@ public class RepositoryService {
     @Modifying(clearAutomatically = true)
     public Deployment deleteDeployment(Deployment deployment) {
         // remove deployments from paCloud
+        LOGGER.info("Cleaning deployment \"{}\" from the cloud entry.", deployment.getNodeName());
         deployment.getPaCloud().removeDeployment(deployment);
         savePACloud(deployment.getPaCloud());
         // decrease iaasnode
@@ -296,6 +297,7 @@ public class RepositoryService {
         }
         // ?check byonnode/edge?
         // remove deployment from task
+        LOGGER.info("Cleaning deployment \"{}\" from the related tasks.", deployment.getNodeName());
         deployment.getTask().removeDeployment(deployment);
         saveTask(deployment.getTask());
         // remove deployment
