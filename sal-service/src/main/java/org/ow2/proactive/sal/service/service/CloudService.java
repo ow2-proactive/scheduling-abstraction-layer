@@ -35,6 +35,7 @@ import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.model.*;
+import org.ow2.proactive.sal.service.nc.NodeCandidateUtils;
 import org.ow2.proactive.sal.service.nc.UpdatingNodeCandidatesUtils;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.infrastructure.PAConnectorIaasGateway;
@@ -65,6 +66,9 @@ public class CloudService {
 
     @Autowired
     private UpdatingNodeCandidatesUtils updatingNodeCandidatesUtils;
+
+    @Autowired
+    private NodeCandidateUtils nodeCandidateUtils;
 
     @Autowired
     private RepositoryService repositoryService;
@@ -239,17 +243,25 @@ public class CloudService {
                              cloud.getCloudType());
             }
             if (Boolean.TRUE.equals(tempFlag)) {
+                List<Deployment> toBeRemovedDeployments = new ArrayList<>();
                 if (cloud.getDeployments() != null) {
-                    LOGGER.info("Cleaning deployments from related tasks " + cloud.getDeployments().toString());
-                    cloud.getDeployments().forEach(deployment -> deployment.getTask().removeDeployment(deployment));
+                    LOGGER.info("Cleaning all deployments related to cloud \"{}\"", cloud.getCloudId());
+                    toBeRemovedDeployments.addAll(cloud.getDeployments());
+                    for (Deployment deployment : toBeRemovedDeployments) {
+                        repositoryService.deleteDeployment(deployment);
+                    }
                 }
-                LOGGER.info("Cleaning deployments from the cloud entry");
-                cloud.clearDeployments();
                 LOGGER.info("Cleaning node candidates");
+                List<String> toBeRemovedCloud = Collections.singletonList(cloud.getCloudId());
                 try {
-                    ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncClean(Collections.singletonList(cloud.getCloudId())));
-                } catch (InterruptedException ie) {
-                    LOGGER.warn("Thread cleaning node candidates interrupted!", ie);
+                    long cleaned = nodeCandidateUtils.cleanNodeCandidates(toBeRemovedCloud);
+                    LOGGER.info("Cleaning node candidates related to clouds {} ended properly with {} NC cleaned.",
+                                toBeRemovedCloud.toString(),
+                                cleaned);
+                } catch (Exception e) {
+                    LOGGER.warn("Cleaning node candidates for cloud {} returned an exception!",
+                                toBeRemovedCloud.toString(),
+                                e);
                 }
                 repositoryService.deletePACloud(cloud);
                 LOGGER.info("Cloud removed.");

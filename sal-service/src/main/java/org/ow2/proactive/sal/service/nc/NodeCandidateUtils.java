@@ -500,6 +500,7 @@ public class NodeCandidateUtils {
     }
 
     public long cleanNodeCandidates(List<String> newCloudIds) {
+        // TODO this function to be optimized, extremely slow
         return repositoryService.listNodeCandidates()
                                 .stream()
                                 .filter(nodeCandidate -> newCloudIds.contains(nodeCandidate.getCloud().getId()))
