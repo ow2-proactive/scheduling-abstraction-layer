@@ -881,20 +881,22 @@ public class RepositoryService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        LOGGER.info("Cleaning Jobs ...");
-        jobRepository.deleteAll();
         LOGGER.info("Cleaning Deployments ...");
-        deploymentRepository.deleteAll();
+        for (Deployment deployment : deploymentRepository.findAll()) {
+            this.deleteDeployment(deployment);
+        }
+        LOGGER.info("Cleaning EmsDeploymentRequests ...");
+        emsDeploymentRequestRepository.deleteAll();
         LOGGER.info("Cleaning PAClouds ...");
         paCloudRepository.deleteAll();
+        LOGGER.info("Cleaning Credentials ...");
+        credentialsRepository.deleteAll();
+        LOGGER.info("Cleaning Jobs ...");
+        jobRepository.deleteAll();
         LOGGER.info("Cleaning Tasks ...");
         taskRepository.deleteAll();
         LOGGER.info("Cleaning Ports ...");
         portRepository.deleteAll();
-        LOGGER.info("Cleaning Credentials ...");
-        credentialsRepository.deleteAll();
-        LOGGER.info("Cleaning EmsDeploymentRequests ...");
-        emsDeploymentRequestRepository.deleteAll();
         LOGGER.info("Cleaning Clouds ...");
         cloudRepository.deleteAll();
         LOGGER.info("Cleaning Images ...");
