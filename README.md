@@ -18,9 +18,13 @@ Scheduling Abstraction Layer (SAL) is an abstraction layer developed as part of 
 
 ## Introduction
 
-SAL is a project developed under the EU project Morphemic. It offers an abstraction layer on top of the ProActive Scheduler & Resource Manager, making it easier for users to interact with the scheduler and take advantage of its features. Whether you want to use SAL as a microservice or deploy it as a Docker container, this repository provides the necessary resources to get you started.
+SAL is a project developed under the Morphemic project, part of the EU's Horizon 2020 initiative. It offers an abstraction layer on top of the ProActive Scheduler & Resource Manager, making it easier for users to interact with the scheduler and take advantage of its features. Whether you want to use SAL as a microservice or deploy it as a Docker container, this repository provides the necessary resources to get you started.
 
 ## Installation
+
+SAL can be used either as a standalone microservice or as a Docker container. Choose the approach that best suits your requirements.
+
+### As Microservice
 
 To use SAL as a microservice, follow these steps:
 
@@ -37,6 +41,8 @@ cd scheduling-abstraction-layer
 ./gradlew clean build
 ```
 
+### As Docker Container
+
 To use SAL as a Docker container, pull the public Docker image from DockerHub:
 
 ```bash
@@ -44,8 +50,6 @@ docker pull activeeon/sal
 ```
 
 ## Usage
-
-SAL can be used either as a standalone microservice or as a Docker container. Choose the approach that best suits your requirements.
 
 ### Using SAL as a Microservice
 
@@ -55,7 +59,7 @@ To run SAL as a microservice, execute the following command:
 ./gradlew bootRun
 ```
 
-This will start the microservice, and you can now interact with it through various endpoints.
+This will start the microservice allowing you to interact with it through various endpoints.
 
 ### Using SAL as a Docker Container
 
