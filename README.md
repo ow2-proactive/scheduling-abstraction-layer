@@ -1,176 +1,105 @@
-# **Scheduling Abstraction Layer** (yet another microservice template)
-Restful microservice template from ProActive
+# Scheduling Abstraction Layer (SAL)
 
-## Purpose
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java 8](https://img.shields.io/badge/Java-8-blue.svg)](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-1.3.8-brightgreen.svg)](https://spring.io/projects/spring-boot)
 
-The purpose of the microservice template is to have common template for new microservice's implementation.
+Scheduling Abstraction Layer (SAL) is an abstraction layer developed as part of the EU project Morphemic. SAL aims to enhance the usability of ProActive Scheduler & Resource Manager by providing abstraction and additional features.
 
-## Build Badges
+## Table of Contents
 
-To insert a build-badge like this one:
-[![Build Status](http://jenkins.activeeon.com/buildStatus/icon?job=scheduling)](http://jenkins.activeeon.com/job/scheduling/)
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Endpoints](#endpoints)
+- [Contributing](#contributing)
+- [License](#license)
 
-We need to use the following code after creating the associated job on Jenkins:
-```
-[![Build Status](http://jenkins.activeeon.com/buildStatus/icon?job=<insert microservice job name>)](http://jenkins.activeeon.com/job/<insert microservice job name>/)
-```
+## Introduction
 
-Same goes for the coveralls-badge:
-```
-[![Coverage Status](https://coveralls.io/repos/github/ow2-proactive/microservice-template/badge.svg?branch=origin%2Fmaster)](https://coveralls.io/github/ow2-proactive/microservice-template?branch=origin%2Fmaster)
-```
+SAL is a project developed under the Morphemic project, part of the EU's Horizon 2020 initiative. It offers an abstraction layer on top of the ProActive Scheduler & Resource Manager, making it easier for users to interact with the scheduler and take advantage of its features. Whether you want to use SAL as a microservice or deploy it as a Docker container, this repository provides the necessary resources to get you started.
 
-## Specific modifications
-The following modifications are needed before starting to work on the micro-service:
-* In the **gradle.properties** modify the version, projectName, packageLastPartName (the last part in package name).<br>
-   The version should correspond to current release snaphot. This version will be used for downloading the specific version of libraries for dependency management.
-* In the **src/main/resources/log4j2.xml** change the log file name from 'micro-service.log'
-* In the **src/main/webapp/WEB-INF/applicationContext.xml** specify the correct package name in base-package (change the microservice_template name to the packageLastPartName already specified in properties)
-* In the main/java modify the **package name** to your need.
-These changes will impact at the springBoot section in build.gradle file. By default the Application.java from this package will start on bootRun.
+## Installation
 
-## Prepare your IDE
-In the project is used Lombok library. It is needed to install plugin to be able to use it.
-In the IntelliJ IDEA to be able to see Lombok generated code, you should enable the annotation preprocessor. [See documentation here.](https://www.jetbrains.com/help/idea/2016.1/configuring-annotation-processing.html) (Settings->Build->Compiler->Annotation Processors: Enable annotation preprocessing)
+SAL can be used either as a standalone microservice or as a Docker container. Choose the approach that best suits your requirements.
 
-## Building and running the micro-service
+### As Microservice
 
-You can start a microservice as a standalone application:
-```
-$ gradlew clean build bootRun
+To use SAL as a microservice, follow these steps:
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/ow2-proactive/scheduling-abstraction-layer.git
+cd scheduling-abstraction-layer
 ```
 
-You can build a WAR file as follows:
+2. Build the microservice:
 
-```
-$ gradlew clean build war
-```
-
-Then, you can directly deploy the service with embedded Tomcat:
-
-```
-$ java -jar build/libs/microservice-template-X.Y.Z-SNAPSHOT.war
+```bash
+./gradlew clean build
 ```
 
-The WAR file produced by Gradle can also be deployed in the embedded Jetty container started by an instance of [ProActive Server](https://github.com/ow2-proactive/scheduling).
+### As Docker Container
 
-Sometimes the gradle processes are not killing properly when you stop the running application. If you receive the message "the port is already in use" on starting microservice, then kill all suspending gradle processes for previous task. You can do it manually or use in IntelliJ IDEA Gradle killer plugin.
+To use SAL as a Docker container, pull the public Docker image from DockerHub:
 
-## Example
-The template is organized with a complete RESTful example. The example follows MVC packaging structure and covered by tests.
-The purpose of example to make more easy developing of new service.
-To try it out use Swagger or (http://localhost:8080/users).<br>
-
-## Swagger
-
-Available resources can be listed and tested with Swagger. The associated code is in the **Application.java** file:
-Modify the name of microservice-template in title, description, licenseUrl, groupName sections. Put right allowedPaths.<br>
-To access Swagger API:
-
-[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
-
-## DB configuration
-
-#### Dependencies
-Add next dependencies to **build.gradle** file
-```
-compile 'org.springframework.boot:spring-boot-starter-data-jpa:1.3.3.RELEASE'
-providedRuntime 'org.hsqldb:hsqldb:2.3.3'
+```bash
+docker pull activeeon/sal
 ```
 
-In the **src/main/resources/application.properties** add configurations specific to your project:
-```
-logging.level.org.hibernate.SQL=off
-# Hibernate ddl auto (create, create-drop, update)
-spring.jpa.hibernate.ddl-auto=update
-# Show or not log for each sql query
-spring.jpa.show-sql=false
-```
-#### Configuration class
-For using DB configuration include next class to your project.
-Of course change 'microservice-template' name to proper one.
+## Usage
 
-```
-@Configuration
-public class DBConfiguration {
+### Using SAL as a Microservice
 
-    @Value("${spring.datasource.driverClassName:org.hsqldb.jdbc.JDBCDriver}")
-    private String dataSourceDriverClassName;
+To run SAL as a microservice, execute the following command:
 
-    @Value("${spring.datasource.url:}")
-    private String dataSourceUrl;
-
-    @Value("${spring.datasource.username:root}")
-    private String dataSourceUsername;
-
-    @Value("${spring.datasource.password:}")
-    private String dataSourcePassword;
-
-    @Bean
-    @Profile("default")
-    public DataSource defaultDataSource() {
-        String jdbcUrl = dataSourceUrl;
-
-        if (jdbcUrl.isEmpty()) {
-            jdbcUrl = "jdbc:hsqldb:file:" + getDatabaseDirectory()
-                    + ";create=true;hsqldb.tx=mvcc;hsqldb.applog=1;hsqldb.sqllog=0;hsqldb.write_delay=false";
-        }
-
-        return DataSourceBuilder
-                .create()
-                .username(dataSourceUsername)
-                .password(dataSourcePassword)
-                .url(jdbcUrl)
-                .driverClassName(dataSourceDriverClassName)
-                .build();
-    }
-
-    @Bean
-    @Profile("mem")
-    public DataSource memDataSource() {
-        return createMemDataSource();
-    }
-
-    @Bean
-    @Profile("test")
-    public DataSource testDataSource() {
-        return createMemDataSource();
-    }
-
-    private DataSource createMemDataSource() {
-        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        EmbeddedDatabase db = builder
-                .setType(EmbeddedDatabaseType.HSQL)
-                .build();
-        return db;
-    }
-
-    private String getDatabaseDirectory() {
-        String proactiveHome = System.getProperty("proactive.home");
-
-        if (proactiveHome == null) {
-            return System.getProperty("java.io.tmpdir") + File.separator
-                    + "proactive" + File.separator + "microservice-template";
-        }
-
-        return proactiveHome + File.separator + "data"
-                + File.separator + "db" + File.separator + "microservice-template";
-    }
-}
+```bash
+./gradlew bootRun
 ```
 
-In application.properties add next information with correct values for your project
+This will start the microservice allowing you to interact with it through various endpoints.
+
+### Using SAL as a Docker Container
+
+To deploy SAL as a Docker container, run the following command:
+
+```bash
+docker run -p 8080:8080 activeeon/sal
+```
+
+This will start the SAL service within a Docker container, and it will be accessible on port 8080.
+
+## Configuration
+
+Before using SAL, you need to configure the ProActive Server it will connect to. Use the following endpoints for configuration:
+
+- To initialize the ProActive Server, use the init endpoint:
 
 ```
-# DataSource settings: set here your own configurations for the database connection.
-spring.datasource.driverClassName=org.hsqldb.jdbc.JDBCDriver
-spring.datasource.url=jdbc:hsqldb:file:/tmp/proactive/microservice-template;create=true;hsqldb.tx=mvcc;hsqldb.applog=1;hsqldb.sqllog=0;hsqldb.write_delay=false
-spring.datasource.username=root
-spring.datasource.password=
+{protocol}://{host}:{port}/sal/pagateway/init
 ```
 
-## Testing
+- To connect to the ProActive Server, use the connect endpoint:
 
-In order to follow the best testing practises it is included testing part of Spring components with Mockito.<br>
-For integration test it is provided code in SpringUserRestTest class. For testing REST methods is used RestTemplate from spring framework.<br>
-You can also use Rest Assured library, that is already included in list of imported libraries in the gradle file.
+```
+{protocol}://{host}:{port}/sal/pagateway/connect
+```
+
+## Endpoints
+
+[//]: #TODO (javadoc link to be added)
+SAL provides multiple endpoints that you can use to interact with the ProActive Scheduler & Resource Manager. For detailed information on each endpoint, please refer to the project's [Javadoc](https://link-to-javadoc).
+
+## Contributing
+
+Contributions to SAL are welcome! If you have any bug fixes, improvements, or new features to propose, please feel free to open a pull request. For major changes, it is recommended to discuss your ideas with the maintainers first.
+
+## License
+
+Scheduling Abstraction Layer (SAL) is distributed under the [MIT License](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE). Please see the [LICENSE](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE) file for more information.
+
+---
+
+Thank you for using Scheduling Abstraction Layer (SAL)! If you encounter any issues or have questions, please feel free to open an issue in the repository. We hope SAL enhances your experience with ProActive Scheduler & Resource Manager!
