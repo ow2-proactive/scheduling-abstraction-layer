@@ -656,6 +656,16 @@ public class RepositoryService {
         return instanceToRemove;
     }
 
+    @Modifying(clearAutomatically = true)
+    public void deleteBatchNodeCandidates(List<String> toBeRemovedClouds) {
+        for (String cloud : toBeRemovedClouds)
+            nodeCandidateRepository.deleteBatchNodeCandidates(getCloud(cloud));
+        cloudRepository.deleteOrphanCloudIds();
+        imageRepository.deleteOrphanImageIds();
+        hardwareRepository.deleteOrphanHardwareIds();
+        locationRepository.deleteOrphanLocationIds();
+    }
+
     /**
      * Delete the nodeCandidate to be removed related node
      * @param nodeCandidateToBeRemoved the node candidate to be removed
@@ -675,6 +685,16 @@ public class RepositoryService {
             default:
                 LOGGER.warn("To be deleted node type not supported yet!");
         }
+    }
+
+    @Modifying(clearAutomatically = true)
+    public void deleteBatchNodes(List<NodeCandidate> nodeCandidatesToBeRemoved) {
+        //TODO: try to change this and create a query that will take an iterable of the node candidates
+        // and deletes all the nodes in one query.
+        nodeCandidatesToBeRemoved.forEach(nc -> {
+            NodeCandidate instanceToRemove = getNodeCandidate(nc.getId());
+            this.deleteOrphanNode(instanceToRemove);
+        });
     }
 
     /**

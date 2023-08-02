@@ -500,11 +500,24 @@ public class NodeCandidateUtils {
     }
 
     public long cleanNodeCandidates(List<String> newCloudIds) {
-        // TODO this function to be optimized, extremely slow
-        return repositoryService.listNodeCandidates()
-                                .stream()
-                                .filter(nodeCandidate -> newCloudIds.contains(nodeCandidate.getCloud().getId()))
-                                .map(nodeCandidate -> repositoryService.deleteNodeCandidate(nodeCandidate.getId()))
-                                .count();
+        List<NodeCandidate> nodeCandidates = repositoryService.listNodeCandidates()
+                                                              .stream()
+                                                              .filter(nodeCandidate -> newCloudIds.contains(nodeCandidate.getCloud()
+                                                                                                                         .getId()))
+                                                              .collect(Collectors.toList());
+        try {
+            LOGGER.info("Deleting nodes associated with the clouds {}", newCloudIds);
+            // TODO: try finding a way to delete the nodes in batch rather than one by one
+            repositoryService.deleteBatchNodes(nodeCandidates);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred when deleting the nodes of the clouds {}: {}", newCloudIds, e);
+        }
+        try {
+            LOGGER.info("Deleting node candidates associated with the clouds {}", newCloudIds);
+            repositoryService.deleteBatchNodeCandidates(newCloudIds);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred when deleting the node candidates of the clouds {}: {}", newCloudIds, e);
+        }
+        return nodeCandidates.size();
     }
 }
