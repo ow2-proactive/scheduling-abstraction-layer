@@ -658,8 +658,8 @@ public class RepositoryService {
 
     @Modifying(clearAutomatically = true)
     public void deleteBatchNodeCandidates(List<String> toBeRemovedClouds) {
-        for (String cloud : toBeRemovedClouds)
-            nodeCandidateRepository.deleteBatchNodeCandidates(getCloud(cloud));
+        for (String cloudId : toBeRemovedClouds)
+            nodeCandidateRepository.deleteBatchNodeCandidates(getCloud(cloudId));
         cloudRepository.deleteOrphanCloudIds();
         imageRepository.deleteOrphanImageIds();
         hardwareRepository.deleteOrphanHardwareIds();
@@ -691,10 +691,7 @@ public class RepositoryService {
     public void deleteBatchNodes(List<NodeCandidate> nodeCandidatesToBeRemoved) {
         //TODO: try to change this and create a query that will take an iterable of the node candidates
         // and deletes all the nodes in one query.
-        nodeCandidatesToBeRemoved.forEach(nc -> {
-            NodeCandidate instanceToRemove = getNodeCandidate(nc.getId());
-            this.deleteOrphanNode(instanceToRemove);
-        });
+        nodeCandidatesToBeRemoved.forEach(this::deleteOrphanNode);
     }
 
     /**
