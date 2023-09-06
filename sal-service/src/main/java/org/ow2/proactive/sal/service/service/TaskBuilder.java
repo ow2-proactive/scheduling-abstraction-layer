@@ -98,7 +98,7 @@ public class TaskBuilder {
 
     private static final String WAIT_FOR_LOCK_SCRIPT = "wait_for_lock_script.sh";
 
-    private static final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$";
+    private static final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$|^On-Prem-Server-Static-Nodes$";
 
     private static final String COMPONENT_NAME_VARIABLE_NAME = "ComponentName";
 
