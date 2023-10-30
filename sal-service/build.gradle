@@ -45,8 +45,11 @@ dependencies {
     testCompile 'com.google.code.gson:gson'
     testCompile 'com.jayway.restassured:rest-assured'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testRuntime 'org.apache.tomcat.embed:tomcat-embed-core:8.5.43'
+    testRuntime 'org.apache.tomcat.embed:tomcat-embed-el:8.5.43'
+    testRuntime 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.43'
 
-    providedRuntime 'org.hsqldb:hsqldb'
+    providedRuntime 'org.hsqldb:hsqldb:2.7.2:jdk8'
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
     runtime('org.hibernate:hibernate-hikaricp') {
