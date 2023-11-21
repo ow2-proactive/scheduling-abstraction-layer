@@ -53,6 +53,7 @@ def infrastructureParameters = [variables.get("aws_username"), //username
                                 variables.get("sshKeyPairName"), //sshKeyPair
                                 "", //ram
                                 "", //Ncore
+                                "", //VmType
                                 variables.get("security_group"), //sg
                                 variables.get("subnet"), //subnet
                                 variables.get("rm_host_name"), //host
