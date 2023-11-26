@@ -53,7 +53,7 @@ import lombok.extern.log4j.Log4j2;
 @Service("CloudService")
 public class CloudService {
 
-    private static final List<Future<Boolean>> ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS = new ArrayList<>();
+    private static List<Future<Boolean>> ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS = new ArrayList<>();
 
     @Autowired
     private PAGatewayService paGatewayService;
@@ -138,9 +138,13 @@ public class CloudService {
 
     private void cleanDoneAsyncProcesses() {
         LOGGER.info("Cleaning ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS structure ...");
-        ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.stream()
-                                               .filter(Future::isDone)
-                                               .forEach(ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS::remove);
+        List<Future<Boolean>> updatedList = new ArrayList<>();
+        for (Future<Boolean> f : ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS) {
+            if (!f.isDone()) {
+                updatedList.add(f);
+            }
+        }
+        ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS = updatedList;
     }
 
     /**
