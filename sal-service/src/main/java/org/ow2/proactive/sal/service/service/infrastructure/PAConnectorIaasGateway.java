@@ -77,8 +77,10 @@ public class PAConnectorIaasGateway {
                                             "/nodecandidates")
                                    .addParameter("region", region)
                                    .addParameter("imageReq", imageReq)
-                                   .addParameter("nextToken", token)
                                    .build();
+        if (!token.isEmpty()) {
+            requestUri = uriBuilder.addParameter("nextToken", token).build();
+        }
 
         nodeCandidates = ConnectionHelper.sendGetRequestAndReturnObjectResponse(requestUri);
         LOGGER.info("Node candidates retrieved for successfully: {}", nodeCandidates);
