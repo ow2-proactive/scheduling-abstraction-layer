@@ -53,7 +53,7 @@ import lombok.extern.log4j.Log4j2;
 @Service("CloudService")
 public class CloudService {
 
-    private static List<Future<Boolean>> ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS = new ArrayList<>();
+    private static List<Future<Boolean>> asyncNodeCandidatesProcessesResults = new ArrayList<>();
 
     @Autowired
     private PAGatewayService paGatewayService;
@@ -128,7 +128,7 @@ public class CloudService {
 
         cleanDoneAsyncProcesses();
         try {
-            ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.add(updatingNodeCandidatesUtils.asyncUpdate(savedCloudIds));
+            asyncNodeCandidatesProcessesResults.add(updatingNodeCandidatesUtils.asyncUpdate(savedCloudIds));
         } catch (InterruptedException ie) {
             LOGGER.warn("Thread updating node candidates interrupted!", ie);
         }
@@ -136,15 +136,15 @@ public class CloudService {
         return 0;
     }
 
-    private void cleanDoneAsyncProcesses() {
-        LOGGER.info("Cleaning ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS structure ...");
+    private static void cleanDoneAsyncProcesses() {
+        LOGGER.info("Cleaning asyncNodeCandidatesProcessesResults structure ...");
         List<Future<Boolean>> updatedList = new ArrayList<>();
-        for (Future<Boolean> f : ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS) {
+        for (Future<Boolean> f : asyncNodeCandidatesProcessesResults) {
             if (!f.isDone()) {
                 updatedList.add(f);
             }
         }
-        ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS = updatedList;
+        asyncNodeCandidatesProcessesResults = updatedList;
     }
 
     /**
@@ -156,7 +156,7 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return ASYNC_NODE_CANDIDATES_PROCESSES_RESULTS.stream().parallel().anyMatch(result -> !result.isDone());
+        return asyncNodeCandidatesProcessesResults.stream().parallel().anyMatch(result -> !result.isDone());
     }
 
     /**
