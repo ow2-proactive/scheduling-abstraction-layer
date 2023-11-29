@@ -92,7 +92,7 @@
 
 ```Json
 {
-	"<BYON_ID>":"<DEPLOYMENT_NAME>/<COMPONENT_NAME>"
+    "<BYON_ID>":"<DEPLOYMENT_NAME>/<COMPONENT_NAME>"
 }
 ```
 

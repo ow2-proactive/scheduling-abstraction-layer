@@ -34,7 +34,7 @@ For more details about these filters you can check the SAL code [NodeCandidateUt
         "requirementClass": "hardware",
         "requirementAttribute": "cores",
         "requirementOperator": "EQ",
-        "value": "2" 
+        "value": "2"
     },
         {
         "type": "AttributeRequirement",
@@ -80,18 +80,18 @@ For more details about these filters you can check the SAL code [NodeCandidateUt
 
 ```json
 [
-	{
-		"nodeName": "component-App-1-0",
-		"taskName": "Component_App",
-		"nodeCandidateId": "<NODE_CANDIDATE_ID>",
-		"cloudId": "<CLOUD_ID>"
-	},
-	{
-		"nodeName": "component-LB-1-0",
-		"taskName": "Component_LB",
-		"nodeCandidateId": "<NODE_CANDIDATE_ID>",
-		"cloudId": "<CLOUD_ID>"
-	}
+    {
+        "nodeName": "component-App-1-0",
+        "taskName": "Component_App",
+        "nodeCandidateId": "<NODE_CANDIDATE_ID>",
+        "cloudId": "<CLOUD_ID>"
+    },
+    {
+        "nodeName": "component-LB-1-0",
+        "taskName": "Component_LB",
+        "nodeCandidateId": "<NODE_CANDIDATE_ID>",
+        "cloudId": "<CLOUD_ID>"
+    }
 ]
 ```
 
@@ -128,7 +128,7 @@ For more details about these filters you can check the SAL code [NodeCandidateUt
 ```json
 [
     "<NODE_ID>",
-    "<NODE_ID>", 
+    "<NODE_ID>",
 ]
 ```
 
