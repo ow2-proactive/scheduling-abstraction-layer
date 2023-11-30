@@ -152,6 +152,6 @@
 ```json
 [
     "<CLOUD_ID>",
-    "<CLOUD_ID>" 
+    "<CLOUD_ID>"
 ]
 ```

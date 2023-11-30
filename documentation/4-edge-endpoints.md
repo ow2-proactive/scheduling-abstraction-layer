@@ -93,7 +93,7 @@
 
 ```Json
 {
-	"<Edge_ID>":"<DEPLOYMENT_NAME>/<COMPONENT_NAME>"
+    "<Edge_ID>":"<DEPLOYMENT_NAME>/<COMPONENT_NAME>"
 }
 ```
 
