@@ -79,7 +79,8 @@ public class CloudService {
      * @param clouds A list of CloudDefinition instances
      * @return 0 if clouds has been added properly. A greater than 0 value otherwise.
      */
-    public Integer addClouds(String sessionId, List<CloudDefinition> clouds) throws NotConnectedException {
+    public Integer addCloudsAndUpdateNodeCandidates(String sessionId, List<CloudDefinition> clouds)
+            throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }

@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiParam;
 
 
 @RestController
-@RequestMapping(value = "/cloud")
+@RequestMapping(value = "/clouds")
 @Api(description = "Operations on clouds", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class CloudRest {
 
@@ -51,17 +51,17 @@ public class CloudRest {
     private CloudService cloudService;
 
     @RequestMapping(method = RequestMethod.POST)
-    @ApiOperation(value = "Add clouds to SAL", response = Integer.class)
+    @ApiOperation(value = "Add clouds to SAL and update node candidates asynchronously according to cloud params", response = Integer.class)
     public ResponseEntity<Integer> addClouds(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A list of CloudDefinition instances in json format", required = true)
     @RequestBody
     final List<CloudDefinition> clouds) throws NotConnectedException {
-        return ResponseEntity.ok(cloudService.addClouds(sessionId, clouds));
+        return ResponseEntity.ok(cloudService.addCloudsAndUpdateNodeCandidates(sessionId, clouds));
     }
 
     @RequestMapping(value = "/async", method = RequestMethod.GET)
-    @ApiOperation(value = "Is any async node candidates process in progress?", response = Integer.class)
+    @ApiOperation(value = "Verify if there is any asynchronous fetching/cleaning node candidates process in progress", response = Integer.class)
     public ResponseEntity<Boolean> isAnyAsyncNodeCandidatesProcessesInProgress(
             @ApiParam(value = "Proactive authentication session id", required = true)
             @RequestHeader(value = "sessionid")
@@ -80,6 +80,51 @@ public class CloudRest {
             return ResponseEntity.ok(cloudService.findCloudsByIds(sessionId, cloudIds.get()));
         } else {
             return ResponseEntity.ok(cloudService.getAllClouds(sessionId));
+        }
+    }
+
+    @RequestMapping(value = "/images", method = RequestMethod.GET)
+    @ApiOperation(value = "Get the list of all images of all registered clouds or related to a specified one", response = Image.class, responseContainer = "List")
+    public ResponseEntity<List<Image>>
+            getCloudImages(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "Cloud id")
+    @RequestParam(value = "cloudid")
+    final Optional<String> cloudId) throws NotConnectedException {
+        if (cloudId.isPresent()) {
+            return ResponseEntity.ok(cloudService.getCloudImages(sessionId, cloudId.get()));
+        } else {
+            return ResponseEntity.ok(cloudService.getAllCloudImages(sessionId));
+        }
+    }
+
+    @RequestMapping(value = "/locations", method = RequestMethod.GET)
+    @ApiOperation(value = "Get the list of all locations of all registered clouds or related to a specified one", response = Location.class, responseContainer = "List")
+    public ResponseEntity<List<Location>>
+            getCloudLocations(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "Proactive authentication session id")
+    @RequestParam(value = "cloudid")
+    final Optional<String> cloudId) throws NotConnectedException {
+        if (cloudId.isPresent()) {
+            return ResponseEntity.ok(cloudService.getCloudLocations(sessionId, cloudId.get()));
+        } else {
+            return ResponseEntity.ok(cloudService.getAllCloudLocations(sessionId));
+        }
+    }
+
+    @RequestMapping(value = "/hardware", method = RequestMethod.GET)
+    @ApiOperation(value = "Get the list of all available hardware related to a registered cloud", response = Hardware.class, responseContainer = "List")
+    public ResponseEntity<List<Hardware>>
+            getCloudHardwares(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "Proactive authentication session id")
+    @RequestParam(value = "cloudid")
+    final Optional<String> cloudId) throws NotConnectedException {
+        if (cloudId.isPresent()) {
+            return ResponseEntity.ok(cloudService.getCloudHardwares(sessionId, cloudId.get()));
+        } else {
+            return ResponseEntity.ok(cloudService.getAllCloudHardwares(sessionId));
         }
     }
 
@@ -111,48 +156,4 @@ public class CloudRest {
         return ResponseEntity.ok(cloudService.removeClouds(sessionId, cloudIds, preempt));
     }
 
-    @RequestMapping(value = "/images", method = RequestMethod.GET)
-    @ApiOperation(value = "Get the list of all available images related to a registered cloud", response = Image.class, responseContainer = "List")
-    public ResponseEntity<List<Image>>
-            getCloudImages(@ApiParam(value = "Proactive authentication session id", required = true)
-    @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A valid cloud identifier")
-    @RequestParam(value = "cloudid")
-    final Optional<String> cloudId) throws NotConnectedException {
-        if (cloudId.isPresent()) {
-            return ResponseEntity.ok(cloudService.getCloudImages(sessionId, cloudId.get()));
-        } else {
-            return ResponseEntity.ok(cloudService.getAllCloudImages(sessionId));
-        }
-    }
-
-    @RequestMapping(value = "/hardware", method = RequestMethod.GET)
-    @ApiOperation(value = "Get the list of all available hardwares related to a registered cloud", response = Hardware.class, responseContainer = "List")
-    public ResponseEntity<List<Hardware>>
-            getCloudHardwares(@ApiParam(value = "Proactive authentication session id", required = true)
-    @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A valid cloud identifier")
-    @RequestParam(value = "cloudid")
-    final Optional<String> cloudId) throws NotConnectedException {
-        if (cloudId.isPresent()) {
-            return ResponseEntity.ok(cloudService.getCloudHardwares(sessionId, cloudId.get()));
-        } else {
-            return ResponseEntity.ok(cloudService.getAllCloudHardwares(sessionId));
-        }
-    }
-
-    @RequestMapping(value = "/location", method = RequestMethod.GET)
-    @ApiOperation(value = "Get the list of all available locations related to a registered cloud", response = Location.class, responseContainer = "List")
-    public ResponseEntity<List<Location>>
-            getCloudLocations(@ApiParam(value = "Proactive authentication session id", required = true)
-    @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A valid cloud identifier")
-    @RequestParam(value = "cloudid")
-    final Optional<String> cloudId) throws NotConnectedException {
-        if (cloudId.isPresent()) {
-            return ResponseEntity.ok(cloudService.getCloudLocations(sessionId, cloudId.get()));
-        } else {
-            return ResponseEntity.ok(cloudService.getAllCloudLocations(sessionId));
-        }
-    }
 }
