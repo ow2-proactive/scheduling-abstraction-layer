@@ -26,6 +26,7 @@
 package org.ow2.proactive.sal.service.rest;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
@@ -50,19 +51,30 @@ public class NodeCandidateRest {
     @Autowired
     private NodeCandidateService nodeCandidateService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    @ApiOperation(value = "Find node candidates", response = NodeCandidate.class, responseContainer = "List")
+    @RequestMapping(value = "/filter", method = RequestMethod.POST)
+    @ApiOperation(value = "Filter the node candidates according to requirements", response = NodeCandidate.class, responseContainer = "List")
     public ResponseEntity<List<NodeCandidate>>
-            findNodeCandidates(@ApiParam(value = "Proactive authentication session id", required = true)
+            filterNodeCandidates(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "List of NodeType or Attribute requirements", required = true)
     @RequestBody
     final List<Requirement> requirements) throws NotConnectedException {
-        return ResponseEntity.ok(nodeCandidateService.findNodeCandidates(sessionId, requirements));
+        return ResponseEntity.ok(nodeCandidateService.filterNodeCandidates(sessionId, requirements));
+    }
+
+    @RequestMapping(value = "/orderfiltered", method = RequestMethod.POST)
+    @ApiOperation(value = "Order the filtered node candidates", response = NodeCandidate.class, responseContainer = "List")
+    public ResponseEntity<List<NodeCandidate>>
+            orderFilteredNodeCandidates(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "Map of node id:rank", required = true)
+    @RequestBody
+    final Map<String, Integer> nodeRankings) throws NotConnectedException {
+        return ResponseEntity.ok(nodeCandidateService.orderFilteredNodeCandidates(sessionId, nodeRankings));
     }
 
     @RequestMapping(value = "/length", method = RequestMethod.GET)
-    @ApiOperation(value = "This function returns the number of available node candidates according to the added clouds")
+    @ApiOperation(value = "The number of node candidates accorded to the registered clouds")
     public ResponseEntity<Long>
             getLengthOfNodeCandidates(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")

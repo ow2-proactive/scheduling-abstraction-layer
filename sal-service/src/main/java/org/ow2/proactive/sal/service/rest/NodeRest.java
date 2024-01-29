@@ -44,7 +44,7 @@ import io.swagger.annotations.ApiParam;
 
 
 @RestController
-@RequestMapping(value = "/node")
+@RequestMapping(value = "/nodes")
 @Api(description = "Operations on nodes", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class NodeRest {
 
@@ -52,7 +52,7 @@ public class NodeRest {
     private NodeService nodeService;
 
     @RequestMapping(value = "/{jobId}", method = RequestMethod.POST)
-    @ApiOperation(value = "Add nodes to the tasks of a defined job")
+    @ApiOperation(value = "Map node candidates with tasks of a defined job")
     public synchronized ResponseEntity<Boolean>
             addNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
@@ -79,7 +79,7 @@ public class NodeRest {
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
-    @ApiOperation(value = "Remove nodes")
+    @ApiOperation(value = "Remove nodes associations")
     public ResponseEntity<Boolean> removeNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A comma separated list of node names to remove", required = true)

@@ -141,7 +141,7 @@ SAL provides multiple endpoints that you can use to interact with the ProActive 
             </tr>
             <tr class="op-uc-table--row">
                 <td class="op-uc-p op-uc-table--cell">
-                    <a class="op-uc-link" href="https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/documentation/7-node-endpoints.md">7- Node endpoints</a>
+                    <a class="op-uc-link" href="https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/documentation/7-nodes-endpoints.md">7- Node endpoints</a>
                 </td>
                 <td class="op-uc-p op-uc-table--cell"></td>
             </tr>
