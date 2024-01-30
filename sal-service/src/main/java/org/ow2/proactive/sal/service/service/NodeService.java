@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
@@ -305,6 +306,34 @@ public class NodeService {
     }
 
     /**
+     * Get Get nodes related to a job
+     * @param sessionId A valid session id
+     * @param jobId A valid job id
+     * @return List all nodes related to jobId
+     */
+    public List<Deployment> getNodesOfJob(String sessionId, String jobId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        resourceManagerGateway.synchronizeDeploymentsIPAddresses(schedulerGateway);
+        resourceManagerGateway.synchronizeDeploymentsInstanceIDs();
+
+        Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
+        if (optJob.isPresent()) {
+
+            List<Deployment> jobDeployments = optJob.get()
+                                                    .getTasks()
+                                                    .stream()
+                                                    .flatMap(task -> task.getDeployments().stream())
+                                                    .collect(Collectors.toList());
+
+            LOGGER.info("Fetched deployments size: {} for job {}", jobDeployments.size(), jobId);
+            return jobDeployments;
+        }
+        return null;
+    }
+
+    /**
      * Remove nodes
      * @param sessionId A valid session id
      * @param nodeNames List of node names to remove
@@ -330,5 +359,23 @@ public class NodeService {
             }
         });
         return true;
+    }
+
+    /**
+     * Remove nodes of a job
+     * @param sessionId A valid session id
+     * @param jobId A valid job id
+     * @param preempt If true remove node immediately without waiting for it to be freed
+     */
+    public Boolean removeNodesOfJob(String sessionId, String jobId, boolean preempt) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+
+        List<String> jobDeploymentNodeNames = getNodesOfJob(sessionId, jobId).stream()
+                                                                             .map(deployment -> deployment.getNodeName())
+                                                                             .collect(Collectors.toList());
+
+        return removeNodes(sessionId, jobDeploymentNodeNames, preempt);
     }
 }

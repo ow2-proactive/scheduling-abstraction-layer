@@ -46,7 +46,7 @@ POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodecandidates/filter
 ]
 ```
 
-**Returns**: A JSON list of Node Candidates:
+**Returns**: A JSON list of node candidates:
 
 ```json
 [
@@ -182,7 +182,7 @@ POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodecandidates/orderfiltered
 ]
 ```
 
-**Returns**: A JSON list of Node Candidates
+**Returns**: A JSON list of node candidates
 
 #### 7.3- Get the number of node candidates endpoint:
 
@@ -235,12 +235,12 @@ POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodes/<JOB_ID>
 
 #### 7.5- Get nodes endpoint:
 
-**Description**: Get all added nodes
+**Description**: Get all nodes or only those matching with specified ones
 
 **Path**:
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/node
+GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodes
 ```
 
 **Headers:** sessionid
@@ -368,14 +368,30 @@ POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodes/<JOB_ID>
 ]
 ```
 
-#### 7.6- Remove Nodes endpoint:
+#### 7.6- Get nodes of job endpoint:
 
-**Description**: Remove nodes associations
+**Description**: Get nodes related to a job
 
 **Path**:
 
 ```url
-DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/node
+GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodes/job/<JOB_ID>
+```
+
+**Path Variable:** The job identifier `<JOB_ID>`
+
+**Headers:** sessionid
+
+**Returns**: A JSON list of the node mapping to the job tasks
+
+#### 7.7- Remove Nodes endpoint:
+
+**Description**: Remove specified nodes associations
+
+**Path**:
+
+```url
+DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodes/remove
 ```
 
 **Headers:** sessionid
@@ -388,5 +404,23 @@ DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/node
     "<NODE_ID>"
 ]
 ```
+
+**Returns**: True if nodes were successfully removed, false otherwise
+
+#### 7.8- Remove Nodes of a job endpoint:
+
+**Description**: Remove nodes associations related to a job
+
+**Path**:
+
+```url
+DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodes/remove/job/<JOB_ID>
+```
+
+**Path Variable:** The job identifier `<JOB_ID>`
+
+**Headers:** sessionid
+
+**Body:** None
 
 **Returns**: True if nodes were successfully removed, false otherwise

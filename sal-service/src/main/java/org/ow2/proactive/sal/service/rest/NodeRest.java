@@ -65,7 +65,7 @@ public class NodeRest {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @ApiOperation(value = "Get all added nodes", response = Deployment.class, responseContainer = "List")
+    @ApiOperation(value = "Get all nodes or only those matching with specified ones", response = Deployment.class, responseContainer = "List")
     public ResponseEntity<List<Deployment>>
             getNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
@@ -78,8 +78,19 @@ public class NodeRest {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
-    @ApiOperation(value = "Remove nodes associations")
+    @RequestMapping(value = "/job/{jobId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get nodes related to a job", response = Deployment.class, responseContainer = "List")
+    public ResponseEntity<List<Deployment>>
+            getNodes(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "A job ID", required = true)
+    @PathVariable
+    final String jobId) throws NotConnectedException {
+        return ResponseEntity.ok(nodeService.getNodesOfJob(sessionId, jobId));
+    }
+
+    @RequestMapping(value = "/remove", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Remove specified nodes associations", response = Boolean.class)
     public ResponseEntity<Boolean> removeNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A comma separated list of node names to remove", required = true)
@@ -89,5 +100,19 @@ public class NodeRest {
             @RequestHeader(value = "preempt", defaultValue = "false")
             final Boolean preempt) throws NotConnectedException {
         return ResponseEntity.ok(nodeService.removeNodes(sessionId, nodeNames, preempt));
+    }
+
+    @RequestMapping(value = "/remove/job/{jobId}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Remove nodes associations related to a job", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            removeNodesOfJob(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "A job ID", required = true)
+    @PathVariable
+    final String jobId,
+                    @ApiParam(value = "If true remove node immediately without waiting for it to be freed", defaultValue = "false")
+                    @RequestHeader(value = "preempt", defaultValue = "false")
+                    final Boolean preempt) throws NotConnectedException {
+        return ResponseEntity.ok(nodeService.removeNodesOfJob(sessionId, jobId, preempt));
     }
 }
