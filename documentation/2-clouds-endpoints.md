@@ -93,7 +93,7 @@ GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/async
 
 #### 2.3- Get all clouds endpoint:
 
-**Description**: Get all registered clouds
+**Description**: Get all registered clouds or only those specified
 
 **Path:**
 
@@ -145,7 +145,7 @@ GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds
 
 #### 2.4- Get cloud images endpoint:
 
-**Description**: Get the list of all images of all registered clouds or related to a specified one
+**Description**: Get the list of images of all registered clouds or related to a specified one
 
 **Path:**
 
@@ -153,7 +153,7 @@ GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds
 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/images?<CLOUD_ID>
 ```
 
-**Path Variable:** cloudid
+**Path Variable:** The cloud identifier `<CLOUD_ID>`
 
 **Headers:** sessionid
 
@@ -196,7 +196,7 @@ GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/images?<CLOUD_ID>
 
 #### 2.5- Get cloud locations endpoint:
 
-**Description**: Get the list of all locations of all registered clouds or related to a specified one
+**Description**: Get the list of locations of all registered clouds or related to a specified one
 
 **Path:**
 
@@ -204,7 +204,7 @@ GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/images?<CLOUD_ID>
 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/locations?<CLOUD_ID>
 ```
 
-**Path Variable:** cloudid
+**Path Variable:** The cloud identifier `<CLOUD_ID>`
 
 **Headers:** sessionid
 
@@ -235,7 +235,7 @@ GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/locations?<CLOUD_ID>
 
 #### 2.6- Get cloud hardware endpoint:
 
-**Description**: Get the list of all hardware of all registered clouds or related to a specified one
+**Description**: Get the list of hardware of all registered clouds or related to a specified one
 
 **Path:**
 
@@ -243,7 +243,7 @@ GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/locations?<CLOUD_ID>
 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds/hardware?<CLOUD_ID>
 ```
 
-**Path Variable:** cloudid
+**Path Variable:** The cloud identifier `<CLOUD_ID>`
 
 **Headers:** sessionid
 
