@@ -207,7 +207,7 @@ Also a job can define a Docker container:
 🔵 PUT {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/stop?jobIds=[<JOB_ID>]
 ```
 
-**Path Variable:** A list of job identifiers `jobIds`
+**Path Variable:** A list of job identifiers `[<JOB_ID>]`
 
 **Headers:** sessionid
 

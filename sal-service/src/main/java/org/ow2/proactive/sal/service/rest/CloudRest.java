@@ -70,7 +70,7 @@ public class CloudRest {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @ApiOperation(value = "Get all registered clouds", response = PACloud.class, responseContainer = "List")
+    @ApiOperation(value = "Get all registered clouds or only those specified", response = PACloud.class, responseContainer = "List")
     public ResponseEntity<List<PACloud>>
             getAllClouds(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
@@ -84,7 +84,7 @@ public class CloudRest {
     }
 
     @RequestMapping(value = "/images", method = RequestMethod.GET)
-    @ApiOperation(value = "Get the list of all images of all registered clouds or related to a specified one", response = Image.class, responseContainer = "List")
+    @ApiOperation(value = "Get the list of images of all registered clouds or related to a specified one", response = Image.class, responseContainer = "List")
     public ResponseEntity<List<Image>>
             getCloudImages(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
@@ -99,7 +99,7 @@ public class CloudRest {
     }
 
     @RequestMapping(value = "/locations", method = RequestMethod.GET)
-    @ApiOperation(value = "Get the list of all locations of all registered clouds or related to a specified one", response = Location.class, responseContainer = "List")
+    @ApiOperation(value = "Get the list of locations of all registered clouds or related to a specified one", response = Location.class, responseContainer = "List")
     public ResponseEntity<List<Location>>
             getCloudLocations(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
@@ -114,7 +114,7 @@ public class CloudRest {
     }
 
     @RequestMapping(value = "/hardware", method = RequestMethod.GET)
-    @ApiOperation(value = "Get the list of all available hardware related to a registered cloud", response = Hardware.class, responseContainer = "List")
+    @ApiOperation(value = "Get the list of available hardware related to a registered cloud", response = Hardware.class, responseContainer = "List")
     public ResponseEntity<List<Hardware>>
             getCloudHardwares(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
