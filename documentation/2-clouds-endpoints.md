@@ -10,7 +10,7 @@ POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/clouds
 
 **Headers:** sessionid
 
-**Reply:** Error code, 0 if no Errors
+**Returns:** Error code, 0 if no Errors
 
 **Body:** Json input following this format:
 

@@ -13,7 +13,7 @@
 *   &quot;username&quot;: Proactive server username.
 *   &quot;password&quot;: Proactive server password.
 
-**Reply:** A text format reply of the session ID.
+**Returns:** A text format reply of the session ID.
 
 #### 1.2- Disconnect endpoint:
 
@@ -29,4 +29,4 @@
 
 **Body:**
 
-**Reply: None**
+**Returns: None**

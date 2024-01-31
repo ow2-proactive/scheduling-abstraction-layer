@@ -654,6 +654,33 @@ public class JobService {
     }
 
     /**
+     * Remove a specified job
+     * @param sessionId A valid session id
+     * @param jobId A valid job id
+     */
+    public Boolean removeJob(String sessionId, String jobId) throws NotConnectedException {
+        // Kill PA job
+        killJob(sessionId, jobId);
+
+        // Remove PA job
+        Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
+        if (optJob.isPresent()) {
+            Job submittedJob = optJob.get();
+            LOGGER.info("Job " + jobId + " mapped to the submitted ProActive job: " + submittedJob.getSubmittedJobId() +
+                        " of type: " + submittedJob.getSubmittedJobType());
+            if (submittedJob.getSubmittedJobId() != 0L) {
+                schedulerGateway.removeJob(schedulerGateway.getJobState(String.valueOf(submittedJob.getSubmittedJobId()))
+                                                           .getJobInfo()
+                                                           .getJobId()
+                                                           .value());
+            }
+            //Remove SAL job
+            repositoryService.deleteJob(jobId);
+        }
+        return true;
+    }
+
+    /**
      * Delete a task from a job
      * @param deletedTask The task to be deleted
      * @param job The job

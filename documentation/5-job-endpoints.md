@@ -1,16 +1,16 @@
-#### 5.1- CreateJob endpoint:
+#### 5.1- Create job endpoint:
 
-**Description**: Create a ProActive job skeleton
+**Description**: Create a SAL job
 
 **Path**:
 
 ```url
-🟡 POST  {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job
+POST  {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs
 ```
 
-**Headers:** sessionid
+**Headers**: sessionid
 
-**Reply: True if the job is added, False if the job already exists.**
+**Returns**: True if the job is added, False if the job already exists
 
 **Body**:  A JSON body following this format:
 
@@ -167,28 +167,196 @@ Also a job can define a Docker container:
 }
 ```
 
-#### 5.2- GetJobs endpoint:
+#### 5.2- Get all jobs endpoint:
 
-**Description**: Get all job skeletons
+**Description**: Get all SAL jobs
 
 **Path**:
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job
+GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs
 ```
 
 **Headers:** sessionid
 
-**Returns**: A JSON list of the jobs.
+**Returns**: A JSON list of the jobs. An example:
 
-#### 5.3- GetJob endpoint:
+```json
+[
+    {
+        "jobId": "FCRnewLight2",
+        "name": "FCRLight_Deployment_JOB",
+        "variables": {},
+        "submittedJobId": 18,
+        "submittedJobType": "FIRST_DEPLOYMENT",
+        "tasks": [
+            {
+                "taskId": "FCRnewLight2Component_App",
+                "name": "Component_App",
+                "type": "commands",
+                "installation": {
+                    "type": "commands",
+                    "preInstall": "echo \"Hello from Component_App preInstall script\"",
+                    "install": null,
+                    "postInstall": "echo \"Hello from Component_App postInstall script\"",
+                    "preStart": null,
+                    "start": "echo \"Hello from Component_App Start script\"",
+                    "postStart": null,
+                    "preStop": null,
+                    "stop": null,
+                    "postStop": null,
+                    "update": null,
+                    "startDetection": null,
+                    "operatingSystem": {
+                        "operatingSystemFamily": "UBUNTU",
+                        "operatingSystemVersion": 2004.0
+                    },
+                    "type": "commands"
+                },
+                "environment": {
+                    "type": "docker",
+                    "dockerImage": null,
+                    "port": null,
+                    "environmentVars": {},
+                    "type": "docker"
+                },
+                "portsToOpen": [
+                    {
+                        "value": 8087
+                    }
+                ],
+                "parentTasks": {},
+                "submittedTaskNames": [
+                    "acquireAWSNode_Component_App_0",
+                    "prepareInfra_Component_App_0",
+                    "Component_App_install_0",
+                    "Component_App_start_0"
+                ],
+                "deploymentFirstSubmittedTaskName": "acquireAWSNode_Component_App",
+                "deploymentLastSubmittedTaskName": "Component_App_start",
+                "nextDeploymentID": 1,
+                "deploymentNodeNames": [
+                    "component-App-1-0"
+                ]
+            },
+            {
+                "taskId": "FCRnewLight2Component_DB",
+                "name": "Component_DB",
+                "type": "commands",
+                "installation": {
+                    "type": "commands",
+                    "preInstall": "echo \"Hello from Component_DB preInstall script\"",
+                    "install": "echo \"Hello from Component_DB Install script\"",
+                    "postInstall": "echo \"Hello from Component_DB postInstall script\"",
+                    "preStart": null,
+                    "start": "echo \"Hello from Component_DB Start script\"",
+                    "postStart": null,
+                    "preStop": null,
+                    "stop": null,
+                    "postStop": null,
+                    "update": null,
+                    "startDetection": null,
+                    "operatingSystem": {
+                        "operatingSystemFamily": "UBUNTU",
+                        "operatingSystemVersion": 2004.0
+                    },
+                    "type": "commands"
+                },
+                "environment": {
+                    "type": "docker",
+                    "dockerImage": null,
+                    "port": null,
+                    "environmentVars": {},
+                    "type": "docker"
+                },
+                "portsToOpen": [
+                    {
+                        "value": 3306
+                    }
+                ],
+                "parentTasks": {},
+                "submittedTaskNames": [],
+                "deploymentFirstSubmittedTaskName": null,
+                "deploymentLastSubmittedTaskName": null,
+                "nextDeploymentID": 0,
+                "deploymentNodeNames": []
+            },
+            {
+                "taskId": "FCRnewLight2Component_LB",
+                "name": "Component_LB",
+                "type": "commands",
+                "installation": {
+                    "type": "commands",
+                    "preInstall": "echo \"Hello from Component_LB preInstall script\"",
+                    "install": "echo \"Hello from Component_LB Install script\"",
+                    "postInstall": "echo \"Hello from Component_LB postInstall script\"",
+                    "preStart": null,
+                    "start": "echo \"Hello from Component_LB Start script\"",
+                    "postStart": null,
+                    "preStop": null,
+                    "stop": null,
+                    "postStop": null,
+                    "update": "echo \"Hello from Component_LB Update script\"",
+                    "startDetection": null,
+                    "operatingSystem": {
+                        "operatingSystemFamily": "UBUNTU",
+                        "operatingSystemVersion": 2004.0
+                    },
+                    "type": "commands"
+                },
+                "environment": {
+                    "type": "docker",
+                    "dockerImage": null,
+                    "port": null,
+                    "environmentVars": {},
+                    "type": "docker"
+                },
+                "portsToOpen": [
+                    {
+                        "value": 8087
+                    }
+                ],
+                "parentTasks": {
+                    "ComponentPortDbReq": "Component_DB",
+                    "ComponentPortAppReq": "Component_App"
+                },
+                "submittedTaskNames": [
+                    "acquireAWSNode_Component_LB_0",
+                    "prepareInfra_Component_LB_0",
+                    "Component_LB_install_0",
+                    "Component_LB_start_0"
+                ],
+                "deploymentFirstSubmittedTaskName": "acquireAWSNode_Component_LB",
+                "deploymentLastSubmittedTaskName": "Component_LB_start",
+                "nextDeploymentID": 1,
+                "deploymentNodeNames": [
+                    "component-LB-1-0"
+                ]
+            }
+        ],
+        "communications": {
+            "ComponentDBPort": "ComponentPortDbReq",
+            "ComponentAppPort": "ComponentPortAppReq"
+        },
+        "sinkTasks": [
+            "FCRnewLight2Component_LB"
+        ],
+        "rootTasks": [
+            "FCRnewLight2Component_DB",
+            "FCRnewLight2Component_App"
+        ]
+    }
+]
+```
 
-**Description**: Get a Job skeleton using the job identifier
+#### 5.3- Get job endpoint:
+
+**Description**: Get a SAL Job
 
 **Path**:
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>
+GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs/<JOB_ID>
 ```
 
 **Path Variable:** The job identifier `<JOB_ID>`
@@ -197,28 +365,14 @@ Also a job can define a Docker container:
 
 **Returns**: A JSON of the job.
 
-#### 5.4- StopJobs endpoint:
-
-**Description**: Stop all the jobs that are submitted to ProActive.
-
-**Path**:
-
-```url
-🔵 PUT {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/stop?jobIds=[<JOB_ID>]
-```
-
-**Path Variable:** A list of job identifiers `[<JOB_ID>]`
-
-**Headers:** sessionid
-
-#### 5.5- SubmitJob endpoint:
+#### 5.4- Submit job endpoint:
 
 **Description**: Submit a job constructed in lazy-mode to the ProActive Scheduler.
 
 **Path**:
 
 ```url
-🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>/submit
+POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs/<JOB_ID>/submit
 ```
 
 **Path Variable:** The job identifier `<JOB_ID>`
@@ -227,114 +381,71 @@ Also a job can define a Docker container:
 
 **Returns**: Submitted job id if successful, otherwise -1.
 
-#### 5.6- GetJobState endpoint:
+#### 5.5- Get job status endpoint:
 
-**Description**: Get the ProActive job state
+**Description**: Get a SAL job status
 
 **Path**:
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>/status
+GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs/<JOB_ID>/status
 ```
 
 **Path Variable:** The job identifier `<JOB_ID>`
 
 **Headers:** sessionid
 
-**Returns**: the status of the job.
+**Returns**: the status of the job. An example:
 
-#### 5.7- WaitForJob endpoint:
-
-**Description**: Wait for execution and get results of a job.
-
-**Path**:
-
-```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>/wait?timeout=<TIME_IN_SEC>
+```json
+{
+    "submittedJobType": "FIRST_DEPLOYMENT",
+    "jobStatus": "FINISHED"
+}
 ```
 
-**Path Variable:** The job identifier `<JOB_ID>`
+#### 5.6- Kill job endpoint:
 
-**Request Parameter:** `timeout` parameter that describes the time to wait before declaring a timeout.
-
-**Headers:** sessionid
-
-**Returns**: Job result.
-
-#### 5.8- killJob endpoint:
-
-**Description**: To kill a job running on the ProActive scheduler.
+**Description**: Kill a job running on the ProActive scheduler
 
 **Path**:
 
 ```url
-🔴 DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>/kill
+DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs/<JOB_ID>/kill
 ```
 
 **Path Variable:** The job identifier `<JOB_ID>`
 
 **Headers:** sessionid
 
-**Returns**: True if the job was successfully killed, false otherwise.
+**Returns**: True if the job was successfully killed, false otherwise
 
-#### 5.9- WaitForTask endpoint:
-
-**Description**: Wait for execution and get results of a task
-
-**Path**:
-
-```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>/<TASK_ID>/wait?timeout=<TIME_IN_SEC>
-```
-
-**Path Variable:** The job identifier `<JOB_ID>` and the task identifier `<TASK_ID>`
-
-**Request Parameter:** `timeout` parameter that describes the time to wait before declaring a timeout.
-
-**Headers:** sessionid
-
-**Returns**: Task result.
-
-#### 5.10- GetTaskResult endpoint:
-
-**Description**: Get a task result.
-
-**Path**:
-
-```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>/<TASK_ID>/result
-```
-
-**Path Variable:** The job identifier `<JOB_ID>` and the task identifier `<TASK_ID>`
-
-**Headers:** sessionid
-
-**Returns**: Task result.
-
-#### 5.11- KillAllActivePAJobs endpoint:
-
-**Description**: Kill all active jobs in ProActive Scheduler
-
-**Path**:
-
-```url
-🔵 PUT {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/kill
-```
-
-**Headers:** sessionid
-
-**Returns**: True if the killing of all the jobs was successful, false otherwise.
-
-#### 5.12- RemoveAllPAJobs endpoint:
+#### 5.7- Remove all PA jobs endpoint:
 
 **Description**: Remove all jobs from the ProActive Scheduler
 
 **Path**:
 
 ```url
-🔴 DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/remove
+DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs/remove
 ```
 
 **Headers:** sessionid
 
-**Returns**: True if the removing of all the jobs was successful, false otherwise.
+**Returns**: True if the jobs were successfully removed, false otherwise
+
+#### 5.13- Remove job endpoint:
+
+**Description**: Remove a specified job
+
+**Path**:
+
+```url
+DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/jobs/remove/<JOB_ID>
+```
+
+**Path Variable:** The job identifier `<JOB_ID>`
+
+**Headers:** sessionid
+
+**Returns**: True if the job was successfully removed, false otherwise

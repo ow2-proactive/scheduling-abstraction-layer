@@ -90,7 +90,7 @@ public class NodeRest {
     }
 
     @RequestMapping(value = "/remove", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Remove specified nodes associations", response = Boolean.class)
+    @ApiOperation(value = "Remove nodes")
     public ResponseEntity<Boolean> removeNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A comma separated list of node names to remove", required = true)
@@ -103,7 +103,7 @@ public class NodeRest {
     }
 
     @RequestMapping(value = "/remove/job/{jobId}", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Remove nodes associations related to a job", response = Boolean.class)
+    @ApiOperation(value = "Remove nodes related to a job")
     public ResponseEntity<Boolean>
             removeNodesOfJob(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
