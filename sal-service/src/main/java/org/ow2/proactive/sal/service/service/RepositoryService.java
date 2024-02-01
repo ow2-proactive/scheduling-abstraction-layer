@@ -477,6 +477,16 @@ public class RepositoryService {
     }
 
     /**
+     * Delete a iaasNode
+     * @param iaasNode the node to delete
+     */
+    @Modifying(clearAutomatically = true)
+    public void deleteIaasNode(IaasNode iaasNode) {
+        //TODO To Complete removing
+        iaasNodeRepository.delete(iaasNode);
+    }
+
+    /**
      * Add or update the instance data given in param
      * @param node is the instance data to add or update, its instance id will be use as a key
      */

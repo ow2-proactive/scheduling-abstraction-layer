@@ -345,6 +345,7 @@ public class NodeService {
         }
         nodeNames.forEach(nodeName -> {
             try {
+                // Remove node from ProActive
                 List<String> nodeURLs = resourceManagerGateway.searchNodes(Collections.singletonList(nodeName), true);
                 if (!nodeURLs.isEmpty()) {
                     String nodeUrl = nodeURLs.get(0);
@@ -358,6 +359,13 @@ public class NodeService {
                 LOGGER.error(String.valueOf(e.getStackTrace()));
             }
         });
+
+        // Remove node from SAL<s
+        getNodesByNames(sessionId, nodeNames).forEach(deployment -> {
+            repositoryService.deleteDeployment(deployment);
+            repositoryService.deleteIaasNode(deployment.getIaasNode());
+        });
+
         return true;
     }
 

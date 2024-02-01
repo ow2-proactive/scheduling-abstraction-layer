@@ -658,7 +658,7 @@ public class JobService {
      * @param sessionId A valid session id
      * @param jobId A valid job id
      */
-    public Boolean removeJob(String sessionId, String jobId) throws NotConnectedException {
+    public Boolean removeSALandPAJob(String sessionId, String jobId) throws NotConnectedException {
         // Kill PA job
         killJob(sessionId, jobId);
 

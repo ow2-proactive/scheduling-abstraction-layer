@@ -222,6 +222,6 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job ID", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(jobService.removeJob(sessionId, jobId));
+        return ResponseEntity.ok(jobService.removeSALandPAJob(sessionId, jobId));
     }
 }
