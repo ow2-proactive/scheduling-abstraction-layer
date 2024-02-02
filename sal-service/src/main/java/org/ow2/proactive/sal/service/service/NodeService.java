@@ -360,7 +360,7 @@ public class NodeService {
             }
         });
 
-        // Remove node from SAL<s
+        // Remove nodes from SAL
         getNodesByNames(sessionId, nodeNames).forEach(deployment -> {
             repositoryService.deleteDeployment(deployment);
             repositoryService.deleteIaasNode(deployment.getIaasNode());
