@@ -26,6 +26,7 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
+import javafx.util.Pair;
 
 import org.ow2.proactive.sal.model.NodeCandidate;
 import org.ow2.proactive.sal.model.Requirement;
@@ -48,6 +49,8 @@ public class NodeCandidateService {
 
     @Autowired
     private RepositoryService repositoryService;
+
+    private final String rankKeyName = "rank";
 
     List<NodeCandidate> filteredNodeCandidates = null;
 
@@ -89,8 +92,8 @@ public class NodeCandidateService {
      * @param nodeRankings Map of node:rank
      * @return A list of all ordered filtered node candidates
      */
-    public List<NodeCandidate> orderFilteredNodeCandidates(String sessionId, Map<String, Integer> nodeRankings)
-            throws NotConnectedException {
+    public List<NodeCandidate> orderFilteredNodeCandidates(String sessionId,
+            Map<String, Map<String, String>> nodeRankings) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
@@ -99,7 +102,8 @@ public class NodeCandidateService {
 
         for (NodeCandidate nodeCandidate : this.filteredNodeCandidates) {
             if (nodeRankings.containsKey(nodeCandidate.getId())) {
-                orderedFilteredNodeCandidates[nodeRankings.get(nodeCandidate.getId())] = nodeCandidate;
+                orderedFilteredNodeCandidates[Integer.valueOf((nodeRankings.get(nodeCandidate.getId())
+                                                                           .get(rankKeyName)))] = nodeCandidate;
             }
         }
         return Arrays.asList(orderedFilteredNodeCandidates);

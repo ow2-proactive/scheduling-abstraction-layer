@@ -67,9 +67,9 @@ public class NodeCandidateRest {
     public ResponseEntity<List<NodeCandidate>>
             orderFilteredNodeCandidates(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "Map of node id:rank", required = true)
+    final String sessionId, @ApiParam(value = "Map of <node id < score : rank>", required = true)
     @RequestBody
-    final Map<String, Integer> nodeRankings) throws NotConnectedException {
+    final Map<String, Map<String, String>> nodeRankings) throws NotConnectedException {
         return ResponseEntity.ok(nodeCandidateService.orderFilteredNodeCandidates(sessionId, nodeRankings));
     }
 
