@@ -166,20 +166,12 @@ POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodecandidates/orderfiltered
 **Body:** A JSON body following this format:
 
 ```json
-[
-    {
-        "nodeName": "node-0",
-        "nodeRank": 2
-    },
-    {
-        "nodeName": "node-2",
-        "nodeRank": 1
-    },
-    {
-        "nodeName": "node-1",
-        "nodeRank": 3
-    }
-]
+{
+    "402890838d84a8a3018d84a9b3af0014": {"score" : 100, "rank" : 0},
+    "402890838d84a8a3018d84a9c2f100d6": {"score" : 30.4, "rank" : 2},
+    "402890838d84a8a3018d84a9d08b0198": {"score" : 70.9, "rank" : 1},
+    "402890838d84a8a3018d84a9d3a201cc":{"score" : 0, "rank" : 3}
+}
 ```
 
 **Returns**: A JSON list of node candidates
