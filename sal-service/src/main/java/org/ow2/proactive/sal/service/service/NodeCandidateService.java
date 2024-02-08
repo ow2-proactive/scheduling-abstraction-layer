@@ -26,7 +26,6 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
-import javafx.util.Pair;
 
 import org.ow2.proactive.sal.model.NodeCandidate;
 import org.ow2.proactive.sal.model.Requirement;
