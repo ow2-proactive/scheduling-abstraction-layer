@@ -144,16 +144,24 @@ public class NodeCandidateUtils {
             }
         }
         if (attributeRequirement.getRequirementClass().equals("location")) {
-            if (attributeRequirement.getRequirementAttribute().equals("geoLocation.country")) {
-                return attributeRequirement.getRequirementOperator()
-                                           .compare(nodeCandidate.getLocation().getGeoLocation().getCountry(),
-                                                    attributeRequirement.getValue());
+            //            if (attributeRequirement.getRequirementAttribute().equals("geoLocation.country")) {
+            switch (attributeRequirement.getRequirementAttribute()) {
+                case "geoLocation.country":
+                    return attributeRequirement.getRequirementOperator()
+                                               .compare(nodeCandidate.getLocation().getGeoLocation().getCountry(),
+                                                        attributeRequirement.getValue());
+                case "name":
+                    return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getLocation().getName(),
+                                                                                 attributeRequirement.getValue());
             }
         }
         if (attributeRequirement.getRequirementClass().equals("image")) {
             switch (attributeRequirement.getRequirementAttribute()) {
                 case "name":
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getName(),
+                                                                                 attributeRequirement.getValue());
+                case "id":
+                    return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getId(),
                                                                                  attributeRequirement.getValue());
                 case "operatingSystem.family":
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage()

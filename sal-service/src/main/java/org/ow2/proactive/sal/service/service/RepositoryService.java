@@ -99,6 +99,12 @@ public class RepositoryService {
     @Autowired
     private VaultKeyRepository vaultKeyRepository;
 
+    @Autowired
+    private ClusterRepository clusterRepository;
+
+    @Autowired
+    private ClusterNodeDefRepository clusterNodeDefRepository;
+
     private static final String DATABASE_LOGS_SIGNATURE = "from the database ...";
 
     /**
@@ -867,6 +873,44 @@ public class RepositoryService {
         VaultKey instanceToRemove = getVaultKey(vaultKeyId);
         vaultKeyRepository.delete(vaultKeyId);
         return instanceToRemove;
+    }
+
+    public Cluster getClutser(String clusterId) {
+        return clusterRepository.findOne(clusterId);
+    }
+
+    public List<Cluster> listCluster() {
+        return clusterRepository.findAll();
+    }
+
+    public synchronized Cluster saveCluster(Cluster cluster) {
+        return clusterRepository.saveAndFlush(cluster);
+    }
+
+    // TODO: primitive To be improved
+    @Modifying(clearAutomatically = true)
+    public Cluster deleteCluster(Cluster cluster) {
+        clusterRepository.delete(cluster);
+        return cluster;
+    }
+
+    public ClusterNodeDefinition getClusterNodeDefinition(String nodeName) {
+        return clusterNodeDefRepository.findOne(nodeName);
+    }
+
+    public List<ClusterNodeDefinition> listClusterNodeDefinition() {
+        return clusterNodeDefRepository.findAll();
+    }
+
+    public synchronized ClusterNodeDefinition saveClusterNodeDefinition(ClusterNodeDefinition clusterNodeDefinition) {
+        return clusterNodeDefRepository.saveAndFlush(clusterNodeDefinition);
+    }
+
+    // TODO: primitive To be improved
+    @Modifying(clearAutomatically = true)
+    public ClusterNodeDefinition deleteClusterNodeDefinition(ClusterNodeDefinition clusterNodeDefinition) {
+        clusterNodeDefRepository.delete(clusterNodeDefinition);
+        return clusterNodeDefinition;
     }
 
     /**
