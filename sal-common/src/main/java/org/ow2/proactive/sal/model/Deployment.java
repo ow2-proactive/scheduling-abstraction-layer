@@ -51,6 +51,12 @@ public class Deployment implements Serializable {
     @OneToOne(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REFRESH)
     private EmsDeploymentRequest emsDeployment;
 
+    @Column(name = "WORKER")
+    private Boolean worker = null;
+
+    @Column(name = "MASTER_TOKEN")
+    private String masterToken = "";
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonProperty("cloudId")

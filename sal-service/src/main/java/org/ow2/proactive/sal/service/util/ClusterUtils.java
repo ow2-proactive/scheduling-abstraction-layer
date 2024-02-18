@@ -43,11 +43,18 @@ public class ClusterUtils {
 
     private static final String MASTER_PRE_INSTALL_SCRIPT = "echo \"Pre Install script\"";
 
-    private static final String MASTER_INSTALL_SCRIPT = "echo \"Install script\"";
+    private static final String MASTER_INSTALL_SCRIPT = "wget https://raw.githubusercontent.com/alijawadfahs/scripts/main/nebulous/install-kube-u22.sh && chmod +x ./install-kube-u22.sh && ./install-kube-u22.sh\n";
 
     private static final String MASTER_POST_INSTALL_SCRIPT = "echo \"Post Install script\"";
 
-    private static final String MASTER_START_SCRIPT = "echo \"Start Install script\"";
+    private static final String MASTER_START_SCRIPT = "sudo kubeadm init --pod-network-cidr=10.244.0.0/16\n" +
+                                                      "echo \"HOME: $(pwd), USERE: $(id -u -n)\"\n" +
+                                                      "mkdir -p ~/.kube && sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config && sudo chown $(id -u):$(id -g) ~/.kube/config\n" +
+                                                      "id -u ubuntu &> /dev/null\n" + "\n" + "if [[ $? -eq 0 ]]\n" +
+                                                      "then\n" + "#USER ubuntu is found\n" +
+                                                      "mkdir -p /home/ubuntu/.kube && sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config\n" +
+                                                      "else\n" + "echo \"User Ubuntu is not found\"\n" + "fi\n" + "\n" +
+                                                      "sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml;";
 
     private static final String MASTER_STOP_SCRIPT = "echo \"Stop Install script\"";
 
@@ -55,11 +62,11 @@ public class ClusterUtils {
 
     private static final String WORKER_PRE_INSTALL_SCRIPT = "echo \"Pre Install script\"";
 
-    private static final String WORKER_INSTALL_SCRIPT = "echo \"Install script\"";
+    private static final String WORKER_INSTALL_SCRIPT = "wget https://raw.githubusercontent.com/alijawadfahs/scripts/main/nebulous/install-kube-u22.sh && chmod +x ./install-kube-u22.sh && ./install-kube-u22.sh\n";
 
     private static final String WORKER_POST_INSTALL_SCRIPT = "echo \"Post Install script\"";
 
-    private static final String WORKER_START_SCRIPT = "echo \"Start Install script\"";
+    private static final String WORKER_START_SCRIPT = "echo $variables_kubeCommand\n" + "sudo $variables_kubeCommand";
 
     private static final String WORKER_STOP_SCRIPT = "echo \"Stop Install script\"";
 
@@ -68,23 +75,24 @@ public class ClusterUtils {
     @Autowired
     private RepositoryService repositoryService;
 
-    public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode) {
+    public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud) {
         Job masterNodeJob = new Job();
         masterNodeJob.setJobId(masterNode.getNodeJobName(clusterName));
         masterNodeJob.setName(masterNode.getNodeJobName(clusterName));
-        Task masterNodeTask = createMasterNodeTask(clusterName, masterNode);
+        Task masterNodeTask = createMasterNodeTask(clusterName, masterNode, cloud);
         List<Task> tasks = new LinkedList<>();
         tasks.add(masterNodeTask);
         masterNodeJob.setTasks(tasks);
         return masterNodeJob;
     }
 
-    private static Task createMasterNodeTask(String clusterName, ClusterNodeDefinition masterNode) {
+    private static Task createMasterNodeTask(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud) {
         Task masterNodeTask = new Task();
         masterNodeTask.setTaskId(masterNode.getNodeTaskName(clusterName));
         masterNodeTask.setName(masterNode.getNodeTaskName(clusterName));
         masterNodeTask.setType(Installation.InstallationType.COMMANDS);
         masterNodeTask.setInstallationByType(createMasterInstallation());
+        masterNodeTask.setSecurityGroup(cloud.getSecurityGroup());
         return masterNodeTask;
     }
 
@@ -103,24 +111,25 @@ public class ClusterUtils {
         return masterInstallation;
     }
 
-    public static Job createWorkerNodeJob(String clusterName, ClusterNodeDefinition workerNode) {
+    public static Job createWorkerNodeJob(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud) {
         Job workerNodeJob = new Job();
         workerNodeJob.setJobId(workerNode.getNodeJobName(clusterName));
         workerNodeJob.setName(workerNode.getNodeJobName(clusterName));
-        Task workerNodeTask = createWorkerNodeTask(clusterName, workerNode);
+        Task workerNodeTask = createWorkerNodeTask(clusterName, workerNode, cloud);
         List<Task> tasks = new LinkedList<>();
         tasks.add(workerNodeTask);
         workerNodeJob.setTasks(tasks);
         return workerNodeJob;
     }
 
-    private static Task createWorkerNodeTask(String clusterName, ClusterNodeDefinition workerNode) {
-        Task masterNodeTask = new Task();
-        masterNodeTask.setTaskId(workerNode.getNodeTaskName(clusterName));
-        masterNodeTask.setName(workerNode.getNodeTaskName(clusterName));
-        masterNodeTask.setType(Installation.InstallationType.COMMANDS);
-        masterNodeTask.setInstallationByType(createWorkerInstallation());
-        return masterNodeTask;
+    private static Task createWorkerNodeTask(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud) {
+        Task workerNodeTask = new Task();
+        workerNodeTask.setTaskId(workerNode.getNodeTaskName(clusterName));
+        workerNodeTask.setName(workerNode.getNodeTaskName(clusterName));
+        workerNodeTask.setType(Installation.InstallationType.COMMANDS);
+        workerNodeTask.setInstallationByType(createWorkerInstallation());
+        workerNodeTask.setSecurityGroup(cloud.getSecurityGroup());
+        return workerNodeTask;
     }
 
     private static CommandsInstallation createWorkerInstallation() {

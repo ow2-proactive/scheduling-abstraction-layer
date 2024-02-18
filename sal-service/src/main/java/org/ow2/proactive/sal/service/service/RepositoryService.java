@@ -978,6 +978,10 @@ public class RepositoryService {
         locationRepository.deleteAll();
         LOGGER.info("Cleaning Vault Keys ...");
         vaultKeyRepository.deleteAll();
+        LOGGER.info("Cleaning ClusterNodeDefinitions ...");
+        clusterNodeDefRepository.deleteAll();
+        LOGGER.info("Cleaning Clusters ...");
+        clusterRepository.deleteAll();
         LOGGER.info("Done.");
     }
 }

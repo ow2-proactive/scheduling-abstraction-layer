@@ -70,7 +70,8 @@ public class ClusterService {
         repositoryService.saveCluster(newCluster);
         ClusterNodeDefinition masterNode = ClusterUtils.getNodeByName(newCluster, newCluster.getMasterNode());
         if (masterNode != null) {
-            Job masterNodeJob = ClusterUtils.createMasterNodeJob(newCluster.getName(), masterNode);
+            PACloud cloud = repositoryService.getPACloud(masterNode.getCloudId());
+            Job masterNodeJob = ClusterUtils.createMasterNodeJob(newCluster.getName(), masterNode, cloud);
             masterNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(masterNodeJob);
         } else {
@@ -85,7 +86,8 @@ public class ClusterService {
             LOGGER.warn("The cluster does not has any worker nodes, only the master will be deployed");
         } else {
             for (ClusterNodeDefinition node : workerNodes) {
-                Job workerNodeJob = ClusterUtils.createWorkerNodeJob(newCluster.getName(), node);
+                PACloud cloud = repositoryService.getPACloud(node.getCloudId());
+                Job workerNodeJob = ClusterUtils.createWorkerNodeJob(newCluster.getName(), node, cloud);
                 workerNodeJob.getTasks().forEach(repositoryService::saveTask);
                 repositoryService.saveJob(workerNodeJob);
             }
@@ -109,23 +111,29 @@ public class ClusterService {
         } else {
             List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(toDeployClutser);
             LOGGER.info("Deploying the master node of the cluster [{}]", toDeployClutser.getName());
-            submitClutserNode(sessionId, toDeployClutser, toDeployClutser.getMasterNode());
+            submitClutserNode(sessionId, toDeployClutser, toDeployClutser.getMasterNode(), false);
             LOGGER.info("Deploying the worker nodes of the cluster [{}]", toDeployClutser.getName());
             for (ClusterNodeDefinition node : workerNodes) {
-                submitClutserNode(sessionId, toDeployClutser, node.getName());
+                submitClutserNode(sessionId, toDeployClutser, node.getName(), true);
             }
         }
         return true;
     }
 
-    private void submitClutserNode(String sessionId, Cluster cluster, String nodeName) throws NotConnectedException {
+    private void submitClutserNode(String sessionId, Cluster cluster, String nodeName, boolean worker)
+            throws NotConnectedException {
         LOGGER.info("Deploying the node {}...", nodeName);
         ClusterNodeDefinition node = ClusterUtils.getNodeByName(cluster, nodeName);
         if (node != null) {
             String jobId = node.getNodeJobName(cluster.getName());
             List<IaasDefinition> defs = ClusterUtils.getNodeIaasDefinition(sessionId, cluster, node.getName());
             nodeService.addNodes(sessionId, defs, jobId);
-
+            Deployment currentDeployment = repositoryService.getDeployment(defs.get(0).getName());
+            String masterNodeToken = cluster.getMasterNode();
+            currentDeployment.setWorker(worker);
+            currentDeployment.setMasterToken(masterNodeToken);
+            repositoryService.saveDeployment(currentDeployment);
+            repositoryService.flush();
             // submit job
             jobService.submitJob(sessionId, jobId);
             LOGGER.info("Node {} is submitted for deployment", nodeName);
