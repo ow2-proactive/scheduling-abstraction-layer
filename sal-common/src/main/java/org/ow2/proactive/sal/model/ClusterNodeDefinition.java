@@ -56,11 +56,11 @@ public class ClusterNodeDefinition {
     private String cloudId = null;
 
     public String getNodeJobName(String clusterName) {
-        return "create_" + this.name + "_" + clusterName;
+        return this.name + "_" + clusterName;
     }
 
     public String getNodeTaskName(String clusterName) {
-        return "create_" + this.name + "_" + clusterName + "_Task";
+        return this.name + "_" + clusterName + "_Task";
     }
 
 }
