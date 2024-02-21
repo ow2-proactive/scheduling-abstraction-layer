@@ -25,10 +25,13 @@
  */
 package org.ow2.proactive.sal.service.rest;
 
+import java.util.List;
+
 import javax.ws.rs.core.MediaType;
 
 import org.ow2.proactive.sal.model.Cluster;
 import org.ow2.proactive.sal.model.ClusterDefinition;
+import org.ow2.proactive.sal.model.ClusterNodeDefinition;
 import org.ow2.proactive.sal.model.JobDefinition;
 import org.ow2.proactive.sal.service.service.ClusterService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -77,5 +80,16 @@ public class ClusterRest {
     final String sessionId, @PathVariable
     final String clusterName) throws NotConnectedException {
         return ResponseEntity.ok(clusterService.getCluster(sessionId, clusterName));
+    }
+
+    @RequestMapping(value = "/{clusterName}/scaleout", method = RequestMethod.POST)
+    @ApiOperation(value = "Add node to an already existing cluster")
+    public ResponseEntity<Cluster>
+            scaleOutCluster(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @PathVariable
+    final String clusterName, @RequestBody
+    final List<ClusterNodeDefinition> newNodes) throws NotConnectedException {
+        return ResponseEntity.ok(clusterService.scaleOutCluster(sessionId, clusterName, newNodes));
     }
 }

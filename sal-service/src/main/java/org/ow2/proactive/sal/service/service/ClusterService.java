@@ -142,8 +142,38 @@ public class ClusterService {
         }
     }
 
-    public Cluster getCluster(String sessionId, String clusterName) {
+    public Cluster getCluster(String sessionId, String clusterName) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
         return ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+    }
+
+    public Cluster scaleOutCluster(String sessionId, String clusterName, List<ClusterNodeDefinition> newNodes)
+            throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        Cluster toScaleClutser = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        repositoryService.deleteCluster(toScaleClutser);
+        repositoryService.flush();
+        List<ClusterNodeDefinition> newList = new ArrayList<ClusterNodeDefinition>(toScaleClutser.getNodes());
+        newList.addAll(newNodes);
+        newList.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
+        toScaleClutser.setNodes(newList);
+        repositoryService.saveCluster(toScaleClutser);
+        LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
+        for (ClusterNodeDefinition node : newNodes) {
+            PACloud cloud = repositoryService.getPACloud(node.getCloudId());
+            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleClutser.getName(), node, cloud);
+            workerNodeJob.getTasks().forEach(repositoryService::saveTask);
+            repositoryService.saveJob(workerNodeJob);
+        }
+        repositoryService.flush();
+        for (ClusterNodeDefinition node : newNodes) {
+            submitClutserNode(sessionId, toScaleClutser, node.getName(), true);
+        }
+        return toScaleClutser;
     }
 
 }

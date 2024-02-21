@@ -190,8 +190,7 @@ public class ClusterUtils {
     public static List<IaasDefinition> getNodeIaasDefinition(String sessionId, Cluster cluster, String nodeName) {
         ClusterNodeDefinition node = getNodeByName(cluster, nodeName);
         String clusterName = cluster.getName();
-        IaasDefinition masterIaasDefinition = createIaasDefinition(node,
-                                                                   "create_" + nodeName + "_" + clusterName + "_Task");
+        IaasDefinition masterIaasDefinition = createIaasDefinition(node, nodeName + "_" + clusterName + "_Task");
         List<IaasDefinition> defs = new ArrayList<>();
         defs.add(masterIaasDefinition);
         return defs;
