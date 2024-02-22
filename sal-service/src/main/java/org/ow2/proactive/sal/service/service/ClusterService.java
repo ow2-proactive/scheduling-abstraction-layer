@@ -116,6 +116,9 @@ public class ClusterService {
             for (ClusterNodeDefinition node : workerNodes) {
                 submitClutserNode(sessionId, toDeployClutser, node.getName(), true);
             }
+            toDeployClutser.setStatus("submited");
+            repositoryService.saveCluster(toDeployClutser);
+            repositoryService.flush();
         }
         return true;
     }
@@ -146,7 +149,32 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        Cluster getCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        List<ClusterNodeDefinition> nodes = getCluster.getNodes();
+        int i = 0;
+        List<String> states = new ArrayList<>();
+        for (ClusterNodeDefinition node : nodes) {
+            JobState state = jobService.getJobState(sessionId, node.getNodeJobName(clusterName));
+            if (state != null && state.getJobStatus() != null) {
+                node.setState(state.getJobStatus().toString());
+                states.add(state.getJobStatus().toString());
+            } else {
+                node.setState("defined");
+            }
+            nodes.set(i, node);
+            i += 1;
+        }
+        if (states.contains("In-Error") || states.contains("Failed") || states.contains("Canceled")) {
+            getCluster.setStatus("failed");
+        } else {
+            if (checkAllStates(states)) {
+                getCluster.setStatus("deployed");
+            }
+        }
+        getCluster.setNodes(nodes);
+        repositoryService.saveCluster(getCluster);
+        repositoryService.flush();
+        return getCluster;
     }
 
     public Cluster scaleOutCluster(String sessionId, String clusterName, List<ClusterNodeDefinition> newNodes)
@@ -161,6 +189,7 @@ public class ClusterService {
         newList.addAll(newNodes);
         newList.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
         toScaleClutser.setNodes(newList);
+        toScaleClutser.setStatus("scaling");
         repositoryService.saveCluster(toScaleClutser);
         LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
         for (ClusterNodeDefinition node : newNodes) {
@@ -174,6 +203,15 @@ public class ClusterService {
             submitClutserNode(sessionId, toScaleClutser, node.getName(), true);
         }
         return toScaleClutser;
+    }
+
+    private boolean checkAllStates(List<String> states) {
+        for (String state : states) {
+            if (!state.equals("Finished")) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

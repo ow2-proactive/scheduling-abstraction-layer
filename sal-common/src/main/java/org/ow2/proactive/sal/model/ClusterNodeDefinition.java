@@ -55,6 +55,8 @@ public class ClusterNodeDefinition {
     @JsonProperty("cloudId")
     private String cloudId = null;
 
+    private String state = "";
+
     public String getNodeJobName(String clusterName) {
         return this.name + "_" + clusterName;
     }
