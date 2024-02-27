@@ -25,6 +25,7 @@
  */
 package org.ow2.proactive.sal.service.rest;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
@@ -59,7 +60,7 @@ public class ClusterRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A cluster skeleton definition", required = true)
     @RequestBody
-    final ClusterDefinition clusterDefinition) throws NotConnectedException {
+    final ClusterDefinition clusterDefinition) throws NotConnectedException, IOException {
         return ResponseEntity.ok(clusterService.defineCluster(sessionId, clusterDefinition));
     }
 
@@ -89,7 +90,7 @@ public class ClusterRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @PathVariable
     final String clusterName, @RequestBody
-    final List<ClusterNodeDefinition> newNodes) throws NotConnectedException {
+    final List<ClusterNodeDefinition> newNodes) throws NotConnectedException, IOException {
         return ResponseEntity.ok(clusterService.scaleOutCluster(sessionId, clusterName, newNodes));
     }
 }

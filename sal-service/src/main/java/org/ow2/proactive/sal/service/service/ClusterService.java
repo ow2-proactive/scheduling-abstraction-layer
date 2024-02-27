@@ -25,6 +25,7 @@
  */
 package org.ow2.proactive.sal.service.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,8 @@ public class ClusterService {
     @Autowired
     private JobService jobService;
 
-    public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition) throws NotConnectedException {
+    public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
+            throws NotConnectedException, IOException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
@@ -178,7 +180,7 @@ public class ClusterService {
     }
 
     public Cluster scaleOutCluster(String sessionId, String clusterName, List<ClusterNodeDefinition> newNodes)
-            throws NotConnectedException {
+            throws NotConnectedException, IOException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }

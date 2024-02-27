@@ -25,12 +25,16 @@
  */
 package org.ow2.proactive.sal.service.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.*;
 import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +44,8 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ClusterUtils {
+
+    private static final String SCRIPTS_PATH = "/usr/local/tomcat/scripts/";
 
     private static final String MASTER_PRE_INSTALL_SCRIPT = "echo \"Pre Install script\"";
 
@@ -75,7 +81,8 @@ public class ClusterUtils {
     @Autowired
     private RepositoryService repositoryService;
 
-    public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud) {
+    public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud)
+            throws IOException {
         Job masterNodeJob = new Job();
         masterNodeJob.setJobId(masterNode.getNodeJobName(clusterName));
         masterNodeJob.setName(masterNode.getNodeJobName(clusterName));
@@ -86,7 +93,8 @@ public class ClusterUtils {
         return masterNodeJob;
     }
 
-    private static Task createMasterNodeTask(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud) {
+    private static Task createMasterNodeTask(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud)
+            throws IOException {
         Task masterNodeTask = new Task();
         masterNodeTask.setTaskId(masterNode.getNodeTaskName(clusterName));
         masterNodeTask.setName(masterNode.getNodeTaskName(clusterName));
@@ -96,22 +104,23 @@ public class ClusterUtils {
         return masterNodeTask;
     }
 
-    private static CommandsInstallation createMasterInstallation() {
+    private static CommandsInstallation createMasterInstallation() throws IOException {
         CommandsInstallation masterInstallation = new CommandsInstallation();
         OperatingSystemType os = new OperatingSystemType();
-        masterInstallation.setPreInstall(MASTER_PRE_INSTALL_SCRIPT);
-        masterInstallation.setInstall(MASTER_INSTALL_SCRIPT);
-        masterInstallation.setPostInstall(MASTER_POST_INSTALL_SCRIPT);
-        masterInstallation.setStart(MASTER_START_SCRIPT);
-        masterInstallation.setStop(MASTER_STOP_SCRIPT);
-        masterInstallation.setUpdateCmd(MASTER_UPDATE_SCRIPT);
+        masterInstallation.setPreInstall(getBashFilesContent("MASTER_PRE_INSTALL_SCRIPT.sh"));
+        masterInstallation.setInstall(getBashFilesContent("MASTER_INSTALL_SCRIPT.sh"));
+        masterInstallation.setPostInstall(getBashFilesContent("MASTER_POST_INSTALL_SCRIPT.sh"));
+        masterInstallation.setStart(getBashFilesContent("MASTER_START_SCRIPT.sh"));
+        masterInstallation.setStop(getBashFilesContent("MASTER_STOP_SCRIPT.sh"));
+        masterInstallation.setUpdateCmd(getBashFilesContent("MASTER_UPDATE_SCRIPT.sh"));
         os.setOperatingSystemFamily("ubuntu");
         os.setOperatingSystemVersion((float) 22.04);
         masterInstallation.setOperatingSystemType(os);
         return masterInstallation;
     }
 
-    public static Job createWorkerNodeJob(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud) {
+    public static Job createWorkerNodeJob(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud)
+            throws IOException {
         Job workerNodeJob = new Job();
         workerNodeJob.setJobId(workerNode.getNodeJobName(clusterName));
         workerNodeJob.setName(workerNode.getNodeJobName(clusterName));
@@ -122,7 +131,8 @@ public class ClusterUtils {
         return workerNodeJob;
     }
 
-    private static Task createWorkerNodeTask(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud) {
+    private static Task createWorkerNodeTask(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud)
+            throws IOException {
         Task workerNodeTask = new Task();
         workerNodeTask.setTaskId(workerNode.getNodeTaskName(clusterName));
         workerNodeTask.setName(workerNode.getNodeTaskName(clusterName));
@@ -132,15 +142,15 @@ public class ClusterUtils {
         return workerNodeTask;
     }
 
-    private static CommandsInstallation createWorkerInstallation() {
+    private static CommandsInstallation createWorkerInstallation() throws IOException {
         CommandsInstallation workerInstallation = new CommandsInstallation();
         OperatingSystemType os = new OperatingSystemType();
-        workerInstallation.setPreInstall(WORKER_PRE_INSTALL_SCRIPT);
-        workerInstallation.setInstall(WORKER_INSTALL_SCRIPT);
-        workerInstallation.setPostInstall(WORKER_POST_INSTALL_SCRIPT);
-        workerInstallation.setStart(WORKER_START_SCRIPT);
-        workerInstallation.setStop(WORKER_STOP_SCRIPT);
-        workerInstallation.setUpdateCmd(WORKER_UPDATE_SCRIPT);
+        workerInstallation.setPreInstall(getBashFilesContent("WORKER_PRE_INSTALL_SCRIPT.sh"));
+        workerInstallation.setInstall(getBashFilesContent("WORKER_INSTALL_SCRIPT.sh"));
+        workerInstallation.setPostInstall(getBashFilesContent("WORKER_POST_INSTALL_SCRIPT.sh"));
+        workerInstallation.setStart(getBashFilesContent("WORKER_START_SCRIPT.sh"));
+        workerInstallation.setStop(getBashFilesContent("WORKER_STOP_SCRIPT.sh"));
+        workerInstallation.setUpdateCmd(getBashFilesContent("WORKER_UPDATE_SCRIPT.sh"));
         os.setOperatingSystemFamily("ubuntu");
         os.setOperatingSystemVersion((float) 22.04);
         workerInstallation.setOperatingSystemType(os);
@@ -194,5 +204,12 @@ public class ClusterUtils {
         List<IaasDefinition> defs = new ArrayList<>();
         defs.add(masterIaasDefinition);
         return defs;
+    }
+
+    private static String getBashFilesContent(String fileName) throws IOException {
+        String filePath = SCRIPTS_PATH + fileName;
+        File file = new File(filePath);
+        return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
     }
 }
