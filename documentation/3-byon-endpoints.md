@@ -68,7 +68,7 @@
 🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/byon/<JOB_ID>
 ```
 
-**Path Variable:** The job identifier `<JOB_ID>`
+**Path Variable:** The Job ID.
 
 **Headers:** sessionid
 
@@ -84,7 +84,7 @@
 🔵 PUT {{protocol}}://{{sal_host}}:{{sal_port}}/sal/byon/<JOB_ID>
 ```
 
-**Path Variable:** The job identifier `<JOB_ID>`
+**Path Variable:** The Job ID.
 
 **Headers:** sessionid
 

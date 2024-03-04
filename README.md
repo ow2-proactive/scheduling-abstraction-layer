@@ -56,8 +56,7 @@ docker pull activeeon/sal
 To run SAL as a microservice, execute the following command:
 
 ```bash
-cd sal-service/
-./../gradlew bootRun
+./gradlew bootRun
 ```
 
 This will start the microservice allowing you to interact with it through various endpoints.

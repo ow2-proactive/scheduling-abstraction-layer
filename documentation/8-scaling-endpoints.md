@@ -1,6 +1,6 @@
-#### 8.1- Scale out task endpoint:
+#### 8.1- addScaleOutTask endpoint:
 
-**Description**: Register a set of nodes as an operation for scale out
+**Description**: Register new secrets in ProActive vault
 For more details check: [Deployment class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/Deployment.java), [ScalingService class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-service/src/main/java/org/ow2/proactive/sal/service/service/ScalingService.java), and [ScalingRest class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-service/src/main/java/org/ow2/proactive/sal/service/rest/ScalingRest.java).
 **Path**:
 
@@ -26,9 +26,9 @@ A JSON list of the node names: 
 
 * * *
 
-#### 8.2- Scale in task endpoint:
+#### 8.2- addScaleInTask endpoint:
 
-**Description**: Unregister a set of nodes as a scale in operation
+**Description**: Register new secrets in ProActive vault
 For more details check: [Deployment class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/Deployment.java), [ScalingService class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-service/src/main/java/org/ow2/proactive/sal/service/service/ScalingService.java), and [ScalingRest class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-service/src/main/java/org/ow2/proactive/sal/service/rest/ScalingRest.java).
 **Path**:
 
@@ -51,3 +51,5 @@ A JSON list of nodes to be removed
 ```
 
 **Returns**: True if the scaling was successful, false otherwise.
+
+* * *

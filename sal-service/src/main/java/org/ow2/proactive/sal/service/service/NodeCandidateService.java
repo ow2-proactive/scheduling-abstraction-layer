@@ -25,7 +25,8 @@
  */
 package org.ow2.proactive.sal.service.service;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.ow2.proactive.sal.model.NodeCandidate;
 import org.ow2.proactive.sal.model.Requirement;
@@ -49,17 +50,13 @@ public class NodeCandidateService {
     @Autowired
     private RepositoryService repositoryService;
 
-    private final String rankKeyName = "rank";
-
-    List<NodeCandidate> filteredNodeCandidates = null;
-
     /**
-     * Filter node candidates
+     * Find node candidates
      * @param sessionId A valid session id
      * @param requirements List of NodeType or Attribute requirements
      * @return A list of all node candidates that satisfy the requirements
      */
-    public List<NodeCandidate> filterNodeCandidates(String sessionId, List<Requirement> requirements)
+    public List<NodeCandidate> findNodeCandidates(String sessionId, List<Requirement> requirements)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
@@ -80,32 +77,8 @@ public class NodeCandidateService {
                 }
             }
         });
-        this.filteredNodeCandidates = filteredNodeCandidates;
         return filteredNodeCandidates;
         //TODO: add BYON nodes to the NodeCandidates List
-    }
-
-    /**
-     * Order filter node candidates
-     * @param sessionId A valid session id
-     * @param nodeRankings Map of node:rank
-     * @return A list of all ordered filtered node candidates
-     */
-    public List<NodeCandidate> orderFilteredNodeCandidates(String sessionId,
-            Map<String, Map<String, String>> nodeRankings) throws NotConnectedException {
-        if (!paGatewayService.isConnectionActive(sessionId)) {
-            throw new NotConnectedException();
-        }
-
-        NodeCandidate[] orderedFilteredNodeCandidates = new NodeCandidate[nodeRankings.size()];
-
-        for (NodeCandidate nodeCandidate : this.filteredNodeCandidates) {
-            if (nodeRankings.containsKey(nodeCandidate.getId())) {
-                orderedFilteredNodeCandidates[Integer.valueOf((nodeRankings.get(nodeCandidate.getId())
-                                                                           .get(rankKeyName)))] = nodeCandidate;
-            }
-        }
-        return Arrays.asList(orderedFilteredNodeCandidates);
     }
 
     /**

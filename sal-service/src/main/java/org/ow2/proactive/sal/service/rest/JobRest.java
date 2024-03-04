@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiParam;
 
 
 @RestController
-@RequestMapping(value = "/jobs")
+@RequestMapping(value = "/job")
 @Api(description = "Operations on jobs", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class JobRest {
 
@@ -57,7 +57,7 @@ public class JobRest {
     private JobService jobService;
 
     @RequestMapping(method = RequestMethod.POST)
-    @ApiOperation(value = "Create a SAL job")
+    @ApiOperation(value = "Create a ProActive job skeleton")
     public ResponseEntity<Boolean> createJob(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId, @ApiParam(value = "A job skeleton definition", required = true)
@@ -67,7 +67,7 @@ public class JobRest {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @ApiOperation(value = "Get all SAL jobs", response = Job.class, responseContainer = "List")
+    @ApiOperation(value = "Get all job skeletons", response = Job.class, responseContainer = "List")
     public ResponseEntity<List<Job>> getJobs(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
@@ -213,15 +213,5 @@ public class JobRest {
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
         return ResponseEntity.ok(jobService.removeAllPAJobs(sessionId));
-    }
-
-    @RequestMapping(value = "/remove/{jobId}", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Remove a specified job")
-    public ResponseEntity<Boolean> removeJob(@ApiParam(value = "Proactive authentication session id", required = true)
-    @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A job ID", required = true)
-    @PathVariable
-    final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(jobService.removeSALandPAJob(sessionId, jobId));
     }
 }

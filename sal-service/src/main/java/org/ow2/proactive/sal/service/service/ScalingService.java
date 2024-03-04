@@ -73,7 +73,7 @@ public class ScalingService {
      * Register a set of node as an operation for scale up
      * @param sessionId A valid session id
      * @param nodeNames Name of the nodes to be created and provisioned
-     * @param jobId The id of the Job to be allocated
+     * @param jobId The name of the Job to be allocated
      * @param taskName the name of the task whose node are to be allocated
      * @return 0 if the operation went successful, 1 if the scaling failed because no job/task was node found, 2 if the scaling failed because no deployment to clone are available.
      */
@@ -86,7 +86,7 @@ public class ScalingService {
         Validate.notEmpty(nodeNames, "The provided nodes list should not be empty");
         Validate.notNull(jobId, "The provided jobId should not be null.");
 
-        // Let's find the job to retrieve the task
+        // Let's find the jobId to retrieve the task
         Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
