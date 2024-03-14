@@ -47,37 +47,6 @@ public class ClusterUtils {
 
     private static final String SCRIPTS_PATH = "/usr/local/tomcat/scripts/";
 
-    private static final String MASTER_PRE_INSTALL_SCRIPT = "echo \"Pre Install script\"";
-
-    private static final String MASTER_INSTALL_SCRIPT = "wget https://raw.githubusercontent.com/alijawadfahs/scripts/main/nebulous/install-kube-u22.sh && chmod +x ./install-kube-u22.sh && ./install-kube-u22.sh\n";
-
-    private static final String MASTER_POST_INSTALL_SCRIPT = "echo \"Post Install script\"";
-
-    private static final String MASTER_START_SCRIPT = "sudo kubeadm init --pod-network-cidr=10.244.0.0/16\n" +
-                                                      "echo \"HOME: $(pwd), USERE: $(id -u -n)\"\n" +
-                                                      "mkdir -p ~/.kube && sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config && sudo chown $(id -u):$(id -g) ~/.kube/config\n" +
-                                                      "id -u ubuntu &> /dev/null\n" + "\n" + "if [[ $? -eq 0 ]]\n" +
-                                                      "then\n" + "#USER ubuntu is found\n" +
-                                                      "mkdir -p /home/ubuntu/.kube && sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config\n" +
-                                                      "else\n" + "echo \"User Ubuntu is not found\"\n" + "fi\n" + "\n" +
-                                                      "sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml;";
-
-    private static final String MASTER_STOP_SCRIPT = "echo \"Stop Install script\"";
-
-    private static final String MASTER_UPDATE_SCRIPT = "echo \"Update Install script\"";
-
-    private static final String WORKER_PRE_INSTALL_SCRIPT = "echo \"Pre Install script\"";
-
-    private static final String WORKER_INSTALL_SCRIPT = "wget https://raw.githubusercontent.com/alijawadfahs/scripts/main/nebulous/install-kube-u22.sh && chmod +x ./install-kube-u22.sh && ./install-kube-u22.sh\n";
-
-    private static final String WORKER_POST_INSTALL_SCRIPT = "echo \"Post Install script\"";
-
-    private static final String WORKER_START_SCRIPT = "echo $variables_kubeCommand\n" + "sudo $variables_kubeCommand";
-
-    private static final String WORKER_STOP_SCRIPT = "echo \"Stop Install script\"";
-
-    private static final String WORKER_UPDATE_SCRIPT = "echo \"Update Install script\"";
-
     @Autowired
     private RepositoryService repositoryService;
 
