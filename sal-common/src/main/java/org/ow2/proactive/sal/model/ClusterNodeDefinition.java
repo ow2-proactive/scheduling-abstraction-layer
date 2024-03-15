@@ -58,7 +58,7 @@ public class ClusterNodeDefinition {
     private String state = "";
 
     public String getNodeJobName(String clusterName) {
-        return this.name + "_" + clusterName;
+        return this.name + "-" + clusterName;
     }
 
     public String getNodeTaskName(String clusterName) {

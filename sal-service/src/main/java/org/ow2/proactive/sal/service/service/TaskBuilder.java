@@ -874,6 +874,12 @@ public class TaskBuilder {
         return waitForMasterTask;
     }
 
+    public ScriptTask createLabelNodesTask(String script, String masterNodeToken) {
+        ScriptTask labelNodesTask = PAFactory.createBashScriptTask("label_nodes", script);
+        labelNodesTask.addGenericInformation("NODE_ACCESS_TOKEN", masterNodeToken);
+        return labelNodesTask;
+    }
+
     private ScriptTask createSetTokenTask(String masterNodeToken) {
         ScriptTask setTokenTask = PAFactory.createGroovyScriptTaskFromFile("set_token", SET_TOKEN_SCRIPT);
         Map<String, TaskVariable> variablesMap = new HashMap<>();

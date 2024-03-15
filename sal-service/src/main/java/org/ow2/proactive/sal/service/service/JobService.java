@@ -349,7 +349,7 @@ public class JobService {
         addCleanChannelsTaskWithDependencies(paJob, jobToSubmit);
 
         paJob.setMaxNumberOfExecution(2);
-        paJob.setProjectName("Morphemic");
+        paJob.setProjectName("NebulOuS");
 
         long submittedJobId = -1L;
         if (!paJob.getTasks().isEmpty()) {
@@ -709,7 +709,7 @@ public class JobService {
         addCleanChannelsTaskWithDependencies(paJob, job);
 
         paJob.setMaxNumberOfExecution(2);
-        paJob.setProjectName("Morphemic");
+        paJob.setProjectName("NebulOuS");
 
         long submittedJobId = schedulerGateway.submit(paJob).longValue();
         job.setSubmittedJobId(submittedJobId);
@@ -785,6 +785,34 @@ public class JobService {
 
     private void setAllReconfigurationMandatoryDependencies(TaskFlowJob paJob, Job job) {
         setAllMandatoryDependencies(paJob, job);
+    }
+
+    public Long submitLabelNodesJob(String sessionId, String script, String masterNodeToken, String clusterName)
+            throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+
+        TaskFlowJob paJob = new TaskFlowJob();
+        paJob.setName("label-nodes-" + clusterName);
+        LOGGER.info("Job created: " + paJob.toString());
+        try {
+            paJob.addTask(taskBuilder.createLabelNodesTask(script, masterNodeToken));
+        } catch (UserException e) {
+            throw new RuntimeException(e);
+        }
+        paJob.setMaxNumberOfExecution(2);
+        paJob.setProjectName("NebulOuS");
+        long submittedJobId = -1L;
+        if (!paJob.getTasks().isEmpty()) {
+            submittedJobId = schedulerGateway.submit(paJob).longValue();
+            LOGGER.info("Label Nodes Job submitted successfully. ID = " + submittedJobId);
+        } else {
+            LOGGER.warn("The job is empty!");
+        }
+
+        return submittedJobId;
+
     }
 
 }

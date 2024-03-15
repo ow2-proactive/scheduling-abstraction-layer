@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -46,6 +47,9 @@ import lombok.extern.log4j.Log4j2;
 public class ClusterUtils {
 
     private static final String SCRIPTS_PATH = "/usr/local/tomcat/scripts/";
+
+    // TO be changed, the hardcoding of the ubuntu user is a bad practice.
+    private static final String KUBE_LABEL_COMMAND = "sudo -u ubuntu kubectl label nodes";
 
     @Autowired
     private RepositoryService repositoryService;
@@ -180,5 +184,16 @@ public class ClusterUtils {
         File file = new File(filePath);
         return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
+    }
+
+    public static String createLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
+        StringBuilder script = new StringBuilder();
+        for (Map<String, String> nodeLabelPair : nodeLabels) {
+            for (String nodeName : nodeLabelPair.keySet()) {
+                String label = nodeLabelPair.get(nodeName);
+                script.append(String.format("%s %s-%s %s \n", KUBE_LABEL_COMMAND, nodeName, clusterName, label));
+            }
+        }
+        return script.toString();
     }
 }

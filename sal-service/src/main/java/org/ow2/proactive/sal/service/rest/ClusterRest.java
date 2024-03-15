@@ -27,6 +27,7 @@ package org.ow2.proactive.sal.service.rest;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
@@ -92,5 +93,15 @@ public class ClusterRest {
     final String clusterName, @RequestBody
     final List<ClusterNodeDefinition> newNodes) throws NotConnectedException, IOException {
         return ResponseEntity.ok(clusterService.scaleOutCluster(sessionId, clusterName, newNodes));
+    }
+
+    @RequestMapping(value = "/{clusterName}/label", method = RequestMethod.POST)
+    @ApiOperation(value = "Label nodes in the cluster")
+    public ResponseEntity<Long> labelNodes(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @PathVariable
+    final String clusterName, @RequestBody
+    final List<Map<String, String>> nodesLabels) throws NotConnectedException, IOException {
+        return ResponseEntity.ok(clusterService.labelNodes(sessionId, clusterName, nodesLabels));
     }
 }

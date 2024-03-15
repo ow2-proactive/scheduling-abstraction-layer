@@ -28,6 +28,9 @@ package org.ow2.proactive.sal.service.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
@@ -134,7 +137,7 @@ public class ClusterService {
             List<IaasDefinition> defs = ClusterUtils.getNodeIaasDefinition(sessionId, cluster, node.getName());
             nodeService.addNodes(sessionId, defs, jobId);
             Deployment currentDeployment = repositoryService.getDeployment(defs.get(0).getName());
-            String masterNodeToken = cluster.getMasterNode();
+            String masterNodeToken = cluster.getMasterNode() + "_" + cluster.getName();
             currentDeployment.setWorker(worker);
             currentDeployment.setMasterToken(masterNodeToken);
             repositoryService.saveDeployment(currentDeployment);
@@ -205,6 +208,25 @@ public class ClusterService {
             submitClutserNode(sessionId, toScaleClutser, node.getName(), true);
         }
         return toScaleClutser;
+    }
+
+    public Long labelNodes(String sessionId, String clusterName, List<Map<String, String>> nodeLabels)
+            throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        String masterNodeToken = "";
+        Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        if (cluster != null) {
+            masterNodeToken = cluster.getMasterNode() + "_" + clusterName;
+        } else {
+            LOGGER.error("The cluster with the name {} was not found!", clusterName);
+            return -1L;
+        }
+        String script = ClusterUtils.createLabelNodesScript(nodeLabels, clusterName);
+
+        return jobService.submitLabelNodesJob(sessionId, script, masterNodeToken, clusterName);
+
     }
 
     private boolean checkAllStates(List<String> states) {
