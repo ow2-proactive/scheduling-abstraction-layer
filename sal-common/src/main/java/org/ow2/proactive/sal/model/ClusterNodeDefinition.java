@@ -57,6 +57,8 @@ public class ClusterNodeDefinition {
 
     private String state = "";
 
+    private String nodeUrl = "";
+
     public String getNodeJobName(String clusterName) {
         return this.name + "-" + clusterName;
     }

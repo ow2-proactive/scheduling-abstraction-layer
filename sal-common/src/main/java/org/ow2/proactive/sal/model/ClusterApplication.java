@@ -25,7 +25,9 @@
  */
 package org.ow2.proactive.sal.model;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.*;
 
@@ -43,31 +45,54 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "CLUSTER")
-public class Cluster {
+public class ClusterApplication {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    @Column(name = "CLUSTER_ID")
-    private String clusterId = null;
+    private String applicationId = null;
 
-    @Column(name = "NAME")
-    @JsonProperty("name")
-    private String name = null;
+    @JsonProperty("appName")
+    private String appName = null;
 
-    @Column(name = "MASTER_NODE")
-    @JsonProperty("master-node")
-    private String masterNode;
+    private String clusterName = null;
 
-    @Column(name = "NODES")
-    @JsonProperty("nodes")
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.REFRESH)
-    private List<ClusterNodeDefinition> nodes;
+    //TODO    change this
+    private PackageManagerEnum yamlManager = null;
 
-    // TODO: Change this into Enum
-    @Column(name = "STATUS")
-    @JsonProperty("status")
-    private String status = "defined";
+    @JsonProperty("appFile")
+    private String appFile = null;
 
+    @JsonProperty("packageManager")
+    private String packageManager = null;
+
+    @JsonProperty("action")
+    private String action = null;
+
+    @JsonProperty("flags")
+    private String flags = "";
+
+    public enum PackageManagerEnum {
+        HELM("helm", "helm upgrade --install"),
+        KUBECTL("kubectl", "kubectl apply -f "),
+        KUBEVELA("kubevela", "vela up -f ");
+
+        @Getter
+        private final String name;
+
+        @Getter
+        private final String command;
+
+        PackageManagerEnum(String name, String command) {
+            this.name = name;
+            this.command = command;
+        }
+
+        public static PackageManagerEnum getPackageManagerEnumByName(String name) {
+            Optional<PackageManagerEnum> packageManager = Arrays.stream(PackageManagerEnum.values())
+                                                                .filter(pm -> pm.name.equals(name))
+                                                                .findFirst();
+            return packageManager.orElse(null);
+        }
+
+    }
 }

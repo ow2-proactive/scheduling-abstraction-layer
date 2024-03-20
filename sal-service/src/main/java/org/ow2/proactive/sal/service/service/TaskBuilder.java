@@ -102,6 +102,8 @@ public class TaskBuilder {
 
     private static final String SET_TOKEN_SCRIPT = "set_token.groovy";
 
+    private static final String DELETE_NODE_SCRIPT = "delete_node.groovy";
+
     private static final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$|^On-Prem-Server-Static-Nodes$";
 
     private static final String COMPONENT_NAME_VARIABLE_NAME = "ComponentName";
@@ -874,16 +876,24 @@ public class TaskBuilder {
         return waitForMasterTask;
     }
 
-    public ScriptTask createLabelNodesTask(String script, String masterNodeToken) {
-        ScriptTask labelNodesTask = PAFactory.createBashScriptTask("label_nodes", script);
-        labelNodesTask.addGenericInformation("NODE_ACCESS_TOKEN", masterNodeToken);
-        return labelNodesTask;
+    public ScriptTask createOneNodeTask(String script, String token, String taskName) {
+        ScriptTask oneNodeTask = PAFactory.createBashScriptTask(taskName, script);
+        oneNodeTask.addGenericInformation("NODE_ACCESS_TOKEN", token);
+        return oneNodeTask;
     }
 
     private ScriptTask createSetTokenTask(String masterNodeToken) {
         ScriptTask setTokenTask = PAFactory.createGroovyScriptTaskFromFile("set_token", SET_TOKEN_SCRIPT);
         Map<String, TaskVariable> variablesMap = new HashMap<>();
         variablesMap.put("nodeToken", new TaskVariable("nodeToken", masterNodeToken));
+        setTokenTask.setVariables(variablesMap);
+        return setTokenTask;
+    }
+
+    public ScriptTask createDeleteNodeTask(String nodeUrl) {
+        ScriptTask setTokenTask = PAFactory.createGroovyScriptTaskFromFile("Delete-Node", DELETE_NODE_SCRIPT);
+        Map<String, TaskVariable> variablesMap = new HashMap<>();
+        variablesMap.put("nodeURL", new TaskVariable("nodeURL", nodeUrl));
         setTokenTask.setVariables(variablesMap);
         return setTokenTask;
     }

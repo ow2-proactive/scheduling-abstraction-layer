@@ -26,10 +26,8 @@
 package org.ow2.proactive.sal.service.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
@@ -113,6 +111,7 @@ public class ClusterService {
         // add nodes
         if (toDeployClutser == null) {
             LOGGER.error("No Cluster was found! Nothing is deployed!");
+            return false;
         } else {
             List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(toDeployClutser);
             LOGGER.info("Deploying the master node of the cluster [{}]", toDeployClutser.getName());
@@ -154,6 +153,7 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
+        LOGGER.info("getCluster endpoint is called to deploy the cluster: " + clusterName);
         Cluster getCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
         List<ClusterNodeDefinition> nodes = getCluster.getNodes();
         int i = 0;
@@ -168,6 +168,7 @@ public class ClusterService {
             }
             nodes.set(i, node);
             i += 1;
+            node.setNodeUrl(getNodeUrl(sessionId, clusterName, node));
         }
         if (states.contains("In-Error") || states.contains("Failed") || states.contains("Canceled")) {
             getCluster.setStatus("failed");
@@ -187,27 +188,66 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Cluster toScaleClutser = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
-        repositoryService.deleteCluster(toScaleClutser);
+        LOGGER.info("scaleOutCluster endpoint is called for the cluster: " + clusterName);
+        Cluster toScaleCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        repositoryService.deleteCluster(toScaleCluster);
         repositoryService.flush();
-        List<ClusterNodeDefinition> newList = new ArrayList<ClusterNodeDefinition>(toScaleClutser.getNodes());
+        List<ClusterNodeDefinition> newList = new ArrayList<ClusterNodeDefinition>(toScaleCluster.getNodes());
         newList.addAll(newNodes);
         newList.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
-        toScaleClutser.setNodes(newList);
-        toScaleClutser.setStatus("scaling");
-        repositoryService.saveCluster(toScaleClutser);
+        toScaleCluster.setNodes(newList);
+        toScaleCluster.setStatus("scaling");
+        repositoryService.saveCluster(toScaleCluster);
         LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
         for (ClusterNodeDefinition node : newNodes) {
             PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleClutser.getName(), node, cloud);
+            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleCluster.getName(), node, cloud);
             workerNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(workerNodeJob);
         }
         repositoryService.flush();
         for (ClusterNodeDefinition node : newNodes) {
-            submitClutserNode(sessionId, toScaleClutser, node.getName(), true);
+            submitClutserNode(sessionId, toScaleCluster, node.getName(), true);
         }
-        return toScaleClutser;
+        return toScaleCluster;
+    }
+
+    public Cluster scaleInCluster(String sessionId, String clusterName, List<String> nodesToDelete)
+            throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        LOGGER.info("scaleDownCluster endpoint is called for the cluster: " + clusterName);
+        Cluster toScaleCluster = getCluster(sessionId, clusterName);
+        repositoryService.deleteCluster(toScaleCluster);
+        repositoryService.flush();
+        List<ClusterNodeDefinition> clusterNodes = toScaleCluster.getNodes();
+        for (String nodeName : nodesToDelete) {
+            ClusterNodeDefinition node = getNodeFromCluster(toScaleCluster, nodeName);
+            if (node != null && !node.getName().equals(toScaleCluster.getMasterNode())) {
+                try {
+                    deleteNode(sessionId, clusterName, node);
+                } catch (NotConnectedException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                LOGGER.warn("unable to delete node {}, the node was not found in the cluster {}",
+                            nodeName,
+                            clusterName);
+                if (node != null && node.getName().equals(toScaleCluster.getMasterNode())){
+                    LOGGER.warn("removing the master node {} of the cluster {} is not allowed!",
+                            nodeName,
+                            clusterName);
+                }
+            }
+            clusterNodes = deleteNodeFromCluster(clusterNodes, nodeName);
+        }
+        toScaleCluster.setNodes(clusterNodes);
+        toScaleCluster.setStatus("scaling");
+        clusterNodes.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
+        repositoryService.saveCluster(toScaleCluster);
+        repositoryService.flush();
+        return toScaleCluster;
     }
 
     public Long labelNodes(String sessionId, String clusterName, List<Map<String, String>> nodeLabels)
@@ -215,6 +255,7 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
+        LOGGER.info("labelNodes endpoint is called to label nodes in the cluster: " + clusterName);
         String masterNodeToken = "";
         Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
         if (cluster != null) {
@@ -225,17 +266,122 @@ public class ClusterService {
         }
         String script = ClusterUtils.createLabelNodesScript(nodeLabels, clusterName);
 
-        return jobService.submitLabelNodesJob(sessionId, script, masterNodeToken, clusterName);
+        try {
+            return jobService.submitOneTaskJob(sessionId,
+                                               script,
+                                               masterNodeToken,
+                                               "label_nodes_" + clusterName,
+                                               "basic");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
+    public Long deployApplication(String sessionId, String clusterName, ClusterApplication application)
+            throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        LOGGER.info("deployApplication endpoint is called to deploy the cluster: " + clusterName);
+        String masterNodeToken = "";
+        Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        if (cluster != null) {
+            masterNodeToken = cluster.getMasterNode() + "_" + clusterName;
+        } else {
+            LOGGER.error("The cluster with the name {} was not found!", clusterName);
+            return -1L;
+        }
+        String script = "";
+        try {
+            script = ClusterUtils.createDeployApplicationScript(application);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            return jobService.submitOneTaskJob(sessionId,
+                                               script,
+                                               masterNodeToken,
+                                               "deploy_app_" + clusterName,
+                                               "basic");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean deleteCluster(String sessionId, String clusterName) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        LOGGER.info("deleteCluster endpoint is called to remove the cluster: " + clusterName);
+        Cluster toScaleCluster = getCluster(sessionId, clusterName);
+        for (ClusterNodeDefinition node : toScaleCluster.getNodes()) {
+            if (node != null) {
+                deleteNode(sessionId, clusterName, node);
+            }
+        }
+        repositoryService.deleteCluster(toScaleCluster);
+        repositoryService.flush();
+        return true;
+    }
+
     private boolean checkAllStates(List<String> states) {
+        if (states.isEmpty()) {
+            return false;
+        }
         for (String state : states) {
             if (!state.equals("Finished")) {
                 return false;
             }
         }
         return true;
+    }
+
+    private String getNodeUrl(String sessionId, String clusterName, ClusterNodeDefinition node)
+            throws NotConnectedException {
+
+        Map<String, Serializable> map = jobService.getJobResultMaps(sessionId, node.getNodeJobName(clusterName), 200L);
+        if (!map.isEmpty()) {
+            return Optional.ofNullable(map.get("nodeURL")).orElse("").toString();
+        }
+        return "";
+    }
+
+    private Long deleteNode(String sessionId, String clusterName, ClusterNodeDefinition node)
+            throws NotConnectedException {
+        String nodeUrl = getNodeUrl(sessionId, clusterName, node);
+        if (nodeUrl != null && !nodeUrl.isEmpty()) {
+            try {
+                return jobService.submitOneTaskJob(sessionId, nodeUrl, "", "delete_node_" + node.getName(), "delete");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            LOGGER.warn("unable to delete node {}, wiht the node url \"{}\" !", node.getName(), node.getNodeUrl());
+            return -1L;
+        }
+    }
+
+    private ClusterNodeDefinition getNodeFromCluster(Cluster cluster, String nodeName) {
+        for (ClusterNodeDefinition node : cluster.getNodes()) {
+            if (Objects.equals(node.getName(), nodeName)) {
+                return node;
+            }
+        }
+        LOGGER.warn("The node {} was not found!", nodeName);
+        return null;
+    }
+
+    private List<ClusterNodeDefinition> deleteNodeFromCluster(List<ClusterNodeDefinition> clusterNodes,
+            String nodeName) {
+        List<ClusterNodeDefinition> newClusterNodes = new ArrayList<>();
+        for (ClusterNodeDefinition node : clusterNodes) {
+            if (!node.getName().equals(nodeName)) {
+                newClusterNodes.add(node);
+            }
+        }
+        return newClusterNodes;
     }
 
 }

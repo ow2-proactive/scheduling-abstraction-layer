@@ -16,4 +16,8 @@ else
 fi
 
 
-sudo -u ubuntu kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml;
+sudo -H -u ubuntu kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml;
+
+echo "Setting KubeVela..."
+sudo -H -u ubuntu bash -c 'helm repo add kubevela https://kubevela.github.io/charts && helm repo update'
+sudo -H -u ubuntu bash -c 'nohup helm install --create-namespace -n vela-system kubevela kubevela/vela-core > /home/ubuntu/vela.txt 2>&1 &'

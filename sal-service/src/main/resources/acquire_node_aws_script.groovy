@@ -23,6 +23,7 @@ def nodeURLs = rmapi.acquireNodes(nodeSourceName,
 
 nodeURLs.each { nodeURL ->
     variables.put("nodeURL", nodeURL)
+    resultMap.put("nodeURL", nodeURL)
     rmapi.addNodeToken(nodeURL, nodeToken)
 }
 println " ... OK !"

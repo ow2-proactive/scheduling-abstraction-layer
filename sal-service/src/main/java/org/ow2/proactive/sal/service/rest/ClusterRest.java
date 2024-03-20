@@ -31,10 +31,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.model.Cluster;
-import org.ow2.proactive.sal.model.ClusterDefinition;
-import org.ow2.proactive.sal.model.ClusterNodeDefinition;
-import org.ow2.proactive.sal.model.JobDefinition;
+import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.service.ClusterService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +82,7 @@ public class ClusterRest {
     }
 
     @RequestMapping(value = "/{clusterName}/scaleout", method = RequestMethod.POST)
-    @ApiOperation(value = "Add node to an already existing cluster")
+    @ApiOperation(value = "Add nodes to an already existing cluster")
     public ResponseEntity<Cluster>
             scaleOutCluster(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
@@ -93,6 +90,17 @@ public class ClusterRest {
     final String clusterName, @RequestBody
     final List<ClusterNodeDefinition> newNodes) throws NotConnectedException, IOException {
         return ResponseEntity.ok(clusterService.scaleOutCluster(sessionId, clusterName, newNodes));
+    }
+
+    @RequestMapping(value = "/{clusterName}/scalein", method = RequestMethod.POST)
+    @ApiOperation(value = "Add nodes from an already existing cluster")
+    public ResponseEntity<Cluster>
+            scaleInCluster(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @PathVariable
+    final String clusterName, @RequestBody
+    final List<String> nodes) throws NotConnectedException {
+        return ResponseEntity.ok(clusterService.scaleInCluster(sessionId, clusterName, nodes));
     }
 
     @RequestMapping(value = "/{clusterName}/label", method = RequestMethod.POST)
@@ -104,4 +112,26 @@ public class ClusterRest {
     final List<Map<String, String>> nodesLabels) throws NotConnectedException, IOException {
         return ResponseEntity.ok(clusterService.labelNodes(sessionId, clusterName, nodesLabels));
     }
+
+    @RequestMapping(value = "/{clusterName}/app", method = RequestMethod.POST)
+    @ApiOperation(value = "run an application in the cluster")
+    public ResponseEntity<Long>
+            deployApplication(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @PathVariable
+    final String clusterName, @RequestBody
+    final ClusterApplication application) throws NotConnectedException {
+        return ResponseEntity.ok(clusterService.deployApplication(sessionId, clusterName, application));
+    }
+
+    @RequestMapping(value = "/{clusterName}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete the cluster")
+    public ResponseEntity<Boolean>
+            deleteCluster(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @PathVariable
+    final String clusterName) throws NotConnectedException {
+        return ResponseEntity.ok(clusterService.deleteCluster(sessionId, clusterName));
+    }
+
 }
