@@ -4,7 +4,7 @@
 [![Java 8](https://img.shields.io/badge/Java-8-blue.svg)](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-1.3.8-brightgreen.svg)](https://spring.io/projects/spring-boot)
 
-Scheduling Abstraction Layer (SAL) is an abstraction layer developed as part of the EU project Morphemic. SAL aims to enhance the usability of ProActive Scheduler & Resource Manager by providing abstraction and additional features.
+Scheduling Abstraction Layer (SAL) is an abstraction layer initially developed as part of the EU project Morphemic ([morphemic.cloud](https://morphemic.cloud/)). Its development continued through the Nebulous EU project ([nebulouscloud.eu](https://nebulouscloud.eu/)). SAL aims to enhance the usability of [ProActive Scheduler & Resource Manager](https://proactive.activeeon.com/) by providing abstraction and additional features.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ Scheduling Abstraction Layer (SAL) is an abstraction layer developed as part of 
 
 ## Introduction
 
-SAL is a project developed under the Morphemic project, part of the EU's Horizon 2020 initiative. It offers an abstraction layer on top of the ProActive Scheduler & Resource Manager, making it easier for users to interact with the scheduler and take advantage of its features. Whether you want to use SAL as a microservice or deploy it as a Docker container, this repository provides the necessary resources to get you started.
+SAL is a project initially developed under the Morphemic project, part of the EU's Horizon 2020 initiative. Its development continued through the Nebulous EU project, part of Horizon Europe inititative. It offers an abstraction layer on top of the ProActive Scheduler & Resource Manager, making it easier for users to interact with the scheduler and take advantage of its features. Seamlessly supporting REST calls and direct communication with the Proactive API, SAL empowers users to harness the scheduler's capabilities. Whether you want to use SAL as a microservice or deploy it as a Docker container, this repository provides the necessary resources to get you started.
 
 ## Installation
 
