@@ -25,8 +25,10 @@
  */
 package org.ow2.proactive.sal.service.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -49,7 +51,9 @@ public class ClusterUtils {
     private static final String SCRIPTS_PATH = "/usr/local/tomcat/scripts/";
 
     // TO be changed, the hardcoding of the ubuntu user is a bad practice.
-    private static final String KUBE_LABEL_COMMAND = "sudo -u ubuntu kubectl label nodes";
+    private static final String KUBE_LABEL_COMMAND = "kubectl label nodes";
+
+    private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c ";
 
     @Autowired
     private RepositoryService repositoryService;
@@ -191,9 +195,45 @@ public class ClusterUtils {
         for (Map<String, String> nodeLabelPair : nodeLabels) {
             for (String nodeName : nodeLabelPair.keySet()) {
                 String label = nodeLabelPair.get(nodeName);
-                script.append(String.format("%s %s-%s %s \n", KUBE_LABEL_COMMAND, nodeName, clusterName, label));
+                script.append(String.format("%s '%s %s-%s %s' \n",
+                                            CLI_USER_SELECTION,
+                                            KUBE_LABEL_COMMAND,
+                                            nodeName,
+                                            clusterName,
+                                            label));
             }
         }
         return script.toString();
     }
+
+    public static String createDeployApplicationScript(ClusterApplication application) throws IOException {
+        String fileName = "/home/ubuntu/" + application.getAppName() + ".yaml";
+        application.setYamlManager(ClusterApplication.PackageManagerEnum.getPackageManagerEnumByName(application.getPackageManager()));
+        String appCommand = createAppCommand(application.getYamlManager(), fileName);
+
+        if (appCommand == null) {
+            LOGGER.error("\"{}\" is not supported!", application.getPackageManager());
+            throw new IOException("yaml executor is not supported!");
+        }
+        BufferedReader bufReader = new BufferedReader(new StringReader(application.getAppFile()));
+        StringBuilder script = new StringBuilder();
+        String line = null;
+        script.append("sudo rm " + fileName + " || echo 'file was not found.' \n");
+        while ((line = bufReader.readLine()) != null) {
+            script.append(String.format("printf \"%s\" >> %s \n", line, fileName));
+        }
+        script.append("sudo chown ubuntu:ubuntu " + fileName + "\n");
+        script.append(appCommand);
+        return script.toString();
+    }
+
+    private static String createAppCommand(ClusterApplication.PackageManagerEnum yamlManager, String fileName) {
+        if (yamlManager != null) {
+            return String.format("%s '%s %s'", CLI_USER_SELECTION, yamlManager.getCommand(), fileName);
+        } else {
+            LOGGER.error("The selected yaml executor is not supported!");
+            return null;
+        }
+    }
+
 }

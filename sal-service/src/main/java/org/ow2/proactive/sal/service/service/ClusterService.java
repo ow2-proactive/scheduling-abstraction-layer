@@ -234,10 +234,8 @@ public class ClusterService {
                 LOGGER.warn("unable to delete node {}, the node was not found in the cluster {}",
                             nodeName,
                             clusterName);
-                if (node != null && node.getName().equals(toScaleCluster.getMasterNode())){
-                    LOGGER.warn("removing the master node {} of the cluster {} is not allowed!",
-                            nodeName,
-                            clusterName);
+                if (node != null && node.getName().equals(toScaleCluster.getMasterNode())) {
+                    LOGGER.warn("removing the master node {} of the cluster {} is not allowed!", nodeName, clusterName);
                 }
             }
             clusterNodes = deleteNodeFromCluster(clusterNodes, nodeName);
