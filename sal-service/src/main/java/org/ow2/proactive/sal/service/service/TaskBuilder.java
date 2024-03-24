@@ -311,7 +311,7 @@ public class TaskBuilder {
             variablesMap.put("NS_name",
                              new TaskVariable("NS_name",
                                               PACloud.WHITE_LISTED_NAME_PREFIX +
-                                                         deployment.getPaCloud().getNodeSourceNamePrefix() +
+                                                         deployment.getPaCloud().getNodeSourceNamePrefix() + "-" +
                                                          deployment.getNode()
                                                                    .getNodeCandidate()
                                                                    .getLocation()
@@ -319,10 +319,11 @@ public class TaskBuilder {
         } else {
             variablesMap.put("NS_name",
                              new TaskVariable("NS_name",
-                                              deployment.getPaCloud().getNodeSourceNamePrefix() + deployment.getNode()
-                                                                                                            .getNodeCandidate()
-                                                                                                            .getLocation()
-                                                                                                            .getName()));
+                                              deployment.getPaCloud().getNodeSourceNamePrefix() + "-" +
+                                                         deployment.getNode()
+                                                                   .getNodeCandidate()
+                                                                   .getLocation()
+                                                                   .getName()));
         }
         variablesMap.put("nVMs", new TaskVariable("nVMs", "1", "PA:Integer", false));
         variablesMap.put("synchronous", new TaskVariable("synchronous", "true", "PA:Boolean", false));

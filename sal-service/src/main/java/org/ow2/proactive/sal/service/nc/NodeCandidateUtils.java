@@ -193,66 +193,29 @@ public class NodeCandidateUtils {
         }
         if (attributeRequirement.getRequirementClass().toLowerCase(Locale.ROOT).equals("name")) {
             if (attributeRequirement.getRequirementAttribute().equals("placementName")) {
-                if (nodeCandidate.getNodeCandidateType() == NodeCandidate.NodeCandidateTypeEnum.BYON) {
-                    ByonNode byonNode = getByonNodeFromNC(nodeCandidate);
-                    if (byonNode == null) {
-                        LOGGER.error("no node candiddates match this Byon node");
-                        return false;
-                    }
-                    return attributeRequirement.getRequirementOperator().compare(byonNode.getName(),
-                                                                                 attributeRequirement.getValue());
-                }
-                if (nodeCandidate.getNodeCandidateType() == NodeCandidate.NodeCandidateTypeEnum.EDGE) {
-                    EdgeNode edgeNode = getEdgeNodeFromNC(nodeCandidate);
-                    if (edgeNode == null) {
-                        LOGGER.error("no node candiddates match this Edge node");
-                        return false;
-                    }
-                    return attributeRequirement.getRequirementOperator().compare(edgeNode.getName(),
+                if (nodeCandidate.getNodeCandidateType() == NodeCandidate.NodeCandidateTypeEnum.BYON ||
+                    nodeCandidate.getNodeCandidateType() == NodeCandidate.NodeCandidateTypeEnum.EDGE) {
+                    return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getHardware().getName(),
                                                                                  attributeRequirement.getValue());
                 }
             }
         }
         LOGGER.warn("Unknown requirement type. It could not be applied: " + attributeRequirement.toString());
         return true;
+
     }
 
     private static boolean satisfyNodeTypeRequirement(NodeTypeRequirement requirement, NodeCandidate nodeCandidate) {
         return (requirement.getNodeTypes().stream().anyMatch(nodeType -> {
-            if (nodeType.getLiteral().equals(nodeCandidate.getNodeCandidateType().name()) &&
-                ((nodeType.equals(NodeType.BYON) &&
-                  requirement.getJobIdForBYON()
-                             .equals(nodeCandidate.getJobIdForBYON())) ||
-                 (nodeType.equals(NodeType.EDGE) &&
-                  requirement.getJobIdForEDGE().equals(nodeCandidate.getJobIdForEDGE())))) {
+            if (nodeType.getLiteral().equals(nodeCandidate.getNodeCandidateType().name())) {
                 return true;
+            } else { // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
+                LOGGER.info("the nodeType in the requirement \"{}\" is mismatched with the node candidate \"{}\" nodeType \"{}\"",
+                            nodeType.getLiteral(),
+                            nodeCandidate.getId(),
+                            nodeCandidate.getNodeCandidateType().name());
+                return false;
             }
-            // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
-            else {
-                if (!nodeType.equals(NodeType.BYON) && !nodeType.equals(NodeType.EDGE)) {
-                    if (nodeType.getLiteral().equals(nodeCandidate.getNodeCandidateType().name())) {
-                        return true;
-                    } else {
-                        LOGGER.info("the nodeType in the requirement \"{}\" is mismatched with the node candidate \"{}\" nodeType \"{}\"",
-                                    nodeType.getLiteral(),
-                                    nodeCandidate.getId(),
-                                    nodeCandidate.getNodeCandidateType().name());
-                        return false;
-                    }
-                } else {
-                    LOGGER.info("nodeType or jobId mismatch, \n " +
-                                "Required: nodeType \"{}\", jobID for BYON and EDGE: \"{}\", \"{}\" \n" +
-                                "Node candidate: nodeType \"{}\", jobID for BYON and EDGE: \"{}\", \"{}\" \n",
-                                nodeType.getLiteral(),
-                                requirement.getJobIdForBYON(),
-                                requirement.getJobIdForEDGE(),
-                                nodeCandidate.getNodeCandidateType().name(),
-                                nodeCandidate.getJobIdForBYON(),
-                                nodeCandidate.getJobIdForEDGE());
-                    return false;
-                }
-
-            } // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
         }));
     }
 

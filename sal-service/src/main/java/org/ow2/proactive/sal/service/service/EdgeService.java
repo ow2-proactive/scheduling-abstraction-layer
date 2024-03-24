@@ -91,7 +91,8 @@ public class EdgeService {
         NodeCandidate edgeNC = ByonUtils.createNodeCandidate(edgeNodeDefinition.getNodeProperties(),
                                                              jobId,
                                                              "edge",
-                                                             newEdgeNode.getId());
+                                                             newEdgeNode.getId(),
+                                                             edgeNodeDefinition.getName());
         newEdgeNode.setNodeCandidate(edgeNC);
 
         repositoryService.saveEdgeNode(newEdgeNode);

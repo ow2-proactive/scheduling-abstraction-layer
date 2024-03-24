@@ -90,7 +90,8 @@ public class ByonService {
         NodeCandidate byonNC = ByonUtils.createNodeCandidate(byonNodeDefinition.getNodeProperties(),
                                                              jobId,
                                                              "byon",
-                                                             newByonNode.getId());
+                                                             newByonNode.getId(),
+                                                             byonNodeDefinition.getName());
         newByonNode.setNodeCandidate(byonNC);
 
         repositoryService.saveByonNode(newByonNode);

@@ -63,6 +63,10 @@ public class ClusterService {
         Validate.notNull(clusterDefinition, "The received Byon node definition is empty. Nothing to be defined.");
         LOGGER.info("defineCluster endpoint is called to define the cluster: " + clusterDefinition.getName());
 
+        // TODO:
+        // 1- add a method to check that the node candidate exist in the data base.
+        // 2- change the return type to include a message if errors occurred.
+
         Cluster newCluster = new Cluster();
         newCluster.setName(clusterDefinition.getName());
         newCluster.setMasterNode(clusterDefinition.getMasterNode());
@@ -226,7 +230,9 @@ public class ClusterService {
             ClusterNodeDefinition node = getNodeFromCluster(toScaleCluster, nodeName);
             if (node != null && !node.getName().equals(toScaleCluster.getMasterNode())) {
                 try {
-                    deleteNode(sessionId, clusterName, node);
+                    if (deleteNode(sessionId, clusterName, node) != -1L) {
+                        clusterNodes = deleteNodeFromCluster(clusterNodes, nodeName);
+                    }
                 } catch (NotConnectedException e) {
                     throw new RuntimeException(e);
                 }
@@ -238,7 +244,6 @@ public class ClusterService {
                     LOGGER.warn("removing the master node {} of the cluster {} is not allowed!", nodeName, clusterName);
                 }
             }
-            clusterNodes = deleteNodeFromCluster(clusterNodes, nodeName);
         }
         toScaleCluster.setNodes(clusterNodes);
         toScaleCluster.setStatus("scaling");
@@ -349,16 +354,30 @@ public class ClusterService {
     private Long deleteNode(String sessionId, String clusterName, ClusterNodeDefinition node)
             throws NotConnectedException {
         String nodeUrl = getNodeUrl(sessionId, clusterName, node);
+        Long jobId = -1L;
         if (nodeUrl != null && !nodeUrl.isEmpty()) {
             try {
-                return jobService.submitOneTaskJob(sessionId, nodeUrl, "", "delete_node_" + node.getName(), "delete");
+                jobId = jobService.submitOneTaskJob(sessionId, nodeUrl, "", "delete_node_" + node.getName(), "delete");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            LOGGER.warn("unable to delete node {}, wiht the node url \"{}\" !", node.getName(), node.getNodeUrl());
-            return -1L;
+            LOGGER.warn("unable to delete node {}, with the node url \"{}\" !", node.getName(), node.getNodeUrl());
+            //            return jobId;
         }
+        Job nodeJob = repositoryService.getJob(node.getNodeJobName(clusterName));
+        List<Task> nodeTasks = nodeJob.getTasks();
+        List<Deployment> nodeDeployments = new ArrayList<>();
+        for (Task task : nodeTasks) {
+            nodeDeployments.addAll(task.getDeployments());
+
+        }
+        nodeDeployments.forEach(deployment -> repositoryService.deleteDeployment(deployment));
+        repositoryService.deleteJob(node.getNodeJobName(clusterName));
+        nodeTasks.forEach(task -> repositoryService.deleteTask(task));
+
+        repositoryService.flush();
+        return jobId;
     }
 
     private ClusterNodeDefinition getNodeFromCluster(Cluster cluster, String nodeName) {

@@ -75,6 +75,8 @@ public class DockerEnvironment extends AbstractInstallation {
 
     @PreRemove
     private void cleanMappedDataFirst() {
-        this.environmentVars.clear();
+        if (this.environmentVars != null) {
+            this.environmentVars.clear();
+        }
     }
 }

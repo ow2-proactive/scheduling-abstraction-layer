@@ -53,7 +53,7 @@ public class ClusterUtils {
     // TO be changed, the hardcoding of the ubuntu user is a bad practice.
     private static final String KUBE_LABEL_COMMAND = "kubectl label nodes";
 
-    private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c ";
+    private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c";
 
     @Autowired
     private RepositoryService repositoryService;
