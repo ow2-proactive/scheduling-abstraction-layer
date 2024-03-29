@@ -784,7 +784,7 @@ public class TaskBuilder {
                 String token = task.getTaskId() + deployment.getNumber();
                 String suffix = "_" + deployment.getNumber();
                 scriptTasks.add(createInfraTask(task, deployment, suffix, token));
-                if (deployment.getWorker()) {
+                if (deployment.getWorker() != null && deployment.getWorker()) {
                     ScriptTask waitForMasterTask = createWaitForMasterTask(deployment.getMasterToken());
                     waitForMasterTask.addDependence(scriptTasks.get(scriptTasks.size() - 1));
                     scriptTasks.add(waitForMasterTask);

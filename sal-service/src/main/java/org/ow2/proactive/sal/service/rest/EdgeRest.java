@@ -51,18 +51,16 @@ public class EdgeRest {
     @Autowired
     private EdgeService edgeService;
 
-    @RequestMapping(value = "/{jobId}", method = RequestMethod.POST)
-    @ApiOperation(value = "Register new BYON nodes passed as EdgeDefinition object", response = EdgeNode.class)
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    @ApiOperation(value = "Register new Edge nodes passed as EdgeDefinition object", response = EdgeNode.class)
     public ResponseEntity<EdgeNode>
             registerNewEdgeNode(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A constructed job identifier", required = true)
-    @PathVariable
-    final String jobId,
+    final String sessionId,
                     @ApiParam(value = "object of class EdgeDefinition that contains the details of the nodes to be registered.", required = true)
                     @RequestBody
                     final EdgeDefinition edgeNodeDefinition) throws NotConnectedException {
-        return ResponseEntity.ok(edgeService.registerNewEdgeNode(sessionId, edgeNodeDefinition, jobId));
+        return ResponseEntity.ok(edgeService.registerNewEdgeNode(sessionId, edgeNodeDefinition));
     }
 
     @RequestMapping(value = "/{jobId}", method = RequestMethod.GET)
@@ -77,7 +75,7 @@ public class EdgeRest {
     }
 
     @RequestMapping(value = "/{jobId}", method = RequestMethod.PUT)
-    @ApiOperation(value = "Adding BYON nodes to a job component", response = Boolean.class)
+    @ApiOperation(value = "Adding Edge nodes to a job component", response = Boolean.class)
     public ResponseEntity<Boolean>
             addEdgeNodes(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")

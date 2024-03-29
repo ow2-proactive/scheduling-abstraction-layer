@@ -64,7 +64,7 @@ public class ClusterNodeDefinition {
     }
 
     public String getNodeTaskName(String clusterName) {
-        return this.name + "_" + clusterName + "_Task";
+        return this.name + "-" + clusterName + "_Task";
     }
 
 }

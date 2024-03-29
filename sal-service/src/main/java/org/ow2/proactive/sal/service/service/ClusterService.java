@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
+import org.ow2.proactive.sal.service.nc.NodeCandidateUtils;
+import org.ow2.proactive.sal.service.util.ByonUtils;
 import org.ow2.proactive.sal.service.util.ClusterUtils;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,9 @@ public class ClusterService {
 
     @Autowired
     private JobService jobService;
+
+    @Autowired
+    private EdgeService edgeServie;
 
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
@@ -78,7 +83,10 @@ public class ClusterService {
         ClusterNodeDefinition masterNode = ClusterUtils.getNodeByName(newCluster, newCluster.getMasterNode());
         if (masterNode != null) {
             PACloud cloud = repositoryService.getPACloud(masterNode.getCloudId());
-            Job masterNodeJob = ClusterUtils.createMasterNodeJob(newCluster.getName(), masterNode, cloud);
+            Job masterNodeJob = ClusterUtils.createMasterNodeJob(newCluster.getName(),
+                                                                 masterNode,
+                                                                 cloud,
+                                                                 clusterDefinition.getEnvVars());
             masterNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(masterNodeJob);
         } else {
@@ -93,10 +101,35 @@ public class ClusterService {
             LOGGER.warn("The cluster does not has any worker nodes, only the master will be deployed");
         } else {
             for (ClusterNodeDefinition node : workerNodes) {
-                PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-                Job workerNodeJob = ClusterUtils.createWorkerNodeJob(newCluster.getName(), node, cloud);
-                workerNodeJob.getTasks().forEach(repositoryService::saveTask);
-                repositoryService.saveJob(workerNodeJob);
+                NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
+                if (nc.getCloud().getCloudType().equals(CloudType.EDGE)) {
+                    EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
+                    String clusterName = newCluster.getName();
+                    String jobId = node.getNodeJobName(clusterName);
+
+                    edgeNode.setJobId(jobId);
+                    repositoryService.saveEdgeNode(edgeNode);
+                    nc.setJobIdForEDGE(jobId);
+                    repositoryService.saveNodeCandidate(nc);
+                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(clusterName,
+                                                                         node,
+                                                                         null,
+                                                                         clusterDefinition.getEnvVars());
+                    workerNodeJob.getTasks().forEach(repositoryService::saveTask);
+                    repositoryService.saveJob(workerNodeJob);
+                    //                    Map<String, String> edgeNodeMap = new HashMap<>();
+                    //                    edgeNodeMap.put(edgeNode.getId(), edgeNode.getName() + "/_Task");
+                    //                    edgeServie.addEdgeNodes(sessionId, edgeNodeMap, jobId);
+                } else {
+                    PACloud cloud = repositoryService.getPACloud(node.getCloudId());
+                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(newCluster.getName(),
+                                                                         node,
+                                                                         cloud,
+                                                                         clusterDefinition.getEnvVars());
+                    workerNodeJob.getTasks().forEach(repositoryService::saveTask);
+                    repositoryService.saveJob(workerNodeJob);
+                }
+
             }
         }
         repositoryService.flush();
@@ -136,10 +169,20 @@ public class ClusterService {
         LOGGER.info("Deploying the node {}...", nodeName);
         ClusterNodeDefinition node = ClusterUtils.getNodeByName(cluster, nodeName);
         if (node != null) {
+            NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
             String jobId = node.getNodeJobName(cluster.getName());
-            List<IaasDefinition> defs = ClusterUtils.getNodeIaasDefinition(sessionId, cluster, node.getName());
-            nodeService.addNodes(sessionId, defs, jobId);
-            Deployment currentDeployment = repositoryService.getDeployment(defs.get(0).getName());
+            Deployment currentDeployment = new Deployment();
+            if (nc.getCloud().getCloudType().equals(CloudType.EDGE)) {
+                EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
+                Map<String, String> edgeNodeMap = new HashMap<>();
+                edgeNodeMap.put(edgeNode.getId(), edgeNode.getName() + "/_Task");
+                edgeServie.addEdgeNodes(sessionId, edgeNodeMap, jobId);
+                currentDeployment = repositoryService.getDeployment(edgeNode.getName());
+            } else {
+                List<IaasDefinition> defs = ClusterUtils.getNodeIaasDefinition(sessionId, cluster, node.getName());
+                nodeService.addNodes(sessionId, defs, jobId);
+                currentDeployment = repositoryService.getDeployment(defs.get(0).getName());
+            }
             String masterNodeToken = cluster.getMasterNode() + "_" + cluster.getName();
             currentDeployment.setWorker(worker);
             currentDeployment.setMasterToken(masterNodeToken);
@@ -159,32 +202,37 @@ public class ClusterService {
         }
         LOGGER.info("getCluster endpoint is called to deploy the cluster: " + clusterName);
         Cluster getCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
-        List<ClusterNodeDefinition> nodes = getCluster.getNodes();
-        int i = 0;
-        List<String> states = new ArrayList<>();
-        for (ClusterNodeDefinition node : nodes) {
-            JobState state = jobService.getJobState(sessionId, node.getNodeJobName(clusterName));
-            if (state != null && state.getJobStatus() != null) {
-                node.setState(state.getJobStatus().toString());
-                states.add(state.getJobStatus().toString());
-            } else {
-                node.setState("defined");
-            }
-            nodes.set(i, node);
-            i += 1;
-            node.setNodeUrl(getNodeUrl(sessionId, clusterName, node));
-        }
-        if (states.contains("In-Error") || states.contains("Failed") || states.contains("Canceled")) {
-            getCluster.setStatus("failed");
+        if (getCluster == null) {
+            LOGGER.error("No Cluster was found! Nothing is deployed!");
+            return null;
         } else {
-            if (checkAllStates(states)) {
-                getCluster.setStatus("deployed");
+            List<ClusterNodeDefinition> nodes = getCluster.getNodes();
+            int i = 0;
+            List<String> states = new ArrayList<>();
+            for (ClusterNodeDefinition node : nodes) {
+                JobState state = jobService.getJobState(sessionId, node.getNodeJobName(clusterName));
+                if (state != null && state.getJobStatus() != null) {
+                    node.setState(state.getJobStatus().toString());
+                    states.add(state.getJobStatus().toString());
+                } else {
+                    node.setState("defined");
+                }
+                nodes.set(i, node);
+                i += 1;
+                node.setNodeUrl(getNodeUrl(sessionId, clusterName, node));
             }
+            if (states.contains("In-Error") || states.contains("Failed") || states.contains("Canceled")) {
+                getCluster.setStatus("failed");
+            } else {
+                if (checkAllStates(states)) {
+                    getCluster.setStatus("deployed");
+                }
+            }
+            getCluster.setNodes(nodes);
+            repositoryService.saveCluster(getCluster);
+            repositoryService.flush();
+            return getCluster;
         }
-        getCluster.setNodes(nodes);
-        repositoryService.saveCluster(getCluster);
-        repositoryService.flush();
-        return getCluster;
     }
 
     public Cluster scaleOutCluster(String sessionId, String clusterName, List<ClusterNodeDefinition> newNodes)
@@ -205,7 +253,7 @@ public class ClusterService {
         LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
         for (ClusterNodeDefinition node : newNodes) {
             PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleCluster.getName(), node, cloud);
+            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleCluster.getName(), node, cloud, null);
             workerNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(workerNodeJob);
         }

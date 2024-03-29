@@ -55,79 +55,91 @@ public class ClusterUtils {
 
     private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c";
 
+    private static final String FILE_PATH = "/home/ubuntu/.profile";
+
     @Autowired
     private RepositoryService repositoryService;
 
-    public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud)
-            throws IOException {
+    public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
+            Map<String, String> envVars) throws IOException {
         Job masterNodeJob = new Job();
         masterNodeJob.setJobId(masterNode.getNodeJobName(clusterName));
         masterNodeJob.setName(masterNode.getNodeJobName(clusterName));
-        Task masterNodeTask = createMasterNodeTask(clusterName, masterNode, cloud);
+        Task masterNodeTask = createMasterNodeTask(clusterName, masterNode, cloud, envVars);
         List<Task> tasks = new LinkedList<>();
         tasks.add(masterNodeTask);
         masterNodeJob.setTasks(tasks);
         return masterNodeJob;
     }
 
-    private static Task createMasterNodeTask(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud)
-            throws IOException {
+    private static Task createMasterNodeTask(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
+            Map<String, String> envVars) throws IOException {
         Task masterNodeTask = new Task();
         masterNodeTask.setTaskId(masterNode.getNodeTaskName(clusterName));
         masterNodeTask.setName(masterNode.getNodeTaskName(clusterName));
         masterNodeTask.setType(Installation.InstallationType.COMMANDS);
-        masterNodeTask.setInstallationByType(createMasterInstallation());
+        masterNodeTask.setInstallationByType(createMasterInstallation(envVars));
         masterNodeTask.setSecurityGroup(cloud.getSecurityGroup());
         return masterNodeTask;
     }
 
-    private static CommandsInstallation createMasterInstallation() throws IOException {
+    private static CommandsInstallation createMasterInstallation(Map<String, String> envVars) throws IOException {
         CommandsInstallation masterInstallation = new CommandsInstallation();
         OperatingSystemType os = new OperatingSystemType();
-        masterInstallation.setPreInstall(getBashFilesContent("MASTER_PRE_INSTALL_SCRIPT.sh"));
+        masterInstallation.setPreInstall(createEnvVarsScript(envVars) +
+                                         getBashFilesContent("MASTER_PRE_INSTALL_SCRIPT.sh"));
         masterInstallation.setInstall(getBashFilesContent("MASTER_INSTALL_SCRIPT.sh"));
         masterInstallation.setPostInstall(getBashFilesContent("MASTER_POST_INSTALL_SCRIPT.sh"));
-        masterInstallation.setStart(getBashFilesContent("MASTER_START_SCRIPT.sh"));
-        masterInstallation.setStop(getBashFilesContent("MASTER_STOP_SCRIPT.sh"));
-        masterInstallation.setUpdateCmd(getBashFilesContent("MASTER_UPDATE_SCRIPT.sh"));
+        masterInstallation.setStart(String.format("source %s\n", FILE_PATH) +
+                                    getBashFilesContent("MASTER_START_SCRIPT.sh"));
+        masterInstallation.setStop(String.format("source %s\n", FILE_PATH) +
+                                   getBashFilesContent("MASTER_STOP_SCRIPT.sh"));
+        masterInstallation.setUpdateCmd(String.format("source %s\n", FILE_PATH) +
+                                        getBashFilesContent("MASTER_UPDATE_SCRIPT.sh"));
         os.setOperatingSystemFamily("ubuntu");
         os.setOperatingSystemVersion((float) 22.04);
         masterInstallation.setOperatingSystemType(os);
         return masterInstallation;
     }
 
-    public static Job createWorkerNodeJob(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud)
-            throws IOException {
+    public static Job createWorkerNodeJob(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud,
+            Map<String, String> envVars) throws IOException {
         Job workerNodeJob = new Job();
         workerNodeJob.setJobId(workerNode.getNodeJobName(clusterName));
         workerNodeJob.setName(workerNode.getNodeJobName(clusterName));
-        Task workerNodeTask = createWorkerNodeTask(clusterName, workerNode, cloud);
+        Task workerNodeTask = createWorkerNodeTask(clusterName, workerNode, cloud, envVars);
         List<Task> tasks = new LinkedList<>();
         tasks.add(workerNodeTask);
         workerNodeJob.setTasks(tasks);
         return workerNodeJob;
     }
 
-    private static Task createWorkerNodeTask(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud)
-            throws IOException {
+    private static Task createWorkerNodeTask(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud,
+            Map<String, String> envVars) throws IOException {
         Task workerNodeTask = new Task();
         workerNodeTask.setTaskId(workerNode.getNodeTaskName(clusterName));
         workerNodeTask.setName(workerNode.getNodeTaskName(clusterName));
         workerNodeTask.setType(Installation.InstallationType.COMMANDS);
-        workerNodeTask.setInstallationByType(createWorkerInstallation());
-        workerNodeTask.setSecurityGroup(cloud.getSecurityGroup());
+        workerNodeTask.setInstallationByType(createWorkerInstallation(envVars));
+        if (cloud != null && !cloud.getSecurityGroup().isEmpty()) {
+            workerNodeTask.setSecurityGroup(cloud.getSecurityGroup());
+        }
         return workerNodeTask;
     }
 
-    private static CommandsInstallation createWorkerInstallation() throws IOException {
+    private static CommandsInstallation createWorkerInstallation(Map<String, String> envVars) throws IOException {
         CommandsInstallation workerInstallation = new CommandsInstallation();
         OperatingSystemType os = new OperatingSystemType();
-        workerInstallation.setPreInstall(getBashFilesContent("WORKER_PRE_INSTALL_SCRIPT.sh"));
+        workerInstallation.setPreInstall(createEnvVarsScript(envVars) +
+                                         getBashFilesContent("WORKER_PRE_INSTALL_SCRIPT.sh"));
         workerInstallation.setInstall(getBashFilesContent("WORKER_INSTALL_SCRIPT.sh"));
         workerInstallation.setPostInstall(getBashFilesContent("WORKER_POST_INSTALL_SCRIPT.sh"));
-        workerInstallation.setStart(getBashFilesContent("WORKER_START_SCRIPT.sh"));
-        workerInstallation.setStop(getBashFilesContent("WORKER_STOP_SCRIPT.sh"));
-        workerInstallation.setUpdateCmd(getBashFilesContent("WORKER_UPDATE_SCRIPT.sh"));
+        workerInstallation.setStart(String.format("source %s\n", FILE_PATH) +
+                                    getBashFilesContent("WORKER_START_SCRIPT.sh"));
+        workerInstallation.setStop(String.format("source %s\n", FILE_PATH) +
+                                   getBashFilesContent("WORKER_STOP_SCRIPT.sh"));
+        workerInstallation.setUpdateCmd(String.format("source %s\n", FILE_PATH) +
+                                        getBashFilesContent("WORKER_UPDATE_SCRIPT.sh"));
         os.setOperatingSystemFamily("ubuntu");
         os.setOperatingSystemVersion((float) 22.04);
         workerInstallation.setOperatingSystemType(os);
@@ -177,7 +189,7 @@ public class ClusterUtils {
     public static List<IaasDefinition> getNodeIaasDefinition(String sessionId, Cluster cluster, String nodeName) {
         ClusterNodeDefinition node = getNodeByName(cluster, nodeName);
         String clusterName = cluster.getName();
-        IaasDefinition masterIaasDefinition = createIaasDefinition(node, nodeName + "_" + clusterName + "_Task");
+        IaasDefinition masterIaasDefinition = createIaasDefinition(node, nodeName + "-" + clusterName + "_Task");
         List<IaasDefinition> defs = new ArrayList<>();
         defs.add(masterIaasDefinition);
         return defs;
@@ -218,10 +230,15 @@ public class ClusterUtils {
         BufferedReader bufReader = new BufferedReader(new StringReader(application.getAppFile()));
         StringBuilder script = new StringBuilder();
         String line = null;
-        script.append("sudo rm " + fileName + " || echo 'file was not found.' \n");
-        while ((line = bufReader.readLine()) != null) {
-            script.append(String.format("printf \"%s\" >> %s \n", line, fileName));
-        }
+        script.append("sudo rm -f " + fileName + " || echo 'file was not found.' \n");
+
+        // start heredoc
+        script.append("cat <<'EOF' >").append(fileName).append("\n");
+        // embed the application YAML directly
+        script.append(application.getAppFile());
+        // end heredoc
+        script.append("\nEOF\n");
+
         script.append("sudo chown ubuntu:ubuntu " + fileName + "\n");
         script.append(appCommand);
         return script.toString();
@@ -234,6 +251,17 @@ public class ClusterUtils {
             LOGGER.error("The selected yaml executor is not supported!");
             return null;
         }
+    }
+
+    private static String createEnvVarsScript(Map<String, String> envVars) {
+        String filePath = FILE_PATH;
+        StringBuilder script = new StringBuilder();
+        script.append("echo '#!/bin/bash' >> " + filePath + "\n");
+        for (String key : envVars.keySet()) {
+            script.append(String.format("echo 'export %s=\"%s\"' >> %s\n", key, envVars.get(key), filePath));
+        }
+        script.append(String.format("source %s", filePath));
+        return script.toString();
     }
 
 }

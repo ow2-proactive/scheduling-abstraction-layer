@@ -283,4 +283,24 @@ public class ByonUtils {
         LOGGER.info("node source was removed with no errors");
         return true;
     }
+
+    public static ByonNode getByonNodeFromNC(NodeCandidate nodeCandidate) {
+        List<ByonNode> allByonNodes = repositoryService.listByonNodes();
+        for (ByonNode byonNode : allByonNodes) {
+            if (byonNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
+                return byonNode;
+            }
+        }
+        return null;
+    }
+
+    public static EdgeNode getEdgeNodeFromNC(NodeCandidate nodeCandidate) {
+        List<EdgeNode> allEdgeNodes = repositoryService.listEdgeNodes();
+        for (EdgeNode edgeNode : allEdgeNodes) {
+            if (edgeNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
+                return edgeNode;
+            }
+        }
+        return null;
+    }
 }

@@ -450,26 +450,6 @@ public class NodeCandidateUtils {
         return resultJSONArray;
     }
 
-    private static ByonNode getByonNodeFromNC(NodeCandidate nodeCandidate) {
-        List<ByonNode> allByonNodes = staticRepositoryService.listByonNodes();
-        for (ByonNode byonNode : allByonNodes) {
-            if (byonNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
-                return byonNode;
-            }
-        }
-        return null;
-    }
-
-    private static EdgeNode getEdgeNodeFromNC(NodeCandidate nodeCandidate) {
-        List<EdgeNode> allEdgeNodes = staticRepositoryService.listEdgeNodes();
-        for (EdgeNode edgeNode : allEdgeNodes) {
-            if (edgeNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
-                return edgeNode;
-            }
-        }
-        return null;
-    }
-
     public long cleanNodeCandidates(List<String> newCloudIds) {
         List<NodeCandidate> nodeCandidatesToBeRemoved = repositoryService.listNodeCandidates()
                                                                          .stream()

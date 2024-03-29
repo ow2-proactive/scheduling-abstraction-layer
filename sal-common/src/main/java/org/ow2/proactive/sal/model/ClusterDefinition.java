@@ -26,6 +26,7 @@
 package org.ow2.proactive.sal.model;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -46,5 +47,8 @@ public class ClusterDefinition {
 
     @JsonProperty("master-node")
     private String masterNode;
+
+    @JsonProperty("env-var")
+    private Map<String, String> envVars;
 
 }

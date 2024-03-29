@@ -44,6 +44,9 @@ public class EdgeDefinition {
     @JsonProperty("name")
     private String name = null;
 
+    @JsonProperty("jobId")
+    private String jobId = null;
+
     @JsonProperty("systemArch")
     private String systemArch = null;
 

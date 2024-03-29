@@ -66,19 +66,22 @@ public class EdgeService {
      *
      * @param sessionId A valid session id
      * @param edgeNodeDefinition objects of class ByonDefinition that contains the detials of the nodes to be registered.
-     * @param jobId              A constructed job identifier
      * @return newEdgeNode      EdgeNode object that contains information about the registered Node
      */
-    public EdgeNode registerNewEdgeNode(String sessionId, EdgeDefinition edgeNodeDefinition, String jobId)
+    public EdgeNode registerNewEdgeNode(String sessionId, EdgeDefinition edgeNodeDefinition)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
         Validate.notNull(edgeNodeDefinition, "The received EDGE node definition is empty. Nothing to be registered.");
-        Validate.notNull(jobId, "The received jobId is empty. Nothing to be registered.");
-        LOGGER.info("registerNewEdgeNode endpoint is called, Registering a new EDGE definition related to job " +
-                    jobId + " ...");
+        LOGGER.info("registerNewEdgeNode endpoint is called, Registering a new EDGE definition ...");
         EdgeNode newEdgeNode = new EdgeNode();
+        String jobId;
+        if (edgeNodeDefinition.getJobId() == null || edgeNodeDefinition.getJobId().isEmpty()) {
+            jobId = "any";
+        } else {
+            jobId = edgeNodeDefinition.getJobId();
+        }
         newEdgeNode.setName(edgeNodeDefinition.getName());
         newEdgeNode.setLoginCredential(edgeNodeDefinition.getLoginCredential());
         newEdgeNode.setIpAddresses(edgeNodeDefinition.getIpAddresses());
@@ -259,9 +262,10 @@ public class EdgeService {
         variables.put("list_of_ips", edgeIPs);
         switch (edgeNode.getSystemArch()) {
             case "AMD":
-                variables.put("deployment_mode", "useStartupScript");
-                variables.put("script_url", edgeNode.getScriptURL());
-                variables.put("script_path", "/tmp/proactive-agent.sh");
+                variables.put("deployment_mode", "useNodeJarStartupScript");
+                variables.put("jar_url", edgeNode.getJarURL());
+                variables.put("jre_url",
+                              "https://ci-materials.s3.amazonaws.com/Latest_jre/jre-8u382b05-linux-x64.tar.gz");
                 break;
             case "ARMv7":
                 variables.put("deployment_mode", "useNodeJarStartupScript");
