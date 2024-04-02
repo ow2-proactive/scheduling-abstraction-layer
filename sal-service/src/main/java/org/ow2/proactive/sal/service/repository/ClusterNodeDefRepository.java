@@ -23,45 +23,13 @@
  * If needed, contact us to obtain a release under GPL Version 2 or 3
  * or a different license than the AGPL.
  */
-package org.ow2.proactive.sal.model;
+package org.ow2.proactive.sal.service.repository;
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.*;
+import org.ow2.proactive.sal.model.ClusterNodeDefinition;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 
-/**
- * Attributes defining a BYON node
- */
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@ToString(callSuper = true)
-public class EdgeDefinition {
-    @JsonProperty("name")
-    private String name = null;
-
-    @JsonProperty("jobId")
-    private String jobId = null;
-
-    @JsonProperty("systemArch")
-    private String systemArch = null;
-
-    @JsonProperty("scriptURL")
-    private String scriptURL = null;
-
-    @JsonProperty("jarURL")
-    private String jarURL = null;
-
-    @JsonProperty("loginCredential")
-    private LoginCredential loginCredential = null;
-
-    @JsonProperty("ipAddresses")
-    private List<IpAddress> ipAddresses = null;
-
-    @JsonProperty("nodeProperties")
-    private NodeProperties nodeProperties = null;
+@Repository
+public interface ClusterNodeDefRepository extends JpaRepository<ClusterNodeDefinition, String> {
 }

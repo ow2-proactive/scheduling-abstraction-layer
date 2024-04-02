@@ -27,41 +27,47 @@ package org.ow2.proactive.sal.model;
 
 import java.util.List;
 
+import javax.persistence.*;
+
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
-/**
- * Attributes defining a BYON node
- */
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@ToString(callSuper = true)
-public class EdgeDefinition {
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "CLUSTER")
+public class Cluster {
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    @Column(name = "CLUSTER_ID")
+    private String clusterId = null;
+
+    @Column(name = "NAME")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonProperty("jobId")
-    private String jobId = null;
+    @Column(name = "MASTER_NODE")
+    @JsonProperty("master-node")
+    private String masterNode;
 
-    @JsonProperty("systemArch")
-    private String systemArch = null;
+    @Column(name = "NODES")
+    @JsonProperty("nodes")
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.REFRESH)
+    private List<ClusterNodeDefinition> nodes;
 
-    @JsonProperty("scriptURL")
-    private String scriptURL = null;
+    // TODO: Change this into Enum
+    @Column(name = "STATUS")
+    @JsonProperty("status")
+    private String status = "defined";
 
-    @JsonProperty("jarURL")
-    private String jarURL = null;
-
-    @JsonProperty("loginCredential")
-    private LoginCredential loginCredential = null;
-
-    @JsonProperty("ipAddresses")
-    private List<IpAddress> ipAddresses = null;
-
-    @JsonProperty("nodeProperties")
-    private NodeProperties nodeProperties = null;
 }

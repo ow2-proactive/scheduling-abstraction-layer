@@ -134,7 +134,7 @@ public class NodeService {
                                                                                     .getNodeCandidate()
                                                                                     .getLocation()
                                                                                     .getName()))) {
-                String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() +
+                String nodeSourceName = PACloud.WHITE_LISTED_NAME_PREFIX + cloud.getNodeSourceNamePrefix() + "-" +
                                         newDeployment.getNode().getNodeCandidate().getLocation().getName();
                 this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
                 cloud.addWhiteListedDeployedRegion(newDeployment.getNode().getNodeCandidate().getLocation().getName(),
@@ -148,7 +148,7 @@ public class NodeService {
                                                                          .getNodeCandidate()
                                                                          .getLocation()
                                                                          .getName()))) {
-                String nodeSourceName = cloud.getNodeSourceNamePrefix() +
+                String nodeSourceName = cloud.getNodeSourceNamePrefix() + "-" +
                                         newDeployment.getNode().getNodeCandidate().getLocation().getName();
                 this.defineNSWithDeploymentInfo(nodeSourceName, cloud, newDeployment);
                 cloud.addDeployedRegion(newDeployment.getNode().getNodeCandidate().getLocation().getName(),

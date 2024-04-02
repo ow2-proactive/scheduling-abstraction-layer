@@ -76,7 +76,10 @@ public class Job implements Serializable {
     }
 
     public Set<Task> getRootTasks() {
-        return this.getTasks().stream().filter(task -> task.getParentTasks().isEmpty()).collect(Collectors.toSet());
+        return this.getTasks()
+                   .stream()
+                   .filter(task -> task.getParentTasks() == null || task.getParentTasks().isEmpty())
+                   .collect(Collectors.toSet());
     }
 
     public Set<Task> getSinkTasks() {
@@ -84,7 +87,8 @@ public class Job implements Serializable {
                    .stream()
                    .filter(task -> this.getTasks()
                                        .stream()
-                                       .noneMatch(task1 -> task1.getParentTasks().containsValue(task.getName())))
+                                       .noneMatch(task1 -> task1.getParentTasks() != null &&
+                                                           task1.getParentTasks().containsValue(task.getName())))
                    .collect(Collectors.toSet());
     }
 

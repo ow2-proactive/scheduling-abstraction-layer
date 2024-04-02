@@ -77,7 +77,8 @@ public class ByonUtils {
      * @param nodeType a String of the node type (byon or edge)
      * @return an object of class NodeCandidate
      */
-    public static NodeCandidate createNodeCandidate(NodeProperties np, String jobId, String nodeType, String nodeId) {
+    public static NodeCandidate createNodeCandidate(NodeProperties np, String jobId, String nodeType, String nodeId,
+            String nodeName) {
         LOGGER.debug("Creating the {} node candidate ...", nodeType.toUpperCase());
         //Start by setting the universal nodes properties
         NodeCandidate nc = new NodeCandidate();
@@ -112,6 +113,7 @@ public class ByonUtils {
                           np.getOperatingSystem().getOperatingSystemArchitecture());
             //set the hardware
             hardware.setId("byon-hardware-" + bid);
+            hardware.setName("byon-" + nodeName);
             //set the location
             location.setId("byon-location-" + bid);
             //set the nc parameters
@@ -129,6 +131,7 @@ public class ByonUtils {
                           np.getOperatingSystem().getOperatingSystemArchitecture());
             //set the hardware
             hardware.setId("edge-hardware-" + eid);
+            hardware.setName("edge-" + nodeName);
             //set the location
             location.setId("edge-location-" + eid);
             //set the nc parameters
@@ -279,5 +282,25 @@ public class ByonUtils {
         }
         LOGGER.info("node source was removed with no errors");
         return true;
+    }
+
+    public static ByonNode getByonNodeFromNC(NodeCandidate nodeCandidate) {
+        List<ByonNode> allByonNodes = repositoryService.listByonNodes();
+        for (ByonNode byonNode : allByonNodes) {
+            if (byonNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
+                return byonNode;
+            }
+        }
+        return null;
+    }
+
+    public static EdgeNode getEdgeNodeFromNC(NodeCandidate nodeCandidate) {
+        List<EdgeNode> allEdgeNodes = repositoryService.listEdgeNodes();
+        for (EdgeNode edgeNode : allEdgeNodes) {
+            if (edgeNode.getNodeCandidate().getId().equals(nodeCandidate.getId())) {
+                return edgeNode;
+            }
+        }
+        return null;
     }
 }

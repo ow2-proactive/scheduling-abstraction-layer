@@ -25,43 +25,46 @@
  */
 package org.ow2.proactive.sal.model;
 
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 
 
-/**
- * Attributes defining a BYON node
- */
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Getter
 @Setter
-@ToString(callSuper = true)
-public class EdgeDefinition {
-    @JsonProperty("name")
+@Table(name = "CLUSTER_NODE_DEF")
+public class ClusterNodeDefinition {
+    @Id
+    @Column(name = "NAME")
+    @JsonProperty("nodeName")
     private String name = null;
 
-    @JsonProperty("jobId")
-    private String jobId = null;
+    @Column(name = "NC")
+    @JsonProperty("nodeCandidateId")
+    private String nodeCandidateId = null;
 
-    @JsonProperty("systemArch")
-    private String systemArch = null;
+    @Column(name = "CLOUD_ID")
+    @JsonProperty("cloudId")
+    private String cloudId = null;
 
-    @JsonProperty("scriptURL")
-    private String scriptURL = null;
+    private String state = "";
 
-    @JsonProperty("jarURL")
-    private String jarURL = null;
+    private String nodeUrl = "";
 
-    @JsonProperty("loginCredential")
-    private LoginCredential loginCredential = null;
+    public String getNodeJobName(String clusterName) {
+        return this.name + "-" + clusterName;
+    }
 
-    @JsonProperty("ipAddresses")
-    private List<IpAddress> ipAddresses = null;
+    public String getNodeTaskName(String clusterName) {
+        return this.name + "-" + clusterName + "_Task";
+    }
 
-    @JsonProperty("nodeProperties")
-    private NodeProperties nodeProperties = null;
 }

@@ -25,6 +25,8 @@
  */
 package org.ow2.proactive.sal.service.service;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -349,7 +351,7 @@ public class JobService {
         addCleanChannelsTaskWithDependencies(paJob, jobToSubmit);
 
         paJob.setMaxNumberOfExecution(2);
-        paJob.setProjectName("Morphemic");
+        paJob.setProjectName("NebulOuS");
 
         long submittedJobId = -1L;
         if (!paJob.getTasks().isEmpty()) {
@@ -444,6 +446,25 @@ public class JobService {
         LOGGER.info("Results of job: " + jobId + " fetched successfully: " +
                     Optional.ofNullable(jobResult).map(JobResult::toString).orElse(null));
         return jobResult;
+    }
+
+    public Map<String, Serializable> getJobResultMaps(String sessionId, String jobId, long timeout)
+            throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        Job submittedJob = repositoryService.getJob(jobId);
+        List<String> jobIds = new ArrayList<>();
+        jobIds.add(String.valueOf(submittedJob.getSubmittedJobId()));
+        Map<Long, Map<String, Serializable>> jobResult = schedulerGateway.getJobResultMaps(jobIds);
+        LOGGER.info("Results of job: " + jobId + " fetched successfully: " +
+                    Optional.ofNullable(jobResult).map(Map<Long, Map<String, Serializable>>::toString).orElse(null));
+        if (jobResult != null) {
+            return jobResult.get(submittedJob.getSubmittedJobId());
+        } else {
+            return new HashMap();
+        }
+
     }
 
     /**
@@ -709,7 +730,7 @@ public class JobService {
         addCleanChannelsTaskWithDependencies(paJob, job);
 
         paJob.setMaxNumberOfExecution(2);
-        paJob.setProjectName("Morphemic");
+        paJob.setProjectName("NebulOuS");
 
         long submittedJobId = schedulerGateway.submit(paJob).longValue();
         job.setSubmittedJobId(submittedJobId);
@@ -785,6 +806,41 @@ public class JobService {
 
     private void setAllReconfigurationMandatoryDependencies(TaskFlowJob paJob, Job job) {
         setAllMandatoryDependencies(paJob, job);
+    }
+
+    public Long submitOneTaskJob(String sessionId, String script, String token, String jobName, String type)
+            throws NotConnectedException, IOException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        TaskFlowJob paJob = new TaskFlowJob();
+        paJob.setName(jobName);
+        LOGGER.info("Job created: " + paJob.toString());
+        try {
+            if (Objects.equals(type, "basic")) {
+                paJob.addTask(taskBuilder.createOneNodeTask(script, token, jobName));
+            } else if (Objects.equals(type, "delete")) {
+                paJob.addTask(taskBuilder.createDeleteNodeTask(script));
+            } else {
+                LOGGER.error("type of submitOneTaskJob \"{}\" is not supported!", type);
+                throw new IOException();
+            }
+
+        } catch (UserException e) {
+            throw new RuntimeException(e);
+        }
+        paJob.setMaxNumberOfExecution(2);
+        paJob.setProjectName("NebulOuS");
+        long submittedJobId = -1L;
+        if (!paJob.getTasks().isEmpty()) {
+            submittedJobId = schedulerGateway.submit(paJob).longValue();
+            LOGGER.info("One Task Job submitted successfully. ID = " + submittedJobId);
+        } else {
+            LOGGER.warn("The job is empty!");
+        }
+
+        return submittedJobId;
+
     }
 
 }

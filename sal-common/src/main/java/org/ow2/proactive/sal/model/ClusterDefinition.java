@@ -26,42 +26,29 @@
 package org.ow2.proactive.sal.model;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 
 
-/**
- * Attributes defining a BYON node
- */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString(callSuper = true)
-public class EdgeDefinition {
+public class ClusterDefinition {
     @JsonProperty("name")
     private String name = null;
 
-    @JsonProperty("jobId")
-    private String jobId = null;
+    @JsonProperty("nodes")
+    private List<ClusterNodeDefinition> nodes;
 
-    @JsonProperty("systemArch")
-    private String systemArch = null;
+    @JsonProperty("master-node")
+    private String masterNode;
 
-    @JsonProperty("scriptURL")
-    private String scriptURL = null;
+    @JsonProperty("env-var")
+    private Map<String, String> envVars;
 
-    @JsonProperty("jarURL")
-    private String jarURL = null;
-
-    @JsonProperty("loginCredential")
-    private LoginCredential loginCredential = null;
-
-    @JsonProperty("ipAddresses")
-    private List<IpAddress> ipAddresses = null;
-
-    @JsonProperty("nodeProperties")
-    private NodeProperties nodeProperties = null;
 }

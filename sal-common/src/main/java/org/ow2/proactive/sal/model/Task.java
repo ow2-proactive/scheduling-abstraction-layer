@@ -64,6 +64,9 @@ public class Task implements Serializable {
     @Column(name = "TYPE")
     private Installation.InstallationType type;
 
+    @Column(name = "SECURITY_GROUP")
+    private String securityGroup = null;
+
     // Are these two attributes able to be merged into one common abstract?
     @Embedded
     private CommandsInstallation installation;

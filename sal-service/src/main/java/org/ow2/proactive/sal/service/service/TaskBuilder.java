@@ -98,6 +98,12 @@ public class TaskBuilder {
 
     private static final String WAIT_FOR_LOCK_SCRIPT = "wait_for_lock_script.sh";
 
+    private static final String WAIT_FOR_MASTER_SCRIPT = "wait_for_master.groovy";
+
+    private static final String SET_TOKEN_SCRIPT = "set_token.groovy";
+
+    private static final String DELETE_NODE_SCRIPT = "delete_node.groovy";
+
     private static final String NODE_SOURCE_NAME_REGEX = "^local$|^Default$|^LocalNodes$|^Server-Static-Nodes$|^On-Prem-Server-Static-Nodes$";
 
     private static final String COMPONENT_NAME_VARIABLE_NAME = "ComponentName";
@@ -280,16 +286,18 @@ public class TaskBuilder {
         }
         String nodeConfigJson = "{\"image\": \"" + imageId + "\", " + "\"vmType\": \"" +
                                 deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\", " +
-                                "\"nodeTags\": \"" + deployment.getNodeName();
-        if (task.getPortsToOpen() == null || task.getPortsToOpen().isEmpty()) {
-            nodeConfigJson += "\"}";
-        } else {
+                                "\"nodeTags\": \"" + deployment.getNodeName() + "\"";
+        if (task.getPortsToOpen() != null && !task.getPortsToOpen().isEmpty()) {
             try {
-                nodeConfigJson += "\", \"portsToOpen\": " + mapper.writeValueAsString(task.getPortsToOpen()) + "}";
+                nodeConfigJson += ", \"portsToOpen\": " + mapper.writeValueAsString(task.getPortsToOpen()) + "\"";
             } catch (IOException e) {
                 LOGGER.error(Arrays.toString(e.getStackTrace()));
             }
         }
+        if (task.getSecurityGroup() != null) {
+            nodeConfigJson += ", \"securityGroups\": [\"" + task.getSecurityGroup() + "\"]";
+        }
+        nodeConfigJson += "}";
         return (nodeConfigJson);
     }
 
@@ -303,7 +311,7 @@ public class TaskBuilder {
             variablesMap.put("NS_name",
                              new TaskVariable("NS_name",
                                               PACloud.WHITE_LISTED_NAME_PREFIX +
-                                                         deployment.getPaCloud().getNodeSourceNamePrefix() +
+                                                         deployment.getPaCloud().getNodeSourceNamePrefix() + "-" +
                                                          deployment.getNode()
                                                                    .getNodeCandidate()
                                                                    .getLocation()
@@ -311,10 +319,11 @@ public class TaskBuilder {
         } else {
             variablesMap.put("NS_name",
                              new TaskVariable("NS_name",
-                                              deployment.getPaCloud().getNodeSourceNamePrefix() + deployment.getNode()
-                                                                                                            .getNodeCandidate()
-                                                                                                            .getLocation()
-                                                                                                            .getName()));
+                                              deployment.getPaCloud().getNodeSourceNamePrefix() + "-" +
+                                                         deployment.getNode()
+                                                                   .getNodeCandidate()
+                                                                   .getLocation()
+                                                                   .getName()));
         }
         variablesMap.put("nVMs", new TaskVariable("nVMs", "1", "PA:Integer", false));
         variablesMap.put("synchronous", new TaskVariable("synchronous", "true", "PA:Boolean", false));
@@ -489,6 +498,7 @@ public class TaskBuilder {
 
             // Creating application deployment tasks
             createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks);
+
         });
 
         scriptTasks.forEach(scriptTask -> task.addSubmittedTaskName(scriptTask.getName()));
@@ -774,6 +784,11 @@ public class TaskBuilder {
                 String token = task.getTaskId() + deployment.getNumber();
                 String suffix = "_" + deployment.getNumber();
                 scriptTasks.add(createInfraTask(task, deployment, suffix, token));
+                if (deployment.getWorker() != null && deployment.getWorker()) {
+                    ScriptTask waitForMasterTask = createWaitForMasterTask(deployment.getMasterToken());
+                    waitForMasterTask.addDependence(scriptTasks.get(scriptTasks.size() - 1));
+                    scriptTasks.add(waitForMasterTask);
+                }
                 // If the infrastructure comes with the deployment of the EMS, we set it up.
                 Optional.ofNullable(deployment.getEmsDeployment()).ifPresent(emsDeploymentRequest -> {
                     String emsTaskSuffix = "_" + task.getName() + suffix;
@@ -789,6 +804,11 @@ public class TaskBuilder {
 
                 // Creating application deployment tasks
                 createAndAddAppDeploymentTasks(task, suffix, token, scriptTasks);
+                if (deployment.getWorker() != null && deployment.getWorker().equals(false)) {
+                    ScriptTask setTokenTask = createSetTokenTask(deployment.getMasterToken());
+                    setTokenTask.addDependence(scriptTasks.get(scriptTasks.size() - 1));
+                    scriptTasks.add(setTokenTask);
+                }
             });
             if (!scriptTasks.isEmpty()) {
                 task.setDeploymentFirstSubmittedTaskName(scriptTasks.get(0)
@@ -848,5 +868,34 @@ public class TaskBuilder {
                              new TaskVariable(variableName, task.getName(), "PA:NOT_EMPTY_STRING", false));
         }));
         return (variablesMap);
+    }
+
+    private ScriptTask createWaitForMasterTask(String masterNodeToken) {
+        ScriptTask waitForMasterTask = PAFactory.createGroovyScriptTaskFromFile("wait_for_master",
+                                                                                WAIT_FOR_MASTER_SCRIPT);
+        waitForMasterTask.addGenericInformation("NODE_ACCESS_TOKEN", masterNodeToken);
+        return waitForMasterTask;
+    }
+
+    public ScriptTask createOneNodeTask(String script, String token, String taskName) {
+        ScriptTask oneNodeTask = PAFactory.createBashScriptTask(taskName, script);
+        oneNodeTask.addGenericInformation("NODE_ACCESS_TOKEN", token);
+        return oneNodeTask;
+    }
+
+    private ScriptTask createSetTokenTask(String masterNodeToken) {
+        ScriptTask setTokenTask = PAFactory.createGroovyScriptTaskFromFile("set_token", SET_TOKEN_SCRIPT);
+        Map<String, TaskVariable> variablesMap = new HashMap<>();
+        variablesMap.put("nodeToken", new TaskVariable("nodeToken", masterNodeToken));
+        setTokenTask.setVariables(variablesMap);
+        return setTokenTask;
+    }
+
+    public ScriptTask createDeleteNodeTask(String nodeUrl) {
+        ScriptTask setTokenTask = PAFactory.createGroovyScriptTaskFromFile("Delete-Node", DELETE_NODE_SCRIPT);
+        Map<String, TaskVariable> variablesMap = new HashMap<>();
+        variablesMap.put("nodeURL", new TaskVariable("nodeURL", nodeUrl));
+        setTokenTask.setVariables(variablesMap);
+        return setTokenTask;
     }
 }

@@ -139,7 +139,7 @@ public class PAConnectorIaasGateway {
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
                                    cloud.getCloudProviderName() + "\"," + "\"credentials\": {\"username\": \"" +
                                    cloud.getCredentials().getUserName() + "\", \"password\": \"" +
-                                   cloud.getCredentials().getPrivateKey() + "\"}, \"region\": \"" + region + "\"}";
+                                   cloud.getCredentials().getPrivateKey() + "\"}}";
                 break;
             case "openstack":
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," +

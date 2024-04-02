@@ -88,7 +88,7 @@ public class CloudService {
         List<String> savedCloudIds = new LinkedList<>();
         clouds.forEach(cloud -> {
             PACloud newCloud = new PACloud();
-            String nodeSourceNamePrefix = cloud.getCloudProviderName() + cloud.getCloudId();
+            String nodeSourceNamePrefix = cloud.getCloudProviderName() + "-" + cloud.getCloudId();
             newCloud.setNodeSourceNamePrefix(nodeSourceNamePrefix);
             newCloud.setCloudId(cloud.getCloudId());
             newCloud.setCloudProviderName(cloud.getCloudProviderName());
@@ -168,7 +168,12 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return repositoryService.listPACloud();
+        List<PACloud> clouds = new ArrayList<>();
+        for (PACloud cloud : repositoryService.listPACloud()) {
+            cloud.setCredentials(hideCredentials(cloud.getCredentials()));
+            clouds.add(cloud);
+        }
+        return clouds;
     }
 
     /**
@@ -181,7 +186,12 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        return repositoryService.findAllPAClouds(cloudIds);
+        List<PACloud> clouds = new ArrayList<>();
+        for (PACloud cloud : repositoryService.findAllPAClouds(cloudIds)) {
+            cloud.setCredentials(hideCredentials(cloud.getCredentials()));
+            clouds.add(cloud);
+        }
+        return clouds;
     }
 
     /**
@@ -422,5 +432,35 @@ public class CloudService {
             throw new NotConnectedException();
         }
         return repositoryService.listLocations();
+    }
+
+    private Credentials hideCredentials(Credentials creds) {
+        Credentials newCreds = new Credentials();
+        if (creds != null) {
+            if (creds.getPassword() != null) {
+                newCreds.setPassword(hideString(creds.getPassword(), 2));
+            }
+            if (creds.getPrivateKey() != null) {
+                newCreds.setPrivateKey(hideString(creds.getPrivateKey(), 2));
+            }
+            if (creds.getUserName() != null) {
+                newCreds.setUserName(hideString(creds.getUserName(), 5));
+            }
+        }
+        return newCreds;
+    }
+
+    private String hideString(String cred, int expose) {
+        String hiddenCreds = "";
+        int i = 0;
+        for (char c : cred.toCharArray()) {
+            if (i >= expose) {
+                hiddenCreds += "*";
+            } else {
+                hiddenCreds += c;
+            }
+            i++;
+        }
+        return hiddenCreds;
     }
 }
