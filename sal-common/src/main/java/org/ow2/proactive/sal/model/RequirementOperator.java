@@ -48,7 +48,9 @@ public enum RequirementOperator {
 
     NEQ("NEQ"),
 
-    IN("IN");
+    IN("IN"),
+
+    INC("INC");
 
     private String value;
 
@@ -70,6 +72,8 @@ public enum RequirementOperator {
                 return !A.equals(B);
             case IN:
                 return B.contains(A);
+            case INC:
+                return A.contains(B);
         }
         throw new RuntimeException("Illegal operation between Strings: " + this.value);
     }
