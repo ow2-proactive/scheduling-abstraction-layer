@@ -1,0 +1,2 @@
+
+echo "Worker update script"
