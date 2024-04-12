@@ -210,7 +210,7 @@ public class ClusterUtils {
                 script.append(String.format("%s '%s %s-%s %s' \n",
                                             CLI_USER_SELECTION,
                                             KUBE_LABEL_COMMAND,
-                                            nodeName,
+                                            nodeName.toLowerCase(),
                                             clusterName,
                                             label));
             }
@@ -256,11 +256,10 @@ public class ClusterUtils {
     private static String createEnvVarsScript(Map<String, String> envVars) {
         String filePath = FILE_PATH;
         StringBuilder script = new StringBuilder();
-        script.append("echo '#!/bin/bash' >> " + filePath + "\n");
         for (String key : envVars.keySet()) {
             script.append(String.format("echo 'export %s=\"%s\"' >> %s\n", key, envVars.get(key), filePath));
         }
-        script.append(String.format("source %s", filePath));
+        script.append(String.format("source %s\n", filePath));
         return script.toString();
     }
 
