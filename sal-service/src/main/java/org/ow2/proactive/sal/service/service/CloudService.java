@@ -171,6 +171,7 @@ public class CloudService {
         List<PACloud> clouds = new ArrayList<>();
         for (PACloud cloud : repositoryService.listPACloud()) {
             cloud.setCredentials(hideCredentials(cloud.getCredentials()));
+            cloud.setSshCredentials(hideSshCredentials(cloud.getSshCredentials()));
             clouds.add(cloud);
         }
         return clouds;
@@ -189,6 +190,7 @@ public class CloudService {
         List<PACloud> clouds = new ArrayList<>();
         for (PACloud cloud : repositoryService.findAllPAClouds(cloudIds)) {
             cloud.setCredentials(hideCredentials(cloud.getCredentials()));
+            cloud.setSshCredentials(hideSshCredentials(cloud.getSshCredentials()));
             clouds.add(cloud);
         }
         return clouds;
@@ -445,6 +447,18 @@ public class CloudService {
             }
             if (creds.getUserName() != null) {
                 newCreds.setUserName(hideString(creds.getUserName(), 5));
+            }
+        }
+        return newCreds;
+    }
+
+    private SSHCredentials hideSshCredentials(SSHCredentials creds) {
+        SSHCredentials newCreds = new SSHCredentials();
+        if (creds != null) {
+            newCreds.setKeyPairName(creds.getKeyPairName());
+            newCreds.setUsername(creds.getUsername());
+            if (creds.getPrivateKey() != null) {
+                newCreds.setPrivateKey(hideString(creds.getPrivateKey(), 3));
             }
         }
         return newCreds;

@@ -26,6 +26,7 @@
 package org.ow2.proactive.sal.model;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.*;
 
@@ -69,5 +70,9 @@ public class Cluster {
     @Column(name = "STATUS")
     @JsonProperty("status")
     private String status = "defined";
+
+    @Column(name = "ENV")
+    @JsonProperty("env-var-script")
+    private String envVars;
 
 }
