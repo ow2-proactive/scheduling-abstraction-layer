@@ -51,17 +51,14 @@ public class ClusterUtils {
     private static final String SCRIPTS_PATH = "/usr/local/tomcat/scripts/";
 
     // TO be changed, the hardcoding of the ubuntu user is a bad practice.
-    private static final String KUBE_LABEL_COMMAND = "kubectl label nodes";
+    private static final String KUBE_LABEL_COMMAND = "kubectl label nodes --overwrite";
 
     private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c";
 
     private static final String FILE_PATH = "/home/ubuntu/.profile";
 
-    @Autowired
-    private RepositoryService repositoryService;
-
     public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
-            Map<String, String> envVars) throws IOException {
+            String envVars) throws IOException {
         Job masterNodeJob = new Job();
         masterNodeJob.setJobId(masterNode.getNodeJobName(clusterName));
         masterNodeJob.setName(masterNode.getNodeJobName(clusterName));
@@ -73,7 +70,7 @@ public class ClusterUtils {
     }
 
     private static Task createMasterNodeTask(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
-            Map<String, String> envVars) throws IOException {
+            String envVars) throws IOException {
         Task masterNodeTask = new Task();
         masterNodeTask.setTaskId(masterNode.getNodeTaskName(clusterName));
         masterNodeTask.setName(masterNode.getNodeTaskName(clusterName));
@@ -83,11 +80,10 @@ public class ClusterUtils {
         return masterNodeTask;
     }
 
-    private static CommandsInstallation createMasterInstallation(Map<String, String> envVars) throws IOException {
+    private static CommandsInstallation createMasterInstallation(String envVars) throws IOException {
         CommandsInstallation masterInstallation = new CommandsInstallation();
         OperatingSystemType os = new OperatingSystemType();
-        masterInstallation.setPreInstall(createEnvVarsScript(envVars) +
-                                         getBashFilesContent("MASTER_PRE_INSTALL_SCRIPT.sh"));
+        masterInstallation.setPreInstall(envVars + getBashFilesContent("MASTER_PRE_INSTALL_SCRIPT.sh"));
         masterInstallation.setInstall(getBashFilesContent("MASTER_INSTALL_SCRIPT.sh"));
         masterInstallation.setPostInstall(getBashFilesContent("MASTER_POST_INSTALL_SCRIPT.sh"));
         masterInstallation.setStart(String.format("source %s\n", FILE_PATH) +
@@ -103,7 +99,7 @@ public class ClusterUtils {
     }
 
     public static Job createWorkerNodeJob(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud,
-            Map<String, String> envVars) throws IOException {
+            String envVars) throws IOException {
         Job workerNodeJob = new Job();
         workerNodeJob.setJobId(workerNode.getNodeJobName(clusterName));
         workerNodeJob.setName(workerNode.getNodeJobName(clusterName));
@@ -115,7 +111,7 @@ public class ClusterUtils {
     }
 
     private static Task createWorkerNodeTask(String clusterName, ClusterNodeDefinition workerNode, PACloud cloud,
-            Map<String, String> envVars) throws IOException {
+            String envVars) throws IOException {
         Task workerNodeTask = new Task();
         workerNodeTask.setTaskId(workerNode.getNodeTaskName(clusterName));
         workerNodeTask.setName(workerNode.getNodeTaskName(clusterName));
@@ -127,11 +123,10 @@ public class ClusterUtils {
         return workerNodeTask;
     }
 
-    private static CommandsInstallation createWorkerInstallation(Map<String, String> envVars) throws IOException {
+    private static CommandsInstallation createWorkerInstallation(String envVars) throws IOException {
         CommandsInstallation workerInstallation = new CommandsInstallation();
         OperatingSystemType os = new OperatingSystemType();
-        workerInstallation.setPreInstall(createEnvVarsScript(envVars) +
-                                         getBashFilesContent("WORKER_PRE_INSTALL_SCRIPT.sh"));
+        workerInstallation.setPreInstall(envVars + getBashFilesContent("WORKER_PRE_INSTALL_SCRIPT.sh"));
         workerInstallation.setInstall(getBashFilesContent("WORKER_INSTALL_SCRIPT.sh"));
         workerInstallation.setPostInstall(getBashFilesContent("WORKER_POST_INSTALL_SCRIPT.sh"));
         workerInstallation.setStart(String.format("source %s\n", FILE_PATH) +
@@ -253,9 +248,12 @@ public class ClusterUtils {
         }
     }
 
-    private static String createEnvVarsScript(Map<String, String> envVars) {
+    public static String createEnvVarsScript(Map<String, String> envVars) {
         String filePath = FILE_PATH;
         StringBuilder script = new StringBuilder();
+        if (envVars == null || envVars.isEmpty()) {
+            return "";
+        }
         for (String key : envVars.keySet()) {
             script.append(String.format("echo 'export %s=\"%s\"' >> %s\n", key, envVars.get(key), filePath));
         }

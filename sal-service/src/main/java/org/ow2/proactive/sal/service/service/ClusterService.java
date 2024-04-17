@@ -76,6 +76,7 @@ public class ClusterService {
         newCluster.setName(clusterDefinition.getName());
         newCluster.setMasterNode(clusterDefinition.getMasterNode());
         newCluster.setStatus("defined");
+        newCluster.setEnvVars(ClusterUtils.createEnvVarsScript(clusterDefinition.getEnvVars()));
         clusterDefinition.getNodes()
                          .forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
         newCluster.setNodes(clusterDefinition.getNodes());
@@ -86,7 +87,7 @@ public class ClusterService {
             Job masterNodeJob = ClusterUtils.createMasterNodeJob(newCluster.getName(),
                                                                  masterNode,
                                                                  cloud,
-                                                                 clusterDefinition.getEnvVars());
+                                                                 newCluster.getEnvVars());
             masterNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(masterNodeJob);
         } else {
@@ -114,7 +115,7 @@ public class ClusterService {
                     Job workerNodeJob = ClusterUtils.createWorkerNodeJob(clusterName,
                                                                          node,
                                                                          null,
-                                                                         clusterDefinition.getEnvVars());
+                                                                         newCluster.getEnvVars());
                     workerNodeJob.getTasks().forEach(repositoryService::saveTask);
                     repositoryService.saveJob(workerNodeJob);
                     //                    Map<String, String> edgeNodeMap = new HashMap<>();
@@ -125,7 +126,7 @@ public class ClusterService {
                     Job workerNodeJob = ClusterUtils.createWorkerNodeJob(newCluster.getName(),
                                                                          node,
                                                                          cloud,
-                                                                         clusterDefinition.getEnvVars());
+                                                                         newCluster.getEnvVars());
                     workerNodeJob.getTasks().forEach(repositoryService::saveTask);
                     repositoryService.saveJob(workerNodeJob);
                 }
@@ -253,7 +254,10 @@ public class ClusterService {
         LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
         for (ClusterNodeDefinition node : newNodes) {
             PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleCluster.getName(), node, cloud, null);
+            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleCluster.getName(),
+                                                                 node,
+                                                                 cloud,
+                                                                 toScaleCluster.getEnvVars());
             workerNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(workerNodeJob);
         }

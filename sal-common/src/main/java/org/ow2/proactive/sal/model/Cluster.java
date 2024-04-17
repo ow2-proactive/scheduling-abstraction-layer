@@ -70,4 +70,8 @@ public class Cluster {
     @JsonProperty("status")
     private String status = "defined";
 
+    @Column(name = "ENV")
+    @JsonProperty("env-var-script")
+    private String envVars;
+
 }
