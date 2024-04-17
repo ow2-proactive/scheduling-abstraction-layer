@@ -26,7 +26,6 @@
 package org.ow2.proactive.sal.model;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.*;
 
