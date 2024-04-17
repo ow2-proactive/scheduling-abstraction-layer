@@ -56,6 +56,7 @@ public class ClusterUtils {
     private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c";
 
     private static final String FILE_PATH = "/home/ubuntu/.profile";
+
     public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
             String envVars) throws IOException {
         Job masterNodeJob = new Job();
