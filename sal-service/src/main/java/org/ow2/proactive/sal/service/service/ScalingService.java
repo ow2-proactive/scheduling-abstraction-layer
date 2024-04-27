@@ -195,7 +195,7 @@ public class ScalingService {
         jobService.addCleanChannelsTaskWithDependencies(paJob, job);
 
         paJob.setMaxNumberOfExecution(2);
-        paJob.setProjectName("Morphemic");
+        paJob.setProjectName("NebulOuS");
 
         long submittedJobId = schedulerGateway.submit(paJob).longValue();
         job.setSubmittedJobId(submittedJobId);
@@ -374,7 +374,7 @@ public class ScalingService {
         jobService.addCleanChannelsTaskWithDependencies(paJob, job);
 
         paJob.setMaxNumberOfExecution(2);
-        paJob.setProjectName("Morphemic");
+        paJob.setProjectName("NebulOuS");
 
         long submittedJobId = schedulerGateway.submit(paJob).longValue();
         job.setSubmittedJobId(submittedJobId);

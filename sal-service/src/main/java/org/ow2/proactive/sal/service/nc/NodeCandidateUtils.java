@@ -183,6 +183,10 @@ public class NodeCandidateUtils {
                                            .compare(nodeCandidate.getCloud().getCloudType().name(),
                                                     attributeRequirement.getValue());
             }
+            if (attributeRequirement.getRequirementAttribute().equals("id")) {
+                return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getCloud().getId(),
+                                                                             attributeRequirement.getValue());
+            }
         }
         if (attributeRequirement.getRequirementClass().toLowerCase(Locale.ROOT).equals("environment")) {
             if (attributeRequirement.getRequirementAttribute().equals("runtime")) {

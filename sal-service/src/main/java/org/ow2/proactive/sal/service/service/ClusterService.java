@@ -274,15 +274,19 @@ public class ClusterService {
             throw new NotConnectedException();
         }
         LOGGER.info("scaleDownCluster endpoint is called for the cluster: " + clusterName);
-        Cluster toScaleCluster = getCluster(sessionId, clusterName);
+        Cluster toScaleCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
         repositoryService.deleteCluster(toScaleCluster);
         repositoryService.flush();
+        String masterNodeToken = "";
+        if (toScaleCluster != null) {
+            masterNodeToken = toScaleCluster.getMasterNode() + "_" + clusterName;
+        }
         List<ClusterNodeDefinition> clusterNodes = toScaleCluster.getNodes();
         for (String nodeName : nodesToDelete) {
             ClusterNodeDefinition node = getNodeFromCluster(toScaleCluster, nodeName);
             if (node != null && !node.getName().equals(toScaleCluster.getMasterNode())) {
                 try {
-                    if (deleteNode(sessionId, clusterName, node) != -1L) {
+                    if (deleteNode(sessionId, clusterName, node, masterNodeToken, true) != -1L) {
                         clusterNodes = deleteNodeFromCluster(clusterNodes, nodeName);
                     }
                 } catch (NotConnectedException e) {
@@ -326,7 +330,8 @@ public class ClusterService {
                                                script,
                                                masterNodeToken,
                                                "label_nodes_" + clusterName,
-                                               "basic");
+                                               "basic",
+                                               "");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -359,7 +364,8 @@ public class ClusterService {
                                                script,
                                                masterNodeToken,
                                                "deploy_app_" + clusterName,
-                                               "basic");
+                                               "basic",
+                                               "");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -373,7 +379,7 @@ public class ClusterService {
         Cluster toScaleCluster = getCluster(sessionId, clusterName);
         for (ClusterNodeDefinition node : toScaleCluster.getNodes()) {
             if (node != null) {
-                deleteNode(sessionId, clusterName, node);
+                deleteNode(sessionId, clusterName, node, "", false);
             }
         }
         repositoryService.deleteCluster(toScaleCluster);
@@ -403,13 +409,27 @@ public class ClusterService {
         return "";
     }
 
-    private Long deleteNode(String sessionId, String clusterName, ClusterNodeDefinition node)
-            throws NotConnectedException {
+    private Long deleteNode(String sessionId, String clusterName, ClusterNodeDefinition node, String masterNodeToken,
+            boolean drain) throws NotConnectedException {
         String nodeUrl = getNodeUrl(sessionId, clusterName, node);
         Long jobId = -1L;
         if (nodeUrl != null && !nodeUrl.isEmpty()) {
             try {
-                jobId = jobService.submitOneTaskJob(sessionId, nodeUrl, "", "delete_node_" + node.getName(), "delete");
+                if (drain) {
+                    jobId = jobService.submitOneTaskJob(sessionId,
+                                                        nodeUrl,
+                                                        masterNodeToken,
+                                                        "delete_node_" + node.getName(),
+                                                        "drain-delete",
+                                                        node.getNodeJobName(clusterName));
+                } else {
+                    jobId = jobService.submitOneTaskJob(sessionId,
+                                                        nodeUrl,
+                                                        masterNodeToken,
+                                                        "delete_node_" + node.getName(),
+                                                        "delete",
+                                                        "");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
