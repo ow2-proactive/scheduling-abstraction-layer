@@ -40,14 +40,14 @@ import org.ow2.proactive.sal.service.util.ByonUtils;
 import org.ow2.proactive.sal.service.util.Utils;
 import org.ow2.proactive.scheduler.common.task.ScriptTask;
 import org.ow2.proactive.scheduler.common.task.TaskVariable;
-import org.ow2.proactive.scripting.InvalidScriptException;
-import org.ow2.proactive.scripting.SelectionScript;
+import org.ow2.proactive.scripting.*;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j2;
+import net.bytebuddy.dynamic.scaffold.TypeInitializer;
 
 
 @Log4j2
@@ -97,6 +97,8 @@ public class TaskBuilder {
     private static final String CLEAN_SYNC_CHANNELS_SCRIPT = "clean_synchronization_channels_script.groovy";
 
     private static final String WAIT_FOR_LOCK_SCRIPT = "wait_for_lock_script.sh";
+
+    private static final String DRIAN_NODE_SCRIPT = "drain_node_script.sh";
 
     private static final String WAIT_FOR_MASTER_SCRIPT = "wait_for_master.groovy";
 
@@ -892,10 +894,19 @@ public class TaskBuilder {
     }
 
     public ScriptTask createDeleteNodeTask(String nodeUrl) {
-        ScriptTask setTokenTask = PAFactory.createGroovyScriptTaskFromFile("Delete-Node", DELETE_NODE_SCRIPT);
+        ScriptTask deleteNodeTask = PAFactory.createGroovyScriptTaskFromFile("Delete-Node", DELETE_NODE_SCRIPT);
         Map<String, TaskVariable> variablesMap = new HashMap<>();
         variablesMap.put("nodeURL", new TaskVariable("nodeURL", nodeUrl));
-        setTokenTask.setVariables(variablesMap);
-        return setTokenTask;
+        deleteNodeTask.setVariables(variablesMap);
+        return deleteNodeTask;
+    }
+
+    public ScriptTask createDrainNodeTask(String nodeName, String masterNodeToken) {
+        ScriptTask drainNodeTask = PAFactory.createBashScriptTaskFromFile("Drain-Node", DRIAN_NODE_SCRIPT);
+        Map<String, TaskVariable> variablesMap = new HashMap<>();
+        variablesMap.put("nodeName", new TaskVariable("nodeName", nodeName));
+        drainNodeTask.setVariables(variablesMap);
+        drainNodeTask.addGenericInformation("NODE_ACCESS_TOKEN", masterNodeToken);
+        return drainNodeTask;
     }
 }

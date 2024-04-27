@@ -808,19 +808,27 @@ public class JobService {
         setAllMandatoryDependencies(paJob, job);
     }
 
-    public Long submitOneTaskJob(String sessionId, String script, String token, String jobName, String type)
-            throws NotConnectedException, IOException {
+    public Long submitOneTaskJob(String sessionId, String input, String token, String jobName, String type,
+            String nodeName) throws NotConnectedException, IOException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
         TaskFlowJob paJob = new TaskFlowJob();
         paJob.setName(jobName);
-        LOGGER.info("Job created: " + paJob.toString());
+        LOGGER.info("Job created: " + paJob);
         try {
             if (Objects.equals(type, "basic")) {
-                paJob.addTask(taskBuilder.createOneNodeTask(script, token, jobName));
+                paJob.addTask(taskBuilder.createOneNodeTask(input, token, jobName));
             } else if (Objects.equals(type, "delete")) {
-                paJob.addTask(taskBuilder.createDeleteNodeTask(script));
+                paJob.addTask(taskBuilder.createDeleteNodeTask(input));
+            } else if (Objects.equals(type, "drain")) {
+                paJob.addTask(taskBuilder.createDrainNodeTask(input, token));
+            } else if (Objects.equals(type, "drain-delete")) {
+                ScriptTask parentTask = taskBuilder.createDrainNodeTask(nodeName, token);
+                ScriptTask childTask = taskBuilder.createDeleteNodeTask(input);
+                childTask.addDependence(parentTask);
+                paJob.addTask(parentTask);
+                paJob.addTask(childTask);
             } else {
                 LOGGER.error("type of submitOneTaskJob \"{}\" is not supported!", type);
                 throw new IOException();
