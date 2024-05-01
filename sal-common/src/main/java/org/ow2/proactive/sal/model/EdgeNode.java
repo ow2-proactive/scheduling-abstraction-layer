@@ -65,6 +65,10 @@ public class EdgeNode extends AbstractNode {
     @JsonProperty("nodeProperties")
     private NodeProperties nodeProperties = null;
 
+    @Column(name = "PORT")
+    @JsonProperty("port")
+    private String port = null;
+
     @Column(name = "REASON")
     @JsonProperty("reason")
     private String reason = null;
