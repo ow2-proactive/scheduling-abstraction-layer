@@ -87,6 +87,7 @@ public class EdgeService {
         newEdgeNode.setIpAddresses(edgeNodeDefinition.getIpAddresses());
         newEdgeNode.setNodeProperties(edgeNodeDefinition.getNodeProperties());
         newEdgeNode.setJobId(jobId);
+        newEdgeNode.setPort(edgeNodeDefinition.getPort());
         newEdgeNode.setSystemArch(edgeNodeDefinition.getSystemArch());
         newEdgeNode.setScriptURL(edgeNodeDefinition.getScriptURL());
         newEdgeNode.setJarURL(edgeNodeDefinition.getJarURL());
@@ -258,7 +259,7 @@ public class EdgeService {
          * TODO
          */
         variables.put("ssh_key", "");
-        variables.put("ssh_port", "22");
+        variables.put("ssh_port", edgeNode.getPort());
         variables.put("list_of_ips", edgeIPs);
         switch (edgeNode.getSystemArch()) {
             case "AMD":

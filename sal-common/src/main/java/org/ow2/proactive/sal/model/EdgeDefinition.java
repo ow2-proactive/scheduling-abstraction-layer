@@ -62,6 +62,9 @@ public class EdgeDefinition {
     @JsonProperty("ipAddresses")
     private List<IpAddress> ipAddresses = null;
 
+    @JsonProperty("port")
+    private String port = "22";
+
     @JsonProperty("nodeProperties")
     private NodeProperties nodeProperties = null;
 }
