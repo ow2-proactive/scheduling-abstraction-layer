@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sal-mariadb-credentials
+type: Opaque
+data:
+  mysql-root-password: <PASSWORD>
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nebulous-sal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nebulous-sal
+  template:
+    metadata:
+      labels:
+        app: nebulous-sal
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb
+          ports:
+            - name: mariadb
+              containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sal-mariadb-credentials
+                  key: mysql-root-password
+            - name: MYSQL_DATABASE
+              value: proactive
+          args: ["--wait_timeout=31536000"]  # Add this line to set the wait_timeout
+          livenessProbe:
+            exec:
+              command:
+                - "/bin/sh"
+                - "-c"
+                - "mariadb-admin ping -h localhost --password=$MYSQL_ROOT_PASSWORD"
+            failureThreshold: 5
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - mariadb-admin ping -h localhost --password=$MYSQL_ROOT_PASSWORD
+            failureThreshold: 5
+            initialDelaySeconds: 30
+            periodSeconds: 30
+        - name: sal
+          image: activeeon/sal:dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - containerPort: 9001
+          env:
+            - name: MYSQL_DATABASE
+              value: proactive
+            - name: PROPERTIES_FILENAME
+              value: sal
+            - name: PWS_URL
+              value: http://158.39.77.68:8880/
+            - name: PWS_USERNAME
+              value: admin
+            - name: PWS_PASSWORD
+              value: admin
+            - name: DB_USERNAME
+              value: root
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_HOSTNAME
+              value: localhost
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mysql-root-password
+                  name: sal-mariadb-credentials
+            - name: DB_DRIVER_CLASSNAME
+              value: org.mariadb.jdbc.Driver
+            - name: DB_URL
+              value: jdbc:mariadb://127.0.0.1:3306/proactive
+            - name: DB_PLATFORM
+              value: org.hibernate.dialect.MariaDB53Dialect
+            - name: JPDA_ADDRESS
+              value: "9001"
+            - name: JPDA_TRANSPORT
+              value: dt_socket
+          volumeMounts:
+            - name: script-volume
+              mountPath: /usr/local/tomcat/scripts/
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - nc -z localhost 8080
+            failureThreshold: 5
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - nc -z localhost 8080
+            failureThreshold: 5
+            initialDelaySeconds: 60
+            periodSeconds: 10
+      volumes:
+        - name: script-volume
+          configMap:
+            name: scripts-configmap
+      nodeSelector:
+        nebulouscloud.eu/env: cd
+      tolerations:
+        - effect: NoSchedule
+          key: nebulouscloud.eu/env
+          operator: Equal
+          value: cd
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nebulous-sal-pda
+spec:
+  ports:
+    - port: 9001
+      targetPort: 9001
+  selector:
+    app: nebulous-sal
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nebulous-sal
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: nebulous-sal
