@@ -65,7 +65,7 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Validate.notNull(clusterDefinition, "The received Byon node definition is empty. Nothing to be defined.");
+        Validate.notNull(clusterDefinition, "The received Cluster definition is empty. Nothing to be defined.");
         LOGGER.info("defineCluster endpoint is called to define the cluster: " + clusterDefinition.getName());
 
         // TODO:
