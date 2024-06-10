@@ -1,4 +1,4 @@
-# Description
+# Description 
 
 This Docker compose contains two containers:
 - The container containing SAL as a service.
