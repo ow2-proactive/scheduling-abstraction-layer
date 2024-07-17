@@ -113,7 +113,7 @@ public class CloudService {
             repositoryService.saveCredentials(credentials);
             newCloud.setCredentials(credentials);
 
-            String dummyInfraName = "iamadummy" + newCloud.getCloudProviderName();
+            String dummyInfraName = "iamadummy" + newCloud.getCloudProviderName() + "_" + newCloud.getCloudId();
             connectorIaasGateway.defineInfrastructure(dummyInfraName, newCloud, "");
             newCloud.setDummyInfrastructureName(dummyInfraName);
 
@@ -348,7 +348,7 @@ public class CloudService {
      * This function returns the list of all available images related to a registered cloud
      * @param sessionId A valid session id
      * @param cloudId A valid cloud identifier
-     * @return A list of available images
+     * @return A list of available images for a registered cloud
      */
     public List<Image> getCloudImages(String sessionId, String cloudId) throws NotConnectedException {
         List<Image> allImages = getAllCloudImages(sessionId);
@@ -362,11 +362,11 @@ public class CloudService {
                                               .collect(Collectors.toList());
             LOGGER.debug("Filtering images related to cloud ID \'" + cloudId + "\'.");
             allImages.stream().filter(blaTest -> imagesIDs.contains(blaTest.getId())).forEach(filteredImages::add);
-            return filteredImages;
         } else {
-            LOGGER.warn("Cloud ID \'" + cloudId + "\' is not found in DB. getAllCloudImages() will return all images.");
-            return allImages;
+            LOGGER.warn("Cloud ID \'" + cloudId + "\' is not found in SAL DB.");
+            // return allImages; // -> this was reason why we got images from other clouds
         }
+        return filteredImages;
     }
 
     /**
