@@ -39,7 +39,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.utils.URIBuilder;
 import org.jboss.netty.handler.codec.http.HttpMethod;
-import org.jclouds.rest.AuthorizationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.model.PACloud;
@@ -107,11 +106,6 @@ public class PAConnectorIaasGateway {
             } else {
                 LOGGER.info("Images retrieved for cloud {}. Images: {}", nodeSourceName, images);
             }
-        } catch (AuthorizationException e) {
-            LOGGER.error("Authorization error while retrieving images for cloud {}: {}",
-                         nodeSourceName,
-                         e.getMessage());
-            throw e;
         } catch (IOException e) {
             LOGGER.error("An error occurred while retrieving images for cloud {}: {}",
                          nodeSourceName,
