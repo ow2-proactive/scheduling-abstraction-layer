@@ -25,6 +25,7 @@
  */
 package org.ow2.proactive.sal.service.service.infrastructure;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -38,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.utils.URIBuilder;
 import org.jboss.netty.handler.codec.http.HttpMethod;
+import org.jclouds.rest.AuthorizationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ow2.proactive.sal.model.PACloud;
@@ -92,14 +94,31 @@ public class PAConnectorIaasGateway {
     public JSONArray getImages(String nodeSourceName) {
         Validate.notNull(nodeSourceName, "nodeSourceName must not be null");
         LOGGER.info("Retrieving images for cloud " + nodeSourceName);
-        JSONArray images = null;
+        JSONArray images = new JSONArray();
 
-        URIBuilder uriBuilder = new URIBuilder(new URL(paURL).toURI());
-        URI requestUri = uriBuilder.setPath(CONNECTOR_IAAS_PATH + "/infrastructures/" + nodeSourceName + "/images")
-                                   .build();
+        try {
+            URIBuilder uriBuilder = new URIBuilder(new URL(paURL).toURI());
+            URI requestUri = uriBuilder.setPath(CONNECTOR_IAAS_PATH + "/infrastructures/" + nodeSourceName + "/images")
+                                       .build();
 
-        images = ConnectionHelper.sendGetArrayRequestAndReturnArrayResponse(requestUri);
-        LOGGER.info("Images retrieved for cloud {}. Images: {}", nodeSourceName, images);
+            images = ConnectionHelper.sendGetArrayRequestAndReturnArrayResponse(requestUri);
+            if (images.isEmpty()) {
+                LOGGER.info("No images found for cloud {}", nodeSourceName);
+            } else {
+                LOGGER.info("Images retrieved for cloud {}. Images: {}", nodeSourceName, images);
+            }
+        } catch (AuthorizationException e) {
+            LOGGER.error("Authorization error while retrieving images for cloud {}: {}",
+                         nodeSourceName,
+                         e.getMessage());
+            throw e;
+        } catch (IOException e) {
+            LOGGER.error("An error occurred while retrieving images for cloud {}: {}",
+                         nodeSourceName,
+                         e.getMessage(),
+                         e);
+            throw new RuntimeException("Failed to retrieve images", e); // Convert to unchecked exception if necessary
+        }
 
         return images;
     }
@@ -152,8 +171,7 @@ public class PAConnectorIaasGateway {
                                    cloud.getCredentials().getDomain() + "\"}, \"region\": \"" + region + "\"}";
                 break;
             default:
-                throw new IllegalArgumentException("The infrastructure " + cloud.getCloudProviderName() +
-                                                   " is not handled yet.");
+                throw new IllegalArgumentException("The infrastructure " + infrastructureName + " is not handled yet.");
         }
 
         try (OutputStream os = connection.getOutputStream()) {

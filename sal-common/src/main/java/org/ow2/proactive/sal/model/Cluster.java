@@ -73,5 +73,4 @@ public class Cluster {
     @Column(name = "ENV", columnDefinition = "text", length = 65535)
     @JsonProperty("env-var-script")
     private String envVars;
-
 }
