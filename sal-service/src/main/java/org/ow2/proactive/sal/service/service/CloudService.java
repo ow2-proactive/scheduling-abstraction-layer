@@ -31,6 +31,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -113,7 +116,7 @@ public class CloudService {
             repositoryService.saveCredentials(credentials);
             newCloud.setCredentials(credentials);
 
-            String dummyInfraName = "iamadummy" + newCloud.getCloudProviderName();
+            String dummyInfraName = "iamadummy" + newCloud.getCloudProviderName() + "_" + newCloud.getCloudId();
             connectorIaasGateway.defineInfrastructure(dummyInfraName, newCloud, "");
             newCloud.setDummyInfrastructureName(dummyInfraName);
 
@@ -348,25 +351,35 @@ public class CloudService {
      * This function returns the list of all available images related to a registered cloud
      * @param sessionId A valid session id
      * @param cloudId A valid cloud identifier
-     * @return A list of available images
+     * @return A list of available images for a registered cloud
      */
+
     public List<Image> getCloudImages(String sessionId, String cloudId) throws NotConnectedException {
         List<Image> allImages = getAllCloudImages(sessionId);
         List<Image> filteredImages = new LinkedList<>();
         PACloud paCloud = repositoryService.getPACloud(cloudId);
+
         if (paCloud != null) {
-            JSONArray imagesArray = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
-            List<String> imagesIDs = IntStream.range(0, imagesArray.length())
-                                              .mapToObj(imagesArray::get)
-                                              .map(image -> cloudId + "/" + ((JSONObject) image).optString("id"))
-                                              .collect(Collectors.toList());
-            LOGGER.debug("Filtering images related to cloud ID \'" + cloudId + "\'.");
-            allImages.stream().filter(blaTest -> imagesIDs.contains(blaTest.getId())).forEach(filteredImages::add);
-            return filteredImages;
+            try {
+                JSONArray imagesArray = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
+                List<String> imagesIDs = IntStream.range(0, imagesArray.length())
+                                                  .mapToObj(imagesArray::get)
+                                                  .map(image -> cloudId + "/" + ((JSONObject) image).optString("id"))
+                                                  .collect(Collectors.toList());
+                LOGGER.debug("Filtering images related to cloud ID '{}'.", cloudId);
+                allImages.stream().filter(image -> imagesIDs.contains(image.getId())).forEach(filteredImages::add);
+            } catch (RuntimeException e) {
+                LOGGER.error("Failed to get images for cloud {}: {}", cloudId, e.getMessage(), e);
+                throw new InternalServerErrorException("Error while retrieving images for cloud: " + cloudId, e);
+            }
         } else {
-            LOGGER.warn("Cloud ID \'" + cloudId + "\' is not found in DB. getAllCloudImages() will return all images.");
-            return allImages;
+            LOGGER.warn("Cloud ID '{}' is not found in SAL DB.", cloudId);
+            throw new InternalServerErrorException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                                                           .entity("Cloud ID '" + cloudId + "' is not found in SAL DB.")
+                                                           .build());
         }
+
+        return filteredImages;
     }
 
     /**
