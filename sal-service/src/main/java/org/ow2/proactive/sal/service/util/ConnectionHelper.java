@@ -78,7 +78,6 @@ public class ConnectionHelper {
     @SneakyThrows
     public static JSONArray sendGetArrayRequestAndReturnArrayResponse(URI requestUri) throws IOException {
         HttpURLConnection connection = null;
-        BufferedReader br = null;
         JSONArray result = new JSONArray();
 
         try {
@@ -86,11 +85,17 @@ public class ConnectionHelper {
             connection.setRequestMethod(HttpMethod.GET.toString());
             LOGGER.debug("requestUri = {}", requestUri);
 
-            br = sendGetRequestAndReturnBufferedResponse(connection);
-            if (br != null) {
-                result = new JSONArray(new JSONTokener(br));
+            // Check if connection is successfully established
+            if (connection != null) {
+                try (BufferedReader br = sendGetRequestAndReturnBufferedResponse(connection)) {
+                    if (br != null) {
+                        result = new JSONArray(new JSONTokener(br));
+                    } else {
+                        LOGGER.warn("No response received from request to {}", requestUri);
+                    }
+                }
             } else {
-                LOGGER.warn("No response received from request to {}", requestUri);
+                LOGGER.error("Failed to establish connection to {}", requestUri);
             }
         } catch (IOException e) {
             LOGGER.error("IO exception occurred while making request to {}: {}", requestUri, e.getMessage(), e);
@@ -108,13 +113,6 @@ public class ConnectionHelper {
                          e);
             throw new IOException("Unexpected error occurred", e); // Wrap and throw as IOException
         } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    LOGGER.warn("Failed to close BufferedReader: {}", e.getMessage(), e);
-                }
-            }
             if (connection != null) {
                 connection.disconnect();
             }
