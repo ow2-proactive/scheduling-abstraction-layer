@@ -69,9 +69,9 @@ spec:
             - name: PWS_URL
               value: http://158.39.77.68:8880/
             - name: PWS_USERNAME
-              value: admin
+              value: <PROACTIVE_USERNAME>
             - name: PWS_PASSWORD
-              value: admin
+              value: <PROACTIVE_PASSWORD>
             - name: DB_USERNAME
               value: root
             - name: DB_PORT
