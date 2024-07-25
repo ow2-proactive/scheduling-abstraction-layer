@@ -30,7 +30,6 @@ docker-compose up
 
 
 ```
-> NOTE: Please change <SAL_REPO_HOME_DIR> and <DOCKER_SAL_DIR> for the correct ones. In a case SAL is built in Windows use ./Dockerfile.win instead ./Dockerfile 
+> NOTE: Please change `<SAL_REPO_HOME_DIR>` and `<DOCKER_SAL_DIR>` to the correct ones. In case SAL is built on Windows, use `./Dockerfile.win` instead of `./Dockerfile`.
 
-
-Each time the code is modified in <SAL_REPO_HOME_DIR>, you can  run this script and it will automatically launch new container with the changes included.
+Each time the code is modified in `<SAL_REPO_HOME_DIR>`, you can run this script and it will automatically launch a new container with the changes included.
