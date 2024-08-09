@@ -25,63 +25,70 @@ For more details about these filters you can check the SAL code [NodeCandidateUt
 
 ```json
 [
-    //asking for IASS node type
-    {
-      "type": "NodeTypeRequirement",
-      "nodeTypes": ["IAAS"]
-    },
-    //asking for nodes from specific cloud
-    {
-      "type": "AttributeRequirement",
-      "requirementClass": "cloud",
-      "requirementAttribute": "id",
-      "requirementOperator": "EQ",
-      "value": "{{cloud_name}}"
-    },
-    //asking for UBUNTU operating system
-    {
-      "type": "AttributeRequirement",
-      "requirementClass": "image",
-      "requirementAttribute": "operatingSystem.family",
-      "requirementOperator": "IN",
-      "value": "UBUNTU"
-    },
-    //asking for 22 version of OS
-    {
-      "type": "AttributeRequirement",
-      "requirementClass": "image",
-      "requirementAttribute": "name",
-      "requirementOperator": "INC",
-      "value": "22"
-    },
-    //asking for specific region
-    {
-      "type": "AttributeRequirement",
-      "requirementClass": "location",
-      "requirementAttribute": "name",
-      "requirementOperator": "EQ",
-      "value": "bgo"
-    },
-    //asking for 8GB RAM
-    {
-      "type": "AttributeRequirement",
-      "requirementClass": "hardware",
-      "requirementAttribute": "ram",
-      "requirementOperator": "EQ",
-      "value": "8192"
-    },
-    //asking for 4 cores
-    {
-      "type": "AttributeRequirement",
-      "requirementClass": "hardware",
-      "requirementAttribute": "cores",
-      "requirementOperator": "EQ",
-      "value": "4"
-    }
-    
+  // asking for IASS node type
+  {
+    "type": "NodeTypeRequirement",
+    "nodeTypes": ["IAAS"]
+  },
+  // asking for nodes from specific cloud
+  {
+    "type": "AttributeRequirement",
+    "requirementClass": "cloud",
+    "requirementAttribute": "id",
+    "requirementOperator": "EQ",
+    "value": "{{cloud_name}}"
+  },
+  // asking for UBUNTU operating system
+  {
+    "type": "AttributeRequirement",
+    "requirementClass": "image",
+    "requirementAttribute": "operatingSystem.family",
+    "requirementOperator": "IN",
+    "value": "UBUNTU"
+  },
+  // asking for 22 version of OS
+  {
+    "type": "AttributeRequirement",
+    "requirementClass": "image",
+    "requirementAttribute": "name",
+    "requirementOperator": "INC",
+    "value": "22"
+  },
+  // asking for specific region
+  {
+    "type": "AttributeRequirement",
+    "requirementClass": "location",
+    "requirementAttribute": "name",
+    "requirementOperator": "EQ",
+    "value": "bgo"
+  },
+  // asking for 8GB RAM
+  {
+    "type": "AttributeRequirement",
+    "requirementClass": "hardware",
+    "requirementAttribute": "ram",
+    "requirementOperator": "EQ",
+    "value": "8192"
+  },
+  // asking for 4 cores
+  {
+    "type": "AttributeRequirement",
+    "requirementClass": "hardware",
+    "requirementAttribute": "cores",
+    "requirementOperator": "EQ",
+    "value": "4"
+  },
+  // asking specific hardware name
+  {
+    "type": "AttributeRequirement",
+    "requirementClass": "hardware",
+    "requirementAttribute": "name",
+    "requirementOperator": "EQ",
+    "value": "c5.xlarge"
+  }
 ]
 ```
-
+"Note: This JSON requirement is provided as an example. Please construct your own set of requirements tailored to your specific use case."
 **Returns**: A JSON list of Node Candidates.
 
 #### 7.2- getLengthOfNodeCandidates endpoint:
