@@ -4,14 +4,14 @@
 
 *   For the `NodeTypeRequirement` we verify that the node candidate is the type desired. These types are: `IAAS`, `PAAS`, `FAAS`, `BYON`, `EDGE`, `SIMULATION`
 *   For the `AttributeRequirement` they are catagorized in the following classes:
-    *   `hardware`: In this class we can filter based on the `ram`, `cores`, `disk`, `fpga`.
+    *   `hardware`: In this class we can filter based on the `ram`, `cores`, `disk`, `fpga`, `name`
     *   `location`: In this class we can filter based on the `geoLocation.country`
     *   `image`: In this class we can filter based on the `name`, `operatingSystem.family` , `operatingSystem.version`
     *   `cloud`: In this class we can filter based on the `type`. A cloud type can be `PRIVATE`, `PUBLIC`, `BYON`, `EDGE`
     *   `environment`: In this class we can filter based on the `runtime`. The possible runtimes are `nodejs`, `python`, `java`, `dotnet`, `go`
     *   `name`: In this class we can filter based on the `placementName`. This is used for BYON and EDGE nodes where we can select a specific node to handle a certain component.
 
-For more details about these filters you can check the SAL code [NodeCandidateUtils class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-service/src/main/java/org/ow2/proactive/sal/service/nc/NodeCandidateUtils.java) To check the Node types: [NodeTypeRequirement class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/NodeTypeRequirement.java) and [NodeType enum](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/NodeType.java) To check the Cloud types: [CloudType enum](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/CloudType.java) to check the requirment operators: [RequirementOperator enum](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/RequirementOperator.java)
+For more details about these filters you can check the SAL code [NodeCandidateUtils class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-service/src/main/java/org/ow2/proactive/sal/service/nc/NodeCandidateUtils.java) To check the Node types: [NodeTypeRequirement class](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/NodeTypeRequirement.java) and [NodeType enum](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/NodeType.java) To check the Cloud types: [CloudType enum](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/CloudType.java) to check the requirement operators: [RequirementOperator enum](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/RequirementOperator.java)
 
 **Path**:
 
@@ -25,24 +25,60 @@ For more details about these filters you can check the SAL code [NodeCandidateUt
 
 ```json
 [
+    //asking for IASS node type
     {
-        "type": "NodeTypeRequirement",
-        "nodeTypes": ["IAAS"]
+      "type": "NodeTypeRequirement",
+      "nodeTypes": ["IAAS"]
     },
+    //asking for nodes from specific cloud
     {
-        "type": "AttributeRequirement",
-        "requirementClass": "hardware",
-        "requirementAttribute": "cores",
-        "requirementOperator": "EQ",
-        "value": "2"
+      "type": "AttributeRequirement",
+      "requirementClass": "cloud",
+      "requirementAttribute": "id",
+      "requirementOperator": "EQ",
+      "value": "{{cloud_name}}"
     },
-        {
-        "type": "AttributeRequirement",
-        "requirementClass": "hardware",
-        "requirementAttribute": "ram",
-        "requirementOperator": "EQ",
-        "value": "4096" \\ in mb
+    //asking for UBUNTU operating system
+    {
+      "type": "AttributeRequirement",
+      "requirementClass": "image",
+      "requirementAttribute": "operatingSystem.family",
+      "requirementOperator": "IN",
+      "value": "UBUNTU"
+    },
+    //asking for 22 version of OS
+    {
+      "type": "AttributeRequirement",
+      "requirementClass": "image",
+      "requirementAttribute": "name",
+      "requirementOperator": "INC",
+      "value": "22"
+    },
+    //asking for specific region
+    {
+      "type": "AttributeRequirement",
+      "requirementClass": "location",
+      "requirementAttribute": "name",
+      "requirementOperator": "EQ",
+      "value": "bgo"
+    },
+    //asking for 8GB RAM
+    {
+      "type": "AttributeRequirement",
+      "requirementClass": "hardware",
+      "requirementAttribute": "ram",
+      "requirementOperator": "EQ",
+      "value": "8192"
+    },
+    //asking for 4 cores
+    {
+      "type": "AttributeRequirement",
+      "requirementClass": "hardware",
+      "requirementAttribute": "cores",
+      "requirementOperator": "EQ",
+      "value": "4"
     }
+    
 ]
 ```
 
