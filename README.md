@@ -11,86 +11,230 @@ Scheduling Abstraction Layer (SAL) is an abstraction layer initially developed a
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Configuration](#configuration)
 - [Endpoints](#endpoints)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Introduction
+## 1. Introduction
 
 SAL is a project initially developed under the Morphemic project, part of the EU's Horizon 2020 initiative. Its development continued through the Nebulous EU project, part of Horizon Europe inititative. It offers an abstraction layer on top of the ProActive Scheduler & Resource Manager, making it easier for users to interact with the scheduler and take advantage of its features. Seamlessly supporting REST calls and direct communication with the Proactive API, SAL empowers users to harness the scheduler's capabilities. Whether you want to use SAL as a microservice or deploy it as a Docker container, this repository provides the necessary resources to get you started.
 
-## Installation
+## 2. Installation
 
-SAL can be used either as a standalone microservice or as a Docker container. Choose the approach that best suits your requirements.
+SAL can be deployed in several ways: as a standalone microservice, within a Docker container, or as a Kubernetes pod. Below are the detailed instructions for each deployment method.
 
-### As Microservice
+### 2.1. Deploying SAL as a Standalone Microservice
+For this deployment approach SAL runs directly on the host system using a Java runtime environment. 
+It is managed manually, meaning that you control the environment, dependencies, and configurations.
+However, it is limited to the capabilities of the host system; scaling requires manual setup of additional instances.
+ Relies on the host’s network settings, with manual setup for external access and load balancing.
+Suitable for development, small-scale deployments, or when direct control over the runtime environment is needed.
+
+#### 2.1.1. Build and Run the Microservice
 
 To use SAL as a microservice, follow these steps:
 
-1. Clone the repository:
+1. Clone the SAL repository:
 
 ```bash
+** pull the SAL project
 git clone https://github.com/ow2-proactive/scheduling-abstraction-layer.git
+
+** go to your SAL folder
 cd scheduling-abstraction-layer
 ```
 
 2. Build the microservice:
 
 ```bash
-./gradlew clean build
+** build the project using Gradle
+./gradlew spotlessApply clean build --refresh-dependencies -x test
+```
+The generated `.war` file will be located at: `scheduling-abstraction-layer/sal-service/build/libs/scheduling-abstraction-layer-xxx.war`.
+
+3. Run the Microservice:
+```bash
+./gradlew bootRun
+```
+This command starts SAL as microservice on default port `8080` on your host.
+
+#### 2.1.2. Client Library
+
+The `sal-common` Java library provides class definitions for SAL concepts.  It can be added to gradle projects by adding the following into `build.gradle`:
+
+```groovy
+repositories {
+
+    maven {
+        url 'http://repository.activeeon.com/content/groups/proactive/'
+        allowInsecureProtocol = true
+    }
+}
+dependencies {
+    // SAL client library
+    implementation 'org.ow2.proactive:sal-common:13.1.0-SNAPSHOT'
+}
 ```
 
-### As Docker Container
+### 2.2. Deploying SAL as a Docker Container
+In this deployment approach, SAL runs inside a Docker container, providing a consistent environment across different systems. Management is handled via Docker commands or Docker Compose, with containerization isolating the application and its dependencies. While SAL can scale across multiple containers on the same machine, scalability is limited to a single-node setup unless additional tools are utilized. Docker manages networking, though more complex configurations may require manual setup. This method is ideal for consistent deployment across various environments, easier distribution, and meeting basic scalability needs.
 
-To use SAL as a Docker container, pull the public Docker image from DockerHub:
+SAL can be deployed as a Docker container either by using a pre-built image or by building your own image.
+
+
+#### 2.2.1. Using Pre-Built SAL Docker Images
+
+You can pull the latest or a specific version of the SAL Docker image from remote Docker repository [DockerHub](https://hub.docker.com/r/activeeon/sal/tags):
+- `activeeon/sal:dev`: The latest daily release of SAL.
+- `activeeon/sal:dev-YYYY-MM-DD`: A specific version of SAL released on a particular date. Replace YYYY-MM-DD with the desired date to pull that specific version.
+
+To pull an image:
 
 ```bash
-docker pull activeeon/sal
+docker pull activeeon/sal:dev
+```
+
+#### 2.2.2. Creating a Custom SAL Docker Image:
+
+To create your own Docker image for SAL:
+
+1. Clone the Docker repository:
+
+```bash
+git clone https://github.com/ow2-proactive/docker
+```
+
+2. Copy the built `.war` file:
+
+Copy the `scheduling-abstraction-layer/sal-service/build/libs/scheduling-abstraction-layer-xxx.war` file generated in section 2.1.1  to the `docker/sal/artefacts` directory.
+
+3. Build the Docker image:
+
+Navigate to the `docker/sal` directory and build the image:
+```bash
+cd docker/sal
+docker build -t activeeon/sal:test -f ./Dockerfile --no-cache .
+```
+
+4. Publish the Docker image:
+
+```bash
+docker push activeeon/sal:test
+```
+
+#### 2.2.3. Run SAL as Docker Container:
+
+**Prerequisites:** Docker installed on your machine.
+
+1. Edit the Docker Compose File:
+
+* Open [docker-compose.yaml](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/docker/docker-compose.yaml)
+
+* Setup connection to the ProActive scheduler
+
+```bash
+sal:
+      #Set up connection to ProActive server (PWS)
+      PWS_URL: <CHANGE_ME>
+      PWS_USERNAME: <CHANGE_ME>
+      PWS_PASSWORD: <CHANGE_ME>
+```
+
+* Setup which SAL image will be used:
+
+```bash
+sal:
+#Set up image to be used for SAL from https://hub.docker.com/r/activeeon/sal/tags
+image: activeeon/sal:test
+```
+NOTE: It is possible to generate automatically image from `.war` file generated in section 2.1.1. In this case the image tag (e.g. test) should not exist in DockerHub repository.
+
+* Setup SAL ports:
+```bash
+sal:
+    ports:
+      - "8088:8080" # sal service ports
+      - "9001:9001" # sal-pda service ports for debugging
+```
+
+2. Build and Start the Containers:
+
+Open a terminal and navigate to the directory containing your docker-compose.yaml (e.g. docker) file to start docker containers:
+```bash
+cd .\docker\
+docker-compose up --build
+```
+NOTE: Make sure that previous containers are removed (Step 4)
+3. Verify Deployment
+
+Check the status of the containers
+
+```bash
+docker-compose ps
+```
+
+4. Stop and Remove Containers
+
+```bash
+docker-compose down
+```
+
+### 2.3. Deploying SAL as a Kubernetes Pod
+
+In this deployment approach, SAL is deployed as a pod within a Kubernetes cluster, which offers advanced orchestration and management features. 
+Kubernetes automatically handles deployment, scaling, and operations across a cluster of nodes, providing native support for horizontal scaling, automatic load balancing, and self-healing capabilities. The robust networking solutions provided by Kubernetes include service discovery, Ingress controllers, and built-in load balancing. This method is ideal for large-scale, production environments where high availability, scalability, and complex orchestration are required.
+
+To deploy SAL on Kubernetes, it is to use or create a Docker image as described in section 2.2. from remote Docker repository [DockerHub](https://hub.docker.com/r/activeeon/sal/tags). You can then deploy this image as a Kubernetes pod.
+
+**Prerequisites:** Kubernetes cluster (local or cloud-based) and kubectl CLI installed and configured.
+
+1. Edit Kubernetes Deployment and Service Manifests:
+
+Edit [sal.yaml](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/deployment/sal.yaml) 
+Setup ProActive connection, SAL image and ports as described in 2.2.3. Step 1
+
+NOTE: Update `/path/to/scripts` to the path where your scripts are located on the host machine.
+
+2. Deploy to Kubernetes:
+
+Apply the deployment and service manifests to your Kubernetes cluster:
+
+```bash
+kubectl apply -f sal.yaml
+```
+
+3. Verify Deployment:
+
+* Check the status of the pods:
+```bash
+kubectl get pods
+```
+
+* Check the status of the services:
+```bash
+kubectl get services
+```
+
+* Access SAL using the service's external IP or via a port-forward:
+```bash
+kubectl port-forward service/sal-service 8080:8080
+```
+
+4. Clean Up:
+
+To delete the deployment and service:
+```bash
+kubectl delete -f sal.yaml
 ```
 
 ## Usage
 
-### Using SAL as a Microservice
 
-To run SAL as a microservice, execute the following command:
-
-```bash
-./gradlew bootRun
-```
-
-This will start the microservice allowing you to interact with it through various endpoints.
-
-### Using SAL as a Docker Container
-
-To deploy SAL as a Docker container, run the following command:
-
-```bash
-docker run -p 8080:8080 activeeon/sal
-```
-
-This will start the SAL service within a Docker container, and it will be accessible on port 8080.
-
-## Configuration
-
-Before using SAL, you need to configure the ProActive Server it will connect to. Use the following endpoints for configuration:
-
-- To initialize the ProActive Server, use the init endpoint:
-
-```
-{protocol}://{host}:{port}/sal/pagateway/init
-```
-
-- To connect to the ProActive Server, use the connect endpoint:
-
-```
-{protocol}://{host}:{port}/sal/pagateway/connect
-```
 
 ## Endpoints
 
 [//]: #TODO (javadoc link to be added)
-SAL provides multiple endpoints that you can use to interact with the ProActive Scheduler & Resource Manager. For detailed information on each endpoint, please refer to the project's [Javadoc](https://link-to-javadoc).
+SAL provides multiple endpoints which serves as interfaces that you can use to interact with the ProActive Scheduler & Resource Manager. For detailed information on each endpoint, please go [here](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/documentation/README.md).
 
 ## Contributing
 
@@ -99,7 +243,7 @@ Contributions to SAL are welcome! If you have any bug fixes, improvements, or ne
 ## License
 
 Scheduling Abstraction Layer (SAL) is distributed under the [MIT License](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE). Please see the [LICENSE](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE) file for more information.
-
+Note that to use SAL it is necessary to have licence for [ProActive Scheduler & Resource Manager](https://proactive.activeeon.com/).
 ---
 
 Thank you for using Scheduling Abstraction Layer (SAL)! If you encounter any issues or have questions, please feel free to open an issue in the repository. We hope SAL enhances your experience with ProActive Scheduler & Resource Manager!
