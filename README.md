@@ -229,7 +229,7 @@ kubectl delete -f sal.yaml
 ## 3. Usage
 Once SAL is deployed, you can interact with it via its REST API, monitor its operation, and view logs to ensure everything is functioning correctly. Here’s how to use SAL effectively.
 
-### 3.1. Accessing SAL REST Endpoints
+### 3.1. Using SAL REST Endpoints
 SAL exposes several REST API endpoints which serves as interfaces that you can use to interact with the ProActive Scheduler & Resource Manager. For detailed information on each endpoint, please go [here](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/documentation/README.md).
 
 To showcase usage [Connect](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/documentation/1-connection-endpoints.md#11--connect-endpoint) endpoint will use, which should have SAL protocol, host, port and ProActive  username and password set as it was done in deployment `.yaml` files.
@@ -240,7 +240,7 @@ Below are the instructions for connecting to and disconnecting from the ProActiv
 
 Download and install [Postman](https://www.postman.com/) if you haven’t already.
 
-* Set Up Request: 
+* Set Up Request:
   * URL: `http://localhost:8080/sal/pagateway/connect`
   * Method: POST
   * Headers: None
@@ -268,9 +268,9 @@ curl -X POST "http://localhost:8080/sal/pagateway/connect" \
 ```
 * Replay: A text format reply containing the session ID.
 
-### 3.2. Checking SAL logs
+### 3.2. View SAL logs
 
-#### 3.2.1 View Logs for SAL Docker Container
+#### 3.2.1 View Logs for SAL deployed as Docker Container
 When SAL is deployed as a Docker Container like in section 2.2, you can view its logs using Docker commands.
 
 * Launch your command line interface (CLI).
@@ -291,7 +291,7 @@ docker logs myComposeMariaDB
 * View detail SAL Logs inside container:
 ```bash
 docker exec -it myComposeSAL /bin/bash #To enter the SAL container’s shell
-cd logs 
+cd logs
 cat scheduling-abstraction-layer.log #View detail logs
 ```
 * Query SAL Database i.e. MariaDB:
@@ -303,7 +303,7 @@ mariadb -uroot -p<password> proactive
 ```
 
 
-#### 3.2.1 View Logs for SAL Pod
+#### 3.2.1 View Logs for SAL deployed as Kubernetes Pod
 When SAL is deployed as a Kubernetes pod, you can access the logs using `kubectl` commands.
 * Get the name of the SAL pod
 ```bash
@@ -312,12 +312,12 @@ kubectl get po -o wide
 * View SAL general Logs:
 ```bash
 # Replace <namespace> with the appropriate namespace and <pod-name> with the actual pod name obtained in previous step
-kubectl -n <namespace> logs <pod-name> sal 
+kubectl -n <namespace> logs <pod-name> sal
 ```
 * View detail SAL Logs inside container:
 ```bash
 kubectl exec -it <pod-name> -c sal -- /bin/bash #To enter the SAL container’s shell
-cd logs 
+cd logs
 cat scheduling-abstraction-layer.log
 ```
 
@@ -326,6 +326,195 @@ cat scheduling-abstraction-layer.log
 kubectl exec -it <pod-name> -c mariadb -- mariadb -uroot -p<password> proactive
 #Replace <password> with the appropriate MariaDB root password.
 ```
+### 3.3. Restarting SAL Service
+
+Restarting the SAL service can be necessary for applying configuration changes, recovering from issues, or for routine maintenance. Note that on the restart SAL logs and database will be erased. Below are the instructions for restarting SAL, both when deployed as a Docker container and as a Kubernetes pod.
+
+#### 3.3.1 Restarting SAL as a Docker Container
+
+If SAL is deployed as a Docker container using `docker-compose.yaml`, you can restart the service using the following methods:
+
+2. Restart a Specific Container:
+
+
+To restart just the SAL container without affecting other services (like MariaDB):
+```bash
+docker restart myComposeSAL
+```
+
+2. Restart All Services in Docker Compose:
+To restart all services defined in your docker-compose.yaml (including the database):
+
+```bash
+docker-compose restart
+```
+
+3. Rebuild and Restart SAL:
+If you need to apply changes to the Docker image or configuration:
+
+```bash
+docker-compose up --build -d
+```
+This command will rebuild the containers if necessary and restart them in detached mode.
+
+#### 3.3.2 Restarting SAL as a Kubernetes Pod
+
+When SAL is deployed as a Kubernetes pod, you can restart the service by following these methods:
+
+1. Rolling Restart (Preferred Method):
+Kubernetes allows for a rolling restart, which updates the pods one by one without downtime:
+
+```bash
+kubectl rollout restart deployment/sal-deployment
+#Replace sal-deployment with the actual name of your SAL deployment.
+```
+
+2. Manual Pod Deletion:
+Alternatively, you can delete the existing pod(s) manually, and Kubernetes will automatically recreate them:
+
+
+```bash
+kubectl get pods
+# Copy sal pod name:
+kubectl delete pod <sal-pod-name>
+```
+
+Kubernetes will automatically recreate the pod using the existing deployment configuration.
+
+3. Scaling the Deployment to Zero and Back:
+Another method to restart SAL in Kubernetes is by scaling the deployment down to zero replicas and then scaling it back up to the desired number of replicas. This effectively stops and restarts the pods:
+
+```bash
+kubectl get deployment
+# Replace <namespace> with the appropriate namespace (e.g., nebulous-cd) and <sal-deployment-name> with your SAL deployment name.
+kubectl scale -n <namespace> --replicas=0 deploy/<sal-deployment-name>
+kubectl scale -n <namespace> --replicas=1 deploy/<sal-deployment-name>
+```
+### 3.4. Checking SAL Deployment
+Below are steps for checking a SAL deployment, including checking image versions, container status, and overall health, for both Docker Compose and Kubernetes deployments.
+
+#### 3.4. Checking SAL Deployment in Docker Compose
+1. Check Running Containers:
+
+Ensure all services defined in your `docker-compose.yaml` file are running:
+```bash
+docker-compose ps
+```
+This command shows the status of each container, including whether they are up and running.
+
+2. Check Image Versions:
+
+Verify that the correct images and versions are used for each service:
+
+```bash
+docker inspect <container_name_or_id> | grep Image
+# Replace <container_name_or_id> with the container's name or ID (e.g., myComposeSAL, myComposeMariaDB).
+```
+This will display the images used by each container.
+
+
+4. Check Health of Containers:
+
+If a health check is defined in the `docker-compose.yaml` (as in the MariaDB service):
+
+```bash
+docker inspect --format='{{json .State.Health.Status}}' <container_name_or_id>
+```
+This will show if the container is healthy, unhealthy, or starting.
+
+#### 3.4.2 Checking SAL Deployment in Kubernetes
+For Kubernetes, more advanced checks are available due to the nature of Kubernetes as an orchestrator.
+
+1. Check Running Pods:
+
+List all running pods and their statuses in the relevant namespace:
+
+```bash
+kubectl get pods -n <namespace>
+# Replace <namespace> with the appropriate namespace
+```
+This command will show if the pods are running, pending, or in error.
+
+2. Check Deployment Details:
+
+Verify that the correct images are being used in your deployment:
+
+```bash
+kubectl get deploy -n <namespace> <deployment_name> -o yaml | grep image
+```
+This command extracts the image versions specified in the deployment YAML.
+
+
+3. Check Pod Health and Status:
+
+Check the status and details of the running pods:
+
+```bash
+kubectl describe pod -n <namespace> <pod_name>
+```
+This provides a detailed description of the pod’s state, including events, container statuses, and any errors.
+
+4. Check Service Endpoints:
+
+Ensure that the SAL services are correctly exposed and accessible:
+
+```bash
+kubectl get svc -n <namespace>
+```
+
+This command lists all services in the namespace, showing their external IPs, ports, and status.
+
+5. Check Resource Utilization:
+
+Monitor resource usage to ensure the deployment is operating within expected parameters:
+
+```bash
+kubectl top pods -n <namespace>
+```
+
+This shows CPU and memory usage, helping you identify any resource constraints or anomalies.
+
+### 3.5. Debugging SAL
+
+1. Ensure that SAL is running
+
+SAL need to be deployed and prepared for usage as described in section 2.
+
+* **SAL in Docker:**
+
+The `docker-compose.yaml` file includes a debugging service for SAL, exposing port 9001 by default (see section 2.2). This port is typically configured for remote debugging using the Java Debug Wire Protocol (JDWP) so it is sufficient that SAL container is running.
+
+* **SAL as Kubernetes Pod:**
+
+The `sal.yaml` file for Kubernetes also includes configuration for the debugging service, exposing port 9001 by default (see section 2.3). To use debugging service To access the debugging port on your local machine, set up port forwarding from your Kubernetes pod to your local machine:
+```bash
+kubectl port-forward deployment/sal 9001:9001
+#In case the SAL is not deployed as sal, replace it with the actual name of your SAL deployment.
+```
+Another approach is to use sal-pda service which is deployed by default using `sal.yaml`:
+```bash
+kubectl get services
+#Use the actual name of sal-pda-service and ports with ports as defined in deployment script
+kubectl port-forward service/sal-pda-service 9001:9001
+```
+
+2. Configure Your IDE for Remote Debugging:
+
+In IntelliJ IDEA:
+* Go to Run > Edit Configurations.
+* Click the + button and select Remote JVM Debug.
+* Set the Host to `localhost` and the Port to `9001` or the one which is used for SAL deployment. In a case there is problem localhost can be replaced with your IP address.
+* Set the Debugger mode to Attach to remote JVM.
+* Click Apply and then OK
+
+3. Start Debugging:
+
+With your IDE configured, you can now start a debugging session.The following message should show:
+```bash
+Connected to the target VM, address: 'localhost:9001', transport: 'socket'
+```
+Use SAL endpoints as described in section 3.1. and set breakpoints in your code. As the SAL service executes, your IDE will stop at these breakpoints, allowing you to inspect variables, step through code, and diagnose issues.
+During debugging is advised to check SAL logs as described in section 3.2.
 
 ## 4. Contributing
 
