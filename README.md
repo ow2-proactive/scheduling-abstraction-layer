@@ -8,11 +8,11 @@ Scheduling Abstraction Layer (SAL) is an abstraction layer initially developed a
 
 ## Table of Contents
 
-- [1. Introduction](#introduction)
-- [2. Installation](#installation)
-- [3. Usage](#usage)
-- [4. Contributing](#contributing)
-- [5. License](#license)s
+- [1. Introduction](#1-introduction)
+- [2. Installation](#2-installation)
+- [3. Usage](#3-usage)
+- [4. Contributing](#4-contributing)
+- [5. License](#5-license)
 
 ## 1. Introduction
 
