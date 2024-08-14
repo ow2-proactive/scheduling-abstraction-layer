@@ -1,38 +1,35 @@
 services:
   database:
-    image: mariadb:latest #optionaly set specific version e.g. mariadb:10.7
-    #image: mariadb:10.7
+    image: mariadb #optionaly set specific version e.g. mariadb:10.7
     ports:
       - "3307:3306"
     networks:
       - db-tier
     environment:
-      #  MYSQL_ROOT_PASSWORD: PASSWORD
-      MYSQL_ROOT_PASSWORD: activeeon
+      MYSQL_ROOT_PASSWORD: PASSWORD
       MYSQL_DATABASE: proactive
     container_name: myComposeMariaDB
     healthcheck:
-      test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=activeeon" ]
+      test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=PASSWORD" ]
       interval: 5s
       timeout: 5s
       retries: 5
   sal:
     #Set up image to be used for SAL from https://hub.docker.com/r/activeeon/sal/tags
-    #image: activeeon/sal:release1
-    #image: activeeon/sal:test
-    #image: activeeon/sal:dev
-    image: activeeon/sal:dev-2024-08-12
+    image: activeeon/sal:test
     build:
       context: ..
       #Set up Dockerfile to be used:
       #Dockerfile is used for Jenkins image creation
       #Dockerfile.win to be used for local build on Windows
-      dockerfile: ./docker/Dockerfile.win
+      dockerfile: ./docker/Dockerfile
     depends_on:
       database:
         condition: service_healthy
     ports:
+      #Port for sal service
       - "8088:8080"
+      #Port for sal-pda debugging service
       - "9001:9001"
     links:
       - "database:myComposeMariaDB"
@@ -43,28 +40,11 @@ services:
     environment:
       PROPERTIES_FILENAME: sal
       #Set up connection to ProActive server (PWS)
-      #PWS_URL: <CHANGE_ME>
-      #PWS_USERNAME: <CHANGE_ME>
-      #PWS_PASSWORD: <CHANGE_ME>
-
-      #---- trydev ------
-      #PWS_URL: https://trydev2.activeeon.com:8443/
-      #PWS_USERNAME: barisic
-      #PWS_PASSWORD: ProActive123
-
-      #---- NREC ------
-      PWS_URL: http://158.39.77.68:8880/
-      PWS_USERNAME: cd
-      PWS_PASSWORD: 5rf0A@sj01=
-
-      #----LOCAL------
-      #PWS_URL: http://192.168.56.1:8080/
-      #PWS_USERNAME: admin
-      #PWS_PASSWORD: admin
-
+      PWS_URL: <CHANGE_ME>
+      PWS_USERNAME: <CHANGE_ME>
+      PWS_PASSWORD: <CHANGE_ME>
       DB_USERNAME: root
-      #DB_PASSWORD: PASSWORD
-      DB_PASSWORD: activeeon
+      DB_PASSWORD: PASSWORD
       DB_DRIVER_CLASSNAME: org.mariadb.jdbc.Driver
       DB_PORT: 3306
       DB_HOSTNAME: myComposeMariaDB
