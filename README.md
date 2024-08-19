@@ -41,9 +41,10 @@ cd scheduling-abstraction-layer
 2. Build the microservice:
 
 ```bash
-# build the project using Gradle
-./gradlew spotlessApply clean build --refresh-dependencies 
-# use '-x test' in the end to skip the tests during the build
+# Apply Spotless code formatting, clean the project, and build using Gradle
+./gradlew spotlessApply clean build --refresh-dependencies
+
+# Use the '-x test' flag at the end to skip running tests during the build process
 ```
 The generated `.war` file will be located at: `scheduling-abstraction-layer/sal-service/build/libs/scheduling-abstraction-layer-xxx.war`.
 
