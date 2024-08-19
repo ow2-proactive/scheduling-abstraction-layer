@@ -31,19 +31,19 @@ To use SAL as a microservice, follow these steps:
 1. Clone the SAL repository:
 
 ```bash
-** pull the SAL project
+# pull the SAL project
 git clone https://github.com/ow2-proactive/scheduling-abstraction-layer.git
 
-** go to your SAL folder
+# go to your SAL folder
 cd scheduling-abstraction-layer
 ```
 
 2. Build the microservice:
 
 ```bash
-** build the project using Gradle
-./gradlew spotlessApply clean build --refresh-dependencies
-** use '-x test' in the end to skip the tests during the build
+# build the project using Gradle
+./gradlew spotlessApply clean build --refresh-dependencies 
+# use '-x test' in the end to skip the tests during the build
 ```
 The generated `.war` file will be located at: `scheduling-abstraction-layer/sal-service/build/libs/scheduling-abstraction-layer-xxx.war`.
 
