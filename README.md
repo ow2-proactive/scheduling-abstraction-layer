@@ -23,12 +23,7 @@ SAL is a project initially developed under the Morphemic project, part of the EU
 SAL can be deployed in several ways: as a standalone microservice, within a Docker container, or as a Kubernetes pod. Below are the detailed instructions for each deployment method.
 
 ### 2.1. Deploying SAL as a Standalone Microservice
-For this deployment approach SAL runs directly on the host system using a Java runtime environment.
-It is managed manually, meaning that you control the environment, dependencies, and configurations.
-However, it is limited to the capabilities of the host system; scaling requires manual setup of additional instances.
- Relies on the host’s network settings, with manual setup for external access and load balancing.
-Suitable for development, small-scale deployments, or when direct control over the runtime environment is needed.
-
+In this deployment approach, SAL runs directly on the host system using a Java runtime environment. Management is handled manually, meaning you control the environment, dependencies, and configurations. However, this method is limited by the capabilities of the host system, and scaling requires manually setting up additional instances. The deployment relies on the host's network settings, with external access and load balancing also requiring manual setup. This approach is suitable for development, small-scale deployments, or when direct control over the runtime environment is necessary.
 #### 2.1.1. Build and Run the Microservice
 
 To use SAL as a microservice, follow these steps:
@@ -47,7 +42,8 @@ cd scheduling-abstraction-layer
 
 ```bash
 ** build the project using Gradle
-./gradlew spotlessApply clean build --refresh-dependencies -x test
+./gradlew spotlessApply clean build --refresh-dependencies
+** use '-x test' in the end to skip the tests during the build
 ```
 The generated `.war` file will be located at: `scheduling-abstraction-layer/sal-service/build/libs/scheduling-abstraction-layer-xxx.war`.
 
@@ -146,7 +142,7 @@ sal:
 #Set up image to be used for SAL from https://hub.docker.com/r/activeeon/sal/tags
 image: activeeon/sal:test
 ```
-NOTE: It is possible to generate automatically image from `.war` file generated in section 2.1.1. In this case the image tag (e.g. test) should not exist in DockerHub repository.
+NOTE: It is possible to generate automatically an image from the `.war` file generated in section 2.1.1. In this case the image tag (e.g. test) should not exist in DockerHub repository.
 
 * Setup SAL ports:
 ```bash
