@@ -231,6 +231,13 @@ public class NodeService {
                     variables.put("os_region", deployment.getNode().getNodeCandidate().getLocation().getName());
                     variables.put("os_networkId", cloud.getDefaultNetwork());
                     break;
+                case "azure":
+                    filename = File.separator + "Define_NS_Azure.xml";
+                    variables.put("azure_username", cloud.getCredentials().getUserName());
+                    variables.put("azure_secret", cloud.getCredentials().getPrivateKey());
+                    variables.put("azure_domain", cloud.getCredentials().getDomain());
+                    variables.put("azure_subscription_id", cloud.getCredentials().getSubscriptionId());
+                    break;
                 default:
                     throw new IllegalArgumentException("Unhandled cloud provider: " + cloud.getCloudProviderName());
             }
