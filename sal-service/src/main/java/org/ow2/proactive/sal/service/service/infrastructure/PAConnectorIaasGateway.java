@@ -151,6 +151,14 @@ public class PAConnectorIaasGateway {
                                    cloud.getCredentials().getPrivateKey() + "\", \"domain\": \"" +
                                    cloud.getCredentials().getDomain() + "\"}, \"region\": \"" + region + "\"}";
                 break;
+            case "azure":
+                jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
+                                   cloud.getCloudProviderName() + "\"," + "\"credentials\": {\"username\": \"" +
+                                   cloud.getCredentials().getUserName() + "\", \"password\": \"" +
+                                   cloud.getCredentials().getPrivateKey() + "\", \"domain\": \"" +
+                                   cloud.getCredentials().getDomain() + "\", \"subscriptionId\": \"" +
+                                   cloud.getCredentials().getSubscriptionId() + "\"}}";
+                break;
             default:
                 throw new IllegalArgumentException("The infrastructure " + cloud.getCloudProviderName() +
                                                    " is not handled yet.");

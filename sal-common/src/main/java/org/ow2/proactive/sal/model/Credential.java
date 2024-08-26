@@ -50,4 +50,7 @@ public class Credential implements Serializable {
 
     @JsonProperty("domain")
     private String domain = null;
+
+    @JsonProperty("subscriptionId")
+    private String subscriptionId = null;
 }

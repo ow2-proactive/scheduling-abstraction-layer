@@ -393,6 +393,9 @@ public class NodeCandidateUtils {
                     case "openstack":
                         imageReq = os;
                         break;
+                    case "azure":
+                        imageReq = os;
+                        break;
                     default:
                         throw new IllegalArgumentException("The infrastructure " + paCloud.getCloudProviderName() +
                                                            " is not handled yet.");
