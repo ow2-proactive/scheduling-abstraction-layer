@@ -102,7 +102,7 @@ git clone https://github.com/ow2-proactive/docker
 
 2. Copy the built `.war` file:
 
-Copy the `.war` file generated in section 2.1.1  to the `docker/sal/artefacts` directory.
+Copy the `.war` file generated in  [Section 2.1.1](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#211-build-and-run-the-microservice)   to the `docker/sal/artefacts` directory.
 
 3. Build the Docker image:
 
@@ -126,7 +126,7 @@ docker push activeeon/sal:test
 
 * Open [docker-compose.yaml](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/docker/docker-compose.yaml)
 
-* Setup connection to the ProActive scheduler
+* Setup connection to the ProActive scheduler (line 43-45)
 
 ```bash
 sal:
@@ -136,7 +136,7 @@ sal:
       PWS_PASSWORD: <CHANGE_ME>
 ```
 
-* Setup which SAL image will be used:
+* Setup which SAL image will be used (line 19):
 
 ```bash
 sal:
@@ -145,17 +145,31 @@ image: activeeon/sal:test
 ```
 NOTE: It is possible to generate automatically an image from the `.war` file generated in section 2.1.1. In this case the image tag (e.g. test) should not exist in DockerHub repository.
 
-* Setup SAL ports:
+* Setup database PASSWORD (line 9 & 47):
+```bash
+environment:
+      MYSQL_ROOT_PASSWORD: PASSWORD
+```
+```bash
+      DB_USERNAME: root
+      DB_PASSWORD: PASSWORD
+```
+
+* Setup SAL ports (line 29-33):
 ```bash
 sal:
     ports:
       - "8088:8080" # sal service ports
       - "9001:9001" # sal-pda service ports for debugging
 ```
-
+* In a case you are running SAL on Windows change the Dockerfile to be used  (line 25):
+```bash
+dockerfile: ./docker/Dockerfile.win
+```
 2. Build and Start the Containers:
 
-Open a terminal and navigate to the directory containing your docker-compose.yaml (e.g. docker) file to start docker containers:
+Open a terminal and Build SAL as described in [Section 2.1.1](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#211-build-and-run-the-microservice) 
+Navigate to the directory containing your docker-compose.yaml (e.g. docker) file to start docker containers:
 ```bash
 cd .\docker\
 docker-compose up --build
@@ -238,7 +252,7 @@ Below are the instructions for connecting to and disconnecting from the ProActiv
 Download and install [Postman](https://www.postman.com/) if you haven’t already.
 
 * Set Up Request:
-  * URL: `http://localhost:8080/sal/pagateway/connect`
+  * URL: `http://localhost:8088/sal/pagateway/connect`
   * Method: POST
   * Headers: None
   * Body:
