@@ -90,35 +90,7 @@ To pull an image:
 docker pull activeeon/sal:dev
 ```
 
-#### 2.2.2. Creating a Custom SAL Docker Image:
-
-To create your own Docker image for SAL:
-
-1. Clone the Docker repository:
-
-```bash
-git clone https://github.com/ow2-proactive/docker
-```
-
-2. Copy the built `.war` file:
-
-Copy the `.war` file generated in  [Section 2.1.1](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#211-build-and-run-the-microservice)   to the `docker/sal/artefacts` directory.
-
-3. Build the Docker image:
-
-Navigate to the `docker/sal` directory and build the image:
-```bash
-cd docker/sal
-docker build -t activeeon/sal:test -f ./Dockerfile --no-cache .
-```
-
-4. Publish the Docker image:
-
-```bash
-docker push activeeon/sal:test
-```
-
-#### 2.2.3. Run SAL as Docker Container:
+#### 2.2.2. Run SAL as Docker Container:
 
 **Prerequisites:** Docker installed on your machine.
 
@@ -168,7 +140,7 @@ dockerfile: ./docker/Dockerfile.win
 ```
 2. Build and Start the Containers:
 
-Open a terminal and Build SAL as described in [Section 2.1.1](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#211-build-and-run-the-microservice) 
+Open a terminal and Build SAL as described in [Section 2.1.1](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#211-build-and-run-the-microservice)
 Navigate to the directory containing your docker-compose.yaml (e.g. docker) file to start docker containers:
 ```bash
 cd .\docker\
