@@ -15,18 +15,21 @@
 
 **Reply:** A text format reply of the session ID.
 
+_NOTE:_ session ID which is returned is used as Header for all other endpoints. 
+In a case that HTTP 500 error is returned with body saying that NonConnectedException occur, it means that connection to ProActive server was lost and is needed to call Connect endpoint again and use the new session ID. 
+
 #### 1.2- Disconnect endpoint:
 
 **Path:**
 
 ```url
-🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal
+🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/pagateway/disconnect
 ```
 
 **Headers:**
 
 *   sessionid
 
-**Body:**
+**Body:** None
 
-**Reply: None**
+**Reply:** None
