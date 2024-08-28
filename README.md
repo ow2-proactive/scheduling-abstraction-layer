@@ -117,7 +117,7 @@ image: activeeon/sal:test
 ```
 NOTE: It is possible to generate automatically an image from the `.war` file generated in section 2.1.1. In this case the image tag (e.g. test) should not exist in DockerHub repository.
 
-* Setup database PASSWORD (line 9 & 47):
+* Setup database PASSWORD (line 9, 13 & 47):
 ```bash
 environment:
       MYSQL_ROOT_PASSWORD: PASSWORD
@@ -125,6 +125,10 @@ environment:
 ```bash
       DB_USERNAME: root
       DB_PASSWORD: PASSWORD
+```
+```bash
+    healthcheck:
+      test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=PASSWORD" ]
 ```
 
 * Setup SAL ports (line 29-33):
@@ -166,14 +170,14 @@ docker-compose down
 In this deployment approach, SAL is deployed as a pod within a Kubernetes cluster, which offers advanced orchestration and management features.
 Kubernetes automatically handles deployment, scaling, and operations across a cluster of nodes, providing native support for horizontal scaling, automatic load balancing, and self-healing capabilities. The robust networking solutions provided by Kubernetes include service discovery, Ingress controllers, and built-in load balancing. This method is ideal for large-scale, production environments where high availability, scalability, and complex orchestration are required.
 
-To deploy SAL on Kubernetes, it is to use or create a Docker image as described in section 2.2. from remote Docker repository [DockerHub](https://hub.docker.com/r/activeeon/sal/tags). You can then deploy this image as a Kubernetes pod.
+To deploy SAL on Kubernetes, it is to use a Docker image as described in [Section 2.2.1](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#221-using-pre-built-sal-docker-images) from remote Docker repository [DockerHub](https://hub.docker.com/r/activeeon/sal/tags). You can then deploy this image as a Kubernetes pod.
 
 **Prerequisites:** Kubernetes cluster (local or cloud-based) and kubectl CLI installed and configured.
 
 1. Edit Kubernetes Deployment and Service Manifests:
 
 Edit [sal.yaml](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/deployment/sal.yaml)
-Setup ProActive connection, SAL image and ports as described in 2.2.3. Step 1
+Setup ProActive connection, SAL image and ports as described in Section 2.2.2. Step 1
 
 NOTE: Update `/path/to/scripts` to the path where your scripts are located on the host machine.
 
@@ -254,7 +258,7 @@ curl -X POST "http://localhost:8080/sal/pagateway/connect" \
 ### 3.2. View SAL logs
 
 #### 3.2.1 View Logs for SAL deployed as Docker Container
-When SAL is deployed as a Docker Container like in section 2.2, you can view its logs using Docker commands.
+When SAL is deployed as a Docker Container like in [Section 2.2](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#22-deploying-sal-as-a-docker-container), you can view its logs using Docker commands.
 
 * Launch your command line interface (CLI).
 * List Running Containers: To find the container name or ID, use:
@@ -461,15 +465,15 @@ This shows CPU and memory usage, helping you identify any resource constraints o
 
 1. Ensure that SAL is running
 
-SAL need to be deployed and prepared for usage as described in section 2.
+SAL need to be deployed and prepared for usage as described in [Section 2](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#2-installation).
 
 * **SAL in Docker:**
 
-The `docker-compose.yaml` file includes a debugging service for SAL, exposing port 9001 by default (see section 2.2). This port is typically configured for remote debugging using the Java Debug Wire Protocol (JDWP) so it is sufficient that SAL container is running.
+The `docker-compose.yaml` file includes a debugging service for SAL, exposing port 9001 by default (see [Section 2.2)](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#22-deploying-sal-as-a-docker-container). This port is typically configured for remote debugging using the Java Debug Wire Protocol (JDWP) so it is sufficient that SAL container is running.
 
 * **SAL as Kubernetes Pod:**
 
-The `sal.yaml` file for Kubernetes also includes configuration for the debugging service, exposing port 9001 by default (see section 2.3). To use debugging service To access the debugging port on your local machine, set up port forwarding from your Kubernetes pod to your local machine:
+The `sal.yaml` file for Kubernetes also includes configuration for the debugging service, exposing port 9001 by default (see [Section 2.3](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#23-deploying-sal-as-a-kubernetes-pod)). To use debugging service To access the debugging port on your local machine, set up port forwarding from your Kubernetes pod to your local machine:
 ```bash
 kubectl port-forward deployment/sal 9001:9001
 #In case the SAL is not deployed as sal, replace it with the actual name of your SAL deployment.
@@ -496,8 +500,8 @@ With your IDE configured, you can now start a debugging session.The following me
 ```bash
 Connected to the target VM, address: 'localhost:9001', transport: 'socket'
 ```
-Use SAL endpoints as described in section 3.1. and set breakpoints in your code. As the SAL service executes, your IDE will stop at these breakpoints, allowing you to inspect variables, step through code, and diagnose issues.
-During debugging is advised to check SAL logs as described in section 3.2.
+Use SAL endpoints as described in [Section 3.1.](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#31-using-sal-rest-endpoints) and set breakpoints in your code. As the SAL service executes, your IDE will stop at these breakpoints, allowing you to inspect variables, step through code, and diagnose issues.
+During debugging is advised to check SAL logs as described in [Section 3.2.](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#32-view-sal-logs)
 
 ## 4. Contributing
 
