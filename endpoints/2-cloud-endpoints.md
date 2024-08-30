@@ -1,6 +1,7 @@
 #### 2.1- AddCloud endpoint:
 
-**Description**: An endpoint to define a cloud to SAL, This will allow SAL to asyncrouniously retrieve the offers.
+**Description**: An endpoint to define a cloud infrastructure to SAL, This will allow SAL to asynchronously retrieve the offers (cloud images and node candidates) in the background.
+Note that cloud credentials are validated only during async process.
 
 **Path:**
 
@@ -10,72 +11,79 @@
 
 **Headers:** sessionid
 
-**Reply:** Error code, 0 if no Errors
-
 **Body:** Json input following this format:
-
-*   For AWS cloud:
-
-```json
-[
-    {
-        "cloudId": "<ID_SELECTED_BY_USER>",
-        "cloudProviderName": "aws-ec2",
-        "cloudType": "PUBLIC",
-        "securityGroup": null,
-        "subnet": null,
-        "sshCredentials": {
-            "username": null,
-            "keyPairName": "<AWS_KEYPAIR_NAME>",
-            "privateKey": null
-        },
-        "endpoint": null,
-        "scope": {
-            "prefix": null,
-            "value": null
-        },
-        "identityVersion": null,
-        "defaultNetwork": null,
-        "credentials": {
-            "user": "<AWS_USER>",
-            "secret": "<AWS_SECRET>",
-            "domain": null
-        },
-        "blacklist": null
-    }
-]
-```
 
 *   For OpenStack:
 
 ```json
 [
-{
-        "cloudId": "<ID_SELECTED_BY_USER>",
-        "cloudProviderName": "openstack",
-        "cloudType": "PRIVATE",
-        "securityGroup": null,
-        "subnet": null,
-        "endpoint": "<OS_AUTH_URL>",
-        "scope": {
-            "prefix": "project",
-            "value": "<OS_PROJECT_NAME>"
-        },
-        "identityVersion": "<OS_IDENTITY_API_VERSION>",
-        "defaultNetwork": null,
-        "credentials": {
-            "user": "<OS_USERNAME>",
-            "secret": "<OS_PASSWORD>",
-            "domain": "<OS_PROJECT_DOMAIN_NAME>"
-        },
-        "blacklist": null
-    }
+  {
+    "cloudId": "{{cloud_name}}",
+    "cloudProviderName": "openstack",
+    "cloudType": "PRIVATE",
+    "subnet": null,
+    "securityGroup": "{{os-securityGroup}}",
+    "sshCredentials": {
+      "username": "{{os-username}}",
+      "keyPairName": "{{os-keypair}}",
+      "privateKey": null
+    },
+    "endpoint": "{{os-auth_url}}",
+    "scope": {
+      "prefix": "project",
+      "value": "{{os-projectName}}"
+    },
+    "identityVersion": "{{os-identity-api-version}}",
+    "defaultNetwork": "{{os-defaultNetwork}}",
+    "credentials": {
+      "user": "{{os-user}}",
+      "secret": "{{os-secret}}",
+      "domain": "{{os-domain}}"
+    },
+    "blacklist": null
+  }
 ]
 ```
 
+
+*   For AWS cloud:
+
+```json
+[
+  {
+    "cloudId": "{{cloud_name}}",
+    "cloudProviderName": "aws-ec2",
+    "cloudType": "PUBLIC",
+    "subnet": null,
+    "securityGroup": "{{aws-securityGroup}}",
+    "sshCredentials": {
+      "username": "{{aws-username}}",
+      "keyPairName": "{{aws-keypair}}",
+      "privateKey": "{{aws-privatekey}}"
+    },
+
+    "endpoint": null,
+    "scope": {
+      "prefix": null,
+      "value": null
+    },
+    "identityVersion": null,
+    "defaultNetwork": null,
+    "credentials": {
+      "user": "{{aws-user}}",
+      "secret": "{{aws-secret}}",
+      "domain": null
+    },
+    "blacklist": null
+  }
+]
+```
+**Reply:** Error code, 0 if no Errors
+
+NOTE: To provide the RSA private key correctly for JSON, you'll need to include `\n` characters at the end of each line to indicate line breaks.
 #### 2.2- GetAllClouds endpoint:
 
-**Description**: An endpoint to get all the defined cloud to SAL.
+**Description**: An endpoint to get all the defined clouds in SAL.
 
 **Path:**
 
@@ -87,55 +95,73 @@
 
 **Body:** None
 
-#### 2.3- GetCloudImages endpoint:
+**Reply:** JSON output containing cloud definitions
 
-**Description**: An endpoint to get all the retrieved images for a specific cloud.
+#### 2.3- isAnyAsyncNodeCandidatesProcessesInProgress endpoint:
+**Description**: An endpoint to check if there is any asynchronous process ongoing to retrieve the cloud images or node candidates.
 
 **Path:**
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/images?<CLOUD_ID>
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/async
 ```
-
-**Path Variable:** the cloud ID.
 
 **Headers:** sessionid
 
 **Body:** None
 
-#### 2.4- GetCloudLocations endpoint:
+**Reply:**  Boolean, _True_ if there is async process ongoing and _False_ otherwise
 
-**Description**: An endpoint to get all the retrieved locations for a specific cloud.
+
+#### 2.4- GetCloudImages endpoint:
+
+**Description**: An endpoint to get all the retrieved images for all clouds or a specific cloud.
 
 **Path:**
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/location?<CLOUD_ID>
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/images
 ```
 
-**Path Variable:** the cloud ID.
+**Path Variable (optional):** cloudid = {{cloud_name}}
 
 **Headers:** sessionid
 
 **Body:** None
 
-#### 2.5- GetCloudHardwares endpoint:
+#### 2.5- GetCloudLocation endpoint:
 
-**Description**: An endpoint to get all the retrieved hardwares (vmTypes) for a specific cloud.
+**Description**: An endpoint to get all the retrieved locations (regions) for all clouds or a specific cloud.
 
 **Path:**
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/hardware?<CLOUD_ID>
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/location
 ```
 
-**Path Variable:** the cloud ID.
+**Path Variable (optional):** cloudid = {{cloud_name}} -> TBD: this is not implemented yet
 
 **Headers:** sessionid
 
 **Body:** None
 
-#### 2.6- RemoveClouds endpoint:
+#### 2.6- GetCloudHardware endpoint:
+
+**Description**: An endpoint to get all the retrieved hardware (vmTypes) for a specific cloud.
+
+**Path:**
+
+```url
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/hardware
+```
+
+**Path Variable (optional):** cloudid = {{cloud_name}} -> TBD: this is not implemented yet
+
+**Headers:** sessionid
+
+**Body:** None
+
+#### 2.7- RemoveClouds endpoint:
 
 **Description**: An endpoint to get all the remove a list of defined clouds.
 
@@ -151,7 +177,7 @@
 
 ```json
 [
-    "<CLOUD_ID>",
-    "<CLOUD_ID>"
+  "{{cloud_name}}",
+  "{{cloud_name2}}"
 ]
 ```

@@ -102,7 +102,7 @@ docker pull activeeon/sal:dev
 
 ```bash
 sal:
-      #Set up connection to ProActive server (PWS)
+      #Set up connection to ProActive server (PWS) by introducing the ip address of ProActive server with the port, as well as the access credential:
       PWS_URL: <CHANGE_ME>
       PWS_USERNAME: <CHANGE_ME>
       PWS_PASSWORD: <CHANGE_ME>
@@ -151,6 +151,10 @@ cd .\docker\
 docker-compose up --build
 ```
 NOTE: Make sure that previous containers are removed (Step 4)
+
+NOTE: Note that there will be some unresolved warning and errors during built of SAL, which do not have impact on its functionality.
+In principle when you see this line in build log the SAL containers should be up and running:
+_ERROR WebSocketTransport:231 - WebSocket Handshake Failed_
 3. Verify Deployment
 
 Check the status of the containers
@@ -234,8 +238,8 @@ Download and install [Postman](https://www.postman.com/) if you haven’t alread
   * Body:
 ```bash
 {
-"username": "Proactive server username",
-"password": "Proactive server password"
+"username": {{myLogin}},
+"password": {{myPassword}}
 }
 ```
 * Send Request: Click the "Send" button to execute the request and review the response.
