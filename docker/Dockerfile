@@ -2,9 +2,9 @@ FROM tomcat:9.0.68-jdk8-corretto-al2
 
 RUN rm -rf ${CATALINA_HOME}/webapps/*
 # NOTE: Switch between local or public builded SAL
-RUN curl -o /usr/local/tomcat/webapps/sal.war http://repository.activeeon.com/content/groups/proactive/org/ow2/proactive/scheduling-abstraction-layer/13.1.0-SNAPSHOT/scheduling-abstraction-layer-13.1.0-20221027.125525-9.war
+# RUN curl -o /usr/local/tomcat/webapps/sal.war http://repository.activeeon.com/content/groups/proactive/org/ow2/proactive/scheduling-abstraction-layer/13.1.0-SNAPSHOT/scheduling-abstraction-layer-13.1.0-20221027.125525-9.war
 COPY sal-service/build/libs/scheduling-abstraction-layer-*.war /usr/local/tomcat/webapps/sal.war
-
+COPY docker/scripts/* /usr/local/tomcat/scripts/
 ENV EXTERNAL_CONFIG_DIR=${CATALINA_HOME}/conf
 ENV PROPERTIES_FILENAME='sal'
 
@@ -26,7 +26,6 @@ ENV DB_DRIVER_CLASSNAME='org.mariadb.jdbc.Driver'
 ENV DB_URL='jdbc:mariadb://localhost:3306/proactive'
 ENV DB_PLATFORM='org.hibernate.dialect.MariaDB53Dialect'
 
-CMD ["catalina.sh", "jpda", "run"]
 RUN yum install -y nmap-ncat
 RUN chmod +x /usr/local/tomcat/bin/wait_for_db.sh
 CMD ["/bin/bash", "-c", "wait_for_db.sh && catalina.sh jpda run"]
