@@ -81,8 +81,8 @@ SAL can be deployed as a Docker container either by using a pre-built image or b
 #### 2.2.1. Using Pre-Built SAL Docker Images
 
 You can pull the latest or a specific version of the SAL Docker image from remote Docker repository [DockerHub](https://hub.docker.com/r/activeeon/sal/tags):
-- `activeeon/sal:dev`: The latest daily release of SAL.
-- `activeeon/sal:dev-YYYY-MM-DD`: A specific version of SAL released on a particular date. Replace YYYY-MM-DD with the desired date to pull that specific version.
+- `activeeon/sal:dev`: The latest daily release of SAL triggered by each ProActive nightly release jenkins build (http://jenkins2.activeeon.com/job/publish-sal-in-docker-image/).
+- `activeeon/sal:dev-YYYY-MM-DD`: A specific version of SAL released on a particular date triggered by each new commit to SAL (http://jenkins2.activeeon.com/job/build-and-publish-sal-in-docker-image/). Replace YYYY-MM-DD with the desired date to pull that specific version.
 
 To pull an image:
 
