@@ -1,4 +1,4 @@
-# Scheduling Abstraction Layer (SAL)
+# Scheduling Abstraction Layer  (SAL)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java 8](https://img.shields.io/badge/Java-8-blue.svg)](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html)
