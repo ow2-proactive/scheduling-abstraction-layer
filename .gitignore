@@ -207,5 +207,3 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
-# Not sending local changes of docker-compose file
-!/docker/docker-compose.yaml
