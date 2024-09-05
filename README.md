@@ -218,7 +218,7 @@ kubectl port-forward service/sal-service 8080:8080
 
 4. Clean Up:
 
-To delete the deployment and service: 
+To delete the deployment and service:
 ```bash
 kubectl delete -f sal.yaml
 ```
