@@ -1,5 +1,3 @@
-endpoints readme
-
 # Scheduling Abstraction Layer (SAL) Endpoints
 
 SAL provides multiple endpoints that you can use to interact with the ProActive Scheduler &amp; Resource Manager:

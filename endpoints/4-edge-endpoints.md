@@ -1,5 +1,3 @@
-edge doc
-
 #### 4.1- RegisterNewEdgeNode endpoint:
 
 **Description**: Register new Edge nodes passed as EdgeDefinition object
