@@ -141,6 +141,9 @@ public class NodeCandidateUtils {
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getFpga(),
                                                         Integer.valueOf(attributeRequirement.getValue()));
+                case "name":
+                    return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getHardware().getName(),
+                                                                                 attributeRequirement.getValue());
             }
         }
         if (attributeRequirement.getRequirementClass().equals("location")) {
