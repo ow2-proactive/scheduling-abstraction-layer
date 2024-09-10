@@ -1,4 +1,4 @@
-# Scheduling Abstraction Layer  (SAL)
+# Scheduling Abstraction Layer (SAL)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java 8](https://img.shields.io/badge/Java-8-blue.svg)](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html)
@@ -221,9 +221,9 @@ kubectl delete -f sal.yaml
 Once SAL is deployed, you can interact with it via its REST API, monitor its operation, and view logs to ensure everything is functioning correctly. Here’s how to use SAL effectively.
 
 ### 3.1. Using SAL REST Endpoints
-SAL exposes several REST API endpoints which serves as interfaces that you can use to interact with the ProActive Scheduler & Resource Manager. For detailed information on each endpoint, please go [here](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/documentation/README.md).
+SAL exposes several REST API endpoints which serves as interfaces that you can use to interact with the ProActive Scheduler & Resource Manager. For detailed information on each endpoint, please go [here](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/README.md).
 
-To showcase usage [Connect](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/documentation/1-connection-endpoints.md#11--connect-endpoint) endpoint will use, which should have SAL protocol, host, port and ProActive  username and password set as it was done in deployment `.yaml` files.
+To showcase usage [Connect](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/1-connection-endpoints.md#11--connect-endpoint) endpoint will use, which should have SAL protocol, host, port and ProActive  username and password set as it was done in deployment `.yaml` files.
 
 Below are the instructions for connecting to and disconnecting from the ProActive server, using tools such as Postman or cURL.
 
@@ -334,14 +334,14 @@ docker restart myComposeSAL
 ```
 
 2. Restart All Services in Docker Compose:
-To restart all services defined in your docker-compose.yaml (including the database):
+   To restart all services defined in your docker-compose.yaml (including the database):
 
 ```bash
 docker-compose restart
 ```
 
 3. Rebuild and Restart SAL:
-If you need to apply changes to the Docker image or configuration:
+   If you need to apply changes to the Docker image or configuration:
 
 ```bash
 docker-compose up --build -d
@@ -353,7 +353,7 @@ This command will rebuild the containers if necessary and restart them in detach
 When SAL is deployed as a Kubernetes pod, you can restart the service by following these methods:
 
 1. Rolling Restart (Preferred Method):
-Kubernetes allows for a rolling restart, which updates the pods one by one without downtime:
+   Kubernetes allows for a rolling restart, which updates the pods one by one without downtime:
 
 ```bash
 kubectl rollout restart deployment/sal-deployment
@@ -361,7 +361,7 @@ kubectl rollout restart deployment/sal-deployment
 ```
 
 2. Manual Pod Deletion:
-Alternatively, you can delete the existing pod(s) manually, and Kubernetes will automatically recreate them:
+   Alternatively, you can delete the existing pod(s) manually, and Kubernetes will automatically recreate them:
 
 
 ```bash
@@ -373,7 +373,7 @@ kubectl delete pod <sal-pod-name>
 Kubernetes will automatically recreate the pod using the existing deployment configuration.
 
 3. Scaling the Deployment to Zero and Back:
-Another method to restart SAL in Kubernetes is by scaling the deployment down to zero replicas and then scaling it back up to the desired number of replicas. This effectively stops and restarts the pods:
+   Another method to restart SAL in Kubernetes is by scaling the deployment down to zero replicas and then scaling it back up to the desired number of replicas. This effectively stops and restarts the pods:
 
 ```bash
 kubectl get deployment
