@@ -53,7 +53,7 @@
   "jobId": "{{jobId}}", // use "0" or "any" when device is NOT associated with ProActive job
   "systemArch": "{{edge_architecture}}", // MUST be "AMD", "ARMv8" OR "ARMv7"
   "scriptURL": "https://www.google.com",
-  "jarURL": "{{jar_url}}" 
+  "jarURL": "{{jar_url}}"
 }
 ```
 
