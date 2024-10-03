@@ -71,21 +71,21 @@
 Here are examples of architecture-specific `jarURL`s, using ProActive's demo portal as a reference. Replace the domain `try.activeeon.com` with your own IP address and port as needed.
 
 - **AMD (x86_64 architecture)**
-```bash
+```code
 "systemArch":"AMD",
-"jarURL": "https://try.activeeon.com/rest/node-amd-64.jar"
+"jarURL": "https://try.activeeon.com/rest/node-amd-64.jar" //AMD 64 (smaller)
 ```
 
 - **ARMv8 (64-bit ARM processors)**
-```bash
+```code
 "systemArch": "ARMv8",
-"jarURL": "https://try.activeeon.com/rest/node-arm-v8.jar"
+"jarURL": "https://try.activeeon.com/rest/node-arm-v8.jar" //ARM V8
 ```
 
 - **ARMv7 (32-bit ARM processors)**
-```bash
+```code
 "systemArch": "ARMv7",
-"jarURL": "https://try.activeeon.com/rest/node-arm-v7.jar"
+"jarURL": "https://try.activeeon.com/rest/node-arm-v7.jar" //ARM V7
 ```
 *Additional Notes:*
 Current execution agents (node.jars) are approximately 100 MB and require about 500 MB of resources.
