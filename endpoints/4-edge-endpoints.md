@@ -1,6 +1,6 @@
-#### 4.1- RegisterNewEdgeNode endpoint:
+### 4.1- RegisterNewEdgeNode endpoint:
 
-**Description**: Register new Edge nodes passed as EdgeDefinition object
+**Description**: Register new Edge nodes passed as [EdgeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/EdgeDefinition.java) object
 
 **Path:**
 
@@ -53,19 +53,46 @@
   "jobId": "{{jobId}}", // use "0" or "any" when device is NOT associated with ProActive job
   "systemArch": "{{edge_architecture}}", // MUST be "AMD", "ARMv8" OR "ARMv7"
   "scriptURL": "https://www.google.com",
-  "jarURL": "{{jar_url}}" // e.g. "https://try.activeeon.com/rest/node.jar"
+  "jarURL": "{{jar_url}}"
 }
 ```
-**Reply:** JSON body containing information about the registered edge node, including the ID of the edge node that needs to be used for its removal, the ID of the node candidate representing this device, as well as the IDs set for the hardware, location, and image representing this device.
 
-Each edge node can be associated with a ProActive job. In case it is not associated with a ProActive job, use the values **"0"** or **"any"** for `jobId`.
+**Reply:** The response will be a JSON object containing information about the registered edge node, including:
+- The edge node ID (used for edge node [removal](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/4-edge-endpoints.md#44--deleteedgenode-endpoint)).
+- The node candidate ID (used for deployment).
+- Information registered in node candidate for hardware, location, and image that represent the device.
 
-The supported system architectures, their values, and their `.jar` URLs are as follows:
-- **"AMD"** - for AMD64 (x86_64) architecture (Intel x86_64) with node.jar from ProActive RM ("https://try.activeeon.com/rest/node.jar"). Replace the domain name (try.activeeon.com) with your IP address, including the port.
-- **"ARMv8"** - for 64-bit ARM processors : _node.jar_ TBD
-- **"ARMv7"** - for 32-bit ARM processors : _node.jar_ TBD
+***Searching Node Candidate representing Edge Node by its name:*** After registering an edge device, you can [search for its node candidate](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/7-node-endpoints.md#71--findnodecandidates-endpoint) using the `edge_name` as part of the Attribute requirement `hardware` with value `name`.
 
-#### 4.2- GetEdgeNodes endpoint:
+***Job Association:*** Each edge node can be associated with a ProActive job. If the node is not linked to a specific job, use  `jobId:"0"` or `jobId:"any"`.
+
+***Supported System Architectures and `jarURL`:*** The `jarURL`s needed for node execution are provided with your ProActive installation. To manually retrieve the correct `jarURL`, go to the ProActive Resource Manager portal and select *Portal -> Launch a Node*.
+
+Here are examples of architecture-specific `jarURL`s, using ProActive's demo portal as a reference. Replace the domain `try.activeeon.com` with your own IP address and port as needed.
+
+- **AMD (x86_64 architecture)**
+```code
+"systemArch":"AMD",
+"jarURL": "https://try.activeeon.com/rest/node-amd-64.jar" //AMD 64 (smaller)
+```
+
+- **ARMv8 (64-bit ARM processors)**
+```code
+"systemArch": "ARMv8",
+"jarURL": "https://try.activeeon.com/rest/node-arm-v8.jar" //ARM V8
+```
+
+- **ARMv7 (32-bit ARM processors)**
+```code
+"systemArch": "ARMv7",
+"jarURL": "https://try.activeeon.com/rest/node-arm-v7.jar" //ARM V7
+```
+*Additional Notes:*
+Current execution agents (node.jars) are approximately 100 MB and require about 500 MB of resources.
+For small devices, reduced agents can be provided, but this may result in limited ProActive features.
+
+
+### 4.2- GetEdgeNodes endpoint:
 
 **Description**: An endpoint to get all the available Edge nodes.
 
@@ -83,7 +110,7 @@ The supported system architectures, their values, and their `.jar` URLs are as f
 
 **Reply:** JSON body containing information about the registered edge nodes with same information as returned during registration process.
 
-#### 4.3- AddEdgeNodes endpoint:
+### 4.3- AddEdgeNodes endpoint:
 
 **Description**: Adding Edge nodes to a job component.
 
@@ -105,7 +132,7 @@ The supported system architectures, their values, and their `.jar` URLs are as f
 }
 ```
 
-#### 4.4- DeleteEdgeNode endpoint:
+### 4.4- DeleteEdgeNode endpoint:
 
 **Description**: Remove Edge node.
 
