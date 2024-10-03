@@ -12,7 +12,7 @@
 
 **Body:**
 
-```json
+```bash
 {
   "name": "{{edge_name}}",
   "loginCredential": {
@@ -71,19 +71,19 @@
 Here are examples of architecture-specific `jarURL`s, using ProActive's demo portal as a reference. Replace the domain `try.activeeon.com` with your own IP address and port as needed.
 
 - **AMD (x86_64 architecture)**
-```json
-"systemArch": "AMD",
+```bash
+"systemArch":"AMD",
 "jarURL": "https://try.activeeon.com/rest/node-amd-64.jar"
 ```
 
 - **ARMv8 (64-bit ARM processors)**
-```json
+```bash
 "systemArch": "ARMv8",
 "jarURL": "https://try.activeeon.com/rest/node-arm-v8.jar"
 ```
 
 - **ARMv7 (32-bit ARM processors)**
-```json
+```bash
 "systemArch": "ARMv7",
 "jarURL": "https://try.activeeon.com/rest/node-arm-v7.jar"
 ```
