@@ -12,7 +12,7 @@
 
 **Body:**
 
-```bash
+```json
 {
   "name": "{{edge_name}}",
   "loginCredential": {
