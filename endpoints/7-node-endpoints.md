@@ -1,6 +1,9 @@
 #### 7.1- findNodeCandidates endpoint:
 
-**Description**: A node candidate is a combination of an image, location, and hardware that are feasiable together. In the case of a Cloud provider SAL will analyze all these possible combinations and create a list of node candidates that are ready to be servered to any logic unit. In this endpoint we define a way to retrieve and filter these nodes using `NodeTypeRequirement` and `AttributeRequirement`.
+**Description**:
+A node candidate represents a feasible combination of image, location, and hardware. For Cloud providers, SAL analyzes all possible combinations and generates a list of node candidates ready to serve any logic unit. This endpoint provides a mechanism to retrieve and filter these nodes based on `NodeTypeRequirement` and `AttributeRequirement`. 
+
+Before using this endpoint, ensure that cloud or edge nodes are added.
 
 *   For the `NodeTypeRequirement` we verify that the node candidate is the type desired. These types are: `IAAS`, `PAAS`, `FAAS`, `BYON`, `EDGE`, `SIMULATION`
 *   For the `AttributeRequirement` they are catagorized in the following classes:
