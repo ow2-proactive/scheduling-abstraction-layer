@@ -178,6 +178,26 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 
 ### 10.5- DeleteCluster endpoint:
 
+**Description**: This endpoint allows users to delete an existing Kubernetes cluster deployment. It removes all resources associated with the specified cluster, including nodes, network configurations, and any deployed applications. By using this endpoint, users can clean up and release the resources used by the cluster.
+
+
+
+**Path:**
+
+```url
+🔴 DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}
+```
+
+**Headers:** sessionid
+
+**Body:** None
+
+
+**Reply:**  A boolean (true if successful).
+
+
+### 10.6- ScaleOut endpoint:
+
 **Description**:
 
 
@@ -185,7 +205,7 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 **Path:**
 
 ```url
-🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}
+🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/scaleout
 ```
 
 **Headers:** sessionid
@@ -194,16 +214,46 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 
 ```json
 [
-  
-  
+  {
+    //scale out using WorkerNodeCandidate which is part of the cluster and introducing the new node name
+    "nodeName": "{{worker2_name}}",
+    "nodeCandidateId": "{{WorkerNodeCandidate}}",
+    "cloudId": "{{cloud_name}}"
+
+  }
 ]
 ```
 
+**Reply:**  
+same as get cluster 
 
-**Reply:** Error code, 0 if no Errors
+{
+"clusterId": "2c9e80838dc98074018dc98255fc09d4",
+"name": "test-cluster",
+"master-node": "master-node",
+"nodes": [
+{
+"nodeName": "master-node",
+"nodeCandidateId": "2c9e80838dc98074018dc9813c8905c8",
+"cloudId": "ali-os-test"
+},
+{
+"nodeName": "worker-node",
+"nodeCandidateId": "2c9e80838dc98074018dc9813bfc05b6",
+"cloudId": "ali-os-test"
+},
+{
+"nodeName": "worker-node2",
+"nodeCandidateId": "2c9e80838dc98074018dc9813bfc05b6",
+"cloudId": "ali-os-test"
+}
+],
+"status": "defined"
+}
 
 
-### 10.2- DeployCluster endpoint:
+
+### 10.7- LabelNode endpoint:
 
 **Description**:
 
@@ -212,7 +262,7 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 **Path:**
 
 ```url
-🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/....
+🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/label
 ```
 
 **Headers:** sessionid
@@ -221,10 +271,76 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 
 ```json
 [
-  
-  
+  [
+    //the existing worker is already correctly labeled so we don’t relabel it 
+    {"{{worker2_name}}":"nebulouscloud.eu/dummy-app-worker=yes"}
+  ]
+
+  [
+    // removing the label from original node
+    {"{{worker_name}}":"nebulouscloud.eu/dummy-app-worker=no"}
+  ]
+
+
+]
+```
+
+
+
+
+
+**Reply:** Error code, 0 if no Errors
+
+Body: A JSON body in the form of List<Map<String, String>>  (e.g. [{"<NODE_NAME>:<LABEL>"}, {"<NODE_NAME>:<LABEL>"} ]):
+
+[
+{"worker-node":"app1=test"},
+{"worker-node":"app2=test"}
+]
+*the name of the node is the same as the one passed to the defineCluster and deployCluster endpoints.
+
+NOTE: deployCluster has to be called on the given cluster before this endpoint can be used.
+
+NOTE: Kubernetes expects a key value label separated by "="  So make sure to follow this structure, and please note that if a node has a label "app=db" it cannot have another label "app=server", in other words, the key of the label is a mapping and can have one value.
+
+Returns: A Long integer refering to the jobID in Proactive
+
+### 10.8- ScaleIn endpoint:
+
+**Description**:
+
+
+
+**Path:**
+
+```url
+🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/scalein
+```
+
+**Headers:** sessionid
+
+**Body:** Json input following this format:
+
+```json
+[
+  [
+    "{{worker_name}}"
+  ]
+
 ]
 ```
 
 
 **Reply:** Error code, 0 if no Errors
+
+A JSON body in the form of List<String>
+
+[
+"worker_node",
+"worker_node2"
+]
+*the name of the node is the same as the one passed to the defineCluster and deployCluster endpoints.
+
+NOTE: scaling down the master will be rejected
+
+Returns: Cluster object containing the cluster after removing the nodes.
