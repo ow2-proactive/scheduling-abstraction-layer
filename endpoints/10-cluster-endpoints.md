@@ -3,7 +3,8 @@
 **Description**: This endpoint is used to define a Kubernetes cluster deployment.
 Script templates for configuring the deployment workflow are available [here](https://github.com/ow2-proactive/scheduling-abstraction-layer/tree/master/docker/scripts). They can be modified to incorporate user-defined Kubernetes installation scripts, and for public clouds they need to have installed and set the network component. Additionally, they enable the installation of various software components within the cluster. Environmental variables required for specific configurations, along with their values, can be passed as part of the cluster definition. Before using this endpoint, ensure that cloud or edge nodes are added and selected for deployment execution.
 
- 
+Cluster definition is the instance of class [Cluster](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/ClusterDefinition.java) that you can import from the `sal-common` package
+
 **Path:**
 
 ```url
@@ -82,32 +83,62 @@ By following these guidelines, you can ensure that your node configurations are 
 
 ### 10.2- DeployCluster endpoint:
 
-**Description**: The deploy cluster endpoint send the defined cloud for the deployment on ProActive server. 
-The deployment 
+**Description**: This endpoint enables users to configure and deploy a Kubernetes cluster on the ProActive server. 
+The deployment process involves:
+- Cluster Definition Integration:
+The cluster configuration is integrated into script templates to generate a ProActive workflow.
+- Workflow Execution:
+You can monitor the execution of the workflow via the GetCluster endpoint or directly within the [ProActive Dashboard and Scheduler](https://try.activeeon.com/).
+- Resource Monitoring:
+Resource nodes and their deployment progress can be tracked in the [ProActive Resource Manager](https://try.activeeon.com/).
+
+This endpoint provides a robust testing environment for SAL users, 
+
+SAL allow direct modifications to scripts for users. To test and customize both script-based and non-script-based tasks:
+- Access the ProActive Workflow Studio:
+From the ProActive Dashboard, open the workflow definition in the Workflow Studio. Here, you can edit scripts within workflow tasks and directly modify non-script-based tasks.
+- Script and Task Modification:
+Scripts can be customized to modify task behavior, adjust configurations, or add new functionalities. Additionally, non-scripted parts of the workflow (those tasks not loaded from scripts) can also be edited directly in the Workflow Studio. This allows users to test modifications immediately and verify their validity.
+- Testing and Custom Workflow Requests:
+Once modifications are made, you can execute the workflow to observe performance, view task logs, and ensure functionality. If any adjustments to non-scripted tasks are successful, users can request a customized version of the workflow for future deployments.
+- Monitoring and Log Examination:
+After executing updated tasks, you can monitor task execution and examine detailed logs for each individual task in the Scheduler, providing in-depth testing and debugging capabilities.
 
 
+It’s essential to maintain consistency between any modifications to environmental variables and their corresponding values in the code.
+By following these steps, users have complete flexibility to deploy, test, and refine both script-based and non-scripted tasks within their Kubernetes clusters on ProActive. The Workflow Studio offers a powerful environment for on-the-fly edits and full execution visibility.
 
 **Path:**
 
 ```url
-🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/....
+🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}
 ```
 
 **Headers:** sessionid
 
-**Body:** Json input following this format:
+**Body:** None
 
-```json
-[
-  
-  
-]
+
+**Reply:** Boolean
+
+
+
+### 10.3- GetCluster endpoint:
+
+**Description**:
+This endpoint retrieves detailed information about the Kubernetes cluster deployment. It provides real-time status updates on the deployment progress for each individual node, as well as the overall cluster. This information allows users to monitor the deployment process, track node-specific statuses, and verify the current state of the entire cluster.
+
+**Path:**
+
+```url
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}
 ```
 
+**Headers:** sessionid
 
-**Reply:** Error code, 0 if no Errors
+**Body:** None
 
-
+**Reply:** JSON format represented with the [ClusterDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/ClusterDefinition.java) and status values corresponding to ones observed in ProActive dashboard.
 
 ### 10.2- DeployCluster endpoint:
 
