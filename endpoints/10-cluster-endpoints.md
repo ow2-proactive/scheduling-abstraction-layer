@@ -46,7 +46,7 @@ Cluster definition is the instance of class [Cluster](https://github.com/ow2-pro
 
 
 When defining nodes within a cluster, each node should be represented as an instance of
-the [IaasNode](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/IaasNode.java) class, 
+the [IaasNode](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/IaasNode.java) class,
 which can be imported from the `sal-common` package. An example of the node structure is as follows:
 
 ```json
@@ -56,7 +56,7 @@ which can be imported from the `sal-common` package. An example of the node stru
     "nodeCandidateId": "{{MasterNodeCandidate}}",
     "cloudId": "given cloud name or 'edge'"
   }
-  
+
 ]
 ```
 
@@ -70,11 +70,11 @@ Node names must adhere to Internet hostname conventions, allowing only lowercase
 Node names must be globally unique across all clusters defined within the system.
 
 - *Node Candidate ID (`nodeCandidateId`):*
-For edge devices, the `nodeCandidateId` is returned when [registering the device](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/4-edge-endpoints.md#41--registernewedgenode-endpoint). 
+For edge devices, the `nodeCandidateId` is returned when [registering the device](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/4-edge-endpoints.md#41--registernewedgenode-endpoint).
 It can be retrieved for both, edge and cloud nodes, by querying system using [findNodeCandidates](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/7-node-endpoints.md#71--findnodecandidates-endpoint) endpoint.
 
 - *Cloud ID (cloudId):*
-This value should reflect the name of the [registered cloud provider](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/2-cloud-endpoints.md#21--addcloud-endpoint). 
+This value should reflect the name of the [registered cloud provider](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/2-cloud-endpoints.md#21--addcloud-endpoint).
 For edge devices, the cloudId should be set to `EDGE`.
 
 By following these guidelines, you can ensure that your node configurations are compatible with both the SAL platform and various cloud provider requirements.
@@ -83,7 +83,7 @@ By following these guidelines, you can ensure that your node configurations are 
 
 ### 10.2- DeployCluster endpoint:
 
-**Description**: This endpoint enables users to configure and deploy a Kubernetes cluster on the ProActive server. 
+**Description**: This endpoint enables users to configure and deploy a Kubernetes cluster on the ProActive server.
 The deployment process involves:
 - Cluster Definition Integration:
 The cluster configuration is integrated into script templates to generate a ProActive workflow.
@@ -92,7 +92,7 @@ You can monitor the execution of the workflow via the GetCluster endpoint or dir
 - Resource Monitoring:
 Resource nodes and their deployment progress can be tracked in the [ProActive Resource Manager](https://try.activeeon.com/).
 
-This endpoint provides a robust testing environment for SAL users, 
+This endpoint provides a robust testing environment for SAL users,
 
 SAL allow direct modifications to scripts for users. To test and customize both script-based and non-script-based tasks:
 - Access the ProActive Workflow Studio:
@@ -224,8 +224,8 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 ]
 ```
 
-**Reply:**  
-same as get cluster 
+**Reply:**
+same as get cluster
 
 {
 "clusterId": "2c9e80838dc98074018dc98255fc09d4",
@@ -272,7 +272,7 @@ same as get cluster
 ```json
 [
   [
-    //the existing worker is already correctly labeled so we don’t relabel it 
+    //the existing worker is already correctly labeled so we don’t relabel it
     {"{{worker2_name}}":"nebulouscloud.eu/dummy-app-worker=yes"}
   ]
 

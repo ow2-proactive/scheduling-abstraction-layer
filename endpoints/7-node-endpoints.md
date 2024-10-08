@@ -1,7 +1,7 @@
 #### 7.1- findNodeCandidates endpoint:
 
 **Description**:
-A node candidate represents a feasible combination of image, location, and hardware. For Cloud providers, SAL analyzes all possible combinations and generates a list of node candidates ready to serve any logic unit. This endpoint provides a mechanism to retrieve and filter these nodes based on `NodeTypeRequirement` and `AttributeRequirement`. 
+A node candidate represents a feasible combination of image, location, and hardware. For Cloud providers, SAL analyzes all possible combinations and generates a list of node candidates ready to serve any logic unit. This endpoint provides a mechanism to retrieve and filter these nodes based on `NodeTypeRequirement` and `AttributeRequirement`.
 
 Before using this endpoint, ensure that cloud or edge nodes are added.
 
