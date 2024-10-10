@@ -67,7 +67,7 @@ spec:
             - name: PROPERTIES_FILENAME
               value: sal
             - name: PWS_URL
-              value: <PROACTIVE_URL>
+              value: <PROACTIVE_URLT>
             - name: PWS_USERNAME
               value: <PROACTIVE_USERNAME>
             - name: PWS_PASSWORD
