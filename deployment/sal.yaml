@@ -67,7 +67,7 @@ spec:
             - name: PROPERTIES_FILENAME
               value: sal
             - name: PWS_URL
-              value: http://158.39.77.68:8880/
+              value: <PROACTIVE_URL>
             - name: PWS_USERNAME
               value: <PROACTIVE_USERNAME>
             - name: PWS_PASSWORD
