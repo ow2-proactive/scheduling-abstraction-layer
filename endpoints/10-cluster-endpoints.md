@@ -11,7 +11,7 @@ Cluster definition is the instance of class [Cluster](https://github.com/ow2-pro
 🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster
 ```
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:** A JSON body following this format:
 
@@ -42,7 +42,7 @@ Cluster definition is the instance of class [Cluster](https://github.com/ow2-pro
 ]
 ```
 
-**Reply:** Boolean
+**Reply:** Boolean, `true` if successful
 
 
 When defining nodes within a cluster, each node should be represented as an instance of
@@ -114,7 +114,7 @@ By following these steps, users have complete flexibility to deploy, test, and r
 🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}
 ```
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:** None
 
@@ -134,7 +134,7 @@ This endpoint retrieves detailed information about the Kubernetes cluster deploy
 🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}
 ```
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:** None
 
@@ -152,7 +152,7 @@ This endpoint is used to deploy and manage applications within a specific Kubern
 🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/app
 ```
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:** Json input following this format:
 
@@ -188,7 +188,7 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 🔴 DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}
 ```
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:** None
 
@@ -198,8 +198,14 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 
 ### 10.6- ScaleOut endpoint:
 
-**Description**:
+**Description**: This endpoint allows users to dynamically expand their Kubernetes cluster by adding new worker nodes. 
+This scaling operation is based on existing worker node definitions and is critical when increasing the cluster's capacity to support more replicas for applications.
+Each worker node is introduced using the existing worker node candidate, but is uniquely identified by its `nodeName`. The number of nodes added corresponds to the number of replicas the user wishes to create.
+For example, if a user wants to increase the number of replicas from 1 to 3, they could call the ScaleOut endpoint to add two more worker nodes (e.g., `worker2`, `worker3`), ensuring the cluster can support the desired number of replicas.
 
+After the ScaleOut operation, the new worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive.
+When the new nodes are deployed, the LabelNodes endpoint should be used to label these nodes (e.g., `worker2_name`, `worker3_name`) for identification and management purposes.
+To complete ScaleOut process, ManageApplication endpoint is to be called, with updated number of the replicas (e.g. by adding two new replicas).
 
 
 **Path:**
@@ -208,52 +214,73 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/scaleout
 ```
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:** Json input following this format:
 
 ```json
 [
+  //scale out using WorkerNodeCandidate which is part of the cluster and introducing the new node name
   {
-    //scale out using WorkerNodeCandidate which is part of the cluster and introducing the new node name
-    "nodeName": "{{worker2_name}}",
+    "nodeName": "{{new_worker2_name}}",
     "nodeCandidateId": "{{WorkerNodeCandidate}}",
     "cloudId": "{{cloud_name}}"
-
+  },
+  {
+    "nodeName": "{{new_worker3_name}}",
+    "nodeCandidateId": "{{WorkerNodeCandidate}}",
+    "cloudId": "{{cloud_name}}"
   }
+  // ....
 ]
 ```
 
-**Reply:**
-same as get cluster
+**Reply:** JSON format represented with the [ClusterNodeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/ClusterNodeDefinition.java) and status values corresponding to ones observed in ProActive dashboard.
 
-{
-"clusterId": "2c9e80838dc98074018dc98255fc09d4",
-"name": "test-cluster",
-"master-node": "master-node",
-"nodes": [
-{
-"nodeName": "master-node",
-"nodeCandidateId": "2c9e80838dc98074018dc9813c8905c8",
-"cloudId": "ali-os-test"
-},
-{
-"nodeName": "worker-node",
-"nodeCandidateId": "2c9e80838dc98074018dc9813bfc05b6",
-"cloudId": "ali-os-test"
-},
-{
-"nodeName": "worker-node2",
-"nodeCandidateId": "2c9e80838dc98074018dc9813bfc05b6",
-"cloudId": "ali-os-test"
-}
-],
-"status": "defined"
-}
+Note that `nodeName` should be unique name for each new worker node to be added. It must follow naming conventions (no spaces, special characters, or uppercase letters), as it will be used as part of the cluster node identifier.
+
+### 10.7- ScaleIn endpoint:
+
+**Description**:
 
 
 
-### 10.7- LabelNode endpoint:
+**Path:**
+
+```url
+🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/scalein
+```
+
+**Headers:** `sessionid`
+
+**Body:** Json input following this format:
+
+```json
+[
+  [
+    "{{worker_name}}"
+  ]
+
+]
+```
+
+
+**Reply:** Error code, 0 if no Errors
+
+A JSON body in the form of List<String>
+
+[
+"worker_node",
+"worker_node2"
+]
+*the name of the node is the same as the one passed to the defineCluster and deployCluster endpoints.
+
+NOTE: scaling down the master will be rejected
+
+Returns: Cluster object containing the cluster after removing the nodes.
+
+
+### 10.8- LabelNode endpoint:
 
 **Description**:
 
@@ -265,7 +292,7 @@ same as get cluster
 🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/label
 ```
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:** Json input following this format:
 
@@ -305,42 +332,3 @@ NOTE: Kubernetes expects a key value label separated by "="  So make sure to fol
 
 Returns: A Long integer refering to the jobID in Proactive
 
-### 10.8- ScaleIn endpoint:
-
-**Description**:
-
-
-
-**Path:**
-
-```url
-🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cluster/{{cluster_name}}/scalein
-```
-
-**Headers:** sessionid
-
-**Body:** Json input following this format:
-
-```json
-[
-  [
-    "{{worker_name}}"
-  ]
-
-]
-```
-
-
-**Reply:** Error code, 0 if no Errors
-
-A JSON body in the form of List<String>
-
-[
-"worker_node",
-"worker_node2"
-]
-*the name of the node is the same as the one passed to the defineCluster and deployCluster endpoints.
-
-NOTE: scaling down the master will be rejected
-
-Returns: Cluster object containing the cluster after removing the nodes.
