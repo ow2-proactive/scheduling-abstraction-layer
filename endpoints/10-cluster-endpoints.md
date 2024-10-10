@@ -203,7 +203,7 @@ This scaling operation is based on existing worker node definitions and is criti
 Each worker node is introduced using the existing worker node candidate, but is uniquely identified by its `nodeName`. The number of nodes added corresponds to the number of replicas the user wishes to create.
 For example, if a user wants to increase the number of replicas from 1 to 3, they could call the ScaleOut endpoint to add two more worker nodes (e.g., `worker2`, `worker3`), ensuring the cluster can support the desired number of replicas.
 
-After the ScaleOut operation, the new worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive.
+After the ScaleOut operation, the new worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to initial node deployments in cluster, using user defined scripts. 
 When the new nodes are deployed, the LabelNodes endpoint should be used to label these nodes (e.g., `worker2_name`, `worker3_name`) for identification and management purposes.
 To complete ScaleOut process, ManageApplication endpoint is to be called, with updated number of the replicas (e.g. by adding two new replicas).
 
@@ -242,8 +242,11 @@ Note that `nodeName` should be unique name for each new worker node to be added.
 ### 10.7- ScaleIn endpoint:
 
 **Description**:
+This endpoint allows users to remove specific worker nodes from a Kubernetes cluster. This operation is essential for efficiently managing cluster resources, especially when scaling down applications or reconfiguring the cluster architecture. By invoking this endpoint, you can effectively decommission nodes that are no longer needed or are underutilized.
 
+Before invoking the ScaleIn endpoint, ensure that the workloads on `worker_name` have been migrated to other nodes, by using the LabelNodes endpoint to mark it as unavailable and using ManageApplication endpoint to reduce the number of the application replicas.
 
+After the ScaleIn operation, the removal of worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to remove nodes during DeleteCluster operation.,
 
 **Path:**
 
@@ -257,28 +260,14 @@ Note that `nodeName` should be unique name for each new worker node to be added.
 
 ```json
 [
-  [
-    "{{worker_name}}"
-  ]
-
+  "{{worker_name}}",
+  "{{worker_name2}}"
 ]
 ```
 
+**Reply:** JSON format represented with the [ClusterNodeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/ClusterNodeDefinition.java) and status values corresponding to ones observed in ProActive dashboard.
 
-**Reply:** Error code, 0 if no Errors
-
-A JSON body in the form of List<String>
-
-[
-"worker_node",
-"worker_node2"
-]
-*the name of the node is the same as the one passed to the defineCluster and deployCluster endpoints.
-
-NOTE: scaling down the master will be rejected
-
-Returns: Cluster object containing the cluster after removing the nodes.
-
+Note that the worker names should correspond to existing ones in the cluster, otherwise the operation will be rejected. 
 
 ### 10.8- LabelNode endpoint:
 
