@@ -119,7 +119,7 @@ By following these steps, users have complete flexibility to deploy, test, and r
 **Body:** None
 
 
-**Reply:** Boolean
+**Reply:** Boolean, `true` if successful
 
 
 
@@ -159,7 +159,7 @@ This endpoint is used to deploy and manage applications within a specific Kubern
 ```json
 [
   {
-    "appFile" : "---\napiVersion: \"core.oam.dev/v1beta1\"\nkind: \"Application\"\nmetadata:\n  name: \"dummy-app-deploy\"\nspec:\n  components:\n  - name: \"dummy-app-worker\"\n    type: \"webservice\"\n    properties:\n      cpu: \"2.0\"\n      memory: \"2048Mi\"\n      image: \"docker.io/rsprat/mytestrepo:v1\"\n      imagePullPolicy: \"Always\"\n      cmd:\n      - \"python\"\n      - \"worker.py\"\n      env:\n      - name: \"mqtt_ip\"\n        value: \"broker.hivemq.com\"\n      - name: \"mqtt_port\"\n        value: \"1883\"\n      - name: \"mqtt_subscribe_topic\"\n        value: \"$share/workers/neb/test/input\"\n      - name: \"nebulous_ems_ip\"\n        valueFrom:\n          fieldRef:\n            fieldPath: \"status.hostIP\"\n      - name: \"nebulous_ems_port\"\n        value: \"61610\"\n      - name: \"nebulous_ems_user\"\n        value: \"aaa\"\n      - name: \"nebulous_ems_password\"\n        value: \"111\"\n      - name: \"nebulous_ems_metrics_topic\"\n        value: \"realtime.job_process_time_instance\"\n    traits:\n    - type: \"scaler\"\n      properties:\n        replicas: 2\n  policies:\n  - name: \"target-default\"\n    type: \"topology\"\n    properties:\n      namespace: \"default\"\n  workflow:\n    steps:\n    - name: \"deploy2default\"\n      type: \"deploy\"\n      properties:\n        policies:\n        - \"target-default\"\n",
+    "appFile" : "---\napiVersion: \"core.oam.dev/v1beta1\"\nkind: \"Application\"\nmetadata:\n  name: \"dummy-app-deploy\"\nspec:\n  components:\n  - name: \"{{app_component_name}}\"\n    type: \"webservice\"\n    properties:\n      cpu: \"2.0\"\n      memory: \"2048Mi\"\n      image: \"docker.io/rsprat/mytestrepo:v1\"\n      imagePullPolicy: \"Always\"\n      cmd:\n      - \"python\"\n      - \"worker.py\"\n      env:\n      - name: \"mqtt_ip\"\n        value: \"broker.hivemq.com\"\n      - name: \"mqtt_port\"\n        value: \"1883\"\n      - name: \"mqtt_subscribe_topic\"\n        value: \"$share/workers/neb/test/input\"\n      - name: \"nebulous_ems_ip\"\n        valueFrom:\n          fieldRef:\n            fieldPath: \"status.hostIP\"\n      - name: \"nebulous_ems_port\"\n        value: \"61610\"\n      - name: \"nebulous_ems_user\"\n        value: \"aaa\"\n      - name: \"nebulous_ems_password\"\n        value: \"111\"\n      - name: \"nebulous_ems_metrics_topic\"\n        value: \"realtime.job_process_time_instance\"\n    traits:\n    - type: \"scaler\"\n      properties:\n        replicas: 2\n  policies:\n  - name: \"target-default\"\n    type: \"topology\"\n    properties:\n      namespace: \"default\"\n  workflow:\n    steps:\n    - name: \"deploy2default\"\n      type: \"deploy\"\n      properties:\n        policies:\n        - \"target-default\"\n",
     "packageManager" : "kubevela", // kubectl or helm
     "appName" : "{{app_name}}",
     "action" : "apply",
@@ -175,6 +175,9 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 
 `action` value `apply` can be used both for the initial deployment and for ongoing application management. For example, you can adjust the number of replicas to scale the application according to demand.
 
+Note that from the `appFile` the value of `{{app_component_name}}` is used when calling LabelNode endpoint. Also, it is to include `\n` characters at the end of each line to indicate line breaks (JSON requirement).
+
+#### 2.2- GetAllClouds endpoint:
 
 ### 10.5- DeleteCluster endpoint:
 
@@ -193,7 +196,7 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 **Body:** None
 
 
-**Reply:**  A boolean (true if successful).
+**Reply:**  Boolean, `true` if successful
 
 
 ### 10.6- ScaleOut endpoint:
@@ -271,9 +274,8 @@ Note that the worker names should correspond to existing ones in the cluster, ot
 
 ### 10.8- LabelNode endpoint:
 
-**Description**:
-
-
+**Description**: This endpoint allows users to manage node labels within a Kubernetes cluster by adding, modifying, or removing labels. Labels are key-value pairs that categorize nodes, making it easier to target specific nodes for application deployment, scaling, or management tasks. 
+Using LabelNodes, you can dynamically adjust labels on worker nodes as you manage scaling operations. During ScaleOut, nodes are labeled to mark them as available for application deployments. Before invoking ScaleIn, labels can be updated to indicate that certain nodes should no longer be scheduled for application workloads, preparing them for safe removal.
 
 **Path:**
 
@@ -287,37 +289,32 @@ Note that the worker names should correspond to existing ones in the cluster, ot
 
 ```json
 [
-  [
-    //the existing worker is already correctly labeled so we don’t relabel it
-    {"{{worker2_name}}":"nebulouscloud.eu/dummy-app-worker=yes"}
-  ]
-
-  [
-    // removing the label from original node
-    {"{{worker_name}}":"nebulouscloud.eu/dummy-app-worker=no"}
-  ]
-
-
+  // to add lable it is to use value 'yes' and to remove 'no' 
+  {
+    "{{worker2_name}}":"{{domain_prefix}}/{{app_component_name}}=yes",
+    "{{worker_name}}":"{{domain_prefix}}/{{app_component_name}}=no"
+  }
 ]
 ```
 
+**Reply:** ProActive jobID
 
+- _Node Name (Key)_: The name of the node to which the label is being added or updated. Each node name should correspond to a node deployed in the cluster.
+Example node names might include `worker2_name` when labeling for workload readiness or `worker_name` when preparing for scaling down.
+- _Label (Value)_: The label applied to the node is structured in a `key=value` format, where:
 
+  - `key`: Typically consists of a custom domain prefix followed by the application component name which is passed in ManageApplication endpoint. `domain_prefix` functions as a unique namespace to avoid conflicts, especially in multi-tenant environments. It ensures that the label applies specifically to your application, component, or organization.
+  - `value`: Use `yes` to indicate that the node is ready for application deployment and `no` to mark it for removal during scaling operations.
 
+***Usage scenarios:***
+  - _Scaling Out_:
+  Use the ScaleOut endpoint to add new worker nodes to the cluster.
+  Label the new node (e.g., `worker2_name`) with `yes`, which signals that the node is available for application workloads.
+  Deploy applications using DeployApplication, which targets nodes labeled with `yes`. This ensures that replicas are scheduled only on nodes intended for the application.
+  - _Preparing for Scaling In_:
+  Update the label on the original node (e.g., `worker_name`) to `no` before initiating the ScaleIn process. This marks the node as unavailable for new application replicas. It is also to call ManageApplication to remove application replicas from the node. 
+  Finally, call ScaleIn with the node name in the following format, which safely removes the node from the cluster:
 
-**Reply:** Error code, 0 if no Errors
-
-Body: A JSON body in the form of List<Map<String, String>>  (e.g. [{"<NODE_NAME>:<LABEL>"}, {"<NODE_NAME>:<LABEL>"} ]):
-
-[
-{"worker-node":"app1=test"},
-{"worker-node":"app2=test"}
-]
-*the name of the node is the same as the one passed to the defineCluster and deployCluster endpoints.
-
-NOTE: deployCluster has to be called on the given cluster before this endpoint can be used.
-
-NOTE: Kubernetes expects a key value label separated by "="  So make sure to follow this structure, and please note that if a node has a label "app=db" it cannot have another label "app=server", in other words, the key of the label is a mapping and can have one value.
-
-Returns: A Long integer refering to the jobID in Proactive
-
+***Important Notes:***
+  Ensure that the environmental variables and application components are consistent across all endpoints for smooth scaling and management operations.
+  
