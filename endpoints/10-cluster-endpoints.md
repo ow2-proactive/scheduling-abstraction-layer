@@ -201,12 +201,12 @@ Note that from the `appFile` the value of `{{app_component_name}}` is used when 
 
 ### 10.6- ScaleOut endpoint:
 
-**Description**: This endpoint allows users to dynamically expand their Kubernetes cluster by adding new worker nodes. 
+**Description**: This endpoint allows users to dynamically expand their Kubernetes cluster by adding new worker nodes.
 This scaling operation is based on existing worker node definitions and is critical when increasing the cluster's capacity to support more replicas for applications.
 Each worker node is introduced using the existing worker node candidate, but is uniquely identified by its `nodeName`. The number of nodes added corresponds to the number of replicas the user wishes to create.
 For example, if a user wants to increase the number of replicas from 1 to 3, they could call the ScaleOut endpoint to add two more worker nodes (e.g., `worker2`, `worker3`), ensuring the cluster can support the desired number of replicas.
 
-After the ScaleOut operation, the new worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to initial node deployments in cluster, using user defined scripts. 
+After the ScaleOut operation, the new worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to initial node deployments in cluster, using user defined scripts.
 When the new nodes are deployed, the LabelNodes endpoint should be used to label these nodes (e.g., `worker2_name`, `worker3_name`) for identification and management purposes.
 To complete ScaleOut process, ManageApplication endpoint is to be called, with updated number of the replicas (e.g. by adding two new replicas).
 
@@ -270,11 +270,11 @@ After the ScaleIn operation, the removal of worker nodes and their status can be
 
 **Reply:** JSON format represented with the [ClusterNodeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/ClusterNodeDefinition.java) and status values corresponding to ones observed in ProActive dashboard.
 
-Note that the worker names should correspond to existing ones in the cluster, otherwise the operation will be rejected. 
+Note that the worker names should correspond to existing ones in the cluster, otherwise the operation will be rejected.
 
 ### 10.8- LabelNode endpoint:
 
-**Description**: This endpoint allows users to manage node labels within a Kubernetes cluster by adding, modifying, or removing labels. Labels are key-value pairs that categorize nodes, making it easier to target specific nodes for application deployment, scaling, or management tasks. 
+**Description**: This endpoint allows users to manage node labels within a Kubernetes cluster by adding, modifying, or removing labels. Labels are key-value pairs that categorize nodes, making it easier to target specific nodes for application deployment, scaling, or management tasks.
 Using LabelNodes, you can dynamically adjust labels on worker nodes as you manage scaling operations. During ScaleOut, nodes are labeled to mark them as available for application deployments. Before invoking ScaleIn, labels can be updated to indicate that certain nodes should no longer be scheduled for application workloads, preparing them for safe removal.
 
 **Path:**
@@ -289,7 +289,7 @@ Using LabelNodes, you can dynamically adjust labels on worker nodes as you manag
 
 ```json
 [
-  // to add lable it is to use value 'yes' and to remove 'no' 
+  // to add lable it is to use value 'yes' and to remove 'no'
   {
     "{{worker2_name}}":"{{domain_prefix}}/{{app_component_name}}=yes",
     "{{worker_name}}":"{{domain_prefix}}/{{app_component_name}}=no"
@@ -312,9 +312,8 @@ Example node names might include `worker2_name` when labeling for workload readi
   Label the new node (e.g., `worker2_name`) with `yes`, which signals that the node is available for application workloads.
   Deploy applications using DeployApplication, which targets nodes labeled with `yes`. This ensures that replicas are scheduled only on nodes intended for the application.
   - _Preparing for Scaling In_:
-  Update the label on the original node (e.g., `worker_name`) to `no` before initiating the ScaleIn process. This marks the node as unavailable for new application replicas. It is also to call ManageApplication to remove application replicas from the node. 
+  Update the label on the original node (e.g., `worker_name`) to `no` before initiating the ScaleIn process. This marks the node as unavailable for new application replicas. It is also to call ManageApplication to remove application replicas from the node.
   Finally, call ScaleIn with the node name in the following format, which safely removes the node from the cluster:
 
 ***Important Notes:***
   Ensure that the environmental variables and application components are consistent across all endpoints for smooth scaling and management operations.
-  
