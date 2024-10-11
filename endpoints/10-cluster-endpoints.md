@@ -169,7 +169,7 @@ This endpoint is used to deploy and manage applications within a specific Kubern
 ```
 
 
-**Reply:**  A long of the ProActive Job ID
+**Reply:**  Long indicating the ProActive Job Id (Generated workflow in Proactive)
 
 Field `appName` must be valid as a filename; therefore, spaces, quotes, and other special characters should not be used.
 
@@ -297,7 +297,7 @@ Using LabelNodes, you can dynamically adjust labels on worker nodes as you manag
 ]
 ```
 
-**Reply:** ProActive jobID
+**Reply:** Long indicating the ProActive Job Id (Generated workflow in Proactive)
 
 - _Node Name (Key)_: The name of the node to which the label is being added or updated. Each node name should correspond to a node deployed in the cluster.
 Example node names might include `worker2_name` when labeling for workload readiness or `worker_name` when preparing for scaling down.
