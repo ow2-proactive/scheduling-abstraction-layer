@@ -129,6 +129,8 @@ NOTE: To provide the RSA private key correctly for JSON, you'll need to include 
 
 **Body:** None
 
+**Reply:** JSON output containing image definitions
+
 #### 2.5- GetCloudLocation endpoint:
 
 **Description**: An endpoint to get all the retrieved locations (regions) for all clouds or a specific cloud.
@@ -145,6 +147,8 @@ NOTE: To provide the RSA private key correctly for JSON, you'll need to include 
 
 **Body:** None
 
+**Reply:** JSON output containing location definitions
+
 #### 2.6- GetCloudHardware endpoint:
 
 **Description**: An endpoint to get all the retrieved hardware (vmTypes) for a specific cloud.
@@ -160,6 +164,8 @@ NOTE: To provide the RSA private key correctly for JSON, you'll need to include 
 **Headers:** sessionid
 
 **Body:** None
+
+**Reply:** JSON output containing hardware definitions
 
 #### 2.7- RemoveClouds endpoint:
 
@@ -181,3 +187,4 @@ NOTE: To provide the RSA private key correctly for JSON, you'll need to include 
   "{{cloud_name2}}"
 ]
 ```
+**Reply:**  Boolean, True if cloud infrastructure was removed. False, otherwise.
