@@ -113,18 +113,18 @@ kubeadm version     || { log_print ERROR "kubeadm installation failed!"; exit $E
 kubectl version
 if [ $? -gt 1 ]
 then
-	log_print ERROR "kubectl installation failed!"; exit $EXITCODE;
+    log_print ERROR "kubectl installation failed!"; exit $EXITCODE;
 fi
 kubelet --version   || { log_print ERROR "kubelet installation failed!"; exit $EXITCODE; }
 
 
 # Turn off the swap momery
 if [ `grep Swap /proc/meminfo | grep SwapTotal: | cut -d" " -f14` == "0" ];
-	then
-		log_print INFO "The swap memory is Off"
-	else
-		sudo swapoff –a || { log_print ERROR "swap memory can't be turned off "; exit $EXITCODE; }
-	fi
+    then
+        log_print INFO "The swap memory is Off"
+    else
+        sudo swapoff –a || { log_print ERROR "swap memory can't be turned off "; exit $EXITCODE; }
+    fi
 
 
 # Declare configuration done successfully
