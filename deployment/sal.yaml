@@ -49,9 +49,9 @@ spec:
           readinessProbe:
             exec:
               command:
-                - /bin/sh
-                - -c
-                - mariadb-admin ping -h localhost --password=$MYSQL_ROOT_PASSWORD
+                - "/bin/sh"
+                - "-c"
+                - "mariadb-admin ping -h localhost --password=$MYSQL_ROOT_PASSWORD"
             failureThreshold: 5
             initialDelaySeconds: 30
             periodSeconds: 30
