@@ -9,8 +9,8 @@ Before using this endpoint, ensure that cloud or edge nodes are added.
 *   For the `AttributeRequirement` they are catagorized in the following classes:
     *   `hardware`: In this class we can filter based on the `ram`, `cores`, `disk`, `fpga`, `name`
     *   `location`: In this class we can filter based on the `geoLocation.country`
-    *   `image`: In this class we can filter based on the `name`, `operatingSystem.family` , `operatingSystem.version`
-    *   `cloud`: In this class we can filter based on the `type`. A cloud type can be `PRIVATE`, `PUBLIC`, `BYON`, `EDGE`
+    *   `image`: In this class we can filter based on the  `name`, `operatingSystem.family` , `operatingSystem.version`
+    *   `cloud`: In this class we can filter based on the `id` and `type`. A cloud type can be `PRIVATE`, `PUBLIC`, `BYON`, `EDGE`
     *   `environment`: In this class we can filter based on the `runtime`. The possible runtimes are `nodejs`, `python`, `java`, `dotnet`, `go`
     *   `name`: In this class we can filter based on the `placementName`. This is used for BYON and EDGE nodes where we can select a specific node to handle a certain component.
 
