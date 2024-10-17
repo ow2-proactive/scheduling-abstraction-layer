@@ -88,17 +88,17 @@ The deployment process involves:
 - Cluster Definition Integration:
 The cluster configuration is integrated into script templates to generate a ProActive workflow.
 - Workflow Execution:
-You can monitor the execution of the workflow via the GetCluster endpoint or directly within the [ProActive Dashboard and Scheduler](https://try.activeeon.com/).
+You can monitor the execution of the workflow via the [GetCluster](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#103--getcluster-endpoint) endpoint or directly within the [ProActive Dashboard and Scheduler](https://try.activeeon.com/).
 - Resource Monitoring:
 Resource nodes and their deployment progress can be tracked in the [ProActive Resource Manager](https://try.activeeon.com/).
 
 This endpoint provides a robust testing environment for SAL users,
 
 SAL allow direct modifications to scripts for users. To test and customize both script-based and non-script-based tasks:
-- Access the ProActive Workflow Studio:
+- Access the [ProActive Workflow Studio](https://try.activeeon.com/):
 From the ProActive Dashboard, open the workflow definition in the Workflow Studio. Here, you can edit scripts within workflow tasks and directly modify non-script-based tasks.
 - Script and Task Modification:
-Scripts can be customized to modify task behavior, adjust configurations, or add new functionalities. Additionally, non-scripted parts of the workflow (those tasks not loaded from scripts) can also be edited directly in the Workflow Studio. This allows users to test modifications immediately and verify their validity.
+[Scripts](https://github.com/ow2-proactive/scheduling-abstraction-layer/tree/master/docker/scripts) can be customized to modify task behavior, adjust configurations, or add new functionalities. Additionally, non-scripted parts of the workflow (those tasks not loaded from scripts) can also be edited directly in the Workflow Studio. This allows users to test modifications immediately and verify their validity.
 - Testing and Custom Workflow Requests:
 Once modifications are made, you can execute the workflow to observe performance, view task logs, and ensure functionality. If any adjustments to non-scripted tasks are successful, users can request a customized version of the workflow for future deployments.
 - Monitoring and Log Examination:
@@ -175,7 +175,7 @@ Field `appName` must be valid as a filename; therefore, spaces, quotes, and othe
 
 `action` value `apply` can be used both for the initial deployment and for ongoing application management. For example, you can adjust the number of replicas to scale the application according to demand.
 
-Note that from the `appFile` the value of `{{app_component_name}}` is used when calling LabelNode endpoint. Also, it is to include `\n` characters at the end of each line to indicate line breaks (JSON requirement).
+Note that from the `appFile` the value of `{{app_component_name}}` is used when calling [LabelNode](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#108--labelnode-endpoint) endpoint. Also, it is to include `\n` characters at the end of each line to indicate line breaks (JSON requirement).
 
 #### 2.2- GetAllClouds endpoint:
 
@@ -206,8 +206,8 @@ This scaling operation is based on existing worker node definitions and is criti
 Each worker node is introduced using the existing worker node candidate, but is uniquely identified by its `nodeName`. The number of nodes added corresponds to the number of replicas the user wishes to create.
 For example, if a user wants to increase the number of replicas from 1 to 3, they could call the ScaleOut endpoint to add two more worker nodes (e.g., `worker2`, `worker3`), ensuring the cluster can support the desired number of replicas.
 
-After the ScaleOut operation, the new worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to initial node deployments in cluster, using user defined scripts.
-When the new nodes are deployed, the LabelNodes endpoint should be used to label these nodes (e.g., `worker2_name`, `worker3_name`) for identification and management purposes.
+After the ScaleOut operation, the new worker nodes and their status can be tracked using the [GetCluster](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#103--getcluster-endpoint) endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to initial node deployments in cluster, using user defined scripts.
+When the new nodes are deployed, the [LabelNodes](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#108--labelnode-endpoint) endpoint should be used to label these nodes (e.g., `worker2_name`, `worker3_name`) for identification and management purposes.
 To complete ScaleOut process, ManageApplication endpoint is to be called, with updated number of the replicas (e.g. by adding two new replicas).
 
 
@@ -247,9 +247,9 @@ Note that `nodeName` should be unique name for each new worker node to be added.
 **Description**:
 This endpoint allows users to remove specific worker nodes from a Kubernetes cluster. This operation is essential for efficiently managing cluster resources, especially when scaling down applications or reconfiguring the cluster architecture. By invoking this endpoint, you can effectively decommission nodes that are no longer needed or are underutilized.
 
-Before invoking the ScaleIn endpoint, ensure that the workloads on `worker_name` have been migrated to other nodes, by using the LabelNodes endpoint to mark it as unavailable and using ManageApplication endpoint to reduce the number of the application replicas.
+Before invoking the ScaleIn endpoint, ensure that the workloads on `worker_name` have been migrated to other nodes, by using the [LabelNodes](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#108--labelnode-endpoint) endpoint to mark it as unavailable and using ManageApplication endpoint to reduce the number of the application replicas.
 
-After the ScaleIn operation, the removal of worker nodes and their status can be tracked using the GetCluster endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to remove nodes during DeleteCluster operation.,
+After the ScaleIn operation, the removal of worker nodes and their status can be tracked using the [GetCluster](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#103--getcluster-endpoint) endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to remove nodes during [DeleteCluster](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#105--deletecluster-endpoint) operation.,
 
 **Path:**
 
@@ -275,7 +275,7 @@ Note that the worker names should correspond to existing ones in the cluster, ot
 ### 10.8- LabelNode endpoint:
 
 **Description**: This endpoint allows users to manage node labels within a Kubernetes cluster by adding, modifying, or removing labels. Labels are key-value pairs that categorize nodes, making it easier to target specific nodes for application deployment, scaling, or management tasks.
-Using LabelNodes, you can dynamically adjust labels on worker nodes as you manage scaling operations. During ScaleOut, nodes are labeled to mark them as available for application deployments. Before invoking ScaleIn, labels can be updated to indicate that certain nodes should no longer be scheduled for application workloads, preparing them for safe removal.
+Using LabelNodes, you can dynamically adjust labels on worker nodes as you manage scaling operations. During [ScaleOut](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#106--scaleout-endpoint), nodes are labeled to mark them as available for application deployments. Before invoking [ScaleIn](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#107--scalein-endpoint), labels can be updated to indicate that certain nodes should no longer be scheduled for application workloads, preparing them for safe removal.
 
 **Path:**
 
@@ -308,12 +308,12 @@ Example node names might include `worker2_name` when labeling for workload readi
 
 ***Usage scenarios:***
   - _Scaling Out_:
-  Use the ScaleOut endpoint to add new worker nodes to the cluster.
+  Use the [ScaleOut](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#106--scaleout-endpoint) endpoint to add new worker nodes to the cluster.
   Label the new node (e.g., `worker2_name`) with `yes`, which signals that the node is available for application workloads.
   Deploy applications using DeployApplication, which targets nodes labeled with `yes`. This ensures that replicas are scheduled only on nodes intended for the application.
   - _Preparing for Scaling In_:
   Update the label on the original node (e.g., `worker_name`) to `no` before initiating the ScaleIn process. This marks the node as unavailable for new application replicas. It is also to call ManageApplication to remove application replicas from the node.
-  Finally, call ScaleIn with the node name in the following format, which safely removes the node from the cluster:
+  Finally, call [ScaleIn](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#107--scalein-endpoint) with the node name in the following format, which safely removes the node from the cluster:
 
 ***Important Notes:***
   Ensure that the environmental variables and application components are consistent across all endpoints for smooth scaling and management operations.
