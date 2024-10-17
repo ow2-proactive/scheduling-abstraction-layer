@@ -33,8 +33,6 @@ Cluster definition is the instance of class [Cluster](https://github.com/ow2-pro
       }
     ],
     "env-var":{
-      //here add any env variable needed for the cluster in the form "ENV_VAR_NAME":"test-ENV_VAR_value"
-      // for instance: "APPLICATION_ID":"0fb75671-8955-4c06-9a8c-d397b29e3894"
       "{{env_var_name1}}":"{{env_var_value1}}",
       "{{env_var_name2}}":"{{env_var_value2}}"
     }
@@ -44,6 +42,10 @@ Cluster definition is the instance of class [Cluster](https://github.com/ow2-pro
 
 **Reply:** Boolean, `true` if successful
 
+The `env-var` section in the JSON body can be used to define environment variables necessary for the cluster. Variables should follow the format `"ENV_VAR_NAME": "ENV_VAR_VALUE"`. For example:
+- `"APPLICATION_ID": "0fb75671-8955-4c06-9a8c-d397b29e3894"`
+
+These variables can be customized to suit the configuration and software requirements for the specific Kubernetes cluster deployment.
 
 When defining nodes within a cluster, each node should be represented as an instance of
 the [IaasNode](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/IaasNode.java) class,
@@ -160,7 +162,7 @@ This endpoint is used to deploy and manage applications within a specific Kubern
 [
   {
     "appFile" : "---\napiVersion: \"core.oam.dev/v1beta1\"\nkind: \"Application\"\nmetadata:\n  name: \"dummy-app-deploy\"\nspec:\n  components:\n  - name: \"{{app_component_name}}\"\n    type: \"webservice\"\n    properties:\n      cpu: \"2.0\"\n      memory: \"2048Mi\"\n      image: \"docker.io/rsprat/mytestrepo:v1\"\n      imagePullPolicy: \"Always\"\n      cmd:\n      - \"python\"\n      - \"worker.py\"\n      env:\n      - name: \"mqtt_ip\"\n        value: \"broker.hivemq.com\"\n      - name: \"mqtt_port\"\n        value: \"1883\"\n      - name: \"mqtt_subscribe_topic\"\n        value: \"$share/workers/neb/test/input\"\n      - name: \"nebulous_ems_ip\"\n        valueFrom:\n          fieldRef:\n            fieldPath: \"status.hostIP\"\n      - name: \"nebulous_ems_port\"\n        value: \"61610\"\n      - name: \"nebulous_ems_user\"\n        value: \"aaa\"\n      - name: \"nebulous_ems_password\"\n        value: \"111\"\n      - name: \"nebulous_ems_metrics_topic\"\n        value: \"realtime.job_process_time_instance\"\n    traits:\n    - type: \"scaler\"\n      properties:\n        replicas: 2\n  policies:\n  - name: \"target-default\"\n    type: \"topology\"\n    properties:\n      namespace: \"default\"\n  workflow:\n    steps:\n    - name: \"deploy2default\"\n      type: \"deploy\"\n      properties:\n        policies:\n        - \"target-default\"\n",
-    "packageManager" : "kubevela", // kubectl or helm
+    "packageManager" : "kubevela", 
     "appName" : "{{app_name}}",
     "action" : "apply",
     "flags" : ""
@@ -171,13 +173,17 @@ This endpoint is used to deploy and manage applications within a specific Kubern
 
 **Reply:**  Long indicating the ProActive Job Id (Generated workflow in Proactive)
 
-Field `appName` must be valid as a filename; therefore, spaces, quotes, and other special characters should not be used.
+- `appFile`: This field contains the deployment definition in YAML format. It includes application metadata, component specifications, environment variables, and policies for deployment.
 
-`action` value `apply` can be used both for the initial deployment and for ongoing application management. For example, you can adjust the number of replicas to scale the application according to demand.
+- `packageManager`: Specifies the package management tool to use for deployment. Acceptable values are `"kubevela"`, `"kubectl"`, or `"helm"`.
+
+- `appName`: A string representing the name of the application. Note that the name must be valid as a filename, so avoid using spaces, quotes, or special characters.
+
+- `action`: Specifies the action to perform. Use `"apply"` for both initial deployment and ongoing management (e.g., scaling the application).
+
+- `flags`: Optional field to add any additional flags needed for the deployment command.
 
 Note that from the `appFile` the value of `{{app_component_name}}` is used when calling [LabelNode](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#108--labelnode-endpoint) endpoint. Also, it is to include `\n` characters at the end of each line to indicate line breaks (JSON requirement).
-
-#### 2.2- GetAllClouds endpoint:
 
 ### 10.5- DeleteCluster endpoint:
 
@@ -208,7 +214,7 @@ For example, if a user wants to increase the number of replicas from 1 to 3, the
 
 After the ScaleOut operation, the new worker nodes and their status can be tracked using the [GetCluster](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#103--getcluster-endpoint) endpoint or monitored in the ProActive. The created workflows correspond to the one which is used to initial node deployments in cluster, using user defined scripts.
 When the new nodes are deployed, the [LabelNodes](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#108--labelnode-endpoint) endpoint should be used to label these nodes (e.g., `worker2_name`, `worker3_name`) for identification and management purposes.
-To complete ScaleOut process, ManageApplication endpoint is to be called, with updated number of the replicas (e.g. by adding two new replicas).
+To complete ScaleOut process, [ManageApplication](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/10-cluster-endpoints.md#104--manageapplication-endpoint) endpoint is to be called, with updated number of the replicas (e.g. by adding two new replicas).
 
 
 **Path:**
@@ -223,7 +229,6 @@ To complete ScaleOut process, ManageApplication endpoint is to be called, with u
 
 ```json
 [
-  //scale out using WorkerNodeCandidate which is part of the cluster and introducing the new node name
   {
     "nodeName": "{{new_worker2_name}}",
     "nodeCandidateId": "{{WorkerNodeCandidate}}",
@@ -234,13 +239,18 @@ To complete ScaleOut process, ManageApplication endpoint is to be called, with u
     "nodeCandidateId": "{{WorkerNodeCandidate}}",
     "cloudId": "{{cloud_name}}"
   }
-  // ....
 ]
 ```
 
 **Reply:** JSON format represented with the [ClusterNodeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/ClusterNodeDefinition.java) and status values corresponding to ones observed in ProActive dashboard.
 
-Note that `nodeName` should be unique name for each new worker node to be added. It must follow naming conventions (no spaces, special characters, or uppercase letters), as it will be used as part of the cluster node identifier.
+- `nodeName`: The unique name for each new worker node to be added. It must follow naming conventions (no spaces, special characters, or uppercase letters), as this will be used as part of the cluster node identifier.
+
+- `nodeCandidateId`: The ID of the existing worker node candidate, which serves as a template for the new nodes.
+
+- `cloudId`: Identifier for the cloud environment where the new worker nodes will be deployed.
+
+It is possible to add as many worker nodes as needed for new application replicas in one call.
 
 ### 10.7- ScaleIn endpoint:
 
@@ -289,7 +299,6 @@ Using LabelNodes, you can dynamically adjust labels on worker nodes as you manag
 
 ```json
 [
-  // to add lable it is to use value 'yes' and to remove 'no'
   {
     "{{worker2_name}}":"{{domain_prefix}}/{{app_component_name}}=yes",
     "{{worker_name}}":"{{domain_prefix}}/{{app_component_name}}=no"
