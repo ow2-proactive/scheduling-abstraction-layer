@@ -1,6 +1,6 @@
 ### 4.1- RegisterNewEdgeNode endpoint:
 
-**Description**: 
+**Description**:
 This endpoint is used to register new Edge nodes, which are passed as an [EdgeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/EdgeDefinition.java)  object. The information provided allows the node to be integrated into the ProActive environment, where it can be used for various deployments and managed within clusters.
 
 **Path:**
@@ -74,7 +74,7 @@ The fields are defined as:
   - `disk`: The hardware storage space in GB (e.g., `"1.0"`).
   - `operatingSystem`: Information about the OS, including Family, Architecture, and Version.
   - `geoLocation`: The physical location details, such as city, country, latitude, and longitude of the edge node.
-- `port`: The port on which the edge node is accessible. 
+- `port`: The port on which the edge node is accessible.
 - `jobId`: ProActive Job ID associated with the edge node. Set to `"0"` or `"any"` if no job is linked.
 - `systemArch`: The system architecture, which must be one of `"AMD"`, `"ARMv8"`, or `"ARMv7"`.
 - `scriptURL`: A URL pointing to any script required during the node setup.

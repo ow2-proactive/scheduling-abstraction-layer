@@ -162,7 +162,7 @@ This endpoint is used to deploy and manage applications within a specific Kubern
 [
   {
     "appFile" : "---\napiVersion: \"core.oam.dev/v1beta1\"\nkind: \"Application\"\nmetadata:\n  name: \"dummy-app-deploy\"\nspec:\n  components:\n  - name: \"{{app_component_name}}\"\n    type: \"webservice\"\n    properties:\n      cpu: \"2.0\"\n      memory: \"2048Mi\"\n      image: \"docker.io/rsprat/mytestrepo:v1\"\n      imagePullPolicy: \"Always\"\n      cmd:\n      - \"python\"\n      - \"worker.py\"\n      env:\n      - name: \"mqtt_ip\"\n        value: \"broker.hivemq.com\"\n      - name: \"mqtt_port\"\n        value: \"1883\"\n      - name: \"mqtt_subscribe_topic\"\n        value: \"$share/workers/neb/test/input\"\n      - name: \"nebulous_ems_ip\"\n        valueFrom:\n          fieldRef:\n            fieldPath: \"status.hostIP\"\n      - name: \"nebulous_ems_port\"\n        value: \"61610\"\n      - name: \"nebulous_ems_user\"\n        value: \"aaa\"\n      - name: \"nebulous_ems_password\"\n        value: \"111\"\n      - name: \"nebulous_ems_metrics_topic\"\n        value: \"realtime.job_process_time_instance\"\n    traits:\n    - type: \"scaler\"\n      properties:\n        replicas: 2\n  policies:\n  - name: \"target-default\"\n    type: \"topology\"\n    properties:\n      namespace: \"default\"\n  workflow:\n    steps:\n    - name: \"deploy2default\"\n      type: \"deploy\"\n      properties:\n        policies:\n        - \"target-default\"\n",
-    "packageManager" : "kubevela", 
+    "packageManager" : "kubevela",
     "appName" : "{{app_name}}",
     "action" : "apply",
     "flags" : ""

@@ -176,7 +176,7 @@ Please construct your own set of requirements tailored to your specific use case
 ```json
 [
     "<NODE_ID>",
-    "<NODE_ID>",
+    "<NODE_ID>"
 ]
 ```
 
