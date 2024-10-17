@@ -1,6 +1,7 @@
 ### 4.1- RegisterNewEdgeNode endpoint:
 
-**Description**: Register new Edge nodes passed as [EdgeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/EdgeDefinition.java) object
+**Description**:
+This endpoint is used to register new Edge nodes, which are passed as an [EdgeDefinition](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/sal-common/src/main/java/org/ow2/proactive/sal/model/EdgeDefinition.java)  object. The information provided allows the node to be integrated into the ProActive environment, where it can be used for various deployments and managed within clusters.
 
 **Path:**
 
@@ -34,24 +35,24 @@
   ],
   "nodeProperties": {
     "providerId": "1",
-    "numberOfCores": "{{cores}}", //e.g. "1"
-    "memory": "{{memory}}", //e.g. "1"
-    "disk": "{{disk}}", //e.g. "1.0"
+    "numberOfCores": "{{cores}}",
+    "memory": "{{memory}}",
+    "disk": "{{disk}}",
     "operatingSystem": {
       "operatingSystemFamily": "{{OS_name}}",
-      "operatingSystemArchitecture": "{{OS_arhitecture}}",
+      "operatingSystemArchitecture": "{{OS_architecture}}",
       "operatingSystemVersion": "{{OS_version}}"
     },
     "geoLocation": {
       "city": "{{edge_city}}",
-      "country": "{{edge_county}}",
-      "latitude": "{{edge_latitude}}", //e.g. "52.237049"
-      "longitude": "{{edge_latitude}}" //e.g. "21.017532"
+      "country": "{{edge_country}}",
+      "latitude": "{{edge_latitude}}",
+      "longitude": "{{edge_longitude}}"
     }
   },
   "port": "{{edge_port}}",
-  "jobId": "{{jobId}}", // use "0" or "any" when device is NOT associated with ProActive job
-  "systemArch": "{{edge_architecture}}", // MUST be "AMD", "ARMv8" OR "ARMv7"
+  "jobId": "{{jobId}}",
+  "systemArch": "{{edge_architecture}}",
   "scriptURL": "https://www.google.com",
   "jarURL": "{{jar_url}}"
 }
@@ -62,13 +63,25 @@
 - The node candidate ID (used for deployment).
 - Information registered in node candidate for hardware, location, and image that represent the device.
 
-***Searching Node Candidate representing Edge Node by its name:*** After registering an edge device, you can [search for its node candidate](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/7-node-endpoints.md#71--findnodecandidates-endpoint) using the `edge_name` as part of the Attribute requirement `hardware` with value `name`.
+The fields are defined as:
+- `name`: The name of the edge node. This is used for identification and management within the cluster.
+- `loginCredential`: Contains authentication details for accessing the edge node. The username and password are required for SSH access, with an option for a privateKey instead of a password.
+- `ipAddresses`: A list of IP addresses associated with the node, including both PUBLIC_IP and PRIVATE_IP with IP Version specified as V4.
+- `nodeProperties`:
+  - `providerId`: The ID of the provider. Default is `"1"`.
+  - `numberOfCores`: A string  representing number of hardware cores (e.g., `"1"`).
+  - `memory`: The hardware memory in GB (e.g., `"1"`)
+  - `disk`: The hardware storage space in GB (e.g., `"1.0"`).
+  - `operatingSystem`: Information about the OS, including Family, Architecture, and Version.
+  - `geoLocation`: The physical location details, such as city, country, latitude, and longitude of the edge node.
+- `port`: The port on which the edge node is accessible.
+- `jobId`: ProActive Job ID associated with the edge node. Set to `"0"` or `"any"` if no job is linked.
+- `systemArch`: The system architecture, which must be one of `"AMD"`, `"ARMv8"`, or `"ARMv7"`.
+- `scriptURL`: A URL pointing to any script required during the node setup.
+- `jarURL`: The URL for the node's executable `.jar` file, which corresponds to the `systemArch`.
 
-***Job Association:*** Each edge node can be associated with a ProActive job. If the node is not linked to a specific job, use  `jobId:"0"` or `jobId:"any"`.
+Each system architecture requires a specific `jarURL` for node execution, available from your ProActive installation. To obtain these `.jar` files, access the ProActive Resource Manager portal and go to _Portal -> Launch a Node_. Here are examples for various architectures:
 
-***Supported System Architectures and `jarURL`:*** The `jarURL`s needed for node execution are provided with your ProActive installation. To manually retrieve the correct `jarURL`, go to the ProActive Resource Manager portal and select *Portal -> Launch a Node*.
-
-Here are examples of architecture-specific `jarURL`s, using ProActive's demo portal as a reference. Replace the domain `try.activeeon.com` with your own IP address and port as needed.
 
 - **AMD (x86_64 architecture)**
 ```code
@@ -87,9 +100,15 @@ Here are examples of architecture-specific `jarURL`s, using ProActive's demo por
 "systemArch": "ARMv7",
 "jarURL": "https://try.activeeon.com/rest/node-arm-v7.jar" //ARM V7
 ```
-*Additional Notes:*
-Current execution agents (node.jars) are approximately 100 MB and require about 500 MB of resources.
+
+Replace the domain `try.activeeon.com` with your own ProActive IP address and port as needed.
+
+Current execution agents (.jars) are approximately 100 MB and require about 500 MB of resources.
 For small devices, reduced agents can be provided, but this may result in limited ProActive features.
+
+
+*Searching Node Candidate representing Edge Node by its name:* After registering an edge device, you can [search for its node candidate](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/7-node-endpoints.md#71--findnodecandidates-endpoint) using the `edge_name` as part of the Attribute requirement `hardware` with value `name`.
+
 
 
 ### 4.2- GetEdgeNodes endpoint:
@@ -122,7 +141,7 @@ For small devices, reduced agents can be provided, but this may result in limite
 
 **Path Variable:** The Job ID.
 
-**Headers:** sessionid
+**Headers:** `sessionid`
 
 **Body:**
 
