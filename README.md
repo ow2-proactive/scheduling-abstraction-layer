@@ -513,9 +513,12 @@ Contributions to SAL are welcome! If you have any bug fixes, improvements, or ne
 
 ## 5. License
 
-Scheduling Abstraction Layer (SAL) is distributed under the [MIT License](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE). Please see the [LICENSE](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE) file for more information.
+The Scheduling Abstraction Layer (SAL) is distributed under the [Mozilla Public License (MPL) 2.0.](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE) This open-source license allows for flexibility in use, modification, and distribution of the code, while also ensuring that any modifications to the SAL source code must remain open and accessible under the same license.
 
-Note that to use SAL it is necessary to have a license for [ProActive Scheduler & Resource Manager](https://proactive.activeeon.com/).
+The MPL 2.0 provides a balance between open-source freedom and the ability to combine SAL with proprietary software, as long as changes made to the original code are made available under the MPL terms. For more details on the conditions and terms, please refer to the full [LICENSE](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/LICENSE) file in the SAL repository.
+
+Note: To use SAL in conjunction with the [ProActive Scheduler & Resource Manager](https://proactive.activeeon.com/), a separate ProActive license is required. ProActive is licensed separately, and its usage terms must be respected in addition to those of the SAL under MPL 2.0.
+
 
 ---
 
