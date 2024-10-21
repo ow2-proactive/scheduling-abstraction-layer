@@ -13,10 +13,10 @@ For more details check: [Deployment class](https://github.com/ow2-proactive/sche
 **Headers:** sessionid
 
 **Body:**
-A JSON list of the node names: 
+A JSON list of the node names:
 ```json
 [
-"node_name_1", 
+"node_name_1",
 "node_name_2"
 ]
 
@@ -44,7 +44,7 @@ For more details check: [Deployment class](https://github.com/ow2-proactive/sche
 A JSON list of nodes to be removed
 ```json
 [
-"node_name_1", 
+"node_name_1",
 "node_name_2"
 ]
 
