@@ -520,6 +520,7 @@ The MPL 2.0 provides a balance between open-source freedom and the ability to co
 Note: To use SAL in conjunction with the [ProActive Scheduler & Resource Manager](https://proactive.activeeon.com/), a separate ProActive license is required. ProActive is licensed separately, and its usage terms must be respected in addition to those of the SAL under MPL 2.0.
 
 
+
 ---
 
 Thank you for using Scheduling Abstraction Layer (SAL)! If you encounter any issues or have questions, please feel free to open an issue in the repository. We hope SAL enhances your experience with ProActive Scheduler & Resource Manager!
