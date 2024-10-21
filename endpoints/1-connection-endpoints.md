@@ -28,9 +28,7 @@ In a case that HTTP 500 error is returned with body saying that NonConnectedExce
 🟡 POST {{protocol}}://{{sal_host}}:{{sal_port}}/sal/pagateway/disconnect
 ```
 
-**Headers:**
-
-*   sessionid
+**Headers:** `sessionid`
 
 **Body:** None
 
