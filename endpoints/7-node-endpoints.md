@@ -103,7 +103,7 @@ Please construct your own set of requirements tailored to your specific use case
 **Path**:
 
 ```url
-🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodecandidates
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/nodecandidates/length
 ```
 
 **Headers:** `sessionid`
