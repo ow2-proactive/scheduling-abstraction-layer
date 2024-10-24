@@ -211,7 +211,7 @@ gradle-app.setting
 
 # Ignore docker-compose
 **/docker-compose*.yaml
-**/docker-compose.yaml
+# **/docker-compose.yaml
 
 
 
