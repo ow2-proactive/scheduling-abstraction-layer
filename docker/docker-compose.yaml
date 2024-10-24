@@ -1,0 +1,59 @@
+services:
+  database:
+    image: mariadb #optionaly set specific version e.g. mariadb:10.7
+    ports:
+      - "3307:3306"
+    networks:
+      - db-tier
+    environment:
+      MYSQL_ROOT_PASSWORD: PASSWORD
+      MYSQL_DATABASE: proactive
+    container_name: myComposeMariaDB
+    healthcheck:
+      test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=PASSWORD" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  sal:
+    #Set up image to be used for SAL from https://hub.docker.com/r/activeeon/sal/tags
+    image: activeeon/sal:test
+    build:
+      context: ..
+      #Set up Dockerfile to be used:
+      #Dockerfile is used for Jenkins image creation
+      #Dockerfile.win to be used for local build on Windows
+      dockerfile: ./docker/Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      #Port for sal service
+      - "8088:8080"
+      #Port for sal-pda debugging service
+      - "9001:9001"
+    links:
+      - "database:myComposeMariaDB"
+    networks:
+      - db-tier
+    volumes:
+      - ./scripts:/usr/local/tomcat/scripts
+    environment:
+      PROPERTIES_FILENAME: sal
+      #Set up connection to ProActive server (PWS)
+      PWS_URL: <CHANGE_ME>
+      PWS_USERNAME: <CHANGE_ME>
+      PWS_PASSWORD: <CHANGE_ME>
+      DB_USERNAME: root
+      DB_PASSWORD: PASSWORD
+      DB_DRIVER_CLASSNAME: org.mariadb.jdbc.Driver
+      DB_PORT: 3306
+      DB_HOSTNAME: myComposeMariaDB
+      DB_URL: jdbc:mariadb://myComposeMariaDB:3306/proactive
+      DB_PLATFORM: org.hibernate.dialect.MariaDB53Dialect
+      JPDA_ADDRESS: 9001
+      JPDA_TRANSPORT: dt_socket
+    container_name: myComposeSAL
+
+networks:
+  # The presence of these objects is sufficient to define them
+  db-tier: {}
