@@ -59,8 +59,8 @@ public class GeoLocationUtils {
         } catch (IOException ioe) {
             LOGGER.error("Charging the Geolocation database failed due to: " + Arrays.toString(ioe.getStackTrace()));
         } catch (Exception e) {
-        LOGGER.error("An unexpected error occurred while processing GeoLocation data: " + e.getMessage(), e);
-    }
+            LOGGER.error("An unexpected error occurred while processing GeoLocation data: " + e.getMessage(), e);
+        }
 
         TemporaryFilesHelper.delete(input);
         return cloudsGLDB;
