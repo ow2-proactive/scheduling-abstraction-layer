@@ -217,7 +217,11 @@ public class NodeCandidateUtils {
             hardware.setName(hardwareJSON.optString("type"));
             hardware.setProviderId(hardwareJSON.optString("type"));
             hardware.setCores(Math.round(Float.parseFloat(hardwareJSON.optString("minCores"))));
-            hardware.setRam(Long.valueOf(hardwareJSON.optString("minRam")));
+            String minRam = hardwareJSON.optString("minRam");
+            if (minRam.endsWith(".0")) {
+                minRam = minRam.replace(".0", "");
+            }
+            hardware.setRam(Long.valueOf(minRam));
             hardware.setFpga(hardwareJSON.optString("type"));
 
             if ("aws-ec2".equals(nodeCandidateJSON.optString("cloud"))) {
