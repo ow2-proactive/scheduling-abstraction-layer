@@ -49,9 +49,9 @@ spec:
           readinessProbe:
             exec:
               command:
-                - /bin/sh
-                - -c
-                - mariadb-admin ping -h localhost --password=$MYSQL_ROOT_PASSWORD
+                - "/bin/sh"
+                - "-c"
+                - "mariadb-admin ping -h localhost --password=$MYSQL_ROOT_PASSWORD"
             failureThreshold: 5
             initialDelaySeconds: 30
             periodSeconds: 30
@@ -67,7 +67,7 @@ spec:
             - name: PROPERTIES_FILENAME
               value: sal
             - name: PWS_URL
-              value: http://158.39.77.68:8880/
+              value: <PROACTIVE_URL>
             - name: PWS_USERNAME
               value: <PROACTIVE_USERNAME>
             - name: PWS_PASSWORD

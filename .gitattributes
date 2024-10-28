@@ -1,0 +1,11 @@
+*.java eol=lf
+*.gradle eol=lf
+*.sh eol=lf
+*.md eol=lf
+*.yaml eol=lf
+
+
+*.bat eol=crlf
+
+*.png binary
+*.jpg binary

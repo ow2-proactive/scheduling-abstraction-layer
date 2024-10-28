@@ -53,7 +53,6 @@ services:
       JPDA_ADDRESS: 9001
       JPDA_TRANSPORT: dt_socket
     container_name: myComposeSAL
-
 networks:
   # The presence of these objects is sufficient to define them
   db-tier: {}
