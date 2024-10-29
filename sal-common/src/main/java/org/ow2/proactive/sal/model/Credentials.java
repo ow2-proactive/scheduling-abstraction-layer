@@ -40,4 +40,6 @@ public class Credentials implements Serializable {
     @Column(name = "DOMAIN")
     private String domain;
 
+    @Column(name = "SUBSCRIPTION_ID")
+    private String subscriptionId;
 }

@@ -93,6 +93,7 @@ public class CloudService {
             credentials.setUserName(cloud.getCredentials().getUser());
             credentials.setPrivateKey(cloud.getCredentials().getSecret());
             credentials.setDomain(cloud.getCredentials().getDomain());
+            credentials.setSubscriptionId(cloud.getCredentials().getSubscriptionId());
             repositoryService.saveCredentials(credentials);
             newCloud.setCredentials(credentials);
 
