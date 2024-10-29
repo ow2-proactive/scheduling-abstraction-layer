@@ -186,10 +186,11 @@ public class ClusterUtils {
 
     public static String createLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
         StringBuilder script = new StringBuilder();
+        // Insert K3s-specific commands
+        script.append(K3S_COMMANDS).append("\n");
         for (Map<String, String> nodeLabelPair : nodeLabels) {
             for (String nodeName : nodeLabelPair.keySet()) {
                 String label = nodeLabelPair.get(nodeName);
-
                 script.append(String.format("%s '%s %s-%s %s' \n",
                                             CLI_K3s_USER_SELECTION,
                                             KUBE_LABEL_COMMAND,
@@ -206,8 +207,6 @@ public class ClusterUtils {
         for (Map<String, String> nodeLabelPair : nodeLabels) {
             for (String nodeName : nodeLabelPair.keySet()) {
                 String label = nodeLabelPair.get(nodeName);
-                // Insert K3s-specific commands
-                script.append(K3S_COMMANDS).append("\n");
                 script.append(String.format("%s '%s %s-%s %s' \n",
                                             CLI_USER_SELECTION,
                                             KUBE_LABEL_COMMAND,
