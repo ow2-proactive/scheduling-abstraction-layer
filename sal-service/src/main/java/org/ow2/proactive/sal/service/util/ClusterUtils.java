@@ -35,6 +35,13 @@ public class ClusterUtils {
 
     private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c";
 
+    // K3s-related commands
+    private static final String CLI_K3s_USER_SELECTION = "$dau bash -c";
+
+    private static final String K3S_COMMANDS = "dau=\"sudo -H -E -u ubuntu\"\n" +
+                                               "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml\n" +
+                                               "echo \"KUBECONFIG=${KUBECONFIG}\" | sudo tee -a /etc/environment\n";
+
     private static final String FILE_PATH = "/home/ubuntu/.profile";
 
     public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
@@ -182,6 +189,25 @@ public class ClusterUtils {
         for (Map<String, String> nodeLabelPair : nodeLabels) {
             for (String nodeName : nodeLabelPair.keySet()) {
                 String label = nodeLabelPair.get(nodeName);
+
+                script.append(String.format("%s '%s %s-%s %s' \n",
+                                            CLI_K3s_USER_SELECTION,
+                                            KUBE_LABEL_COMMAND,
+                                            nodeName.toLowerCase(),
+                                            clusterName,
+                                            label));
+            }
+        }
+        return script.toString();
+    }
+
+    public static String createk8sLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
+        StringBuilder script = new StringBuilder();
+        for (Map<String, String> nodeLabelPair : nodeLabels) {
+            for (String nodeName : nodeLabelPair.keySet()) {
+                String label = nodeLabelPair.get(nodeName);
+                // Insert K3s-specific commands
+                script.append(K3S_COMMANDS).append("\n");
                 script.append(String.format("%s '%s %s-%s %s' \n",
                                             CLI_USER_SELECTION,
                                             KUBE_LABEL_COMMAND,
@@ -215,11 +241,48 @@ public class ClusterUtils {
         script.append("\nEOF\n");
 
         script.append("sudo chown ubuntu:ubuntu " + fileName + "\n");
+        // Insert K3s-specific commands
+        script.append(K3S_COMMANDS).append("\n");
         script.append(appCommand);
         return script.toString();
     }
 
     private static String createAppCommand(ClusterApplication.PackageManagerEnum yamlManager, String fileName) {
+        if (yamlManager != null) {
+            return String.format("%s '%s %s'", CLI_K3s_USER_SELECTION, yamlManager.getCommand(), fileName);
+        } else {
+            LOGGER.error("The selected yaml executor is not supported!");
+            return null;
+        }
+    }
+
+    public static String createk8sDeployApplicationScript(ClusterApplication application) throws IOException {
+        String fileName = "/home/ubuntu/" + application.getAppName() + ".yaml";
+        application.setYamlManager(ClusterApplication.PackageManagerEnum.getPackageManagerEnumByName(application.getPackageManager()));
+        String appCommand = createk8sAppCommand(application.getYamlManager(), fileName);
+
+        if (appCommand == null) {
+            LOGGER.error("\"{}\" is not supported!", application.getPackageManager());
+            throw new IOException("yaml executor is not supported!");
+        }
+        BufferedReader bufReader = new BufferedReader(new StringReader(application.getAppFile()));
+        StringBuilder script = new StringBuilder();
+        String line = null;
+        script.append("sudo rm -f " + fileName + " || echo 'file was not found.' \n");
+
+        // start heredoc
+        script.append("cat <<'EOF' >").append(fileName).append("\n");
+        // embed the application YAML directly
+        script.append(application.getAppFile());
+        // end heredoc
+        script.append("\nEOF\n");
+
+        script.append("sudo chown ubuntu:ubuntu " + fileName + "\n");
+        script.append(appCommand);
+        return script.toString();
+    }
+
+    private static String createk8sAppCommand(ClusterApplication.PackageManagerEnum yamlManager, String fileName) {
         if (yamlManager != null) {
             return String.format("%s '%s %s'", CLI_USER_SELECTION, yamlManager.getCommand(), fileName);
         } else {
