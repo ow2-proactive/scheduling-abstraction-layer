@@ -8,11 +8,9 @@ package org.ow2.proactive.sal.service.service;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
-import org.ow2.proactive.sal.service.nc.NodeCandidateUtils;
 import org.ow2.proactive.sal.service.util.ByonUtils;
 import org.ow2.proactive.sal.service.util.ClusterUtils;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -133,10 +131,10 @@ public class ClusterService {
         } else {
             List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(toDeployClutser);
             LOGGER.info("Deploying the master node of the cluster [{}]", toDeployClutser.getName());
-            submitClutserNode(sessionId, toDeployClutser, toDeployClutser.getMasterNode(), false);
+            submitClusterNode(sessionId, toDeployClutser, toDeployClutser.getMasterNode(), false);
             LOGGER.info("Deploying the worker nodes of the cluster [{}]", toDeployClutser.getName());
             for (ClusterNodeDefinition node : workerNodes) {
-                submitClutserNode(sessionId, toDeployClutser, node.getName(), true);
+                submitClusterNode(sessionId, toDeployClutser, node.getName(), true);
             }
             toDeployClutser.setStatus("submited");
             repositoryService.saveCluster(toDeployClutser);
@@ -145,7 +143,7 @@ public class ClusterService {
         return true;
     }
 
-    private void submitClutserNode(String sessionId, Cluster cluster, String nodeName, boolean worker)
+    private void submitClusterNode(String sessionId, Cluster cluster, String nodeName, boolean worker)
             throws NotConnectedException {
         LOGGER.info("Deploying the node {}...", nodeName);
         ClusterNodeDefinition node = ClusterUtils.getNodeByName(cluster, nodeName);
@@ -243,7 +241,7 @@ public class ClusterService {
         }
         repositoryService.flush();
         for (ClusterNodeDefinition node : newNodes) {
-            submitClutserNode(sessionId, toScaleCluster, node.getName(), true);
+            submitClusterNode(sessionId, toScaleCluster, node.getName(), true);
         }
         return toScaleCluster;
     }

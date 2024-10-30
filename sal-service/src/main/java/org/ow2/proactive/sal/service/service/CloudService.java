@@ -7,7 +7,6 @@ package org.ow2.proactive.sal.service.service;
 
 import java.util.*;
 import java.util.concurrent.Future;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -283,7 +282,7 @@ public class CloudService {
         Boolean flag = true;
         for (Map.Entry<String, String> entry : cloud.getDeployedRegions().entrySet()) {
             try {
-                String nodeSourceName = cloud.getNodeSourceNamePrefix() + entry.getKey();
+                String nodeSourceName = cloud.getNodeSourceNamePrefix() + "-" + entry.getKey();
                 LOGGER.info("Removing IAAS node source \"{}\" from the ProActive server.", nodeSourceName);
                 resourceManagerGateway.removeNodeSource(nodeSourceName, preempt);
             } catch (NotConnectedException | PermissionRestException | IllegalArgumentException e) {
