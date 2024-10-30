@@ -142,10 +142,15 @@ sal:
 ```bash
 dockerfile: ./docker/Dockerfile.win
 ```
+
+NOTE: In a case of committing improvements to the SAL project, you will need to keep your local changes to the `docker-compose.yaml` untracked. Use the following command:
+```bash
+git update-index --assume-unchanged docker/docker-compose.yaml
+```
 2. Build and Start the Containers:
 
 Open a terminal and Build SAL as described in [Section 2.1.1](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/README.md#211-build-and-run-the-microservice)
-Navigate to the directory containing your docker-compose.yaml (e.g. docker) file to start docker containers:
+Navigate to the directory containing your `docker-compose.yaml` (e.g. docker) file to start docker containers:
 ```bash
 cd .\docker\
 docker-compose up --build
@@ -154,7 +159,7 @@ NOTE: Make sure that previous containers are removed (Step 4)
 
 NOTE: Note that there will be some unresolved warning and errors during built of SAL, which do not have impact on its functionality.
 In principle when you see this line in build log the SAL containers should be up and running:
-_ERROR WebSocketTransport:231 - WebSocket Handshake Failed_
+`_ERROR WebSocketTransport:231 - WebSocket Handshake Failed_`
 3. Verify Deployment
 
 Check the status of the containers
