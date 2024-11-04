@@ -8,11 +8,9 @@ package org.ow2.proactive.sal.service.service;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
-import org.ow2.proactive.sal.service.nc.NodeCandidateUtils;
 import org.ow2.proactive.sal.service.util.ByonUtils;
 import org.ow2.proactive.sal.service.util.ClusterUtils;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
@@ -38,7 +36,20 @@ public class ClusterService {
     private JobService jobService;
 
     @Autowired
-    private EdgeService edgeServie;
+    private EdgeService edgeService;
+
+    // Define cluster state constants
+    private static final String STATUS_DEFINED = "defined";
+
+    private static final String STATUS_DEPLOYED = "deployed";
+
+    private static final String STATUS_RUNNING = "running";
+
+    private static final String STATUS_FAILED = "failed";
+
+    private static final String STATUS_SUBMITTED = "submitted"; // New status
+
+    private static final String STATUS_SCALING = "scaling";
 
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
@@ -55,7 +66,7 @@ public class ClusterService {
         Cluster newCluster = new Cluster();
         newCluster.setName(clusterDefinition.getName());
         newCluster.setMasterNode(clusterDefinition.getMasterNode());
-        newCluster.setStatus("defined");
+        newCluster.setStatus(STATUS_DEFINED);
         newCluster.setEnvVars(ClusterUtils.createEnvVarsScript(clusterDefinition.getEnvVars()));
         clusterDefinition.getNodes()
                          .forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
@@ -100,7 +111,7 @@ public class ClusterService {
                     repositoryService.saveJob(workerNodeJob);
                     //                    Map<String, String> edgeNodeMap = new HashMap<>();
                     //                    edgeNodeMap.put(edgeNode.getId(), edgeNode.getName() + "/_Task");
-                    //                    edgeServie.addEdgeNodes(sessionId, edgeNodeMap, jobId);
+                    //                    edgeService.addEdgeNodes(sessionId, edgeNodeMap, jobId);
                 } else {
                     PACloud cloud = repositoryService.getPACloud(node.getCloudId());
                     Job workerNodeJob = ClusterUtils.createWorkerNodeJob(newCluster.getName(),
@@ -124,28 +135,28 @@ public class ClusterService {
         }
         Validate.notNull(clusterName, "The received clusterName is empty. Nothing to be defined.");
         LOGGER.info("deployCluster endpoint is called to deploy the cluster: " + clusterName);
-        Cluster toDeployClutser = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        Cluster toDeployCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
 
         // add nodes
-        if (toDeployClutser == null) {
+        if (toDeployCluster == null) {
             LOGGER.error("No Cluster was found! Nothing is deployed!");
             return false;
         } else {
-            List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(toDeployClutser);
-            LOGGER.info("Deploying the master node of the cluster [{}]", toDeployClutser.getName());
-            submitClutserNode(sessionId, toDeployClutser, toDeployClutser.getMasterNode(), false);
-            LOGGER.info("Deploying the worker nodes of the cluster [{}]", toDeployClutser.getName());
+            List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(toDeployCluster);
+            LOGGER.info("Deploying the master node of the cluster [{}]", toDeployCluster.getName());
+            submitClusterNode(sessionId, toDeployCluster, toDeployCluster.getMasterNode(), false);
+            LOGGER.info("Deploying the worker nodes of the cluster [{}]", toDeployCluster.getName());
             for (ClusterNodeDefinition node : workerNodes) {
-                submitClutserNode(sessionId, toDeployClutser, node.getName(), true);
+                submitClusterNode(sessionId, toDeployCluster, node.getName(), true);
             }
-            toDeployClutser.setStatus("submited");
-            repositoryService.saveCluster(toDeployClutser);
+            toDeployCluster.setStatus(STATUS_SUBMITTED);
+            repositoryService.saveCluster(toDeployCluster);
             repositoryService.flush();
         }
         return true;
     }
 
-    private void submitClutserNode(String sessionId, Cluster cluster, String nodeName, boolean worker)
+    private void submitClusterNode(String sessionId, Cluster cluster, String nodeName, boolean worker)
             throws NotConnectedException {
         LOGGER.info("Deploying the node {}...", nodeName);
         ClusterNodeDefinition node = ClusterUtils.getNodeByName(cluster, nodeName);
@@ -157,7 +168,7 @@ public class ClusterService {
                 EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
                 Map<String, String> edgeNodeMap = new HashMap<>();
                 edgeNodeMap.put(edgeNode.getId(), edgeNode.getName() + "/_Task");
-                edgeServie.addEdgeNodes(sessionId, edgeNodeMap, jobId);
+                edgeService.addEdgeNodes(sessionId, edgeNodeMap, jobId);
                 currentDeployment = repositoryService.getDeployment(edgeNode.getName());
             } else {
                 List<IaasDefinition> defs = ClusterUtils.getNodeIaasDefinition(sessionId, cluster, node.getName());
@@ -196,17 +207,17 @@ public class ClusterService {
                     node.setState(state.getJobStatus().toString());
                     states.add(state.getJobStatus().toString());
                 } else {
-                    node.setState("defined");
+                    node.setState(STATUS_DEFINED);
                 }
                 nodes.set(i, node);
                 i += 1;
                 node.setNodeUrl(getNodeUrl(sessionId, clusterName, node));
             }
             if (states.contains("In-Error") || states.contains("Failed") || states.contains("Canceled")) {
-                getCluster.setStatus("failed");
+                getCluster.setStatus(STATUS_FAILED);
             } else {
                 if (checkAllStates(states)) {
-                    getCluster.setStatus("deployed");
+                    getCluster.setStatus(STATUS_DEPLOYED);
                 }
             }
             getCluster.setNodes(nodes);
@@ -229,7 +240,7 @@ public class ClusterService {
         newList.addAll(newNodes);
         newList.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
         toScaleCluster.setNodes(newList);
-        toScaleCluster.setStatus("scaling");
+        toScaleCluster.setStatus(STATUS_SCALING);
         repositoryService.saveCluster(toScaleCluster);
         LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
         for (ClusterNodeDefinition node : newNodes) {
@@ -243,7 +254,7 @@ public class ClusterService {
         }
         repositoryService.flush();
         for (ClusterNodeDefinition node : newNodes) {
-            submitClutserNode(sessionId, toScaleCluster, node.getName(), true);
+            submitClusterNode(sessionId, toScaleCluster, node.getName(), true);
         }
         return toScaleCluster;
     }
@@ -282,7 +293,7 @@ public class ClusterService {
             }
         }
         toScaleCluster.setNodes(clusterNodes);
-        toScaleCluster.setStatus("scaling");
+        toScaleCluster.setStatus(STATUS_SCALING);
         clusterNodes.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
         repositoryService.saveCluster(toScaleCluster);
         repositoryService.flush();
