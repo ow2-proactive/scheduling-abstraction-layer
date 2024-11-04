@@ -212,15 +212,19 @@ Contains authentication details for accessing the cloud. The fields are:
 
 #### 2.7- RemoveClouds endpoint:
 
-**Description**: An endpoint to get all the remove a list of defined clouds.
+**Description**: This endpoint removes a specified list of cloud infrastructures.
 
 **Path:**
 
 ```url
 🔴 DEL {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/remove
 ```
+**Path Variable (optional):** `preempt` = Boolean
 
-**Headers:** `sessionid`
+- `true` - Removes all deployed nodes within the specified cloud infrastructures.
+- `false`: (default) Removes only the specified cloud infrastructures without affecting deployed nodes.
+
+**Headers (optional):** `sessionid`
 
 **Body:**
 
@@ -230,4 +234,4 @@ Contains authentication details for accessing the cloud. The fields are:
   "{{cloud_name2}}"
 ]
 ```
-**Reply:**  Boolean, True if cloud infrastructure was removed. False, otherwise.
+**Reply:**  Boolean, `true` if cloud infrastructure was removed. `false`, otherwise.

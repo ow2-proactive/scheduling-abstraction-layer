@@ -55,6 +55,8 @@ public class CloudService {
     @Autowired
     private RepositoryService repositoryService;
 
+    private static final String DUMMY_INFRA_NAME_TEMPLATE = "iamadummy%s_%s";
+
     /**
      * Add clouds to the ProActive Resource Manager
      * @param sessionId A valid session id
@@ -96,7 +98,9 @@ public class CloudService {
             repositoryService.saveCredentials(credentials);
             newCloud.setCredentials(credentials);
 
-            String dummyInfraName = "iamadummy" + newCloud.getCloudProviderName() + "_" + newCloud.getCloudId();
+            String dummyInfraName = String.format(DUMMY_INFRA_NAME_TEMPLATE,
+                                                  newCloud.getCloudProviderName(),
+                                                  newCloud.getCloudId());
             connectorIaasGateway.defineInfrastructure(dummyInfraName, newCloud, "");
             newCloud.setDummyInfrastructureName(dummyInfraName);
 

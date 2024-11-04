@@ -40,12 +40,16 @@ public class ClusterService {
 
     // Define cluster state constants
     private static final String STATUS_DEFINED = "defined";
-    private static final String STATUS_DEPLOYED = "deployed";
-    private static final String STATUS_RUNNING = "running";
-    private static final String STATUS_FAILED = "failed";
-    private static final String STATUS_SUBMITTED = "submitted"; // New status
-    private static final String STATUS_SCALING = "scaling";
 
+    private static final String STATUS_DEPLOYED = "deployed";
+
+    private static final String STATUS_RUNNING = "running";
+
+    private static final String STATUS_FAILED = "failed";
+
+    private static final String STATUS_SUBMITTED = "submitted"; // New status
+
+    private static final String STATUS_SCALING = "scaling";
 
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
