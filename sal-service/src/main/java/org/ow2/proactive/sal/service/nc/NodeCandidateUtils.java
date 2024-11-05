@@ -279,7 +279,7 @@ public class NodeCandidateUtils {
             image.setProviderId(StringUtils.substringAfterLast(imageJSON.optString("id"), "/"));
             OperatingSystem os = new OperatingSystem();
             JSONObject osJSON = imageJSON.optJSONObject("operatingSystem");
-            os.setOperatingSystemFamily(OperatingSystemFamily.fromValue(osJSON.optString("family")));
+            os.setOperatingSystemFamily(OperatingSystemFamily.fromValue(osJSON.optString("family").toUpperCase()));
 
             String arch = "";
             if ("aws-ec2".equals(nodeCandidateJSON.optString("cloud"))) {
@@ -288,6 +288,8 @@ public class NodeCandidateUtils {
                 } else {
                     arch = osJSON.optBoolean("is64Bit") ? "AMD64" : "i386";
                 }
+            } else if ("azure".equals(nodeCandidateJSON.optString("cloud"))) {
+                arch = osJSON.optString("arch");
             }
             os.setOperatingSystemArchitecture(OperatingSystemArchitecture.fromValue(arch));
             os.setOperatingSystemVersion(osJSON.optBigDecimal("version", BigDecimal.valueOf(0)));
