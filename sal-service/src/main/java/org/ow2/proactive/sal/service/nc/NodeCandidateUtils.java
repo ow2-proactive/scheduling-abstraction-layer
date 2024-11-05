@@ -39,8 +39,11 @@ import lombok.extern.log4j.Log4j2;
 public class NodeCandidateUtils {
 
     public static final String AWS_EC2 = "aws-ec2";
+
     public static final String AZURE = "azure";
+
     public static final String GCE = "gce";
+
     public static final String OPENSTACK = "openstack";
 
     @Autowired
