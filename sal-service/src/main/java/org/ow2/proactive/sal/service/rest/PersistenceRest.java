@@ -22,15 +22,23 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/persistence")
-@Api(description = "Operations on the DB", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(description = "Operations to clean the cloud, clusters and SAL database", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class PersistenceRest {
 
     @Autowired
     private RepositoryService repositoryService;
 
     @RequestMapping(value = "/cleanall", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Clean all the DB entries")
+    @ApiOperation(value = "Clean all the clusters, clouds and edge devices")
     public void cleanAll(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        repositoryService.cleanAll(sessionId);
+    }
+
+    @RequestMapping(value = "/cleanSALdatabase", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Clean all the DB entries in SAL")
+    public void cleanSalDatabase(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
         repositoryService.cleanAll(sessionId);
