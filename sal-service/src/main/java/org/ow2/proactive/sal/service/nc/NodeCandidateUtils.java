@@ -38,6 +38,11 @@ import lombok.extern.log4j.Log4j2;
 @Component
 public class NodeCandidateUtils {
 
+    public static final String AWS_EC2 = "aws-ec2";
+    public static final String AZURE = "azure";
+    public static final String GCE = "gce";
+    public static final String OPENSTACK = "openstack";
+
     @Autowired
     private PAConnectorIaasGateway connectorIaasGateway;
 
@@ -224,7 +229,7 @@ public class NodeCandidateUtils {
             hardware.setRam(Long.valueOf(minRam));
             hardware.setFpga(hardwareJSON.optString("type"));
 
-            if ("aws-ec2".equals(nodeCandidateJSON.optString("cloud"))) {
+            if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
                 hardware.setDisk((double) 8);
             } else {
                 hardware.setDisk((double) 0);
@@ -256,13 +261,13 @@ public class NodeCandidateUtils {
 
     private GeoLocation createGeoLocation(String cloud, String region) {
         switch (cloud) {
-            case "aws-ec2":
+            case AWS_EC2:
                 return new GeoLocation(geoLocationUtils.findGeoLocation("AWS", region));
-            case "azure":
+            case AZURE:
                 return new GeoLocation(geoLocationUtils.findGeoLocation("Azure", region));
-            case "gce":
+            case GCE:
                 return new GeoLocation(geoLocationUtils.findGeoLocation("GCE", region));
-            case "openstack":
+            case OPENSTACK:
                 return new GeoLocation(geoLocationUtils.findGeoLocation("OVH", region));
         }
         LOGGER.warn("Cloud provider name no handled for Geo Location.");
@@ -282,13 +287,13 @@ public class NodeCandidateUtils {
             os.setOperatingSystemFamily(OperatingSystemFamily.fromValue(osJSON.optString("family").toUpperCase()));
 
             String arch = "";
-            if ("aws-ec2".equals(nodeCandidateJSON.optString("cloud"))) {
+            if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
                 if (nodeCandidateJSON.optJSONObject("hw").optString("type").startsWith("a")) {
                     arch = osJSON.optBoolean("is64Bit") ? "ARM64" : "ARM";
                 } else {
                     arch = osJSON.optBoolean("is64Bit") ? "AMD64" : "i386";
                 }
-            } else if ("azure".equals(nodeCandidateJSON.optString("cloud"))) {
+            } else if (AZURE.equals(nodeCandidateJSON.optString("cloud"))) {
                 arch = osJSON.optString("arch");
             }
             os.setOperatingSystemArchitecture(OperatingSystemArchitecture.fromValue(arch));
@@ -376,13 +381,13 @@ public class NodeCandidateUtils {
                 os = os.substring(0, 1).toUpperCase() + os.substring(1);
                 String pair = os + ":" + region;
                 switch (paCloud.getCloudProviderName()) {
-                    case "aws-ec2":
+                    case AWS_EC2:
                         imageReq = "Linux";
                         break;
-                    case "openstack":
+                    case OPENSTACK:
                         imageReq = os;
                         break;
-                    case "azure":
+                    case AZURE:
                         imageReq = os;
                         break;
                     default:
@@ -390,7 +395,7 @@ public class NodeCandidateUtils {
                                                            " is not handled yet.");
                 }
 
-                if (paCloud.getCloudProviderName().equals("openstack")) {
+                if (paCloud.getCloudProviderName().equals(OPENSTACK)) {
                     entries.add(pair);
                 }
                 populateNodeCandidatesFromCache(paCloud, region, imageReq, image);
