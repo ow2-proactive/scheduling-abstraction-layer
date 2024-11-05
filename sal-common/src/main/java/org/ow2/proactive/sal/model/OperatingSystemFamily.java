@@ -68,7 +68,9 @@ public enum OperatingSystemFamily {
 
     CLOUD_LINUX("CLOUD_LINUX"),
 
-    WINDOWS("WINDOWS");
+    WINDOWS("WINDOWS"),
+
+    LINUX("LINUX");
 
     private String value;
 
