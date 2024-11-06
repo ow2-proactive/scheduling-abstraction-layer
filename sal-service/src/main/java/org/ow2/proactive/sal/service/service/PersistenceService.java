@@ -60,23 +60,52 @@ public class PersistenceService {
      * @param sessionId A valid session id
      */
     public void cleanAll(String sessionId) throws NotConnectedException {
+        LOGGER.info("Received cleanAll endpoint call ....");
         // Check if the connection is active
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
 
         LOGGER.info("CLEAN-ALL: Cleaning Clouds ...");
-        // Retrieve all clouds
-        List<PACloud> clouds = cloudService.getAllClouds(sessionId);
-        // Create a list to store the cloud IDs
-        List<String> cloudIds = new ArrayList<>();
-        for (PACloud cloud : clouds) {
-            cloudIds.add(cloud.getCloudId());
-        }
-        // Pass the list of cloud IDs to the removeClouds method
-        cloudService.removeClouds(sessionId, cloudIds, true);
+        // Delegate cloud cleanup to cleanAllClouds method
+        cleanAllClouds(sessionId);
+        LOGGER.info("CLEAN-ALL: Successfully cleaned all clouds.");
 
         LOGGER.info("CLEAN-ALL: Cleaning Clusters ...");
+    }
+
+    /**
+     * Cleans all clouds by undeploying cloud nodes and removing cloud entries.
+     * @param sessionId A valid session id
+     */
+    public void cleanAllClouds(String sessionId) throws NotConnectedException {
+        // Check if the connection is active
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+
+        LOGGER.info("Cleaning ALL Clouds and undeploying the nodes...");
+
+        try {
+            // Retrieve all clouds
+            List<PACloud> clouds = cloudService.getAllClouds(sessionId);
+
+            // Create a list to store the cloud IDs
+            List<String> cloudIds = new ArrayList<>();
+            for (PACloud cloud : clouds) {
+                cloudIds.add(cloud.getCloudId());
+            }
+
+            // Pass the list of cloud IDs to the removeClouds method
+            cloudService.removeClouds(sessionId, cloudIds, true);
+
+            LOGGER.info("Successfully cleaned all clouds.");
+
+        } catch (Exception e) {
+            // Log the error with a message and stack trace
+            LOGGER.error("ERROR occurred while cleaning clouds.", e);
+        }
+
     }
 
 }

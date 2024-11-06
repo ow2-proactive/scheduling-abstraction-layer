@@ -7,6 +7,7 @@ package org.ow2.proactive.sal.service.rest;
 
 import javax.ws.rs.core.MediaType;
 
+import org.ow2.proactive.sal.service.service.PersistenceService;
 import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,23 @@ public class PersistenceRest {
     @Autowired
     private RepositoryService repositoryService;
 
+    @Autowired
+    private PersistenceService persistenceService;
+
     @RequestMapping(value = "/cleanall", method = RequestMethod.DELETE)
     @ApiOperation(value = "Clean all the clusters, clouds and edge devices")
     public void cleanAll(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        repositoryService.cleanAll(sessionId);
+        persistenceService.cleanAll(sessionId);
+    }
+
+    @RequestMapping(value = "/cleanallclouds", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Clean all clouds and undeploying cloud nodes")
+    public void cleanAllClouds(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        persistenceService.cleanAllClouds(sessionId);
     }
 
     @RequestMapping(value = "/cleanSALdatabase", method = RequestMethod.DELETE)
