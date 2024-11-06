@@ -11,6 +11,7 @@ import org.ow2.proactive.sal.service.service.PersistenceService;
 import org.ow2.proactive.sal.service.service.RepositoryService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,11 +42,12 @@ public class PersistenceRest {
     }
 
     @RequestMapping(value = "/cleanallclouds", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Clean all clouds and undeploying cloud nodes")
-    public void cleanAllClouds(@ApiParam(value = "Proactive authentication session id", required = true)
+    @ApiOperation(value = "Clean all clouds and undeploy cloud nodes", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            cleanAllClouds(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        persistenceService.cleanAllClouds(sessionId);
+        return ResponseEntity.ok(persistenceService.cleanAllClouds(sessionId));
     }
 
     @RequestMapping(value = "/cleanSALdatabase", method = RequestMethod.DELETE)

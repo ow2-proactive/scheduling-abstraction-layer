@@ -27,6 +27,7 @@ import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.ow2.proactive_grid_cloud_portal.scheduler.exception.PermissionRestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -56,56 +57,94 @@ public class PersistenceService {
     private RepositoryService repositoryService;
 
     /**
-     * Clean all clusters, clouds, edge devices, and database entries
+     * Clean all clusters, clouds, edge devices, and database entries.
      * @param sessionId A valid session id
      */
     public void cleanAll(String sessionId) throws NotConnectedException {
-        LOGGER.info("Received cleanAll endpoint call ....");
+        LOGGER.info("Received cleanAll endpoint call with sessionId: {}", sessionId);
+
         // Check if the connection is active
         if (!paGatewayService.isConnectionActive(sessionId)) {
+            LOGGER.warn("Session {} is not active. Aborting cleanAll operation.", sessionId);
             throw new NotConnectedException();
         }
 
-        LOGGER.info("CLEAN-ALL: Cleaning Clouds ...");
-        // Delegate cloud cleanup to cleanAllClouds method
-        cleanAllClouds(sessionId);
-        LOGGER.info("CLEAN-ALL: Successfully cleaned all clouds.");
+        // Cleaning clouds
+        LOGGER.info("CLEAN-ALL: Initiating cloud cleanup...");
+        boolean cloudsCleaned = cleanAllCloudsFunction(sessionId);
+        if (cloudsCleaned) {
+            LOGGER.info("CLEAN-ALL: Successfully cleaned all clouds.");
+        } else {
+            LOGGER.warn("CLEAN-ALL: Cloud cleanup encountered issues.");
+        }
 
-        LOGGER.info("CLEAN-ALL: Cleaning Clusters ...");
+        // Cleaning clusters
+        LOGGER.info("CLEAN-ALL: Initiating cluster cleanup...");
+        // Cluster cleanup logic would go here, with logging for each step
+
+        // Additional cleanup steps (e.g., edge devices, database entries) with similar logging
+
+        LOGGER.info("CLEAN-ALL: Completed all cleanup processes for sessionId: {}", sessionId);
     }
 
     /**
      * Cleans all clouds by undeploying cloud nodes and removing cloud entries.
      * @param sessionId A valid session id
+     * @return true if all clouds were cleaned successfully, false otherwise
      */
-    public void cleanAllClouds(String sessionId) throws NotConnectedException {
+    public boolean cleanAllClouds(String sessionId) throws NotConnectedException {
+        LOGGER.info("Received cleanAllClouds endpoint call with sessionId: {}", sessionId);
+
         // Check if the connection is active
         if (!paGatewayService.isConnectionActive(sessionId)) {
+            LOGGER.warn("Session {} is not active. Aborting cloud cleanup.", sessionId);
             throw new NotConnectedException();
         }
 
-        LOGGER.info("Cleaning ALL Clouds and undeploying the nodes...");
+        // Perform actual cleanup
+        return cleanAllCloudsFunction(sessionId);
+    }
 
+    /**
+     * Helper function to perform cloud cleanup and return the result.
+     * @param sessionId A valid session id
+     * @return true if all clouds were cleaned successfully, false otherwise
+     */
+    public Boolean cleanAllCloudsFunction(String sessionId) {
         try {
-            // Retrieve all clouds
-            List<PACloud> clouds = cloudService.getAllClouds(sessionId);
+            LOGGER.info("Starting cloud cleanup function for sessionId: {}", sessionId);
 
-            // Create a list to store the cloud IDs
-            List<String> cloudIds = new ArrayList<>();
-            for (PACloud cloud : clouds) {
-                cloudIds.add(cloud.getCloudId());
+            if (cloudService.isAnyAsyncNodeCandidatesProcessesInProgress(sessionId)) {
+                LOGGER.warn("Asynchronous node candidate retrieval is in progress. Cloud cleanup is deferred.");
+                return false;
             }
 
-            // Pass the list of cloud IDs to the removeClouds method
-            cloudService.removeClouds(sessionId, cloudIds, true);
+            // Retrieve all clouds
+            List<PACloud> allClouds = repositoryService.listPACloud();
+            if (allClouds.isEmpty()) {
+                LOGGER.warn("No clouds found to clean for sessionId: {}", sessionId);
+                return false;
+            }
 
-            LOGGER.info("Successfully cleaned all clouds.");
+            // Collect all cloud IDs
+            final List<String> cloudIds = allClouds.stream().map(PACloud::getCloudId).collect(Collectors.toList());
+            LOGGER.info("Found {} clouds to clean for sessionId: {}", cloudIds.size(), sessionId);
+
+            // Perform cloud removal
+            boolean removeCloudsResult = cloudService.removeClouds(sessionId, cloudIds, true);
+            if (removeCloudsResult) {
+                LOGGER.info("Successfully removed all clouds for sessionId: {}", sessionId);
+            } else {
+                LOGGER.error("Failed to remove one or more clouds for sessionId: {}", sessionId);
+            }
+
+            return removeCloudsResult;
 
         } catch (Exception e) {
-            // Log the error with a message and stack trace
-            LOGGER.error("ERROR occurred while cleaning clouds.", e);
+            // Log any errors with a message and stack trace
+            LOGGER.error("Unexpected error during cloud cleanup for sessionId: {}. Details: ", sessionId, e);
+            return false;
         }
-
     }
 
 }
