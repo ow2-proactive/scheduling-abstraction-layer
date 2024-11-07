@@ -34,11 +34,11 @@ public class PersistenceRest {
     private PersistenceService persistenceService;
 
     @RequestMapping(value = "/cleanall", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Clean all the clusters, clouds and edge devices")
-    public void cleanAll(@ApiParam(value = "Proactive authentication session id", required = true)
+    @ApiOperation(value = "Clean all clusters, clouds, and edge devices", response = Boolean.class)
+    public ResponseEntity<Boolean> cleanAll(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        persistenceService.cleanAll(sessionId);
+        return ResponseEntity.ok(persistenceService.cleanAll(sessionId));
     }
 
     @RequestMapping(value = "/cleanallclouds", method = RequestMethod.DELETE)
@@ -62,9 +62,9 @@ public class PersistenceRest {
     @RequestMapping(value = "/cleanalledges", method = RequestMethod.DELETE)
     @ApiOperation(value = "Deregister all edge devices", response = Boolean.class)
     public ResponseEntity<Boolean>
-    cleanAllEdges(@ApiParam(value = "Proactive authentication session id", required = true)
-                  @RequestHeader(value = "sessionid") final String sessionId)
-            throws NotConnectedException {
+            cleanAllEdges(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
         return ResponseEntity.ok(persistenceService.cleanAllEdges(sessionId));
     }
 

@@ -38,7 +38,7 @@ public class PersistenceService {
      * Clean all clusters, clouds, edge devices, and database entries.
      * @param sessionId A valid session id
      */
-    public void cleanAll(String sessionId) throws NotConnectedException {
+    public boolean cleanAll(String sessionId) throws NotConnectedException {
         LOGGER.info("Received cleanAll endpoint call with sessionId: {}", sessionId);
         // Check if the connection is active
         if (!paGatewayService.isConnectionActive(sessionId)) {
@@ -73,13 +73,12 @@ public class PersistenceService {
             LOGGER.warn("CLEAN-ALL: Edge device cleanup encountered issues.");
         }
 
-
-
         //Clean all database entries
         LOGGER.info("CLEAN-ALL: Initiating database cleanup...");
         repositoryService.cleanAll(sessionId);
 
         LOGGER.info("CLEAN-ALL: Completed all cleanup processes for sessionId: {}", sessionId);
+        return clustersCleaned && edgesCleaned && cloudsCleaned;
 
     }
 
@@ -136,7 +135,6 @@ public class PersistenceService {
         // Perform the actual edge device cleanup
         return cleanAllEdgeFunction(sessionId);
     }
-
 
     /**
      * Helper function to perform cloud cleanup and return the result.
