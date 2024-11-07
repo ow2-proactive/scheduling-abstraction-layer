@@ -855,7 +855,7 @@ public class RepositoryService {
         return instanceToRemove;
     }
 
-    public Cluster getClutser(String clusterId) {
+    public Cluster getCluster(String clusterId) {
         return clusterRepository.findOne(clusterId);
     }
 

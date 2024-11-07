@@ -50,6 +50,15 @@ public class PersistenceRest {
         return ResponseEntity.ok(persistenceService.cleanAllClouds(sessionId));
     }
 
+    @RequestMapping(value = "/cleanallclusters", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Clean all clouds and undeploy cloud nodes", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            cleanAllClusters(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        return ResponseEntity.ok(persistenceService.cleanAllClusters(sessionId));
+    }
+
     @RequestMapping(value = "/cleanSALdatabase", method = RequestMethod.DELETE)
     @ApiOperation(value = "Clean all the DB entries in SAL")
     public void cleanSalDatabase(@ApiParam(value = "Proactive authentication session id", required = true)
