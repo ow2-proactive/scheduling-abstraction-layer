@@ -48,7 +48,7 @@ public class PersistenceService {
 
         // Cleaning clusters
         LOGGER.info("CLEAN-ALL: Initiating cluster cleanup...");
-        boolean clustersCleaned = cleanAllClusters(sessionId);
+        boolean clustersCleaned = cleanAllClustersFunction(sessionId);
         if (clustersCleaned) {
             LOGGER.info("CLEAN-ALL: Successfully cleaned all clusters.");
         } else {
@@ -64,11 +64,22 @@ public class PersistenceService {
             LOGGER.warn("CLEAN-ALL: Cloud cleanup encountered issues.");
         }
 
-        LOGGER.info("CLEAN-ALL: Completed all cleanup processes for sessionId: {}", sessionId);
+        // Cleaning edge devices
+        LOGGER.info("CLEAN-ALL: Initiating edge devices cleanup...");
+        boolean edgesCleaned = cleanAllEdges(sessionId);
+        if (edgesCleaned) {
+            LOGGER.info("CLEAN-ALL: Successfully cleaned all edge devices.");
+        } else {
+            LOGGER.warn("CLEAN-ALL: Edge device cleanup encountered issues.");
+        }
+
+
 
         //Clean all database entries
         LOGGER.info("CLEAN-ALL: Initiating database cleanup...");
         repositoryService.cleanAll(sessionId);
+
+        LOGGER.info("CLEAN-ALL: Completed all cleanup processes for sessionId: {}", sessionId);
 
     }
 
@@ -107,6 +118,25 @@ public class PersistenceService {
         // Perform actual cleanup
         return cleanAllClustersFunction(sessionId);
     }
+
+    /**
+     * Deregisters all edge devices by removing their entries.
+     * @param sessionId A valid session id
+     * @return true if all edge devices were deregistered successfully, false otherwise
+     */
+    public boolean cleanAllEdges(String sessionId) throws NotConnectedException {
+        LOGGER.info("Received cleanAllEdges endpoint call with sessionId: {}", sessionId);
+
+        // Check if the connection is active
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            LOGGER.warn("Session {} is not active. Aborting edge device cleanup.", sessionId);
+            throw new NotConnectedException();
+        }
+
+        // Perform the actual edge device cleanup
+        return cleanAllEdgeFunction(sessionId);
+    }
+
 
     /**
      * Helper function to perform cloud cleanup and return the result.
@@ -193,6 +223,55 @@ public class PersistenceService {
         } catch (Exception e) {
             // Log any errors with a message and stack trace
             LOGGER.error("Unexpected error during cluster cleanup for sessionId: {}. Error details:", sessionId, e);
+            return false;
+        }
+    }
+
+    /**
+     * Helper function to perform edge devices deregistration and return the result.
+     * @param sessionId A valid session id
+     * @return true if all edge devices were unregistered successfully, false otherwise
+     */
+    public Boolean cleanAllEdgeFunction(String sessionId) {
+        LOGGER.info("Initiating edge device cleanup for sessionId: {}", sessionId);
+
+        try {
+            // Retrieve all edge devices
+            List<EdgeNode> allEdgeDevices = repositoryService.listEdgeNodes();
+
+            if (allEdgeDevices.isEmpty()) {
+                LOGGER.warn("No edge devices found for sessionId: {}. Nothing to deregister.", sessionId);
+                return false;
+            }
+
+            boolean overallSuccess = true; // Track overall success status
+
+            LOGGER.info("Attempting to deregister {} edge devices for sessionId: {}", allEdgeDevices.size(), sessionId);
+
+            for (EdgeNode edge : allEdgeDevices) {
+                String edgeID = edge.getId();
+
+                // Try deregistrating edge device and update overall status
+                boolean deleteResult = edgeService.deleteEdgeNode(sessionId, edgeID);
+                if (!deleteResult) {
+                    LOGGER.error("Failed to delete edge device with ID: {} for sessionId: {}", edgeID, sessionId);
+                    overallSuccess = false; // Mark as false if any deletion fails
+                } else {
+                    LOGGER.info("Successfully deleted  edge device with ID: {} for sessionId: {}", edgeID, sessionId);
+                }
+            }
+
+            if (overallSuccess) {
+                LOGGER.info("All edge devices successfully deregistered for sessionId: {}", sessionId);
+            } else {
+                LOGGER.warn("Completed edge cleanup with some failures for sessionId: {}", sessionId);
+            }
+
+            return overallSuccess;
+
+        } catch (Exception e) {
+            // Log any errors with a message and stack trace
+            LOGGER.error("Unexpected error during edge cleanup for sessionId: {}. Error details:", sessionId, e);
             return false;
         }
     }

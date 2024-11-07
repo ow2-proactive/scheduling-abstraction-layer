@@ -59,6 +59,15 @@ public class PersistenceRest {
         return ResponseEntity.ok(persistenceService.cleanAllClusters(sessionId));
     }
 
+    @RequestMapping(value = "/cleanalledges", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Deregister all edge devices", response = Boolean.class)
+    public ResponseEntity<Boolean>
+    cleanAllEdges(@ApiParam(value = "Proactive authentication session id", required = true)
+                  @RequestHeader(value = "sessionid") final String sessionId)
+            throws NotConnectedException {
+        return ResponseEntity.ok(persistenceService.cleanAllEdges(sessionId));
+    }
+
     @RequestMapping(value = "/cleanSALdatabase", method = RequestMethod.DELETE)
     @ApiOperation(value = "Clean all the DB entries in SAL")
     public void cleanSalDatabase(@ApiParam(value = "Proactive authentication session id", required = true)
