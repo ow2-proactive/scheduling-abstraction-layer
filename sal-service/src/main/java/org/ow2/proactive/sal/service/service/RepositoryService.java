@@ -855,7 +855,7 @@ public class RepositoryService {
         return instanceToRemove;
     }
 
-    public Cluster getClutser(String clusterId) {
+    public Cluster getCluster(String clusterId) {
         return clusterRepository.findOne(clusterId);
     }
 
@@ -920,48 +920,54 @@ public class RepositoryService {
      * @param sessionId A valid session id
      */
     @Modifying(clearAutomatically = true)
-    public void cleanAll(String sessionId) throws NotConnectedException {
-        if (!paGatewayService.isConnectionActive(sessionId)) {
-            throw new NotConnectedException();
+    public boolean cleanAll(String sessionId) {
+        LOGGER.info("Starting full database cleanup for sessionId: {}", sessionId);
+
+        boolean success = true;
+
+        try {
+            LOGGER.info("Cleaning Deployments ...");
+            for (Deployment deployment : deploymentRepository.findAll()) {
+                this.deleteDeployment(deployment);
+            }
+
+            success &= performCleanup("EmsDeploymentRequests", emsDeploymentRequestRepository::deleteAll);
+            success &= performCleanup("PAClouds", paCloudRepository::deleteAll);
+            success &= performCleanup("Credentials", credentialsRepository::deleteAll);
+            success &= performCleanup("Jobs", jobRepository::deleteAll);
+            success &= performCleanup("Tasks", taskRepository::deleteAll);
+            success &= performCleanup("Ports", portRepository::deleteAll);
+            success &= performCleanup("Clouds", cloudRepository::deleteAll);
+            success &= performCleanup("Images", imageRepository::deleteAll);
+            success &= performCleanup("Hardwares", hardwareRepository::deleteAll);
+            success &= performCleanup("IaasNodes", iaasNodeRepository::deleteAll);
+            success &= performCleanup("ByonNodes", byonNodeRepository::deleteAll);
+            success &= performCleanup("EdgeNodes", edgeNodeRepository::deleteAll);
+            success &= performCleanup("NodeCandidates", nodeCandidateRepository::deleteAll);
+            success &= performCleanup("Locations", locationRepository::deleteAll);
+            success &= performCleanup("Vault Keys", vaultKeyRepository::deleteAll);
+            success &= performCleanup("ClusterNodeDefinitions", clusterNodeDefRepository::deleteAll);
+            success &= performCleanup("Clusters", clusterRepository::deleteAll);
+
+            LOGGER.info("Database cleanup completed with success status: {}", success);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred during database cleanup for sessionId: {}. Details: ", sessionId, e);
+            success = false;
         }
-        LOGGER.info("Cleaning Deployments ...");
-        for (Deployment deployment : deploymentRepository.findAll()) {
-            this.deleteDeployment(deployment);
-        }
-        LOGGER.info("Cleaning EmsDeploymentRequests ...");
-        emsDeploymentRequestRepository.deleteAll();
-        LOGGER.info("Cleaning PAClouds ...");
-        paCloudRepository.deleteAll();
-        LOGGER.info("Cleaning Credentials ...");
-        credentialsRepository.deleteAll();
-        LOGGER.info("Cleaning Jobs ...");
-        jobRepository.deleteAll();
-        LOGGER.info("Cleaning Tasks ...");
-        taskRepository.deleteAll();
-        LOGGER.info("Cleaning Ports ...");
-        portRepository.deleteAll();
-        LOGGER.info("Cleaning Clouds ...");
-        cloudRepository.deleteAll();
-        LOGGER.info("Cleaning Images ...");
-        imageRepository.deleteAll();
-        LOGGER.info("Cleaning Hardwares ...");
-        hardwareRepository.deleteAll();
-        LOGGER.info("Cleaning IaasNodes ...");
-        iaasNodeRepository.deleteAll();
-        LOGGER.info("Cleaning ByonNodes ...");
-        byonNodeRepository.deleteAll();
-        LOGGER.info("Cleaning EdgeNodes ...");
-        edgeNodeRepository.deleteAll();
-        LOGGER.info("Cleaning NodeCandidates ...");
-        nodeCandidateRepository.deleteAll();
-        LOGGER.info("Cleaning Locations ...");
-        locationRepository.deleteAll();
-        LOGGER.info("Cleaning Vault Keys ...");
-        vaultKeyRepository.deleteAll();
-        LOGGER.info("Cleaning ClusterNodeDefinitions ...");
-        clusterNodeDefRepository.deleteAll();
-        LOGGER.info("Cleaning Clusters ...");
-        clusterRepository.deleteAll();
-        LOGGER.info("Done.");
+
+        return success;
     }
+
+    // Helper method for individual cleanup actions with logging
+    private boolean performCleanup(String entityName, Runnable cleanupAction) {
+        try {
+            LOGGER.info("Cleaning {} ...", entityName);
+            cleanupAction.run();
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Failed to clean {}. Error: {}", entityName, e.getMessage());
+            return false;
+        }
+    }
+
 }
