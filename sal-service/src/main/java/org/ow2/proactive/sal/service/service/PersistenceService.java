@@ -38,6 +38,7 @@ public class PersistenceService {
      * Clean all clusters, clouds, edge devices, and database entries.
      * @param sessionId A valid session id
      */
+
     public boolean cleanAll(String sessionId) throws NotConnectedException {
         LOGGER.info("Received cleanAll endpoint call with sessionId: {}", sessionId);
         // Check if the connection is active
@@ -66,19 +67,28 @@ public class PersistenceService {
 
         // Cleaning edge devices
         LOGGER.info("CLEAN-ALL: Initiating edge devices cleanup...");
-        boolean edgesCleaned = cleanAllEdges(sessionId);
+        boolean edgesCleaned = cleanAllEdgeFunction(sessionId);
         if (edgesCleaned) {
             LOGGER.info("CLEAN-ALL: Successfully cleaned all edge devices.");
         } else {
             LOGGER.warn("CLEAN-ALL: Edge device cleanup encountered issues.");
         }
 
-        //Clean all database entries
-        LOGGER.info("CLEAN-ALL: Initiating database cleanup...");
-        repositoryService.cleanAll(sessionId);
+        boolean databaseCleaned = false;
+
+        if (clustersCleaned && edgesCleaned && cloudsCleaned) {
+            //Clean all database entries
+            LOGGER.info("CLEAN-ALL: Initiating database cleanup...");
+            databaseCleaned = repositoryService.cleanAll(sessionId);
+            if (databaseCleaned) {
+                LOGGER.info("CLEAN-ALL: Successfully cleaned database.");
+            } else {
+                LOGGER.warn("CLEAN-ALL: Database cleanup encountered issues.");
+            }
+        }
 
         LOGGER.info("CLEAN-ALL: Completed all cleanup processes for sessionId: {}", sessionId);
-        return clustersCleaned && edgesCleaned && cloudsCleaned;
+        return clustersCleaned && edgesCleaned && cloudsCleaned && databaseCleaned;
 
     }
 
@@ -119,7 +129,7 @@ public class PersistenceService {
     }
 
     /**
-     * Deregisters all edge devices by removing their entries.
+     * Deregister all edge devices by removing their entries.
      * @param sessionId A valid session id
      * @return true if all edge devices were deregistered successfully, false otherwise
      */
@@ -134,6 +144,24 @@ public class PersistenceService {
 
         // Perform the actual edge device cleanup
         return cleanAllEdgeFunction(sessionId);
+    }
+
+    /**
+     * Deregister all edge devices by removing their entries.
+     * @param sessionId A valid session id
+     * @return true if all edge devices were deregistered successfully, false otherwise
+     */
+    public boolean cleanAllSALDatabase(String sessionId) throws NotConnectedException {
+        LOGGER.info("Received cleanAllSALDatabase request for sessionId: {}", sessionId);
+
+        // Check if the session is active before proceeding
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            LOGGER.warn("Session {} is not active. Aborting SAL database cleanup.", sessionId);
+            throw new NotConnectedException();
+        }
+
+        // Delegate to repositoryService to clean the database entries
+        return repositoryService.cleanAll(sessionId);
     }
 
     /**
@@ -154,7 +182,7 @@ public class PersistenceService {
             List<PACloud> allClouds = repositoryService.listPACloud();
             if (allClouds.isEmpty()) {
                 LOGGER.warn("No clouds found to clean for sessionId: {}", sessionId);
-                return false;
+                return true;
             }
 
             // Collect all cloud IDs
@@ -167,6 +195,7 @@ public class PersistenceService {
                 LOGGER.info("Successfully removed all clouds for sessionId: {}", sessionId);
             } else {
                 LOGGER.error("Failed to remove one or more clouds for sessionId: {}", sessionId);
+                throw new RuntimeException("Cloud removal failed");
             }
 
             return removeCloudsResult;
@@ -174,7 +203,7 @@ public class PersistenceService {
         } catch (Exception e) {
             // Log any errors with a message and stack trace
             LOGGER.error("Unexpected error during cloud cleanup for sessionId: {}. Details: ", sessionId, e);
-            return false;
+            throw new RuntimeException("Unexpected error during cloud cleanup", e);
         }
     }
 
@@ -192,7 +221,7 @@ public class PersistenceService {
 
             if (allClusters.isEmpty()) {
                 LOGGER.warn("No clusters found to clean for sessionId: {}", sessionId);
-                return false;
+                return true;
             }
 
             boolean overallSuccess = true; // Track overall success status
@@ -239,7 +268,7 @@ public class PersistenceService {
 
             if (allEdgeDevices.isEmpty()) {
                 LOGGER.warn("No edge devices found for sessionId: {}. Nothing to deregister.", sessionId);
-                return false;
+                return true;
             }
 
             boolean overallSuccess = true; // Track overall success status

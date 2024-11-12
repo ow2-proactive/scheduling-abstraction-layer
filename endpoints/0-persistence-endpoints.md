@@ -1,12 +1,12 @@
 #### 0.1 - Clean All Endpoint
 **Description**: Cleans all clusters, clouds, and edge devices in the SAL and undeploys them from the ProActive server.
 Note that all asynchronous processes related to cloud node candidate synchronization should be completed; otherwise, clouds will not be removed. To validate, please call the [isAnyAsyncNodeCandidatesProcessesInProgress](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/2-cloud-endpoints.md#23--isanyasyncnodecandidatesprocessesinprogress-endpoint) endpoint.
-
+In a case that any removal of the cluster, cloud or edge resources fail the database cleanup will not be initiated.
 
 **Path:**
 
 ```url
-🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/cleanall
+🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/clean
 ```
 
 **Headers:**
@@ -26,7 +26,7 @@ _NOTE:_ If a `NotConnectedException` occurs (HTTP 500 error), it indicates that 
 **Path:**
 
 ```url
-🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/cleanallclusters
+🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/clean/clusters
 ```
 
 **Headers:**
@@ -47,7 +47,7 @@ It is advised to remove or reconfigure existing clusters before making this call
 **Path:**
 
 ```url
-🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/cleanallclouds
+🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/clean/clouds
 ```
 
 **Headers:**
@@ -66,7 +66,7 @@ It is advised to remove or reconfigure existing clusters before making this call
 **Path:**
 
 ```url
-🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/cleanalledges
+🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/clean/edges
 ```
 
 **Headers:**
@@ -84,7 +84,7 @@ It is advised to remove or reconfigure existing clusters before making this call
 **Path:**
 
 ```url
-🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/cleanSALdatabase
+🟡 DELETE {{protocol}}://{{sal_host}}:{{sal_port}}/sal/persistence/clean/SALdatabase
 ```
 
 **Headers:**
