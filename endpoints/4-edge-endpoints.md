@@ -168,3 +168,5 @@ For small devices, reduced agents can be provided, but this may result in limite
 **Body:** None
 
 **Reply:** `true` if the edge device is successfully removed.
+
+NOTE: It is advised to remove or reconfigure existing clusters before making this call, as any nodes deployed in the edge node sent for removal will be undeployed and cluster will not operate correctly.
