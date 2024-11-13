@@ -39,17 +39,17 @@ public class ClusterService {
     private EdgeService edgeService;
 
     // Define cluster state constants
-    private static final String STATUS_DEFINED = "defined";
+    private static final String STATUS_DEFINED = "Defined";
 
-    private static final String STATUS_DEPLOYED = "deployed";
+    private static final String STATUS_DEPLOYED = "Deployed";
 
-    private static final String STATUS_RUNNING = "running";
+    private static final String STATUS_RUNNING = "Running";
 
-    private static final String STATUS_FAILED = "failed";
+    private static final String STATUS_FAILED = "Failed";
 
-    private static final String STATUS_SUBMITTED = "submitted"; // New status
+    private static final String STATUS_SUBMITTED = "Submitted"; // New status
 
-    private static final String STATUS_SCALING = "scaling";
+    private static final String STATUS_SCALING = "Scaling";
 
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
@@ -370,6 +370,8 @@ public class ClusterService {
         Cluster toScaleCluster = getCluster(sessionId, clusterName);
         for (ClusterNodeDefinition node : toScaleCluster.getNodes()) {
             if (node != null) {
+                //check the node job state
+
                 deleteNode(sessionId, clusterName, node, "", false);
             }
         }
