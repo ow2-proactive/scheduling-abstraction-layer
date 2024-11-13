@@ -948,6 +948,7 @@ public class RepositoryService {
             success &= performCleanup("Vault Keys", vaultKeyRepository::deleteAll);
             success &= performCleanup("ClusterNodeDefinitions", clusterNodeDefRepository::deleteAll);
             success &= performCleanup("Clusters", clusterRepository::deleteAll);
+            success &= performCleanup("Deployments", deploymentRepository::deleteAll);
 
             LOGGER.info("Database cleanup completed with success status: {}", success);
         } catch (Exception e) {

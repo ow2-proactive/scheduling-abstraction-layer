@@ -14,6 +14,7 @@ import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.util.ByonUtils;
 import org.ow2.proactive.sal.service.util.ClusterUtils;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
+import org.ow2.proactive.scheduler.common.job.JobStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,17 +40,17 @@ public class ClusterService {
     private EdgeService edgeService;
 
     // Define cluster state constants
-    private static final String STATUS_DEFINED = "defined";
+    private static final String STATUS_DEFINED = "Defined";
 
-    private static final String STATUS_DEPLOYED = "deployed";
+    private static final String STATUS_DEPLOYED = "Deployed";
 
-    private static final String STATUS_RUNNING = "running";
+    private static final String STATUS_FAILED = "Failed";
 
-    private static final String STATUS_FAILED = "failed";
+    private static final String STATUS_SUBMITTED = "Submitted"; // New status
 
-    private static final String STATUS_SUBMITTED = "submitted"; // New status
+    private static final String STATUS_SCALING = "Scaling";
 
-    private static final String STATUS_SCALING = "scaling";
+    private static final String STATUS_FINISHED = "Finished";
 
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
@@ -213,7 +214,8 @@ public class ClusterService {
                 i += 1;
                 node.setNodeUrl(getNodeUrl(sessionId, clusterName, node));
             }
-            if (states.contains("In-Error") || states.contains("Failed") || states.contains("Canceled")) {
+            if (states.contains(JobStatus.IN_ERROR.toString()) || states.contains(JobStatus.FAILED.toString()) ||
+                states.contains(JobStatus.CANCELED.toString())) {
                 getCluster.setStatus(STATUS_FAILED);
             } else {
                 if (checkAllStates(states)) {
@@ -370,6 +372,8 @@ public class ClusterService {
         Cluster toScaleCluster = getCluster(sessionId, clusterName);
         for (ClusterNodeDefinition node : toScaleCluster.getNodes()) {
             if (node != null) {
+                //check the node job state
+
                 deleteNode(sessionId, clusterName, node, "", false);
             }
         }
@@ -383,7 +387,7 @@ public class ClusterService {
             return false;
         }
         for (String state : states) {
-            if (!state.equals("Finished")) {
+            if (!state.equals(STATUS_FINISHED)) {
                 return false;
             }
         }
@@ -429,6 +433,9 @@ public class ClusterService {
             //            return jobId;
         }
         Job nodeJob = repositoryService.getJob(node.getNodeJobName(clusterName));
+        JobState jobState = jobService.getJobState(sessionId, nodeJob.getJobId());
+        if (jobState.getJobStatus().isJobAlive())
+            jobService.killJob(sessionId, nodeJob.getJobId());
         List<Task> nodeTasks = nodeJob.getTasks();
         List<Deployment> nodeDeployments = new ArrayList<>();
         for (Task task : nodeTasks) {
