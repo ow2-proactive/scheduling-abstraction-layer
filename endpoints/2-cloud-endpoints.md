@@ -235,3 +235,6 @@ Contains authentication details for accessing the cloud. The fields are:
 ]
 ```
 **Reply:**  Boolean, `true` if cloud infrastructure was removed. `false`, otherwise.
+
+NOTE: All asynchronous processes related to cloud node candidate synchronization should be completed; otherwise, clouds will not be removed. To validate, please call the [isAnyAsyncNodeCandidatesProcessesInProgress](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/2-cloud-endpoints.md#23--isanyasyncnodecandidatesprocessesinprogress-endpoint) endpoint.
+It is advised to remove or reconfigure existing clusters before making this call, as any nodes deployed in the clouds sent for removal will be undeployed and cluster will not operate correctly.

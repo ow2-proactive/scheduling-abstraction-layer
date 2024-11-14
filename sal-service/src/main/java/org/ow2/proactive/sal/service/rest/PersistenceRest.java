@@ -7,9 +7,10 @@ package org.ow2.proactive.sal.service.rest;
 
 import javax.ws.rs.core.MediaType;
 
-import org.ow2.proactive.sal.service.service.RepositoryService;
+import org.ow2.proactive.sal.service.service.PersistenceService;
 import org.ow2.proactive.scheduler.common.exception.NotConnectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,18 +23,54 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/persistence")
-@Api(description = "Operations on the DB", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(description = "Operations to clean the cloud, clusters and SAL database", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class PersistenceRest {
 
     @Autowired
-    private RepositoryService repositoryService;
+    private PersistenceService persistenceService;
 
-    @RequestMapping(value = "/cleanall", method = RequestMethod.DELETE)
-    @ApiOperation(value = "Clean all the DB entries")
-    public void cleanAll(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestMapping(value = "/clean", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Clean all clusters, clouds, and edge devices", response = Boolean.class)
+    public ResponseEntity<Boolean> cleanAll(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
     final String sessionId) throws NotConnectedException {
-        repositoryService.cleanAll(sessionId);
+        return ResponseEntity.ok(persistenceService.cleanAll(sessionId));
+    }
+
+    @RequestMapping(value = "/clean/clouds", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Clean all clouds and undeploy cloud nodes", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            cleanAllClouds(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        return ResponseEntity.ok(persistenceService.cleanAllClouds(sessionId));
+    }
+
+    @RequestMapping(value = "/clean/clusters", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Clean all clouds and undeploy cloud nodes", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            cleanAllClusters(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        return ResponseEntity.ok(persistenceService.cleanAllClusters(sessionId));
+    }
+
+    @RequestMapping(value = "/clean/edges", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Deregister all edge devices", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            cleanAllEdges(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        return ResponseEntity.ok(persistenceService.cleanAllEdges(sessionId));
+    }
+
+    @RequestMapping(value = "/clean/SALdatabase", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Clean all the DB entries in SAL", response = Boolean.class)
+    public ResponseEntity<Boolean>
+            cleanSalDatabase(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId) throws NotConnectedException {
+        return ResponseEntity.ok(persistenceService.cleanAllSALDatabase(sessionId));
     }
 
 }
