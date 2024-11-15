@@ -420,7 +420,7 @@ public class ClusterService {
             jobId = jobService.submitOneTaskJob(sessionId, nodeUrl, masterNodeToken, jobName, jobType, nodeJobName);
 
             // Proceed to clean up tasks and deployments if the job was submitted
-            cleanupNodeJobs(sessionId, clusterName, node);
+            cleanupNodeJob(sessionId, clusterName, node);
 
         } catch (IOException e) {
             LOGGER.error("Failed to submit delete job for node {}: {}", node.getName(), e.getMessage());
@@ -433,7 +433,7 @@ public class ClusterService {
         return jobId;
     }
 
-    private void cleanupNodeJobs(String sessionId, String clusterName, ClusterNodeDefinition node)
+    private void cleanupNodeJob(String sessionId, String clusterName, ClusterNodeDefinition node)
             throws NotConnectedException {
         Job nodeJob = repositoryService.getJob(node.getNodeJobName(clusterName));
         if (nodeJob == null) {
