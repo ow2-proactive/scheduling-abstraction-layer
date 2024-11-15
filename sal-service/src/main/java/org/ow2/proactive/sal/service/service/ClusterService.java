@@ -372,10 +372,9 @@ public class ClusterService {
         Cluster toScaleCluster = getCluster(sessionId, clusterName);
         for (ClusterNodeDefinition node : toScaleCluster.getNodes()) {
             if (node != null) {
-                //check the node job state
-
                 deleteNode(sessionId, clusterName, node, "", false);
-            }
+            } else
+                LOGGER.warn("Cannot delete a null node.");
         }
         repositoryService.deleteCluster(toScaleCluster);
         repositoryService.flush();
@@ -407,47 +406,76 @@ public class ClusterService {
     private Long deleteNode(String sessionId, String clusterName, ClusterNodeDefinition node, String masterNodeToken,
             boolean drain) throws NotConnectedException {
         String nodeUrl = getNodeUrl(sessionId, clusterName, node);
+        if (nodeUrl == null || nodeUrl.isEmpty()) {
+            LOGGER.warn("Unable to delete node {}, as the node URL is empty or null.", node.getName());
+        }
+
         Long jobId = -1L;
-        if (nodeUrl != null && !nodeUrl.isEmpty()) {
-            try {
-                if (drain) {
-                    jobId = jobService.submitOneTaskJob(sessionId,
-                                                        nodeUrl,
-                                                        masterNodeToken,
-                                                        "delete_node_" + node.getName(),
-                                                        "drain-delete",
-                                                        node.getNodeJobName(clusterName));
-                } else {
-                    jobId = jobService.submitOneTaskJob(sessionId,
-                                                        nodeUrl,
-                                                        masterNodeToken,
-                                                        "delete_node_" + node.getName(),
-                                                        "delete",
-                                                        "");
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            LOGGER.warn("unable to delete node {}, with the node url \"{}\" !", node.getName(), node.getNodeUrl());
-            //            return jobId;
-        }
-        Job nodeJob = repositoryService.getJob(node.getNodeJobName(clusterName));
-        JobState jobState = jobService.getJobState(sessionId, nodeJob.getJobId());
-        if (jobState.getJobStatus().isJobAlive())
-            jobService.killJob(sessionId, nodeJob.getJobId());
-        List<Task> nodeTasks = nodeJob.getTasks();
-        List<Deployment> nodeDeployments = new ArrayList<>();
-        for (Task task : nodeTasks) {
-            nodeDeployments.addAll(task.getDeployments());
+        try {
+            // Submit the job to delete the node (either drain-delete or delete)
+            String jobName = "delete_node_" + node.getName();
+            String jobType = drain ? "drain-delete" : "delete";
+            String nodeJobName = drain ? node.getNodeJobName(clusterName) : "";
 
-        }
-        nodeDeployments.forEach(deployment -> repositoryService.deleteDeployment(deployment));
-        repositoryService.deleteJob(node.getNodeJobName(clusterName));
-        nodeTasks.forEach(task -> repositoryService.deleteTask(task));
+            jobId = jobService.submitOneTaskJob(sessionId, nodeUrl, masterNodeToken, jobName, jobType, nodeJobName);
 
-        repositoryService.flush();
+            // Proceed to clean up tasks and deployments if the job was submitted
+            cleanupNodeJob(sessionId, clusterName, node);
+
+        } catch (IOException e) {
+            LOGGER.error("Failed to submit delete job for node {}: {}", node.getName(), e.getMessage());
+            throw new RuntimeException("Error submitting delete job for node " + node.getName(), e);
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error occurred while deleting node {}: {}", node.getName(), e.getMessage());
+            throw new RuntimeException("Unexpected error occurred while deleting node " + node.getName(), e);
+        }
+
         return jobId;
+    }
+
+    private void cleanupNodeJob(String sessionId, String clusterName, ClusterNodeDefinition node)
+            throws NotConnectedException {
+        Job nodeJob = repositoryService.getJob(node.getNodeJobName(clusterName));
+        if (nodeJob == null) {
+            LOGGER.info("No job found for node {}, skipping cleanup.", node.getName());
+            return;
+        }
+
+        try {
+            // Check if job is alive and kill it if necessary
+            if (nodeJob.getSubmittedJobId() != 0L) {
+                JobState jobState = jobService.getJobState(sessionId, nodeJob.getJobId());
+                if (jobState.getJobStatus().isJobAlive()) {
+                    jobService.killJob(sessionId, nodeJob.getJobId());
+                }
+            }
+
+            // Gather all tasks and deployments for cleanup
+            List<Task> nodeTasks = nodeJob.getTasks();
+            List<Deployment> nodeDeployments = new ArrayList<>();
+            for (Task task : nodeTasks) {
+                nodeDeployments.addAll(task.getDeployments());
+            }
+
+            // Delete deployments, tasks, and the job in sequence
+            nodeDeployments.forEach(deployment -> {
+                try {
+                    repositoryService.deleteDeployment(deployment);
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to delete deployment for node {}: {}", node.getName(), e.getMessage());
+                }
+            });
+
+            repositoryService.deleteJob(node.getNodeJobName(clusterName));
+            nodeTasks.forEach(task -> repositoryService.deleteTask(task));
+            repositoryService.flush();
+
+            LOGGER.info("Cleanup completed for node {}", node.getName());
+
+        } catch (Exception e) {
+            LOGGER.error("Error occurred during cleanup for node {}: {}", node.getName(), e.getMessage());
+            throw new RuntimeException("Error during cleanup for node " + node.getName(), e);
+        }
     }
 
     private ClusterNodeDefinition getNodeFromCluster(Cluster cluster, String nodeName) {
