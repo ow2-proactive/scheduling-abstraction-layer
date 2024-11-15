@@ -431,20 +431,35 @@ public class JobService {
     public Map<String, Serializable> getJobResultMaps(String sessionId, String jobId, long timeout)
             throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
-            throw new NotConnectedException();
+            throw new NotConnectedException("Session is not active for ID: " + sessionId);
         }
+        // Fetch the job from the repository
         Job submittedJob = repositoryService.getJob(jobId);
-        List<String> jobIds = new ArrayList<>();
-        jobIds.add(String.valueOf(submittedJob.getSubmittedJobId()));
-        Map<Long, Map<String, Serializable>> jobResult = schedulerGateway.getJobResultMaps(jobIds);
-        LOGGER.info("Results of job: " + jobId + " fetched successfully: " +
-                    Optional.ofNullable(jobResult).map(Map<Long, Map<String, Serializable>>::toString).orElse(null));
-        if (jobResult != null) {
-            return jobResult.get(submittedJob.getSubmittedJobId());
-        } else {
-            return new HashMap();
+        if (submittedJob == null) {
+            LOGGER.warn("No job found with ID: {}", jobId);
+            return Collections.emptyMap(); // Return an empty map if no job is found
         }
 
+        // Prepare the job ID list for the scheduler query
+        List<String> jobIds = Collections.singletonList(String.valueOf(submittedJob.getSubmittedJobId()));
+
+        // Fetch job results
+        Map<Long, Map<String, Serializable>> jobResult;
+        try {
+            jobResult = schedulerGateway.getJobResultMaps(jobIds);
+        } catch (Exception e) {
+            LOGGER.error("Failed to fetch results for job ID: {}. Error: {}", jobId, e.getMessage(), e);
+            throw new RuntimeException("Error fetching job results for job ID: " + jobId, e);
+        }
+
+        // Log and return results
+        LOGGER.info("Results of job {} fetched successfully: {}",
+                    jobId,
+                    Optional.ofNullable(jobResult).map(Object::toString).orElse("No results available"));
+
+        // Return the result for the specific job ID, or an empty map if no results are available
+        return jobResult != null ? jobResult.getOrDefault(submittedJob.getSubmittedJobId(), Collections.emptyMap())
+                                 : Collections.emptyMap();
     }
 
     /**
