@@ -24,6 +24,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Embeddable
 public class NodeProperties implements Serializable {
+    @JsonProperty("price")
+    private Double price = null;
+
     @JsonProperty("providerId")
     private String providerId = null;
 
@@ -59,6 +62,14 @@ public class NodeProperties implements Serializable {
 
     public void setProviderId(String providerId) {
         this.providerId = providerId;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public NodeProperties numberOfCores(Integer numberOfCores) {
