@@ -35,6 +35,7 @@ This endpoint is used to register new Edge nodes, which are passed as an [EdgeDe
   ],
   "nodeProperties": {
     "providerId": "1",
+    "price": "{{price}}",
     "numberOfCores": "{{cores}}",
     "memory": "{{memory}}",
     "disk": "{{disk}}",
@@ -69,6 +70,7 @@ The fields are defined as:
 - `ipAddresses`: A list of IP addresses associated with the node, including both PUBLIC_IP and PRIVATE_IP with IP Version specified as V4.
 - `nodeProperties`:
   - `providerId`: The ID of the provider. Default is `"1"`.
+  - `price`: The price of the edge node source.
   - `numberOfCores`: A string  representing number of hardware cores (e.g., `"1"`).
   - `memory`: The hardware memory in GB (e.g., `"1"`)
   - `disk`: The hardware storage space in GB (e.g., `"1.0"`).

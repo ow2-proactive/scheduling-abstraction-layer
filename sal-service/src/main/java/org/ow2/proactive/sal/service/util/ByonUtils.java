@@ -62,7 +62,7 @@ public class ByonUtils {
         LOGGER.debug("Creating the {} node candidate ...", nodeType.toUpperCase());
         //Start by setting the universal nodes properties
         NodeCandidate nc = new NodeCandidate();
-        nc.setPrice(0.0);
+        nc.setPrice(np.getPrice());
         nc.setMemoryPrice(0.0);
         nc.setPricePerInvocation(0.0);
         nc.setNodeId(nodeId);
