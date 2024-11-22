@@ -74,7 +74,7 @@ public class ByonUtils {
         image.setOperatingSystem(np.getOperatingSystem());
         //Define the hardware
         Hardware hardware = new Hardware();
-        hardware.setCores(np.getNumberOfCores());
+        hardware.setCores(np.getCores());
         hardware.setDisk((double) np.getDisk());
         hardware.setRam(np.getMemory());
         hardware.setFpga("");

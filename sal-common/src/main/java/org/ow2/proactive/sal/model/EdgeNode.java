@@ -30,53 +30,81 @@ import lombok.Setter;
 @Table(name = "EDGE_NODE")
 public class EdgeNode extends AbstractNode {
 
+    // Constants for JSON properties
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_LOGIN_CREDENTIAL = "loginCredential";
+
+    public static final String JSON_IP_ADDRESSES = "ipAddresses";
+
+    public static final String JSON_NODE_PROPERTIES = "nodeProperties";
+
+    public static final String JSON_PORT = "port";
+
+    public static final String JSON_REASON = "reason";
+
+    public static final String JSON_DIAGNOSTIC = "diagnostic";
+
+    public static final String JSON_USER_ID = "userId";
+
+    public static final String JSON_ALLOCATED = "allocated";
+
+    // edge jobID corresponds to the ProActive job name
+    public static final String JSON_JOB_ID = "jobId";
+
+    public static final String JSON_SYSTEM_ARCH = "systemArch";
+
+    public static final String JSON_SCRIPT_URL = "scriptURL";
+
+    public static final String JSON_JAR_URL = "jarURL";
+
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
     @Embedded
-    @JsonProperty("loginCredential")
+    @JsonProperty(JSON_LOGIN_CREDENTIAL)
     private LoginCredential loginCredential = null;
 
     @ElementCollection(targetClass = IpAddress.class)
     private List<IpAddress> ipAddresses = null;
 
     @Embedded
-    @JsonProperty("nodeProperties")
+    @JsonProperty(JSON_NODE_PROPERTIES)
     private NodeProperties nodeProperties = null;
 
     @Column(name = "PORT")
-    @JsonProperty("port")
+    @JsonProperty(JSON_PORT)
     private String port = null;
 
     @Column(name = "REASON")
-    @JsonProperty("reason")
+    @JsonProperty(JSON_REASON)
     private String reason = null;
 
     @Column(name = "DIAGNOSTIC")
-    @JsonProperty("diagnostic")
+    @JsonProperty(JSON_DIAGNOSTIC)
     private String diagnostic = null;
 
     @Column(name = "USER_ID")
-    @JsonProperty("userId")
+    @JsonProperty(JSON_USER_ID)
     private String userId = null;
 
     @Column(name = "ALLOCATED")
-    @JsonProperty("allocated")
+    @JsonProperty(JSON_ALLOCATED)
     private Boolean allocated = null;
 
     @Column(name = "JOB_ID")
-    @JsonProperty("jobId")
+    @JsonProperty(JSON_JOB_ID)
     private String jobId;
 
     @Column(name = "SYSTEM_ARCH")
-    @JsonProperty("systemArch")
+    @JsonProperty(JSON_SYSTEM_ARCH)
     private String systemArch = null;
 
-    @JsonProperty("scriptURL")
+    @JsonProperty(JSON_SCRIPT_URL)
     private String scriptURL = null;
 
-    @JsonProperty("jarURL")
+    @JsonProperty(JSON_JAR_URL)
     private String jarURL = null;
 
     public EdgeNode name(String name) {

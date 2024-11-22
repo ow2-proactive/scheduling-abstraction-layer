@@ -27,17 +27,35 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "LOCATION")
 public class Location implements Serializable {
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_PROVIDER_ID = "providerId";
+
+    public static final String JSON_LOCATION_SCOPE = "locationScope";
+
+    public static final String JSON_IS_ASSIGNABLE = "isAssignable";
+
+    public static final String JSON_GEO_LOCATION = "geoLocation";
+
+    public static final String JSON_PARENT = "parent";
+
+    public static final String JSON_STATE = "state";
+
+    public static final String JSON_OWNER = "owner";
+
     @Id
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
     @Column(name = "PROVIDER_ID")
-    @JsonProperty("providerId")
+    @JsonProperty(JSON_PROVIDER_ID)
     private String providerId = null;
 
     /**
@@ -45,11 +63,8 @@ public class Location implements Serializable {
      */
     public enum LocationScopeEnum {
         PROVIDER("PROVIDER"),
-
         REGION("REGION"),
-
         ZONE("ZONE"),
-
         HOST("HOST");
 
         private String value;
@@ -77,28 +92,28 @@ public class Location implements Serializable {
 
     @Column(name = "LOCATION_SCOPE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("locationScope")
+    @JsonProperty(JSON_LOCATION_SCOPE)
     private LocationScopeEnum locationScope = null;
 
     @Column(name = "IS_ASSIGNABLE")
-    @JsonProperty("isAssignable")
+    @JsonProperty(JSON_IS_ASSIGNABLE)
     private Boolean isAssignable = null;
 
     @Embedded
-    @JsonProperty("geoLocation")
+    @JsonProperty(JSON_GEO_LOCATION)
     private GeoLocation geoLocation = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-    @JsonProperty("parent")
+    @JsonProperty(JSON_PARENT)
     private Location parent = null;
 
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("state")
+    @JsonProperty(JSON_STATE)
     private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
-    @JsonProperty("owner")
+    @JsonProperty(JSON_OWNER)
     private String owner = null;
 
     public Location id(String id) {

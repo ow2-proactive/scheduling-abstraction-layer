@@ -24,27 +24,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Embeddable
 public class NodeProperties implements Serializable {
-    @JsonProperty("price")
-    private Double price = null;
 
-    @JsonProperty("providerId")
+    // Fields
+    @JsonProperty(Hardware.JSON_PROVIDER_ID)
     private String providerId = null;
 
-    @JsonProperty("numberOfCores")
-    private Integer numberOfCores = null;
+    @JsonProperty(NodeCandidate.JSON_PRICE)
+    private Double price = null;
 
-    @JsonProperty("memory")
+    @JsonProperty(Hardware.JSON_CORES)
+    private Integer cores = null;
+
+    @JsonProperty(Hardware.JSON_RAM)
     private Long memory = null;
 
-    @JsonProperty("disk")
-    private Float disk = null;
+    @JsonProperty(Hardware.JSON_DISK)
+    private Double disk = null;
 
     @Embedded
-    @JsonProperty("operatingSystem")
+    @JsonProperty(Image.JSON_OPERATING_SYSTEM)
     private OperatingSystem operatingSystem = null;
 
     @Embedded
-    @JsonProperty("geoLocation")
+    @JsonProperty(Location.JSON_GEO_LOCATION)
     private GeoLocation geoLocation = null;
 
     public NodeProperties providerId(String providerId) {
@@ -73,7 +75,7 @@ public class NodeProperties implements Serializable {
     }
 
     public NodeProperties numberOfCores(Integer numberOfCores) {
-        this.numberOfCores = numberOfCores;
+        this.cores = numberOfCores;
         return this;
     }
 
@@ -81,12 +83,12 @@ public class NodeProperties implements Serializable {
      * Number of cores the node has.
      * @return numberOfCores
      **/
-    public Integer getNumberOfCores() {
-        return numberOfCores;
+    public Integer getCores() {
+        return cores;
     }
 
-    public void setNumberOfCores(Integer numberOfCores) {
-        this.numberOfCores = numberOfCores;
+    public void setCores(Integer numberOfCores) {
+        this.cores = numberOfCores;
     }
 
     public NodeProperties memory(Long memory) {
@@ -106,7 +108,7 @@ public class NodeProperties implements Serializable {
         this.memory = memory;
     }
 
-    public NodeProperties disk(Float disk) {
+    public NodeProperties disk(Double disk) {
         this.disk = disk;
         return this;
     }
@@ -115,11 +117,11 @@ public class NodeProperties implements Serializable {
      * Amount of disk space this node has (in GB).
      * @return disk
      **/
-    public Float getDisk() {
+    public Double getDisk() {
         return disk;
     }
 
-    public void setDisk(Float disk) {
+    public void setDisk(Double disk) {
         this.disk = disk;
     }
 
@@ -167,7 +169,8 @@ public class NodeProperties implements Serializable {
         }
         NodeProperties nodeProperties = (NodeProperties) o;
         return Objects.equals(this.providerId, nodeProperties.providerId) &&
-               Objects.equals(this.numberOfCores, nodeProperties.numberOfCores) &&
+               Objects.equals(this.price, nodeProperties.price) &&
+               Objects.equals(this.cores, nodeProperties.cores) &&
                Objects.equals(this.memory, nodeProperties.memory) && Objects.equals(this.disk, nodeProperties.disk) &&
                Objects.equals(this.operatingSystem, nodeProperties.operatingSystem) &&
                Objects.equals(this.geoLocation, nodeProperties.geoLocation);
@@ -175,7 +178,7 @@ public class NodeProperties implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerId, numberOfCores, memory, disk, operatingSystem, geoLocation);
+        return Objects.hash(providerId, cores, memory, disk, operatingSystem, geoLocation);
     }
 
     @Override
@@ -183,12 +186,22 @@ public class NodeProperties implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("class NodeProperties {\n");
 
-        sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
-        sb.append("    numberOfCores: ").append(toIndentedString(numberOfCores)).append("\n");
-        sb.append("    memory: ").append(toIndentedString(memory)).append("\n");
-        sb.append("    disk: ").append(toIndentedString(disk)).append("\n");
-        sb.append("    operatingSystem: ").append(toIndentedString(operatingSystem)).append("\n");
-        sb.append("    geoLocation: ").append(toIndentedString(geoLocation)).append("\n");
+        sb.append("    ").append(Hardware.JSON_PROVIDER_ID).append(": ").append(toIndentedString(providerId)).append("\n");
+        sb.append("    ").append(NodeCandidate.JSON_PRICE).append(": ").append(toIndentedString(price)).append("\n");
+        sb.append("    ").append(Hardware.JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
+        sb.append("    ").append(Hardware.JSON_RAM).append(": ").append(toIndentedString(memory)).append("\n");
+        sb.append("    ").append(Hardware.JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
+        sb.append("    ")
+          .append(Image.JSON_OPERATING_SYSTEM)
+          .append(": ")
+          .append(toIndentedString(operatingSystem))
+          .append("\n");
+        sb.append("    ")
+          .append(Location.JSON_GEO_LOCATION)
+          .append(": ")
+          .append(toIndentedString(geoLocation))
+          .append("\n");
+
         sb.append("}");
         return sb.toString();
     }

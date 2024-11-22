@@ -32,11 +32,38 @@ import lombok.extern.log4j.Log4j2;
 @Entity
 @Table(name = "NODE_CANDIDATE")
 public class NodeCandidate implements Serializable {
+    // JSON Property Constants
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_NODE_CANDIDATE_TYPE = "nodeCandidateType";
+
+    public static final String JSON_JOB_ID_FOR_BYON = "jobIdForByon";
+
+    public static final String JSON_JOB_ID_FOR_EDGE = "jobIdForEdge";
+
+    public static final String JSON_PRICE = "price";
+
+    public static final String JSON_CLOUD = "cloud";
+
+    public static final String JSON_LOCATION = "location";
+
+    public static final String JSON_IMAGE = "image";
+
+    public static final String JSON_HARDWARE = "hardware";
+
+    public static final String JSON_PRICE_PER_INVOCATION = "pricePerInvocation";
+
+    public static final String JSON_MEMORY_PRICE = "memoryPrice";
+
+    public static final String JSON_NODE_ID = "nodeId";
+
+    public static final String JSON_ENVIRONMENT = "environment";
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     /**
@@ -44,15 +71,10 @@ public class NodeCandidate implements Serializable {
      */
     public enum NodeCandidateTypeEnum {
         IAAS("IAAS"),
-
         FAAS("FAAS"),
-
         PAAS("PAAS"),
-
         BYON("BYON"),
-
         EDGE("EDGE"),
-
         SIMULATION("SIMULATION");
 
         private String value;
@@ -80,51 +102,51 @@ public class NodeCandidate implements Serializable {
 
     @Column(name = "NODE_CANDIDATE_TYPE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("nodeCandidateType")
+    @JsonProperty(JSON_NODE_CANDIDATE_TYPE)
     private NodeCandidateTypeEnum nodeCandidateType = null;
 
     @Column(name = "JOB_ID_FOR_BYON")
-    @JsonProperty("jobIdForByon")
+    @JsonProperty(JSON_JOB_ID_FOR_BYON)
     private String jobIdForBYON;
 
     @Column(name = "JOB_ID_FOR_EDGE")
-    @JsonProperty("jobIdForEdge")
+    @JsonProperty(JSON_JOB_ID_FOR_EDGE)
     private String jobIdForEDGE;
 
     @Column(name = "PRICE")
-    @JsonProperty("price")
+    @JsonProperty(JSON_PRICE)
     private Double price = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JsonProperty("cloud")
+    @JsonProperty(JSON_CLOUD)
     private Cloud cloud = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JsonProperty("location")
+    @JsonProperty(JSON_LOCATION)
     private Location location = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JsonProperty("image")
+    @JsonProperty(JSON_IMAGE)
     private Image image = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH })
-    @JsonProperty("hardware")
+    @JsonProperty(JSON_HARDWARE)
     private Hardware hardware = null;
 
     @Column(name = "PRICE_PER_INVOCATION")
-    @JsonProperty("pricePerInvocation")
+    @JsonProperty(JSON_PRICE_PER_INVOCATION)
     private Double pricePerInvocation = null;
 
     @Column(name = "MEMORY_PRICE")
-    @JsonProperty("memoryPrice")
+    @JsonProperty(JSON_MEMORY_PRICE)
     private Double memoryPrice = null;
 
     @Column(name = "NODE_ID")
-    @JsonProperty("nodeId")
+    @JsonProperty(JSON_NODE_ID)
     private String nodeId = null;
 
     @Embedded
-    @JsonProperty("environment")
+    @JsonProperty(JSON_ENVIRONMENT)
     private Environment environment = null;
 
     public NodeCandidate id(String id) {

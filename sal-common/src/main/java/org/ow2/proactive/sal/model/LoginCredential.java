@@ -23,13 +23,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Embeddable
 public class LoginCredential implements Serializable {
-    @JsonProperty("username")
+    // JSON property constants
+    public static final String JSON_USERNAME = "username";
+
+    public static final String JSON_PASSWORD = "password";
+
+    public static final String JSON_PRIVATE_KEY = "privateKey";
+
+    @JsonProperty(JSON_USERNAME)
     private String username = null;
 
-    @JsonProperty("password")
+    @JsonProperty(JSON_PASSWORD)
     private String password = null;
 
-    @JsonProperty("privateKey")
+    @JsonProperty(JSON_PRIVATE_KEY)
     private String privateKey = null;
 
     public LoginCredential username(String username) {
@@ -107,9 +114,21 @@ public class LoginCredential implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("class LoginCredential {\n");
 
-        sb.append("    username: ").append(toIndentedString(username)).append("\n");
-        sb.append("    password: ").append(toIndentedString(password)).append("\n");
-        sb.append("    privateKey: ").append(toIndentedString(privateKey)).append("\n");
+        sb.append("    ")
+          .append(LoginCredential.JSON_USERNAME)
+          .append(": ")
+          .append(toIndentedString(username))
+          .append("\n");
+        sb.append("    ")
+          .append(LoginCredential.JSON_PASSWORD)
+          .append(": ")
+          .append(toIndentedString(password))
+          .append("\n");
+        sb.append("    ")
+          .append(LoginCredential.JSON_PRIVATE_KEY)
+          .append(": ")
+          .append(toIndentedString(privateKey))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }

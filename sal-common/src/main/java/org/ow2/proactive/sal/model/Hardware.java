@@ -24,46 +24,67 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "HARDWARE")
 public class Hardware implements Serializable {
+    // Constants for JSON property names
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_PROVIDER_ID = "providerId";
+
+    public static final String JSON_CORES = "cores";
+
+    public static final String JSON_RAM = "ram";
+
+    public static final String JSON_DISK = "disk";
+
+    public static final String JSON_FPGA = "fpga";
+
+    public static final String JSON_LOCATION = "location";
+
+    public static final String JSON_STATE = "state";
+
+    public static final String JSON_OWNER = "owner";
+
     @Id
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
     @Column(name = "PROVIDER_ID")
-    @JsonProperty("providerId")
+    @JsonProperty(JSON_PROVIDER_ID)
     private String providerId = null;
 
     @Column(name = "CORES")
-    @JsonProperty("cores")
+    @JsonProperty(JSON_CORES)
     private Integer cores = null;
 
     @Column(name = "RAM")
-    @JsonProperty("ram")
+    @JsonProperty(JSON_RAM)
     private Long ram = null;
 
     @Column(name = "DISK")
-    @JsonProperty("disk")
+    @JsonProperty(JSON_DISK)
     private Double disk = null;
 
     @Column(name = "FPGA")
-    @JsonProperty("fpga")
+    @JsonProperty(JSON_FPGA)
     private Integer fpga = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonProperty("location")
+    @JsonProperty(JSON_LOCATION)
     private Location location = null;
 
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("state")
+    @JsonProperty(JSON_STATE)
     private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
-    @JsonProperty("owner")
+    @JsonProperty(JSON_OWNER)
     private String owner = null;
 
     public Hardware id(String id) {
@@ -264,17 +285,16 @@ public class Hardware implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class Hardware {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
-        sb.append("    cores: ").append(toIndentedString(cores)).append("\n");
-        sb.append("    ram: ").append(toIndentedString(ram)).append("\n");
-        sb.append("    disk: ").append(toIndentedString(disk)).append("\n");
-        sb.append("    fpga: ").append(toIndentedString(fpga)).append("\n");
-        sb.append("    location: ").append(toIndentedString(location)).append("\n");
-        sb.append("    state: ").append(toIndentedString(state)).append("\n");
-        sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
+        sb.append("    ").append(JSON_ID).append(": ").append(toIndentedString(id)).append("\n");
+        sb.append("    ").append(JSON_NAME).append(": ").append(toIndentedString(name)).append("\n");
+        sb.append("    ").append(JSON_PROVIDER_ID).append(": ").append(toIndentedString(providerId)).append("\n");
+        sb.append("    ").append(JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
+        sb.append("    ").append(JSON_RAM).append(": ").append(toIndentedString(ram)).append("\n");
+        sb.append("    ").append(JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
+        sb.append("    ").append(JSON_FPGA).append(": ").append(toIndentedString(fpga)).append("\n");
+        sb.append("    ").append(JSON_LOCATION).append(": ").append(toIndentedString(location)).append("\n");
+        sb.append("    ").append(JSON_STATE).append(": ").append(toIndentedString(state)).append("\n");
+        sb.append("    ").append(JSON_OWNER).append(": ").append(toIndentedString(owner)).append("\n");
         sb.append("}");
         return sb.toString();
     }

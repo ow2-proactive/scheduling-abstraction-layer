@@ -328,7 +328,7 @@ public class NodeCandidateUtils {
     public NodeCandidate createNodeCandidate(JSONObject nodeCandidateJSON, JSONObject imageJSON, PACloud paCloud) {
         NodeCandidate nodeCandidate = new NodeCandidate();
         nodeCandidate.setNodeCandidateType(NodeCandidate.NodeCandidateTypeEnum.IAAS);
-        nodeCandidate.setPrice(nodeCandidateJSON.optDouble("price"));
+        nodeCandidate.setPrice(nodeCandidateJSON.optDouble(nodeCandidate.JSON_PRICE));
         nodeCandidate.setCloud(createCloud(nodeCandidateJSON, paCloud));
 
         nodeCandidate.setLocation(createLocation(nodeCandidateJSON, paCloud));

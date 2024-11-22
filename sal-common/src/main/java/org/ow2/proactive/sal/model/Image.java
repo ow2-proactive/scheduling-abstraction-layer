@@ -24,34 +24,49 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "IMAGE")
 public class Image implements Serializable {
+    // Constants for JSON property names
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_PROVIDER_ID = "providerId";
+
+    public static final String JSON_OPERATING_SYSTEM = "operatingSystem";
+
+    public static final String JSON_LOCATION = "location";
+
+    public static final String JSON_STATE = "state";
+
+    public static final String JSON_OWNER = "owner";
+
     @Id
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
     @Column(name = "PROVIDER_ID")
-    @JsonProperty("providerId")
+    @JsonProperty(JSON_PROVIDER_ID)
     private String providerId = null;
 
     @Embedded
-    @JsonProperty("operatingSystem")
+    @JsonProperty(JSON_OPERATING_SYSTEM)
     private OperatingSystem operatingSystem = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonProperty("location")
+    @JsonProperty(JSON_LOCATION)
     private Location location = null;
 
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("state")
+    @JsonProperty(JSON_STATE)
     private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
-    @JsonProperty("owner")
+    @JsonProperty(JSON_OWNER)
     private String owner = null;
 
     public Image id(String id) {
