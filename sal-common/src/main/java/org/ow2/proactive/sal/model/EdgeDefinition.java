@@ -13,7 +13,7 @@ import lombok.*;
 
 
 /**
- * Attributes defining a BYON node
+ * Attributes defining a EDGE node
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,30 +21,33 @@ import lombok.*;
 @Setter
 @ToString(callSuper = true)
 public class EdgeDefinition {
-    @JsonProperty("name")
+    // Default constants
+    public static final String DEFAULT_PORT = "22";
+
+    @JsonProperty(EdgeNode.JSON_NAME)
     private String name = null;
 
-    @JsonProperty("jobId")
+    @JsonProperty(EdgeNode.JSON_JOB_ID)
     private String jobId = null;
 
-    @JsonProperty("systemArch")
+    @JsonProperty(EdgeNode.JSON_SYSTEM_ARCH)
     private String systemArch = null;
 
-    @JsonProperty("scriptURL")
+    @JsonProperty(EdgeNode.JSON_SCRIPT_URL)
     private String scriptURL = null;
 
-    @JsonProperty("jarURL")
+    @JsonProperty(EdgeNode.JSON_JAR_URL)
     private String jarURL = null;
 
-    @JsonProperty("loginCredential")
+    @JsonProperty(EdgeNode.JSON_LOGIN_CREDENTIAL)
     private LoginCredential loginCredential = null;
 
-    @JsonProperty("ipAddresses")
+    @JsonProperty(EdgeNode.JSON_IP_ADDRESSES)
     private List<IpAddress> ipAddresses = null;
 
-    @JsonProperty("port")
-    private String port = "22";
+    @JsonProperty(EdgeNode.JSON_PORT)
+    private String port = DEFAULT_PORT;
 
-    @JsonProperty("nodeProperties")
+    @JsonProperty(EdgeNode.JSON_NODE_PROPERTIES)
     private NodeProperties nodeProperties = null;
 }
