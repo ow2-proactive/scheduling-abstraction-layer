@@ -393,9 +393,6 @@ public class NodeCandidateUtils {
                     case AZURE:
                         imageReq = os;
                         break;
-                    case "azure":
-                        imageReq = os;
-                        break;
                     default:
                         throw new IllegalArgumentException("The infrastructure " + paCloud.getCloudProviderName() +
                                                            " is not handled yet.");
