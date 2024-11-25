@@ -76,7 +76,7 @@ public class ByonUtils {
         Hardware hardware = new Hardware();
         hardware.setCores(np.getCores());
         hardware.setDisk((double) np.getDisk());
-        hardware.setRam(np.getMemory());
+        hardware.setRam(np.getRam());
         hardware.setFpga("");
         hardware.setProviderId(np.getProviderId());
         //Define the location

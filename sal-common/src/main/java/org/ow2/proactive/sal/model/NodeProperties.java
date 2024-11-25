@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class NodeProperties implements Serializable {
 
-    // Fields
+    // Fields - edge node properties fields are mapped to node candidates so field names are reused
     @JsonProperty(Hardware.JSON_PROVIDER_ID)
     private String providerId = null;
 
@@ -36,7 +36,7 @@ public class NodeProperties implements Serializable {
     private Integer cores = null;
 
     @JsonProperty(Hardware.JSON_RAM)
-    private Long memory = null;
+    private Long ram = null;
 
     @JsonProperty(Hardware.JSON_DISK)
     private Double disk = null;
@@ -92,7 +92,7 @@ public class NodeProperties implements Serializable {
     }
 
     public NodeProperties memory(Long memory) {
-        this.memory = memory;
+        this.ram = memory;
         return this;
     }
 
@@ -100,12 +100,12 @@ public class NodeProperties implements Serializable {
      * Amount of RAM this node has (in MB).
      * @return memory
      **/
-    public Long getMemory() {
-        return memory;
+    public Long getRam() {
+        return ram;
     }
 
-    public void setMemory(Long memory) {
-        this.memory = memory;
+    public void setRam(Long memory) {
+        this.ram = memory;
     }
 
     public NodeProperties disk(Double disk) {
@@ -169,16 +169,15 @@ public class NodeProperties implements Serializable {
         }
         NodeProperties nodeProperties = (NodeProperties) o;
         return Objects.equals(this.providerId, nodeProperties.providerId) &&
-               Objects.equals(this.price, nodeProperties.price) &&
-               Objects.equals(this.cores, nodeProperties.cores) &&
-               Objects.equals(this.memory, nodeProperties.memory) && Objects.equals(this.disk, nodeProperties.disk) &&
+               Objects.equals(this.price, nodeProperties.price) && Objects.equals(this.cores, nodeProperties.cores) &&
+               Objects.equals(this.ram, nodeProperties.ram) && Objects.equals(this.disk, nodeProperties.disk) &&
                Objects.equals(this.operatingSystem, nodeProperties.operatingSystem) &&
                Objects.equals(this.geoLocation, nodeProperties.geoLocation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerId, cores, memory, disk, operatingSystem, geoLocation);
+        return Objects.hash(providerId, cores, ram, disk, operatingSystem, geoLocation);
     }
 
     @Override
@@ -186,10 +185,14 @@ public class NodeProperties implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("class NodeProperties {\n");
 
-        sb.append("    ").append(Hardware.JSON_PROVIDER_ID).append(": ").append(toIndentedString(providerId)).append("\n");
+        sb.append("    ")
+          .append(Hardware.JSON_PROVIDER_ID)
+          .append(": ")
+          .append(toIndentedString(providerId))
+          .append("\n");
         sb.append("    ").append(NodeCandidate.JSON_PRICE).append(": ").append(toIndentedString(price)).append("\n");
         sb.append("    ").append(Hardware.JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
-        sb.append("    ").append(Hardware.JSON_RAM).append(": ").append(toIndentedString(memory)).append("\n");
+        sb.append("    ").append(Hardware.JSON_RAM).append(": ").append(toIndentedString(ram)).append("\n");
         sb.append("    ").append(Hardware.JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
         sb.append("    ")
           .append(Image.JSON_OPERATING_SYSTEM)

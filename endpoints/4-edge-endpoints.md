@@ -36,8 +36,8 @@ This endpoint is used to register new Edge nodes, which are passed as an [EdgeDe
   "nodeProperties": {
     "providerId": "1",
     "price": "{{price}}",
-    "numberOfCores": "{{cores}}",
-    "memory": "{{memory}}",
+    "cores": "{{cores}}",
+    "ram": "{{ram}}",
     "disk": "{{disk}}",
     "operatingSystem": {
       "operatingSystemFamily": "{{OS_name}}",
@@ -71,8 +71,8 @@ The fields are defined as:
 - `nodeProperties`:
   - `providerId`: The ID of the provider. Default is `"1"`.
   - `price`: The price of the edge node source.
-  - `numberOfCores`: A string  representing number of hardware cores (e.g., `"1"`).
-  - `memory`: The hardware memory in GB (e.g., `"1"`)
+  - `cores`: A string  representing number of CPU cores (e.g., `"1"`).
+  - `ram`: The hardware ram memory in GB (e.g., `"1"`)
   - `disk`: The hardware storage space in GB (e.g., `"1.0"`).
   - `operatingSystem`: Information about the OS, including Family, Architecture, and Version.
   - `geoLocation`: The physical location details, such as city, country, latitude, and longitude of the edge node.
