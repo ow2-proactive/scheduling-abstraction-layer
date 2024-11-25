@@ -8,6 +8,7 @@ package org.ow2.proactive.sal.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
@@ -35,11 +36,20 @@ public class NodeProperties implements Serializable {
     @JsonProperty(Hardware.JSON_CORES)
     private Integer cores = null;
 
+    @JsonProperty(Hardware.JSON_CPU_FREQUENCY)
+    private Double cpuFrequency = null;
+
     @JsonProperty(Hardware.JSON_RAM)
     private Long ram = null;
 
     @JsonProperty(Hardware.JSON_DISK)
     private Double disk = null;
+
+    @JsonProperty(Hardware.JSON_FPGA)
+    private Integer fpga = null;
+
+    @JsonProperty(Hardware.JSON_GPU)
+    private Integer gpu = null;
 
     @Embedded
     @JsonProperty(Image.JSON_OPERATING_SYSTEM)
@@ -64,6 +74,11 @@ public class NodeProperties implements Serializable {
 
     public void setProviderId(String providerId) {
         this.providerId = providerId;
+    }
+
+    public NodeProperties price(Double price) {
+        this.price = price;
+        return this;
     }
 
     public Double getPrice() {
@@ -91,9 +106,30 @@ public class NodeProperties implements Serializable {
         this.cores = numberOfCores;
     }
 
-    public NodeProperties memory(Long memory) {
-        this.ram = memory;
+    public NodeProperties ram(Long ram) {
+        this.ram = ram;
         return this;
+    }
+
+    public NodeProperties cpuFrequency(Double cpuFrequency) {
+        this.cpuFrequency = cpuFrequency;
+        return this;
+    }
+
+    /**
+     * Sets the CPU frequency in GHz.
+     * @param cpuFrequency CPU frequency in GHz
+     */
+    public void setCpuFrequency(Double cpuFrequency) {
+        this.cpuFrequency = cpuFrequency;
+    }
+
+    /**
+     * Gets the CPU frequency in GHz.
+     * @return cpuFrequency
+     */
+    public Double getCpuFrequency() {
+        return cpuFrequency;
     }
 
     /**
@@ -123,6 +159,48 @@ public class NodeProperties implements Serializable {
 
     public void setDisk(Double disk) {
         this.disk = disk;
+    }
+
+    public NodeProperties fpga(Integer fpga) {
+        this.fpga = fpga;
+        return this;
+    }
+
+    /**
+     * Sets the number of FPGAs.
+     * @param fpga Number of FPGAs
+     */
+    public void setFpga(Integer fpga) {
+        this.fpga = fpga;
+    }
+
+    /**
+     * Gets the number of FPGAs.
+     * @return fpga
+     */
+    public Integer getFpga() {
+        return fpga;
+    }
+
+    public NodeProperties gpu(Integer gpu) {
+        this.gpu = gpu;
+        return this;
+    }
+
+    /**
+     * Sets the number of GPUs.
+     * @param gpu Number of GPUs
+     */
+    public void setGpu(Integer gpu) {
+        this.gpu = gpu;
+    }
+
+    /**
+     * Gets the number of GPUs.
+     * @return gpu
+     */
+    public Integer getGpu() {
+        return gpu;
     }
 
     public NodeProperties operatingSystem(OperatingSystem operatingSystem) {
@@ -170,14 +248,18 @@ public class NodeProperties implements Serializable {
         NodeProperties nodeProperties = (NodeProperties) o;
         return Objects.equals(this.providerId, nodeProperties.providerId) &&
                Objects.equals(this.price, nodeProperties.price) && Objects.equals(this.cores, nodeProperties.cores) &&
+               Objects.equals(this.cpuFrequency, nodeProperties.cpuFrequency) &&
                Objects.equals(this.ram, nodeProperties.ram) && Objects.equals(this.disk, nodeProperties.disk) &&
+               Objects.equals(this.fpga, nodeProperties.fpga) && Objects.equals(this.gpu, nodeProperties.gpu) &&
                Objects.equals(this.operatingSystem, nodeProperties.operatingSystem) &&
                Objects.equals(this.geoLocation, nodeProperties.geoLocation);
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerId, cores, ram, disk, operatingSystem, geoLocation);
+        return Objects.hash(providerId, price, cores, cpuFrequency, ram, disk, fpga, gpu, operatingSystem, geoLocation);
+
     }
 
     @Override
@@ -192,8 +274,15 @@ public class NodeProperties implements Serializable {
           .append("\n");
         sb.append("    ").append(NodeCandidate.JSON_PRICE).append(": ").append(toIndentedString(price)).append("\n");
         sb.append("    ").append(Hardware.JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
+        sb.append("    ")
+          .append(Hardware.JSON_CPU_FREQUENCY)
+          .append(": ")
+          .append(toIndentedString(cpuFrequency))
+          .append("\n");
         sb.append("    ").append(Hardware.JSON_RAM).append(": ").append(toIndentedString(ram)).append("\n");
         sb.append("    ").append(Hardware.JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
+        sb.append("    ").append(Hardware.JSON_FPGA).append(": ").append(toIndentedString(fpga)).append("\n");
+        sb.append("    ").append(Hardware.JSON_GPU).append(": ").append(toIndentedString(gpu)).append("\n");
         sb.append("    ")
           .append(Image.JSON_OPERATING_SYSTEM)
           .append(": ")
@@ -204,8 +293,6 @@ public class NodeProperties implements Serializable {
           .append(": ")
           .append(toIndentedString(geoLocation))
           .append("\n");
-
-        sb.append("}");
         return sb.toString();
     }
 
