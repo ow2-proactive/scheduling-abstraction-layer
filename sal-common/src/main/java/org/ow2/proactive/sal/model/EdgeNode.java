@@ -29,6 +29,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "EDGE_NODE")
 public class EdgeNode extends AbstractNode {
+    public static final String ANY_JOB_ID = "any";
 
     // Constants for JSON properties
     public static final String JSON_NAME = "name";

@@ -470,6 +470,18 @@ public class ClusterService {
             nodeTasks.forEach(task -> repositoryService.deleteTask(task));
             repositoryService.flush();
 
+            //undeploy edge node source and delete representing resource from ProActive Resource Manager
+            NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
+            if (nc.getCloud().getCloudType().equals(CloudType.EDGE)) {
+                EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
+                edgeService.handlePACloudDeletion(edgeNode);
+                //remove ProActive JobId from edge device
+                edgeNode.setJobId(EdgeNode.ANY_JOB_ID);
+                repositoryService.saveEdgeNode(edgeNode);
+                nc.setJobIdForEDGE(EdgeNode.ANY_JOB_ID);
+                repositoryService.saveNodeCandidate(nc);
+            }
+
             LOGGER.info("Cleanup completed for node {}", node.getName());
 
         } catch (Exception e) {

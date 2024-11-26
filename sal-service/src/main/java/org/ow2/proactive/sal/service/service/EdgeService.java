@@ -58,7 +58,7 @@ public class EdgeService {
         EdgeNode newEdgeNode = new EdgeNode();
         String jobId;
         if (edgeNodeDefinition.getJobId() == null || edgeNodeDefinition.getJobId().isEmpty()) {
-            jobId = "any";
+            jobId = EdgeNode.ANY_JOB_ID;
         } else {
             jobId = edgeNodeDefinition.getJobId();
         }
@@ -300,25 +300,34 @@ public class EdgeService {
             throw new IllegalArgumentException("The passed EDGE ID \"" + edgeId + "\" is not Found in the database");
         }
 
-        LOGGER.info("Deleting the corresponding PACloud from the database ...");
+        handlePACloudDeletion(edgeNode);
+
+        return true;
+    }
+
+    /**
+     * Handle the deletion of a PACloud related to an EdgeNode
+     * @param edgeNode The edge node whose related PACloud is to be deleted
+     */
+    public void handlePACloudDeletion(EdgeNode edgeNode) {
+        LOGGER.info("Deleting the corresponding Edge Node PACloud from the database ...");
         PACloud paCloud = repositoryService.getPACloud(edgeNode.composeNodeSourceName());
         if (paCloud != null) {
             if (paCloud.getDeployments() != null) {
-                LOGGER.info("Cleaning deployments from related tasks {}", paCloud.getDeployments().toString());
+                LOGGER.info("Cleaning Edge Node deployments from related tasks {}",
+                            paCloud.getDeployments().toString());
                 paCloud.getDeployments().forEach(deployment -> deployment.getTask().removeDeployment(deployment));
-                LOGGER.info("Cleaning deployments from paCloud {}", paCloud.getCloudId());
+                LOGGER.info("Cleaning Edge Node deployments from paCloud {}", paCloud.getCloudId());
                 paCloud.clearDeployments();
             }
             repositoryService.deletePACloud(paCloud);
         } else {
-            LOGGER.warn("The PACloud related to the edgeNode {} is not found.", edgeNode.getName());
+            LOGGER.info("The PACloud related to the Edge Node  {} is not found.", edgeNode.getName());
         }
 
         if (Boolean.FALSE.equals(ByonUtils.undeployNs(edgeNode.composeNodeSourceName(), false, true))) {
             LOGGER.warn("The Edge node source undeploy finished with errors!");
         }
-        repositoryService.deleteEdgeNode(edgeNode);
-
-        return true;
     }
+
 }

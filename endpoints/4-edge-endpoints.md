@@ -34,11 +34,14 @@ This endpoint is used to register new Edge nodes, which are passed as an [EdgeDe
     }
   ],
   "nodeProperties": {
-    "providerId": "1",
     "price": "{{price}}",
+    "providerId": "{{providerID}}",
     "cores": "{{cores}}",
+    "cpuFrequency": "{{cpuFrequency}}",
     "ram": "{{ram}}",
     "disk": "{{disk}}",
+    "fpga": "{{fpga}}",
+    "gpu": "{{gpu}}",
     "operatingSystem": {
       "operatingSystemFamily": "{{OS_name}}",
       "operatingSystemArchitecture": "{{OS_architecture}}",
@@ -65,22 +68,25 @@ This endpoint is used to register new Edge nodes, which are passed as an [EdgeDe
 - Information registered in node candidate for hardware, location, and image that represent the device.
 
 The fields are defined as:
-- `name`: The name of the edge node. This is used for identification and management within the cluster.
+- `name`(String): The name of the edge node, used for identification and management within the cluster.
 - `loginCredential`: Contains authentication details for accessing the edge node. The username and password are required for SSH access, with an option for a privateKey instead of a password.
 - `ipAddresses`: A list of IP addresses associated with the node, including both PUBLIC_IP and PRIVATE_IP with IP Version specified as V4.
-- `nodeProperties`:
-  - `providerId`: The ID of the provider. Default is `"1"`.
-  - `price`: The price of the edge node source.
-  - `cores`: A string  representing number of CPU cores (e.g., `"1"`).
-  - `ram`: The hardware ram memory in GB (e.g., `"1"`)
-  - `disk`: The hardware storage space in GB (e.g., `"1.0"`).
+- `nodeProperties`: Represents the properties being transmitted to a node candidate, reflecting the attributes of the registered edge device.
+  - `price`(Double): The price of the edge node source.
+  - `providerId` (String): The unique identifier of the provider.
+  - `cores`(Integer): The number of CPU cores the node possesses.
+  - `cpuFrequency`(Double): The CPU frequency in GHz.
+  - `ram`(Long): The hardware's RAM memory in MB.
+  - `disk`(Double): The hardware's storage space in GB.
+  - `fpga`(Integer): The number of FPGAs (Field-Programmable Gate Arrays) available on the node.
+  - `gpu`(Integer): The number of GPUs (Graphics Processing Units) available on the node.
   - `operatingSystem`: Information about the OS, including Family, Architecture, and Version.
   - `geoLocation`: The physical location details, such as city, country, latitude, and longitude of the edge node.
-- `port`: The port on which the edge node is accessible.
-- `jobId`: ProActive Job ID associated with the edge node. Set to `"0"` or `"any"` if no job is linked.
-- `systemArch`: The system architecture, which must be one of `"AMD"`, `"ARMv8"`, or `"ARMv7"`.
-- `scriptURL`: A URL pointing to any script required during the node setup.
-- `jarURL`: The URL for the node's executable `.jar` file, which corresponds to the `systemArch`.
+- `port` (String): The port number on which the edge node is accessible.
+- `jobId`(String): The ProActive Job ID associated with the edge node. Set to `"0"` or `"any"`, or `null`, if no job is linked.
+- `systemArch`(String): The system architecture, which must be one of `"AMD"`, `"ARMv8"`, or `"ARMv7"`.
+- `scriptURL`(String): A URL pointing to a script required for setting up the node.
+- `jarURL`(String): The URL for the node's executable `.jar` file, which corresponds to the `systemArch`.
 
 Each system architecture requires a specific `jarURL` for node execution, available from your ProActive installation. To obtain these `.jar` files, access the ProActive Resource Manager portal and go to _Portal -> Launch a Node_. Here are examples for various architectures:
 
