@@ -10,41 +10,76 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 
 
 /**
- * Attributes defining a BYON node
+ * Attributes defining an EDGE node
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Getter
 @Setter
 @ToString(callSuper = true)
 public class EdgeDefinition {
-    @JsonProperty("name")
+
+    public static final String DEFAULT_PORT = "22";
+
+    public static final String ANY_JOB_ID = "any";
+
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_LOGIN_CREDENTIAL = "loginCredential";
+
+    public static final String JSON_IP_ADDRESSES = "ipAddresses";
+
+    public static final String JSON_NODE_PROPERTIES = "nodeProperties";
+
+    public static final String JSON_PORT = "port";
+
+    public static final String JSON_REASON = "reason";
+
+    public static final String JSON_DIAGNOSTIC = "diagnostic";
+
+    public static final String JSON_USER_ID = "userId";
+
+    public static final String JSON_ALLOCATED = "allocated";
+
+    // edge jobID corresponds to the ProActive job name
+    public static final String JSON_JOB_ID = "jobId";
+
+    public static final String JSON_SYSTEM_ARCH = "systemArch";
+
+    public static final String JSON_SCRIPT_URL = "scriptURL";
+
+    public static final String JSON_JAR_URL = "jarURL";
+
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
-    @JsonProperty("jobId")
+    @JsonProperty(JSON_JOB_ID)
     private String jobId = null;
 
-    @JsonProperty("systemArch")
+    @JsonProperty(JSON_SYSTEM_ARCH)
     private String systemArch = null;
 
-    @JsonProperty("scriptURL")
+    @JsonProperty(JSON_SCRIPT_URL)
     private String scriptURL = null;
 
-    @JsonProperty("jarURL")
+    @JsonProperty(JSON_JAR_URL)
     private String jarURL = null;
 
-    @JsonProperty("loginCredential")
+    @JsonProperty(JSON_LOGIN_CREDENTIAL)
     private LoginCredential loginCredential = null;
 
-    @JsonProperty("ipAddresses")
+    @JsonProperty(JSON_IP_ADDRESSES)
     private List<IpAddress> ipAddresses = null;
 
-    @JsonProperty("port")
-    private String port = "22";
+    @JsonProperty(JSON_PORT)
+    private String port = DEFAULT_PORT;
 
-    @JsonProperty("nodeProperties")
+    @JsonProperty(JSON_NODE_PROPERTIES)
     private NodeProperties nodeProperties = null;
 }

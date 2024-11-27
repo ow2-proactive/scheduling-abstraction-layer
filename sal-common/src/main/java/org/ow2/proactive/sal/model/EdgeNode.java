@@ -13,6 +13,7 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,152 +26,63 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "EDGE_NODE")
 @Getter
 @Setter
-@Table(name = "EDGE_NODE")
+@EqualsAndHashCode
 public class EdgeNode extends AbstractNode {
 
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(EdgeDefinition.JSON_NAME)
     private String name = null;
 
     @Embedded
-    @JsonProperty("loginCredential")
+    @JsonProperty(EdgeDefinition.JSON_LOGIN_CREDENTIAL)
     private LoginCredential loginCredential = null;
 
     @ElementCollection(targetClass = IpAddress.class)
     private List<IpAddress> ipAddresses = null;
 
     @Embedded
-    @JsonProperty("nodeProperties")
+    @JsonProperty(EdgeDefinition.JSON_NODE_PROPERTIES)
     private NodeProperties nodeProperties = null;
 
     @Column(name = "PORT")
-    @JsonProperty("port")
+    @JsonProperty(EdgeDefinition.JSON_PORT)
     private String port = null;
 
     @Column(name = "REASON")
-    @JsonProperty("reason")
+    @JsonProperty(EdgeDefinition.JSON_REASON)
     private String reason = null;
 
     @Column(name = "DIAGNOSTIC")
-    @JsonProperty("diagnostic")
+    @JsonProperty(EdgeDefinition.JSON_DIAGNOSTIC)
     private String diagnostic = null;
 
     @Column(name = "USER_ID")
-    @JsonProperty("userId")
+    @JsonProperty(EdgeDefinition.JSON_USER_ID)
     private String userId = null;
 
     @Column(name = "ALLOCATED")
-    @JsonProperty("allocated")
+    @JsonProperty(EdgeDefinition.JSON_ALLOCATED)
     private Boolean allocated = null;
 
     @Column(name = "JOB_ID")
-    @JsonProperty("jobId")
+    @JsonProperty(EdgeDefinition.JSON_JOB_ID)
     private String jobId;
 
     @Column(name = "SYSTEM_ARCH")
-    @JsonProperty("systemArch")
+    @JsonProperty(EdgeDefinition.JSON_SYSTEM_ARCH)
     private String systemArch = null;
 
-    @JsonProperty("scriptURL")
+    @JsonProperty(EdgeDefinition.JSON_SCRIPT_URL)
     private String scriptURL = null;
 
-    @JsonProperty("jarURL")
+    @JsonProperty(EdgeDefinition.JSON_JAR_URL)
     private String jarURL = null;
-
-    public EdgeNode name(String name) {
-        this.setName(name);
-        return this;
-    }
-
-    public EdgeNode loginCredential(LoginCredential loginCredential) {
-        this.setLoginCredential(loginCredential);
-        return this;
-    }
-
-    public EdgeNode ipAddresses(List<IpAddress> ipAddresses) {
-        this.setIpAddresses(ipAddresses);
-        return this;
-    }
-
-    public EdgeNode addIpAddressesItem(IpAddress ipAddressesItem) {
-        this.addIpAddressesItem(ipAddressesItem);
-        return this;
-    }
-
-    public EdgeNode nodeProperties(NodeProperties nodeProperties) {
-        this.setNodeProperties(nodeProperties);
-        return this;
-    }
-
-    public EdgeNode reason(String reason) {
-        this.setReason(reason);
-        return this;
-    }
-
-    public EdgeNode diagnostic(String diagnostic) {
-        this.setDiagnostic(diagnostic);
-        return this;
-    }
-
-    public EdgeNode id(String id) {
-        this.setId(id);
-        return this;
-    }
-
-    public EdgeNode userId(String userId) {
-        this.setUserId(userId);
-        return this;
-    }
-
-    public EdgeNode allocated(Boolean allocated) {
-        this.setAllocated(allocated);
-        return this;
-    }
 
     public String composeNodeSourceName() {
         return "EDGE_NS_" + this.systemArch + "_" + this.id;
-    }
-
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        EdgeNode edgeNode = (EdgeNode) o;
-        return Objects.equals(this.name, edgeNode.getName()) &&
-               Objects.equals(this.loginCredential, edgeNode.getLoginCredential()) &&
-               Objects.equals(this.ipAddresses, edgeNode.getIpAddresses()) &&
-               Objects.equals(this.nodeProperties, edgeNode.getNodeProperties()) &&
-               Objects.equals(this.reason, edgeNode.getReason()) &&
-               Objects.equals(this.diagnostic, edgeNode.getDiagnostic()) &&
-               Objects.equals(this.nodeCandidate, edgeNode.getNodeCandidate()) &&
-               Objects.equals(this.id, edgeNode.getId()) && Objects.equals(this.userId, edgeNode.getUserId()) &&
-               Objects.equals(this.allocated, edgeNode.getAllocated()) &&
-               Objects.equals(this.jobId, edgeNode.getJobId()) &&
-               Objects.equals(this.systemArch, edgeNode.getSystemArch()) &&
-               Objects.equals(this.scriptURL, edgeNode.getScriptURL()) && Objects.equals(jarURL, edgeNode.getJarURL());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.name,
-                            this.id,
-                            this.loginCredential,
-                            this.ipAddresses,
-                            this.nodeProperties,
-                            this.reason,
-                            this.diagnostic,
-                            this.nodeProperties,
-                            this.userId,
-                            this.allocated,
-                            this.jobId,
-                            this.systemArch,
-                            this.scriptURL,
-                            this.jarURL);
     }
 
     @Override
