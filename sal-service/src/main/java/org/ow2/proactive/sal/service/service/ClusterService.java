@@ -476,9 +476,9 @@ public class ClusterService {
                 EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
                 edgeService.handlePACloudDeletion(edgeNode);
                 //remove ProActive JobId from edge device
-                edgeNode.setJobId(EdgeNode.ANY_JOB_ID);
+                edgeNode.setJobId(EdgeDefinition.ANY_JOB_ID);
                 repositoryService.saveEdgeNode(edgeNode);
-                nc.setJobIdForEDGE(EdgeNode.ANY_JOB_ID);
+                nc.setJobIdForEDGE(EdgeDefinition.ANY_JOB_ID);
                 repositoryService.saveNodeCandidate(nc);
             }
 

@@ -23,7 +23,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Embeddable
 public class LoginCredential implements Serializable {
-    // JSON property constants
     public static final String JSON_USERNAME = "username";
 
     public static final String JSON_PASSWORD = "password";

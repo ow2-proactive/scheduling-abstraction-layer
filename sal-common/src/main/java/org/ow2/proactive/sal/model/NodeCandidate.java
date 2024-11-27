@@ -32,7 +32,6 @@ import lombok.extern.log4j.Log4j2;
 @Entity
 @Table(name = "NODE_CANDIDATE")
 public class NodeCandidate implements Serializable {
-    // JSON Property Constants
     public static final String JSON_ID = "id";
 
     public static final String JSON_NODE_CANDIDATE_TYPE = "nodeCandidateType";

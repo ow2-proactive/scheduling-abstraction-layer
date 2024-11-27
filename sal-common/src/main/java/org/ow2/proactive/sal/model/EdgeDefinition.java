@@ -13,7 +13,7 @@ import lombok.*;
 
 
 /**
- * Attributes defining a EDGE node
+ * Attributes defining an EDGE node
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,33 +21,62 @@ import lombok.*;
 @Setter
 @ToString(callSuper = true)
 public class EdgeDefinition {
-    // Default constants
-    public static final String DEFAULT_PORT = "22";
 
-    @JsonProperty(EdgeNode.JSON_NAME)
+    public static final String DEFAULT_PORT = "22";
+    public static final String ANY_JOB_ID = "any";
+
+    // Constants for JSON properties
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_LOGIN_CREDENTIAL = "loginCredential";
+
+    public static final String JSON_IP_ADDRESSES = "ipAddresses";
+
+    public static final String JSON_NODE_PROPERTIES = "nodeProperties";
+
+    public static final String JSON_PORT = "port";
+
+    public static final String JSON_REASON = "reason";
+
+    public static final String JSON_DIAGNOSTIC = "diagnostic";
+
+    public static final String JSON_USER_ID = "userId";
+
+    public static final String JSON_ALLOCATED = "allocated";
+
+    // edge jobID corresponds to the ProActive job name
+    public static final String JSON_JOB_ID = "jobId";
+
+    public static final String JSON_SYSTEM_ARCH = "systemArch";
+
+    public static final String JSON_SCRIPT_URL = "scriptURL";
+
+    public static final String JSON_JAR_URL = "jarURL";
+
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
-    @JsonProperty(EdgeNode.JSON_JOB_ID)
+    @JsonProperty(JSON_JOB_ID)
     private String jobId = null;
 
-    @JsonProperty(EdgeNode.JSON_SYSTEM_ARCH)
+    @JsonProperty(JSON_SYSTEM_ARCH)
     private String systemArch = null;
 
-    @JsonProperty(EdgeNode.JSON_SCRIPT_URL)
+    @JsonProperty(JSON_SCRIPT_URL)
     private String scriptURL = null;
 
-    @JsonProperty(EdgeNode.JSON_JAR_URL)
+    @JsonProperty(JSON_JAR_URL)
     private String jarURL = null;
 
-    @JsonProperty(EdgeNode.JSON_LOGIN_CREDENTIAL)
+    @JsonProperty(JSON_LOGIN_CREDENTIAL)
     private LoginCredential loginCredential = null;
 
-    @JsonProperty(EdgeNode.JSON_IP_ADDRESSES)
+    @JsonProperty(JSON_IP_ADDRESSES)
     private List<IpAddress> ipAddresses = null;
 
-    @JsonProperty(EdgeNode.JSON_PORT)
+    @JsonProperty(JSON_PORT)
     private String port = DEFAULT_PORT;
 
-    @JsonProperty(EdgeNode.JSON_NODE_PROPERTIES)
+    @JsonProperty(JSON_NODE_PROPERTIES)
     private NodeProperties nodeProperties = null;
 }

@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "IMAGE")
 public class Image implements Serializable {
-    // Constants for JSON property names
     public static final String JSON_ID = "id";
 
     public static final String JSON_NAME = "name";

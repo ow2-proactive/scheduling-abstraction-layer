@@ -58,7 +58,7 @@ public class EdgeService {
         EdgeNode newEdgeNode = new EdgeNode();
         String jobId;
         if (edgeNodeDefinition.getJobId() == null || edgeNodeDefinition.getJobId().isEmpty()) {
-            jobId = EdgeNode.ANY_JOB_ID;
+            jobId = EdgeDefinition.ANY_JOB_ID;
         } else {
             jobId = edgeNodeDefinition.getJobId();
         }
