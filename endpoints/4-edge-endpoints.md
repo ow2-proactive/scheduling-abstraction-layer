@@ -83,7 +83,7 @@ The fields are defined as:
   - `operatingSystem`: Information about the OS, including Family, Architecture, and Version.
   - `geoLocation`: The physical location details, such as city, country, latitude, and longitude of the edge node.
 - `port` (String): The port number on which the edge node is accessible.
-- `jobId`(String): The ProActive Job ID associated with the edge node. Set to `"0"` or `"any"`, or `null`, if no job is linked.
+- `jobId`(String): The ProActive Job ID associated with the edge node. Set to `"0"` or `"any"`, or `null`, if no job is linked. Note that value `"any"` will be assigned to the jobId in this case indicating that there is no deployment on given device. When the deployment is sent to the edge device, the value will be replaced with name of ProActive deployment job.
 - `systemArch`(String): The system architecture, which must be one of `"AMD"`, `"ARMv8"`, or `"ARMv7"`.
 - `scriptURL`(String): A URL pointing to a script required for setting up the node.
 - `jarURL`(String): The URL for the node's executable `.jar` file, which corresponds to the `systemArch`.

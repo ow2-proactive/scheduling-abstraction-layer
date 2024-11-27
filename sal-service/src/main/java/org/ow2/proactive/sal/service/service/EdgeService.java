@@ -302,6 +302,8 @@ public class EdgeService {
 
         handlePACloudDeletion(edgeNode);
 
+        repositoryService.deleteEdgeNode(edgeNode);
+
         return true;
     }
 
