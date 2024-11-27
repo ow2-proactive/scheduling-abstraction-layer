@@ -13,7 +13,11 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -21,141 +25,93 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Entity
 @Table(name = "HARDWARE")
 public class Hardware implements Serializable {
+
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_PROVIDER_ID = "providerId";
+
+    public static final String JSON_CORES = "cores";
+
+    public static final String JSON_CPU_FREQUENCY = "cpuFrequency";
+
+    public static final String JSON_RAM = "ram";
+
+    public static final String JSON_DISK = "disk";
+
+    public static final String JSON_FPGA = "fpga";
+
+    public static final String JSON_GPU = "gpu";
+
+    public static final String JSON_LOCATION = "location";
+
+    public static final String JSON_STATE = "state";
+
+    public static final String JSON_OWNER = "owner";
+
     @Id
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
     @Column(name = "PROVIDER_ID")
-    @JsonProperty("providerId")
+    @JsonProperty(JSON_PROVIDER_ID)
     private String providerId = null;
 
     @Column(name = "CORES")
-    @JsonProperty("cores")
+    @JsonProperty(JSON_CORES)
     private Integer cores = null;
 
+    @Column(name = "CPU_FREQUENCY")
+    @JsonProperty(JSON_CPU_FREQUENCY)
+    private Double cpuFrequency = null;
+
     @Column(name = "RAM")
-    @JsonProperty("ram")
+    @JsonProperty(JSON_RAM)
     private Long ram = null;
 
     @Column(name = "DISK")
-    @JsonProperty("disk")
+    @JsonProperty(JSON_DISK)
     private Double disk = null;
 
     @Column(name = "FPGA")
-    @JsonProperty("fpga")
+    @JsonProperty(JSON_FPGA)
     private Integer fpga = null;
 
+    @Column(name = "GPU")
+    @JsonProperty(JSON_GPU)
+    private Integer gpu = null;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonProperty("location")
+    @JsonProperty(JSON_LOCATION)
     private Location location = null;
 
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("state")
+    @JsonProperty(JSON_STATE)
     private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
-    @JsonProperty("owner")
+    @JsonProperty(JSON_OWNER)
     private String owner = null;
 
-    public Hardware id(String id) {
-        this.id = id;
-        return this;
-    }
-
     /**
-     * Unique identifier for the hardware
-     * @return id
-     **/
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Hardware name(String name) {
-        this.name = name;
-        return this;
-    }
-
-    /**
-     * Human-readable name for the hardware
-     * @return name
-     **/
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Hardware providerId(String providerId) {
-        this.providerId = providerId;
-        return this;
-    }
-
-    /**
-     * Original id issued by the provider
-     * @return providerId
-     **/
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
-
-    public Hardware cores(Integer cores) {
-        this.cores = cores;
-        return this;
-    }
-
-    /**
-     * Number of cores
-     * @return cores
-     **/
-    public Integer getCores() {
-        return cores;
-    }
-
-    public void setCores(Integer cores) {
-        this.cores = cores;
-    }
-
-    public Hardware ram(Long ram) {
-        this.ram = ram;
-        return this;
-    }
-
-    /**
-     * Amount of RAM (in MB)
-     * @return ram
-     **/
-    public Long getRam() {
-        return ram;
-    }
-
-    public void setRam(Long ram) {
-        this.ram = ram;
-    }
-
-    public Integer getFpga() {
-        return fpga;
-    }
-
-    public void setFpga(String machineType) {
+     * Sets the FPGA field based on machine type.
+     * @param machineType the machine type
+     */
+    public void setCloudFpga(String machineType) {
         switch (machineType) {
             case "f1.2xlarge":
                 this.fpga = 1;
@@ -171,95 +127,9 @@ public class Hardware implements Serializable {
         }
     }
 
-    public Hardware disk(Double disk) {
-        this.disk = disk;
-        return this;
-    }
-
     /**
-     * Amount of disk space (in GB)
-     * @return disk
-     **/
-    public Double getDisk() {
-        return disk;
-    }
-
-    public void setDisk(Double disk) {
-        this.disk = disk;
-    }
-
-    public Hardware location(Location location) {
-        this.location = location;
-        return this;
-    }
-
-    /**
-     * Get location
-     * @return location
-     **/
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Hardware state(DiscoveryItemState state) {
-        this.state = state;
-        return this;
-    }
-
-    /**
-     * Get state
-     * @return state
-     **/
-    public DiscoveryItemState getState() {
-        return state;
-    }
-
-    public void setState(DiscoveryItemState state) {
-        this.state = state;
-    }
-
-    public Hardware owner(String owner) {
-        this.owner = owner;
-        return this;
-    }
-
-    /**
-     * Get owner
-     * @return owner
-     **/
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Hardware hardware = (Hardware) o;
-        return Objects.equals(this.id, hardware.id) && Objects.equals(this.name, hardware.name) &&
-               Objects.equals(this.providerId, hardware.providerId) && Objects.equals(this.cores, hardware.cores) &&
-               Objects.equals(this.ram, hardware.ram) && Objects.equals(this.disk, hardware.disk) &&
-               Objects.equals(this.fpga, hardware.fpga) && Objects.equals(this.location, hardware.location) &&
-               Objects.equals(this.state, hardware.state) && Objects.equals(this.owner, hardware.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, providerId, cores, ram, disk, fpga, location, state, owner);
-    }
-
+     * Custom toString() method for the Hardware class to format the output
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -269,9 +139,11 @@ public class Hardware implements Serializable {
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
         sb.append("    cores: ").append(toIndentedString(cores)).append("\n");
+        sb.append("    cpuFrequency: ").append(toIndentedString(cpuFrequency)).append("\n");
         sb.append("    ram: ").append(toIndentedString(ram)).append("\n");
         sb.append("    disk: ").append(toIndentedString(disk)).append("\n");
         sb.append("    fpga: ").append(toIndentedString(fpga)).append("\n");
+        sb.append("    gpu: ").append(toIndentedString(gpu)).append("\n");
         sb.append("    location: ").append(toIndentedString(location)).append("\n");
         sb.append("    state: ").append(toIndentedString(state)).append("\n");
         sb.append("    owner: ").append(toIndentedString(owner)).append("\n");

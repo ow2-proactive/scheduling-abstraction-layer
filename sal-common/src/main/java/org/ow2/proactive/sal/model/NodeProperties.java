@@ -6,15 +6,19 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -22,185 +26,95 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Embeddable
 public class NodeProperties implements Serializable {
-    @JsonProperty("price")
-    private Double price = null;
 
-    @JsonProperty("providerId")
+    // Fields - edge node properties fields are mapped to node candidates so field names are reused
+    @JsonProperty(Hardware.JSON_PROVIDER_ID)
     private String providerId = null;
 
-    @JsonProperty("numberOfCores")
-    private Integer numberOfCores = null;
+    @JsonProperty(NodeCandidate.JSON_PRICE)
+    private Double price = null;
 
-    @JsonProperty("memory")
-    private Long memory = null;
+    @JsonProperty(Hardware.JSON_CORES)
+    private Integer cores = null;
 
-    @JsonProperty("disk")
-    private Float disk = null;
+    @JsonProperty(Hardware.JSON_CPU_FREQUENCY)
+    private Double cpuFrequency = null;
+
+    @JsonProperty(Hardware.JSON_RAM)
+    private Long ram = null;
+
+    @JsonProperty(Hardware.JSON_DISK)
+    private Double disk = null;
+
+    @JsonProperty(Hardware.JSON_FPGA)
+    private Integer fpga = null;
+
+    @JsonProperty(Hardware.JSON_GPU)
+    private Integer gpu = null;
 
     @Embedded
-    @JsonProperty("operatingSystem")
+    @JsonProperty(Image.JSON_OPERATING_SYSTEM)
     private OperatingSystem operatingSystem = null;
 
     @Embedded
-    @JsonProperty("geoLocation")
+    @JsonProperty(Location.JSON_GEO_LOCATION)
     private GeoLocation geoLocation = null;
 
-    public NodeProperties providerId(String providerId) {
-        this.providerId = providerId;
-        return this;
-    }
-
     /**
-     * Id of the provider where this node is managed. For virtual machines this e.g. the id of the cloud.
-     * @return providerId
-     **/
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public NodeProperties numberOfCores(Integer numberOfCores) {
-        this.numberOfCores = numberOfCores;
-        return this;
-    }
-
-    /**
-     * Number of cores the node has.
-     * @return numberOfCores
-     **/
-    public Integer getNumberOfCores() {
-        return numberOfCores;
-    }
-
-    public void setNumberOfCores(Integer numberOfCores) {
-        this.numberOfCores = numberOfCores;
-    }
-
-    public NodeProperties memory(Long memory) {
-        this.memory = memory;
-        return this;
-    }
-
-    /**
-     * Amount of RAM this node has (in MB).
-     * @return memory
-     **/
-    public Long getMemory() {
-        return memory;
-    }
-
-    public void setMemory(Long memory) {
-        this.memory = memory;
-    }
-
-    public NodeProperties disk(Float disk) {
-        this.disk = disk;
-        return this;
-    }
-
-    /**
-     * Amount of disk space this node has (in GB).
-     * @return disk
-     **/
-    public Float getDisk() {
-        return disk;
-    }
-
-    public void setDisk(Float disk) {
-        this.disk = disk;
-    }
-
-    public NodeProperties operatingSystem(OperatingSystem operatingSystem) {
-        this.operatingSystem = operatingSystem;
-        return this;
-    }
-
-    /**
-     * Operating system of this node.
-     * @return operatingSystem
-     **/
-    public OperatingSystem getOperatingSystem() {
-        return operatingSystem;
-    }
-
-    public void setOperatingSystem(OperatingSystem operatingSystem) {
-        this.operatingSystem = operatingSystem;
-    }
-
-    public NodeProperties geoLocation(GeoLocation geoLocation) {
-        this.geoLocation = geoLocation;
-        return this;
-    }
-
-    /**
-     * Geographical location this node resides in.
-     * @return geoLocation
-     **/
-    public GeoLocation getGeoLocation() {
-        return geoLocation;
-    }
-
-    public void setGeoLocation(GeoLocation geoLocation) {
-        this.geoLocation = geoLocation;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        NodeProperties nodeProperties = (NodeProperties) o;
-        return Objects.equals(this.providerId, nodeProperties.providerId) &&
-               Objects.equals(this.numberOfCores, nodeProperties.numberOfCores) &&
-               Objects.equals(this.memory, nodeProperties.memory) && Objects.equals(this.disk, nodeProperties.disk) &&
-               Objects.equals(this.operatingSystem, nodeProperties.operatingSystem) &&
-               Objects.equals(this.geoLocation, nodeProperties.geoLocation);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(providerId, numberOfCores, memory, disk, operatingSystem, geoLocation);
-    }
-
+     * Custom toString method with indentation and field labels.
+     * It creates a more readable string output for debugging and logging.
+     *
+     * @return a string representation of the NodeProperties instance.
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class NodeProperties {\n");
-
-        sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
-        sb.append("    numberOfCores: ").append(toIndentedString(numberOfCores)).append("\n");
-        sb.append("    memory: ").append(toIndentedString(memory)).append("\n");
-        sb.append("    disk: ").append(toIndentedString(disk)).append("\n");
-        sb.append("    operatingSystem: ").append(toIndentedString(operatingSystem)).append("\n");
-        sb.append("    geoLocation: ").append(toIndentedString(geoLocation)).append("\n");
+        sb.append("NodeProperties {\n");
+        sb.append("    ")
+          .append(Hardware.JSON_PROVIDER_ID)
+          .append(": ")
+          .append(toIndentedString(providerId))
+          .append("\n");
+        sb.append("    ").append(NodeCandidate.JSON_PRICE).append(": ").append(toIndentedString(price)).append("\n");
+        sb.append("    ").append(Hardware.JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
+        sb.append("    ")
+          .append(Hardware.JSON_CPU_FREQUENCY)
+          .append(": ")
+          .append(toIndentedString(cpuFrequency))
+          .append("\n");
+        sb.append("    ").append(Hardware.JSON_RAM).append(": ").append(toIndentedString(ram)).append("\n");
+        sb.append("    ").append(Hardware.JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
+        sb.append("    ").append(Hardware.JSON_FPGA).append(": ").append(toIndentedString(fpga)).append("\n");
+        sb.append("    ").append(Hardware.JSON_GPU).append(": ").append(toIndentedString(gpu)).append("\n");
+        sb.append("    ")
+          .append(Image.JSON_OPERATING_SYSTEM)
+          .append(": ")
+          .append(toIndentedString(operatingSystem))
+          .append("\n");
+        sb.append("    ")
+          .append(Location.JSON_GEO_LOCATION)
+          .append(": ")
+          .append(toIndentedString(geoLocation))
+          .append("\n");
         sb.append("}");
         return sb.toString();
     }
 
     /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
+     * Helper method to convert objects to indented strings.
+     * @param obj The object to convert.
+     * @return A string representation of the object or "null" if the object is null.
      */
-    private String toIndentedString(Object o) {
-        if (o == null) {
+    private String toIndentedString(Object obj) {
+        if (obj == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return obj.toString().replace("\n", "\n    ");
     }
 }
