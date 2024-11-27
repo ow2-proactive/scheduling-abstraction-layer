@@ -6,7 +6,6 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -15,7 +14,11 @@ import javax.persistence.Embedded;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -23,6 +26,10 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Embeddable
 public class NodeProperties implements Serializable {
 
@@ -59,214 +66,16 @@ public class NodeProperties implements Serializable {
     @JsonProperty(Location.JSON_GEO_LOCATION)
     private GeoLocation geoLocation = null;
 
-    public NodeProperties providerId(String providerId) {
-        this.providerId = providerId;
-        return this;
-    }
-
     /**
-     * Id of the provider where this node is managed. For virtual machines this e.g. the id of the cloud.
-     * @return providerId
-     **/
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
-
-    public NodeProperties price(Double price) {
-        this.price = price;
-        return this;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public NodeProperties numberOfCores(Integer numberOfCores) {
-        this.cores = numberOfCores;
-        return this;
-    }
-
-    /**
-     * Number of cores the node has.
-     * @return numberOfCores
-     **/
-    public Integer getCores() {
-        return cores;
-    }
-
-    public void setCores(Integer numberOfCores) {
-        this.cores = numberOfCores;
-    }
-
-    public NodeProperties ram(Long ram) {
-        this.ram = ram;
-        return this;
-    }
-
-    public NodeProperties cpuFrequency(Double cpuFrequency) {
-        this.cpuFrequency = cpuFrequency;
-        return this;
-    }
-
-    /**
-     * Sets the CPU frequency in GHz.
-     * @param cpuFrequency CPU frequency in GHz
+     * Custom toString method with indentation and field labels.
+     * It creates a more readable string output for debugging and logging.
+     *
+     * @return a string representation of the NodeProperties instance.
      */
-    public void setCpuFrequency(Double cpuFrequency) {
-        this.cpuFrequency = cpuFrequency;
-    }
-
-    /**
-     * Gets the CPU frequency in GHz.
-     * @return cpuFrequency
-     */
-    public Double getCpuFrequency() {
-        return cpuFrequency;
-    }
-
-    /**
-     * Amount of RAM this node has (in MB).
-     * @return memory
-     **/
-    public Long getRam() {
-        return ram;
-    }
-
-    public void setRam(Long memory) {
-        this.ram = memory;
-    }
-
-    public NodeProperties disk(Double disk) {
-        this.disk = disk;
-        return this;
-    }
-
-    /**
-     * Amount of disk space this node has (in GB).
-     * @return disk
-     **/
-    public Double getDisk() {
-        return disk;
-    }
-
-    public void setDisk(Double disk) {
-        this.disk = disk;
-    }
-
-    public NodeProperties fpga(Integer fpga) {
-        this.fpga = fpga;
-        return this;
-    }
-
-    /**
-     * Sets the number of FPGAs.
-     * @param fpga Number of FPGAs
-     */
-    public void setFpga(Integer fpga) {
-        this.fpga = fpga;
-    }
-
-    /**
-     * Gets the number of FPGAs.
-     * @return fpga
-     */
-    public Integer getFpga() {
-        return fpga;
-    }
-
-    public NodeProperties gpu(Integer gpu) {
-        this.gpu = gpu;
-        return this;
-    }
-
-    /**
-     * Sets the number of GPUs.
-     * @param gpu Number of GPUs
-     */
-    public void setGpu(Integer gpu) {
-        this.gpu = gpu;
-    }
-
-    /**
-     * Gets the number of GPUs.
-     * @return gpu
-     */
-    public Integer getGpu() {
-        return gpu;
-    }
-
-    public NodeProperties operatingSystem(OperatingSystem operatingSystem) {
-        this.operatingSystem = operatingSystem;
-        return this;
-    }
-
-    /**
-     * Operating system of this node.
-     * @return operatingSystem
-     **/
-    public OperatingSystem getOperatingSystem() {
-        return operatingSystem;
-    }
-
-    public void setOperatingSystem(OperatingSystem operatingSystem) {
-        this.operatingSystem = operatingSystem;
-    }
-
-    public NodeProperties geoLocation(GeoLocation geoLocation) {
-        this.geoLocation = geoLocation;
-        return this;
-    }
-
-    /**
-     * Geographical location this node resides in.
-     * @return geoLocation
-     **/
-    public GeoLocation getGeoLocation() {
-        return geoLocation;
-    }
-
-    public void setGeoLocation(GeoLocation geoLocation) {
-        this.geoLocation = geoLocation;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        NodeProperties nodeProperties = (NodeProperties) o;
-        return Objects.equals(this.providerId, nodeProperties.providerId) &&
-               Objects.equals(this.price, nodeProperties.price) && Objects.equals(this.cores, nodeProperties.cores) &&
-               Objects.equals(this.cpuFrequency, nodeProperties.cpuFrequency) &&
-               Objects.equals(this.ram, nodeProperties.ram) && Objects.equals(this.disk, nodeProperties.disk) &&
-               Objects.equals(this.fpga, nodeProperties.fpga) && Objects.equals(this.gpu, nodeProperties.gpu) &&
-               Objects.equals(this.operatingSystem, nodeProperties.operatingSystem) &&
-               Objects.equals(this.geoLocation, nodeProperties.geoLocation);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(providerId, price, cores, cpuFrequency, ram, disk, fpga, gpu, operatingSystem, geoLocation);
-
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class NodeProperties {\n");
-
+        sb.append("NodeProperties {\n");
         sb.append("    ")
           .append(Hardware.JSON_PROVIDER_ID)
           .append(": ")
@@ -293,17 +102,19 @@ public class NodeProperties implements Serializable {
           .append(": ")
           .append(toIndentedString(geoLocation))
           .append("\n");
+        sb.append("}");
         return sb.toString();
     }
 
     /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
+     * Helper method to convert objects to indented strings.
+     * @param obj The object to convert.
+     * @return A string representation of the object or "null" if the object is null.
      */
-    private String toIndentedString(Object o) {
-        if (o == null) {
+    private String toIndentedString(Object obj) {
+        if (obj == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return obj.toString().replace("\n", "\n    ");
     }
 }

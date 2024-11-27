@@ -230,7 +230,7 @@ public class NodeCandidateUtils {
                 minRam = minRam.replace(".0", "");
             }
             hardware.setRam(Long.valueOf(minRam));
-            hardware.setFpga(hardwareJSON.optString("type"));
+            hardware.setCloudFpga(hardwareJSON.optString("type"));
 
             if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
                 hardware.setDisk((double) 8);
@@ -251,7 +251,7 @@ public class NodeCandidateUtils {
         if (location == null) {
             location = new Location();
             location.setId(locationId);
-            location.name(nodeCandidateJSON.optString("region"));
+            location.setName(nodeCandidateJSON.optString("region"));
             location.setProviderId(nodeCandidateJSON.optString("region"));
             location.setLocationScope(Location.LocationScopeEnum.REGION);
             location.setIsAssignable(true);

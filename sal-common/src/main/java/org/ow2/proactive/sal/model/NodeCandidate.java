@@ -7,7 +7,6 @@ package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.persistence.*;
 
@@ -19,7 +18,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.log4j.Log4j2;
 
 
@@ -29,6 +32,10 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
+@EqualsAndHashCode
+@Getter
+@Setter
 @Entity
 @Table(name = "NODE_CANDIDATE")
 public class NodeCandidate implements Serializable {
@@ -148,213 +155,6 @@ public class NodeCandidate implements Serializable {
     @JsonProperty(JSON_ENVIRONMENT)
     private Environment environment = null;
 
-    public NodeCandidate id(String id) {
-        this.id = id;
-        return this;
-    }
-
-    /**
-     * Get id
-     * @return id
-     **/
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public NodeCandidate nodeCandidateType(NodeCandidateTypeEnum nodeCandidateType) {
-        this.nodeCandidateType = nodeCandidateType;
-        return this;
-    }
-
-    /**
-     * Get nodeCandidateType
-     * @return nodeCandidateType
-     **/
-    public NodeCandidateTypeEnum getNodeCandidateType() {
-        return nodeCandidateType;
-    }
-
-    public void setNodeCandidateType(NodeCandidateTypeEnum nodeCandidateType) {
-        this.nodeCandidateType = nodeCandidateType;
-    }
-
-    /**
-     * Get jobIdForBYON
-     * @return jobIdForBYON
-     **/
-    public String getJobIdForBYON() {
-        return jobIdForBYON;
-    }
-
-    public String getJobIdForEDGE() {
-        return jobIdForEDGE;
-    }
-
-    public void setJobIdForBYON(String jobIdForBYON) {
-        this.jobIdForBYON = jobIdForBYON;
-    }
-
-    public void setJobIdForEDGE(String jobIdForEDGE) {
-        this.jobIdForEDGE = jobIdForEDGE;
-    }
-
-    public NodeCandidate price(Double price) {
-        this.price = price;
-        return this;
-    }
-
-    /**
-     * Get price
-     * @return price
-     **/
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public NodeCandidate cloud(Cloud cloud) {
-        this.cloud = cloud;
-        return this;
-    }
-
-    /**
-     * Get cloud
-     * @return cloud
-     **/
-    public Cloud getCloud() {
-        return cloud;
-    }
-
-    public void setCloud(Cloud cloud) {
-        this.cloud = cloud;
-    }
-
-    public NodeCandidate image(Image image) {
-        this.image = image;
-        return this;
-    }
-
-    /**
-     * Get image
-     * @return image
-     **/
-    public Image getImage() {
-        return image;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    public NodeCandidate hardware(Hardware hardware) {
-        this.hardware = hardware;
-        return this;
-    }
-
-    /**
-     * Get hardware
-     * @return hardware
-     **/
-    public Hardware getHardware() {
-        return hardware;
-    }
-
-    public void setHardware(Hardware hardware) {
-        this.hardware = hardware;
-    }
-
-    public NodeCandidate location(Location location) {
-        this.location = location;
-        return this;
-    }
-
-    /**
-     * Get location
-     * @return location
-     **/
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public NodeCandidate pricePerInvocation(Double pricePerInvocation) {
-        this.pricePerInvocation = pricePerInvocation;
-        return this;
-    }
-
-    /**
-     * Get pricePerInvocation
-     * @return pricePerInvocation
-     **/
-    public Double getPricePerInvocation() {
-        return pricePerInvocation;
-    }
-
-    public void setPricePerInvocation(Double pricePerInvocation) {
-        this.pricePerInvocation = pricePerInvocation;
-    }
-
-    public NodeCandidate memoryPrice(Double memoryPrice) {
-        this.memoryPrice = memoryPrice;
-        return this;
-    }
-
-    /**
-     * Get memoryPrice
-     * @return memoryPrice
-     **/
-    public Double getMemoryPrice() {
-        return memoryPrice;
-    }
-
-    public void setMemoryPrice(Double memoryPrice) {
-        this.memoryPrice = memoryPrice;
-    }
-
-    public NodeCandidate nodeId(String nodeId) {
-        this.nodeId = nodeId;
-        return this;
-    }
-
-    /**
-     * Get nodeId
-     * @return nodeId
-     **/
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-    public NodeCandidate environment(Environment environment) {
-        this.environment = environment;
-        return this;
-    }
-
-    /**
-     * Get environment
-     * @return environment
-     **/
-    public Environment getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
     /**
      * Check if a node candidate is of BYON type
      * @return true if yes, false if not
@@ -365,52 +165,12 @@ public class NodeCandidate implements Serializable {
     }
 
     /**
-     * Check if a node candidate is of BYON type
+     * Check if a node candidate is of EDGE type
      * @return true if yes, false if not
      */
     @JsonIgnore
     public boolean isEdgeNodeCandidate() {
         return nodeCandidateType.equals(NodeCandidateTypeEnum.EDGE);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        NodeCandidate nodeCandidate = (NodeCandidate) o;
-        return Objects.equals(this.id, nodeCandidate.id) &&
-               Objects.equals(this.nodeCandidateType, nodeCandidate.nodeCandidateType) &&
-               Objects.equals(this.jobIdForBYON, nodeCandidate.jobIdForBYON) &&
-               Objects.equals(this.jobIdForEDGE, nodeCandidate.jobIdForEDGE) &&
-               Objects.equals(this.price, nodeCandidate.price) && Objects.equals(this.cloud, nodeCandidate.cloud) &&
-               Objects.equals(this.image, nodeCandidate.image) &&
-               Objects.equals(this.hardware, nodeCandidate.hardware) &&
-               Objects.equals(this.location, nodeCandidate.location) &&
-               Objects.equals(this.pricePerInvocation, nodeCandidate.pricePerInvocation) &&
-               Objects.equals(this.memoryPrice, nodeCandidate.memoryPrice) &&
-               Objects.equals(this.nodeId, nodeCandidate.nodeId) &&
-               Objects.equals(this.environment, nodeCandidate.environment);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id,
-                            nodeCandidateType,
-                            jobIdForBYON,
-                            jobIdForEDGE,
-                            price,
-                            cloud,
-                            image,
-                            hardware,
-                            location,
-                            pricePerInvocation,
-                            memoryPrice,
-                            nodeId,
-                            environment);
     }
 
     @Override

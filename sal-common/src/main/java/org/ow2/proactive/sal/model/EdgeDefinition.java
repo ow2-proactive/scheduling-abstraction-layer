@@ -10,6 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -17,15 +18,17 @@ import lombok.*;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Getter
 @Setter
 @ToString(callSuper = true)
 public class EdgeDefinition {
 
     public static final String DEFAULT_PORT = "22";
+
     public static final String ANY_JOB_ID = "any";
 
-    // Constants for JSON properties
     public static final String JSON_NAME = "name";
 
     public static final String JSON_LOGIN_CREDENTIAL = "loginCredential";

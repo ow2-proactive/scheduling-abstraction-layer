@@ -13,7 +13,11 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -21,9 +25,14 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Entity
 @Table(name = "HARDWARE")
 public class Hardware implements Serializable {
+
     public static final String JSON_ID = "id";
 
     public static final String JSON_NAME = "name";
@@ -98,121 +107,11 @@ public class Hardware implements Serializable {
     @JsonProperty(JSON_OWNER)
     private String owner = null;
 
-    public Hardware id(String id) {
-        this.id = id;
-        return this;
-    }
-
     /**
-     * Unique identifier for the hardware
-     * @return id
-     **/
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Hardware name(String name) {
-        this.name = name;
-        return this;
-    }
-
-    /**
-     * Human-readable name for the hardware
-     * @return name
-     **/
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Hardware providerId(String providerId) {
-        this.providerId = providerId;
-        return this;
-    }
-
-    /**
-     * Original id issued by the provider
-     * @return providerId
-     **/
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
-
-    public Hardware cores(Integer cores) {
-        this.cores = cores;
-        return this;
-    }
-
-    /**
-     * Number of cores
-     * @return cores
-     **/
-    public Integer getCores() {
-        return cores;
-    }
-
-    public void setCores(Integer cores) {
-        this.cores = cores;
-    }
-
-    public Hardware cpuFrequency(Double cpuFrequency) {
-        this.cpuFrequency = cpuFrequency;
-        return this;
-    }
-
-    /**
-     * Sets the CPU frequency in GHz.
-     * @param cpuFrequency CPU frequency in GHz
+     * Sets the FPGA field based on machine type.
+     * @param machineType the machine type
      */
-    public void setCpuFrequency(Double cpuFrequency) {
-        this.cpuFrequency = cpuFrequency;
-    }
-
-    /**
-     * Gets the CPU frequency in GHz.
-     * @return cpuFrequency
-     */
-    public Double getCpuFrequency() {
-        return cpuFrequency;
-    }
-
-    public Hardware ram(Long ram) {
-        this.ram = ram;
-        return this;
-    }
-
-    /**
-     * Amount of RAM (in MB)
-     * @return ram
-     **/
-    public Long getRam() {
-        return ram;
-    }
-
-    public void setRam(Long ram) {
-        this.ram = ram;
-    }
-
-    public Integer getFpga() {
-        return fpga;
-    }
-
-    public void setFpga(Integer fpga) {
-        this.fpga = fpga;
-    }
-
-    public void setFpga(String machineType) {
+    public void setCloudFpga(String machineType) {
         switch (machineType) {
             case "f1.2xlarge":
                 this.fpga = 1;
@@ -228,134 +127,26 @@ public class Hardware implements Serializable {
         }
     }
 
-    public Hardware gpu(Integer gpu) {
-        this.gpu = gpu;
-        return this;
-    }
-
     /**
-     * Sets the number of GPUs.
-     * @param gpu Number of GPUs
+     * Custom toString() method for the Hardware class to format the output
      */
-    public void setGpu(Integer gpu) {
-        this.gpu = gpu;
-    }
-
-    /**
-     * Gets the number of GPUs.
-     * @return gpu
-     */
-    public Integer getGpu() {
-        return gpu;
-    }
-
-    public Hardware disk(Double disk) {
-        this.disk = disk;
-        return this;
-    }
-
-    /**
-     * Amount of disk space (in GB)
-     * @return disk
-     **/
-    public Double getDisk() {
-        return disk;
-    }
-
-    public void setDisk(Double disk) {
-        this.disk = disk;
-    }
-
-    public Hardware location(Location location) {
-        this.location = location;
-        return this;
-    }
-
-    /**
-     * Get location
-     * @return location
-     **/
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Hardware state(DiscoveryItemState state) {
-        this.state = state;
-        return this;
-    }
-
-    /**
-     * Get state
-     * @return state
-     **/
-    public DiscoveryItemState getState() {
-        return state;
-    }
-
-    public void setState(DiscoveryItemState state) {
-        this.state = state;
-    }
-
-    public Hardware owner(String owner) {
-        this.owner = owner;
-        return this;
-    }
-
-    /**
-     * Get owner
-     * @return owner
-     **/
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Hardware hardware = (Hardware) o;
-        return Objects.equals(this.id, hardware.id) && Objects.equals(this.name, hardware.name) &&
-               Objects.equals(this.providerId, hardware.providerId) && Objects.equals(this.cores, hardware.cores) &&
-               Objects.equals(this.ram, hardware.ram) && Objects.equals(this.disk, hardware.disk) &&
-               Objects.equals(this.fpga, hardware.fpga) && Objects.equals(this.gpu, hardware.gpu) && // Added GPU comparison
-               Objects.equals(this.cpuFrequency, hardware.cpuFrequency) && // Added CPU frequency comparison
-               Objects.equals(this.location, hardware.location) && Objects.equals(this.state, hardware.state) &&
-               Objects.equals(this.owner, hardware.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, providerId, cores, ram, disk, fpga, gpu, cpuFrequency, location, state, owner);
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class Hardware {\n");
-        sb.append("    ").append(JSON_ID).append(": ").append(toIndentedString(id)).append("\n");
-        sb.append("    ").append(JSON_NAME).append(": ").append(toIndentedString(name)).append("\n");
-        sb.append("    ").append(JSON_PROVIDER_ID).append(": ").append(toIndentedString(providerId)).append("\n");
-        sb.append("    ").append(JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
-        sb.append("    ").append(JSON_RAM).append(": ").append(toIndentedString(ram)).append("\n");
-        sb.append("    ").append(JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
-        sb.append("    ").append(JSON_FPGA).append(": ").append(toIndentedString(fpga)).append("\n");
-        sb.append("    ").append(JSON_GPU).append(": ").append(toIndentedString(gpu)).append("\n");
-        sb.append("    ").append(JSON_CPU_FREQUENCY).append(": ").append(toIndentedString(cpuFrequency)).append("\n");
-        sb.append("    ").append(JSON_LOCATION).append(": ").append(toIndentedString(location)).append("\n");
-        sb.append("    ").append(JSON_STATE).append(": ").append(toIndentedString(state)).append("\n");
-        sb.append("    ").append(JSON_OWNER).append(": ").append(toIndentedString(owner)).append("\n");
+
+        sb.append("    id: ").append(toIndentedString(id)).append("\n");
+        sb.append("    name: ").append(toIndentedString(name)).append("\n");
+        sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
+        sb.append("    cores: ").append(toIndentedString(cores)).append("\n");
+        sb.append("    cpuFrequency: ").append(toIndentedString(cpuFrequency)).append("\n");
+        sb.append("    ram: ").append(toIndentedString(ram)).append("\n");
+        sb.append("    disk: ").append(toIndentedString(disk)).append("\n");
+        sb.append("    fpga: ").append(toIndentedString(fpga)).append("\n");
+        sb.append("    gpu: ").append(toIndentedString(gpu)).append("\n");
+        sb.append("    location: ").append(toIndentedString(location)).append("\n");
+        sb.append("    state: ").append(toIndentedString(state)).append("\n");
+        sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
         sb.append("}");
         return sb.toString();
     }
