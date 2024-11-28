@@ -38,14 +38,6 @@ import lombok.extern.log4j.Log4j2;
 @Component
 public class NodeCandidateUtils {
 
-    public static final String AWS_EC2 = "aws-ec2";
-
-    public static final String AZURE = "azure";
-
-    public static final String GCE = "gce";
-
-    public static final String OPENSTACK = "openstack";
-
     @Autowired
     private PAConnectorIaasGateway connectorIaasGateway;
 
@@ -225,18 +217,19 @@ public class NodeCandidateUtils {
             hardware.setName(hardwareJSON.optString("type"));
             hardware.setProviderId(hardwareJSON.optString("type"));
             hardware.setCores(Math.round(Float.parseFloat(hardwareJSON.optString("minCores"))));
+
             String minRam = hardwareJSON.optString("minRam");
             if (minRam.endsWith(".0")) {
                 minRam = minRam.replace(".0", "");
             }
             hardware.setRam(Long.valueOf(minRam));
-            hardware.setCloudFpga(hardwareJSON.optString("type"));
 
-            if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
-                hardware.setDisk((double) 8);
-            } else {
-                hardware.setDisk((double) 0);
-            }
+            //for now is better to not assign values for the disk as they are not dynamically obtained: hardware.setDisk((double) 0);
+            //we used value 8 for AWS as it is a defuault but can be modified: hardware.setDisk((double) 8);
+
+            hardware.setCloudFpga(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
+                                  hardwareJSON.optString("type"));
+
             hardware.setLocation(createLocation(nodeCandidateJSON, paCloud));
 
             repositoryService.saveHardware(hardware);
@@ -262,8 +255,8 @@ public class NodeCandidateUtils {
         return location;
     }
 
-    private GeoLocation createGeoLocation(String cloud, String region) {
-        switch (cloud) {
+    private GeoLocation createGeoLocation(CloudProviderType cloudProvider, String region) {
+        switch (cloudProvider) {
             case AWS_EC2:
                 return new GeoLocation(geoLocationUtils.findGeoLocation("AWS", region));
             case AZURE:
@@ -290,13 +283,14 @@ public class NodeCandidateUtils {
             os.setOperatingSystemFamily(OperatingSystemFamily.fromValue(osJSON.optString("family").toUpperCase()));
 
             String arch = "";
-            if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
+            CloudProviderType cloudProvider = CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud"));
+            if (cloudProvider == CloudProviderType.AWS_EC2) {
                 if (nodeCandidateJSON.optJSONObject("hw").optString("type").startsWith("a")) {
                     arch = osJSON.optBoolean("is64Bit") ? "ARM64" : "ARM";
                 } else {
                     arch = osJSON.optBoolean("is64Bit") ? "AMD64" : "i386";
                 }
-            } else if (AZURE.equals(nodeCandidateJSON.optString("cloud"))) {
+            } else if (cloudProvider == CloudProviderType.AZURE) {
                 arch = osJSON.optString("arch");
             }
             os.setOperatingSystemArchitecture(OperatingSystemArchitecture.fromValue(arch));
@@ -398,7 +392,7 @@ public class NodeCandidateUtils {
                                                            " is not handled yet.");
                 }
 
-                if (paCloud.getCloudProviderName().equals(OPENSTACK)) {
+                if (paCloud.getCloudProviderName().equals(CloudProviderType.OPENSTACK)) {
                     entries.add(pair);
                 }
                 populateNodeCandidatesFromCache(paCloud, region, imageReq, image);

@@ -193,7 +193,7 @@ public class NodeService {
                                                                                   .getHardware()
                                                                                   .getProviderId())) {
             switch (cloud.getCloudProviderName()) {
-                case "aws-ec2":
+                case AWS_EC2:
                     filename = File.separator + "Define_NS_AWS_AutoScale.xml";
                     variables.put("aws_username", cloud.getCredentials().getUserName());
                     variables.put("aws_secret", cloud.getCredentials().getPrivateKey());
@@ -213,13 +213,13 @@ public class NodeService {
                           deployment.getNode().getNodeCandidate().getLocation().getName() + File.separator +
                                    deployment.getNode().getNodeCandidate().getImage().getProviderId());
             switch (cloud.getCloudProviderName()) {
-                case "aws-ec2":
+                case AWS_EC2:
                     filename = File.separator + "Define_NS_AWS.xml";
                     variables.put("aws_username", cloud.getCredentials().getUserName());
                     variables.put("aws_secret", cloud.getCredentials().getPrivateKey());
                     variables.put("subnet", Optional.ofNullable(cloud.getSubnet()).orElse(""));
                     break;
-                case "openstack":
+                case OPENSTACK:
                     filename = File.separator + "Define_NS_OS.xml";
                     variables.put("os_endpoint", cloud.getEndpoint());
                     variables.put("os_scopePrefix", cloud.getScopePrefix());
@@ -231,7 +231,7 @@ public class NodeService {
                     variables.put("os_region", deployment.getNode().getNodeCandidate().getLocation().getName());
                     variables.put("os_networkId", cloud.getDefaultNetwork());
                     break;
-                case "azure":
+                case AZURE:
                     filename = File.separator + "Define_NS_Azure.xml";
                     variables.put("azure_username", cloud.getCredentials().getUserName());
                     variables.put("azure_secret", cloud.getCredentials().getPrivateKey());
