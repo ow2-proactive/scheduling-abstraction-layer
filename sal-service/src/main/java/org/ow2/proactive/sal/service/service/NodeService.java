@@ -233,10 +233,22 @@ public class NodeService {
                     break;
                 case "azure":
                     filename = File.separator + "Define_NS_Azure.xml";
-                    variables.put("azure_username", cloud.getCredentials().getUserName());
-                    variables.put("azure_secret", cloud.getCredentials().getPrivateKey());
-                    variables.put("azure_domain", cloud.getCredentials().getDomain());
-                    variables.put("azure_subscription_id", cloud.getCredentials().getSubscriptionId());
+                    variables.put("clientId", cloud.getCredentials().getUserName());
+                    variables.put("secret", cloud.getCredentials().getPrivateKey());
+                    variables.put("domain", cloud.getCredentials().getDomain());
+                    variables.put("subscriptionId", cloud.getCredentials().getSubscriptionId());
+                    variables.put("image", deployment.getNode().getNodeCandidate().getImage().getId());
+                    variables.put("imageOSType",
+                                  deployment.getNode()
+                                            .getNodeCandidate()
+                                            .getImage()
+                                            .getOperatingSystem()
+                                            .getOperatingSystemFamily()
+                                            .name());
+                    variables.put("vmSizeType", deployment.getNode().getNodeCandidate().getHardware().getProviderId());
+                    variables.put("vmUsername", cloud.getSshCredentials().getUsername());
+                    variables.put("vmPassword", cloud.getSshCredentials().getPrivateKey());
+                    variables.put("region", deployment.getNode().getNodeCandidate().getLocation().getName());
                     break;
                 default:
                     throw new IllegalArgumentException("Unhandled cloud provider: " + cloud.getCloudProviderName());

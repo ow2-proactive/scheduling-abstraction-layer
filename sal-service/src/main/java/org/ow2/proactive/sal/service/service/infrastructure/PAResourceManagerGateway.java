@@ -221,62 +221,6 @@ public class PAResourceManagerGateway {
     }
 
     /**
-     * Deploy a simple AWS node source
-     * @param awsUsername A valid AWS user name
-     * @param awsKey A valid AWS secret key
-     * @param rmHostname The RM host name
-     * @param nodeSourceName The name of the node source
-     * @param numberVMs The number of needed VMs
-     * @throws NotConnectedException In case the user is not connected
-     * @throws PermissionRestException In case the user does not have valid permissions
-     */
-    public void deploySimpleAWSNodeSource(String awsUsername, String awsKey, String rmHostname, String nodeSourceName,
-            Integer numberVMs) throws NotConnectedException, PermissionRestException {
-        reconnectIfDisconnected();
-        // Getting NS configuration settings
-        String infrastructureType = "org.ow2.proactive.resourcemanager.nodesource.infrastructure.AWSEC2Infrastructure";
-        String[] infrastructureParameters = { awsUsername, //username
-                                              awsKey, //secret
-                                              numberVMs.toString(), //N of VMs
-                                              "1", //N VMs per node
-                                              "", //image
-                                              "", //OS
-                                              "", //awsKeyPair
-                                              "", //ram
-                                              "", //Ncore
-                                              "", //sg
-                                              "", //subnet
-                                              rmHostname, //host
-                                              "http://" + rmHostname + ":8080/connector-iaas", //connector-iaas url
-                                              "http://" + rmHostname + ":8080/rest/node.jar", //node jar url
-                                              "", "300000", //timeout
-                                              "" };
-        LOGGER.debug("infrastructureParameters: " + Arrays.toString(infrastructureParameters));
-        String[] infrastructureFileParameters = { "" };
-        String policyType = "org.ow2.proactive.resourcemanager.nodesource.policy.StaticPolicy";
-        String[] policyParameters = { "ALL", "ME" };
-        String[] policyFileParameters = {};
-        String nodesRecoverable = "true";
-
-        LOGGER.debug("Creating NodeSource ...");
-        rmRestInterface.defineNodeSource(RMConnectionHelper.getSessionId(),
-                                         nodeSourceName,
-                                         infrastructureType,
-                                         infrastructureParameters,
-                                         infrastructureFileParameters,
-                                         policyType,
-                                         policyParameters,
-                                         policyFileParameters,
-                                         nodesRecoverable);
-        LOGGER.info("NodeSource created.");
-
-        LOGGER.debug("Deploying the NodeSource ...");
-        rmRestInterface.deployNodeSource(RMConnectionHelper.getSessionId(), nodeSourceName);
-        LOGGER.info("NodeSource VMs deployed.");
-
-    }
-
-    /**
      * Search the nodes with specific tags.
      * @param tags a list of tags which the nodes should contain. When not specified or an empty list, all the nodes known urls are returned
      * @param all When true, the search return nodes which contain all tags;

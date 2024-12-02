@@ -297,6 +297,7 @@ public class NodeCandidateUtils {
                     arch = osJSON.optBoolean("is64Bit") ? "AMD64" : "i386";
                 }
             } else if (AZURE.equals(nodeCandidateJSON.optString("cloud"))) {
+                image.setId(imageJSON.optString("id"));
                 arch = osJSON.optString("arch");
             }
             os.setOperatingSystemArchitecture(OperatingSystemArchitecture.fromValue(arch));
