@@ -62,7 +62,7 @@ public class ByonUtils {
         LOGGER.debug("Creating the {} node candidate ...", nodeType.toUpperCase());
         //Start by setting the universal nodes properties
         NodeCandidate nc = new NodeCandidate();
-        nc.setPrice(0.0);
+        nc.setPrice(np.getPrice());
         nc.setMemoryPrice(0.0);
         nc.setPricePerInvocation(0.0);
         nc.setNodeId(nodeId);
@@ -74,10 +74,13 @@ public class ByonUtils {
         image.setOperatingSystem(np.getOperatingSystem());
         //Define the hardware
         Hardware hardware = new Hardware();
-        hardware.setCores(np.getNumberOfCores());
-        hardware.setDisk((double) np.getDisk());
-        hardware.setRam(np.getMemory());
-        hardware.setFpga("");
+        hardware.setCores(np.getCores());
+        hardware.setCpuFrequency(np.getCpuFrequency());
+        hardware.setDisk(np.getDisk());
+        hardware.setRam(np.getRam());
+        hardware.setFpga(np.getFpga());
+        hardware.setGpu(np.getGpu());
+        hardware.setProviderId(np.getProviderId());
         //Define the location
         Location location = new Location();
         location.setGeoLocation(np.getGeoLocation());

@@ -13,187 +13,72 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
- * Represents an image offer by a cloud
+ * Represents an image offered by a cloud
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Entity
 @Table(name = "IMAGE")
 public class Image implements Serializable {
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_PROVIDER_ID = "providerId";
+
+    public static final String JSON_OPERATING_SYSTEM = "operatingSystem";
+
+    public static final String JSON_LOCATION = "location";
+
+    public static final String JSON_STATE = "state";
+
+    public static final String JSON_OWNER = "owner";
+
     @Id
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
     @Column(name = "PROVIDER_ID")
-    @JsonProperty("providerId")
+    @JsonProperty(JSON_PROVIDER_ID)
     private String providerId = null;
 
     @Embedded
-    @JsonProperty("operatingSystem")
+    @JsonProperty(JSON_OPERATING_SYSTEM)
     private OperatingSystem operatingSystem = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonProperty("location")
+    @JsonProperty(JSON_LOCATION)
     private Location location = null;
 
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("state")
+    @JsonProperty(JSON_STATE)
     private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
-    @JsonProperty("owner")
+    @JsonProperty(JSON_OWNER)
     private String owner = null;
 
-    public Image id(String id) {
-        this.id = id;
-        return this;
-    }
-
     /**
-     * Unique identifier for this image
-     * @return id
-     **/
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Image name(String name) {
-        this.name = name;
-        return this;
-    }
-
-    /**
-     * Human-readable name
-     * @return name
-     **/
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Image providerId(String providerId) {
-        this.providerId = providerId;
-        return this;
-    }
-
-    /**
-     * Original id issued by provider
-     * @return providerId
-     **/
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
-
-    public Image operatingSystem(OperatingSystem operatingSystem) {
-        this.operatingSystem = operatingSystem;
-        return this;
-    }
-
-    /**
-     * Get operatingSystem
-     * @return operatingSystem
-     **/
-    public OperatingSystem getOperatingSystem() {
-        return operatingSystem;
-    }
-
-    public void setOperatingSystem(OperatingSystem operatingSystem) {
-        this.operatingSystem = operatingSystem;
-    }
-
-    public Image location(Location location) {
-        this.location = location;
-        return this;
-    }
-
-    /**
-     * Get location
-     * @return location
-     **/
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Image state(DiscoveryItemState state) {
-        this.state = state;
-        return this;
-    }
-
-    /**
-     * Get state
-     * @return state
-     **/
-    public DiscoveryItemState getState() {
-        return state;
-    }
-
-    public void setState(DiscoveryItemState state) {
-        this.state = state;
-    }
-
-    public Image owner(String owner) {
-        this.owner = owner;
-        return this;
-    }
-
-    /**
-     * Get owner
-     * @return owner
-     **/
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Image image = (Image) o;
-        return Objects.equals(this.id, image.id) && Objects.equals(this.name, image.name) &&
-               Objects.equals(this.providerId, image.providerId) &&
-               Objects.equals(this.operatingSystem, image.operatingSystem) &&
-               Objects.equals(this.location, image.location) && Objects.equals(this.state, image.state) &&
-               Objects.equals(this.owner, image.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, providerId, operatingSystem, location, state, owner);
-    }
-
+     * Custom toString() method for the Image class to format the output
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

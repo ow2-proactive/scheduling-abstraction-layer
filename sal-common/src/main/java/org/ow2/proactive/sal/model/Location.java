@@ -7,7 +7,6 @@ package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.persistence.*;
 
@@ -16,28 +15,54 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
- * Represents a (virtual) location offers by a cloud
+ * Represents a (virtual) location offered by a cloud
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "LOCATION")
+@Accessors(chain = true)
+@EqualsAndHashCode
+@Getter
+@Setter
 public class Location implements Serializable {
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_PROVIDER_ID = "providerId";
+
+    public static final String JSON_LOCATION_SCOPE = "locationScope";
+
+    public static final String JSON_IS_ASSIGNABLE = "isAssignable";
+
+    public static final String JSON_GEO_LOCATION = "geoLocation";
+
+    public static final String JSON_PARENT = "parent";
+
+    public static final String JSON_STATE = "state";
+
+    public static final String JSON_OWNER = "owner";
+
     @Id
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     @Column(name = "NAME")
-    @JsonProperty("name")
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
     @Column(name = "PROVIDER_ID")
-    @JsonProperty("providerId")
+    @JsonProperty(JSON_PROVIDER_ID)
     private String providerId = null;
 
     /**
@@ -45,11 +70,8 @@ public class Location implements Serializable {
      */
     public enum LocationScopeEnum {
         PROVIDER("PROVIDER"),
-
         REGION("REGION"),
-
         ZONE("ZONE"),
-
         HOST("HOST");
 
         private String value;
@@ -77,204 +99,29 @@ public class Location implements Serializable {
 
     @Column(name = "LOCATION_SCOPE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("locationScope")
+    @JsonProperty(JSON_LOCATION_SCOPE)
     private LocationScopeEnum locationScope = null;
 
     @Column(name = "IS_ASSIGNABLE")
-    @JsonProperty("isAssignable")
+    @JsonProperty(JSON_IS_ASSIGNABLE)
     private Boolean isAssignable = null;
 
     @Embedded
-    @JsonProperty("geoLocation")
+    @JsonProperty(JSON_GEO_LOCATION)
     private GeoLocation geoLocation = null;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-    @JsonProperty("parent")
+    @JsonProperty(JSON_PARENT)
     private Location parent = null;
 
     @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("state")
+    @JsonProperty(JSON_STATE)
     private DiscoveryItemState state = null;
 
     @Column(name = "OWNER")
-    @JsonProperty("owner")
+    @JsonProperty(JSON_OWNER)
     private String owner = null;
-
-    public Location id(String id) {
-        this.id = id;
-        return this;
-    }
-
-    /**
-     * Unique identifier
-     * @return id
-     **/
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Location name(String name) {
-        this.name = name;
-        return this;
-    }
-
-    /**
-     * Human-readable name
-     * @return name
-     **/
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Location providerId(String providerId) {
-        this.providerId = providerId;
-        return this;
-    }
-
-    /**
-     * Original id issued by the provider
-     * @return providerId
-     **/
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
-
-    public Location locationScope(LocationScopeEnum locationScope) {
-        this.locationScope = locationScope;
-        return this;
-    }
-
-    /**
-     * Scope of the location
-     * @return locationScope
-     **/
-    public LocationScopeEnum getLocationScope() {
-        return locationScope;
-    }
-
-    public void setLocationScope(LocationScopeEnum locationScope) {
-        this.locationScope = locationScope;
-    }
-
-    public Location isAssignable(Boolean isAssignable) {
-        this.isAssignable = isAssignable;
-        return this;
-    }
-
-    /**
-     * True of the location can be used to start virtual machines, false if not
-     * @return isAssignable
-     **/
-    public Boolean isIsAssignable() {
-        return isAssignable;
-    }
-
-    public void setIsAssignable(Boolean isAssignable) {
-        this.isAssignable = isAssignable;
-    }
-
-    public Location geoLocation(GeoLocation geoLocation) {
-        this.geoLocation = geoLocation;
-        return this;
-    }
-
-    /**
-     * Get geoLocation
-     * @return geoLocation
-     **/
-    public GeoLocation getGeoLocation() {
-        return geoLocation;
-    }
-
-    public void setGeoLocation(GeoLocation geoLocation) {
-        this.geoLocation = geoLocation;
-    }
-
-    public Location parent(Location parent) {
-        this.parent = parent;
-        return this;
-    }
-
-    /**
-     * Get parent
-     * @return parent
-     **/
-    public Location getParent() {
-        return parent;
-    }
-
-    public void setParent(Location parent) {
-        this.parent = parent;
-    }
-
-    public Location state(DiscoveryItemState state) {
-        this.state = state;
-        return this;
-    }
-
-    /**
-     * Get state
-     * @return state
-     **/
-    public DiscoveryItemState getState() {
-        return state;
-    }
-
-    public void setState(DiscoveryItemState state) {
-        this.state = state;
-    }
-
-    public Location owner(String owner) {
-        this.owner = owner;
-        return this;
-    }
-
-    /**
-     * Get owner
-     * @return owner
-     **/
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Location location = (Location) o;
-        return Objects.equals(this.id, location.id) && Objects.equals(this.name, location.name) &&
-               Objects.equals(this.providerId, location.providerId) &&
-               Objects.equals(this.locationScope, location.locationScope) &&
-               Objects.equals(this.isAssignable, location.isAssignable) &&
-               Objects.equals(this.geoLocation, location.geoLocation) && Objects.equals(this.parent, location.parent) &&
-               Objects.equals(this.state, location.state) && Objects.equals(this.owner, location.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, providerId, locationScope, isAssignable, geoLocation, parent, state, owner);
-    }
 
     @Override
     public String toString() {
