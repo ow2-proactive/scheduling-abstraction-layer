@@ -97,7 +97,7 @@ public class ClusterUtils {
         workerNodeTask.setName(workerNode.getNodeTaskName(clusterName));
         workerNodeTask.setType(Installation.InstallationType.COMMANDS);
         workerNodeTask.setInstallationByType(createWorkerInstallation(envVars));
-        if (cloud != null && !cloud.getSecurityGroup().isEmpty()) {
+        if (cloud != null && cloud.getSecurityGroup() != null && !cloud.getSecurityGroup().isEmpty()) {
             workerNodeTask.setSecurityGroup(cloud.getSecurityGroup());
         }
         return workerNodeTask;
