@@ -3,18 +3,34 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="urn:proactive:jobdescriptor:3.13" xsi:schemaLocation="urn:proactive:jobdescriptor:3.13 http://www.activeeon.com/public_content/schemas/proactive/jobdescriptor/3.13/schedulerjob.xsd"  name="Define_NS_Azure" projectName="NebulOuS"  priority="normal" onTaskError="continueJobExecution"  maxNumberOfExecution="2"  >
   <variables>
-    <variable name="NS_name" value=""     />
-    <variable name="NS_nVMs" value="0" model="PA:Integer"    />
-    <variable name="azure_username" value="" model="PA:HIDDEN"    />
-    <variable name="azure_secret" value="" model="PA:HIDDEN"    />
-    <variable name="security_group" value=""     />
-    <variable name="sshUsername" value=""     />
-    <variable name="sshKeyPairName" value=""     />
-    <variable name="sshPrivateKey" value="" model="PA:HIDDEN"    />
-    <variable name="subnet" value=""     />
-    <variable name="image" value=""     />
+    <variable name="clientId" value="" model="PA:HIDDEN"    />
+    <variable name="secret" value="" model="PA:HIDDEN"    />
+    <variable name="domain" value="" model="PA:HIDDEN"    />
+    <variable name="subscriptionId" value="" model="PA:HIDDEN"    />
+    <variable name="authenticationEndpoint" value=""     />
+    <variable name="managementEndpoint" value=""     />
+    <variable name="resourceManagerEndpoint" value=""     />
+    <variable name="graphEndpoint" value=""     />
     <variable name="rm_host_name" value=""     />
     <variable name="pa_port" value=""     />
+    <variable name="image" value=""     />
+    <variable name="imageOSType" value=""     />
+    <variable name="vmSizeType" value=""     />
+    <variable name="vmUsername" value=""     />
+    <variable name="vmPassword" value=""     />
+    <variable name="vmPublicKey" value=""     />
+    <variable name="resourceGroup" value=""     />
+    <variable name="region" value=""     />
+    <variable name="numberOfInstances" value="1" model="PA:Integer"     />
+    <variable name="numberOfNodesPerInstance" value="1" model="PA:Integer"     />
+    <variable name="privateNetworkCIDR" value=""     />
+    <variable name="resourceUsageRefreshFreqInMin" value="30"     />
+    <variable name="rateCardRefreshFreqInMin" value="30"     />
+    <variable name="offerId" value="MS-AZR-0003p"     />
+    <variable name="currency" value="USD"     />
+    <variable name="locale" value="en-US"     />
+    <variable name="regionInfo" value="US"     />
+    <variable name="maxBudget" value="50"     />
   </variables>
   <description>
     <![CDATA[ A workflow that executes Groovy in JVM. ]]>
@@ -44,26 +60,40 @@ println " ... OK !"
 
 // Getting NS configuration settings
 def infrastructureType = "org.ow2.proactive.resourcemanager.nodesource.infrastructure.AzureInfrastructure"
-def infrastructureParameters = [variables.get("azure_username"), //username
-                                variables.get("azure_secret"), //secret
-                                variables.get("NS_nVMs"), //N of VMs
-                                "1", //N VMs per node
-                                variables.get("image"), //image
-                                variables.get("sshUsername"), //sshUsername
-                                variables.get("sshKeyPairName"), //sshKeyPair
-                                "", //ram
-                                "", //Ncore
-                                "", //VmType
-                                variables.get("security_group"), //sg
-                                variables.get("subnet"), //subnet
-                                variables.get("rm_host_name"), //host
-                                protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/connector-iaas", //connector-iaas url
-                                protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/rest/node.jar", //node jar url
+def infrastructureParameters = [variables.get("clientId"),
+                                variables.get("secret"),
+                                variables.get("domain"),
+                                variables.get("subscriptionId"),
+                                variables.get("authenticationEndpoint"),
+                                variables.get("managementEndpoint"),
+                                variables.get("resourceManagerEndpoint"),
+                                variables.get("graphEndpoint"),
+                                variables.get("rm_host_name"),
+                                protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/connector-iaas", // connector-iaas url
+                                variables.get("image"),
+                                variables.get("imageOSType"),
+                                variables.get("vmSizeType"),
+                                variables.get("vmUsername"),
+                                variables.get("vmPassword"),
+                                variables.get("vmPublicKey"),
+                                variables.get("resourceGroup"),
+                                variables.get("region"),
+                                variables.get("numberOfInstances"),
+                                variables.get("numberOfNodesPerInstance"),
+                                protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/rest/node.jar", // nodeJarURL
+                                variables.get("privateNetworkCIDR"),
+                                "true", // staticPublicIP
                                 "-Dproactive.useIPaddress=true", //additionalProperties"
-                                "300000", //timeout
-                                 "mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget -nv --no-check-certificate %nodeJarUrl% ; nohup jre/bin/java -Xmx600m -jar node.jar -Dproactive.communication.protocol=%protocol% -Dpython.path=%jythonPath% -Dproactive.pamr.router.address=%rmHostname% -D%instanceIdNodeProperty%=%instanceId% -r %rmUrl% -s %nodeSourceName% %nodeNamingOption% -v %credentials% -w %numberOfNodesPerInstance% %additionalProperties% &",
-                                ""]
-def infrastructureFileParameters = [variables.get("sshPrivateKey")]
+                                variables.get("resourceUsageRefreshFreqInMin"),
+                                variables.get("rateCardRefreshFreqInMin"),
+                                variables.get("offerId"),
+                                variables.get("currency"),
+                                variables.get("locale"),
+                                variables.get("regionInfo"),
+                                variables.get("maxBudget"),
+                               "mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget -nv --no-check-certificate %nodeJarUrl% ; nohup jre/bin/java -jar node.jar -Dproactive.communication.protocol=%protocol% -Dpython.path=%jythonPath% -Dproactive.pamr.router.address=%rmHostname% -D%instanceIdNodeProperty%=%instanceId% -r %rmUrl% -s %nodeSourceName% %nodeNamingOption% -v %credentials% -w %numberOfNodesPerInstance% %additionalProperties% &", // linuxStartupScript
+                                ""] // windowsStartupScript
+def infrastructureFileParameters = []
 def policyType = "org.ow2.proactive.resourcemanager.nodesource.policy.EmptyPolicy"
 def poliyParameters = ["ALL","ME"]
 def policyFileParameters = []
