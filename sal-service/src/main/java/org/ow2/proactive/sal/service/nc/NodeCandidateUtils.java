@@ -103,47 +103,47 @@ public class NodeCandidateUtils {
                     attributeRequirement.toString(),
                     nodeCandidate.getId());
         // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
-        if (attributeRequirement.getRequirementClass().equals("hardware")) {
+        if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_HARDWARE)) {
             switch (attributeRequirement.getRequirementAttribute()) {
-                case "ram":
+                case Hardware.JSON_RAM:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getRam(),
                                                         Long.valueOf(attributeRequirement.getValue()));
-                case "cores":
+                case Hardware.JSON_CORES:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getCores(),
                                                         Integer.valueOf(attributeRequirement.getValue()));
-                case "disk":
+                case Hardware.JSON_DISK:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getDisk(),
                                                         Double.valueOf(attributeRequirement.getValue()));
-                case "fpga":
+                case Hardware.JSON_FPGA:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getFpga(),
                                                         Integer.valueOf(attributeRequirement.getValue()));
-                case "name":
+                case Hardware.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getHardware().getName(),
                                                                                  attributeRequirement.getValue());
             }
         }
-        if (attributeRequirement.getRequirementClass().equals("location")) {
+        if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_LOCATION)) {
             //            if (attributeRequirement.getRequirementAttribute().equals("geoLocation.country")) {
             switch (attributeRequirement.getRequirementAttribute()) {
                 case "geoLocation.country":
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getLocation().getGeoLocation().getCountry(),
                                                         attributeRequirement.getValue());
-                case "name":
+                case Location.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getLocation().getName(),
                                                                                  attributeRequirement.getValue());
             }
         }
-        if (attributeRequirement.getRequirementClass().equals("image")) {
+        if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_IMAGE)) {
             switch (attributeRequirement.getRequirementAttribute()) {
-                case "name":
+                case Image.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getName(),
                                                                                  attributeRequirement.getValue());
-                case "id":
+                case Image.JSON_ID:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getId(),
                                                                                  attributeRequirement.getValue());
                 case "operatingSystem.family":
@@ -160,7 +160,7 @@ public class NodeCandidateUtils {
                                                                                  attributeRequirement.getValue());
             }
         }
-        if (attributeRequirement.getRequirementClass().toLowerCase(Locale.ROOT).equals("cloud")) {
+        if (attributeRequirement.getRequirementClass().toLowerCase(Locale.ROOT).equals(NodeCandidate.JSON_CLOUD)) {
             if (attributeRequirement.getRequirementAttribute().equals("type")) {
                 return attributeRequirement.getRequirementOperator()
                                            .compare(nodeCandidate.getCloud().getCloudType().name(),
