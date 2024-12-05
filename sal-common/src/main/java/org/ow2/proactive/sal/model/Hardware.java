@@ -6,7 +6,9 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.*;
 
@@ -32,6 +34,36 @@ import lombok.experimental.Accessors;
 @Entity
 @Table(name = "HARDWARE")
 public class Hardware implements Serializable {
+
+    // FPGA mappings for cloud providers
+    private static final Map<CloudProviderType, Map<String, Integer>> CLOUD_FPGA_MAPPINGS;
+    static {
+        Map<CloudProviderType, Map<String, Integer>> tempMappings = new HashMap<>();
+
+        // AWS mappings
+        Map<String, Integer> awsMappings = new HashMap<>();
+        awsMappings.put("f1.2xlarge", 1);
+        awsMappings.put("f1.4xlarge", 2);
+        awsMappings.put("f1.16xlarge", 8);
+        tempMappings.put(CloudProviderType.AWS_EC2, Collections.unmodifiableMap(awsMappings));
+
+        // GCE mappings
+        Map<String, Integer> gceMappings = new HashMap<>();
+        gceMappings.put("n1-standard-1", 0);
+        gceMappings.put("n1-standard-2", 0);
+        gceMappings.put("a2-highgpu-1g", 1);
+        gceMappings.put("a2-highgpu-8g", 8);
+        tempMappings.put(CloudProviderType.GCE, Collections.unmodifiableMap(gceMappings));
+
+        // Azure mappings
+        Map<String, Integer> azureMappings = new HashMap<>();
+        azureMappings.put("Standard_NC6", 0);
+        azureMappings.put("Standard_ND6s", 1);
+        azureMappings.put("Standard_ND24s", 4);
+        tempMappings.put(CloudProviderType.AZURE, Collections.unmodifiableMap(azureMappings));
+
+        CLOUD_FPGA_MAPPINGS = Collections.unmodifiableMap(tempMappings);
+    }
 
     public static final String JSON_ID = "id";
 
@@ -110,7 +142,7 @@ public class Hardware implements Serializable {
     /**
      * Sets the FPGA field based on machine type.
      * @param machineType the machine type
-     */
+    
     public void setCloudFpga(String machineType) {
         switch (machineType) {
             case "f1.2xlarge":
@@ -124,6 +156,20 @@ public class Hardware implements Serializable {
                 break;
             default:
                 this.fpga = 0;
+        }
+    }*/
+
+    /**
+     * Sets the FPGA field based on the cloud provider and machine type.
+     * @param cloudProvider The type of the cloud provider (as a CloudProviderType enum).
+     * @param machineType The machine type to map.
+     */
+    public void setCloudFpga(CloudProviderType cloudProvider, String machineType) {
+        Map<String, Integer> cloudMapping = CLOUD_FPGA_MAPPINGS.get(cloudProvider);
+        if (cloudMapping != null) {
+            this.fpga = cloudMapping.getOrDefault(machineType, 0);
+        } else {
+            throw new IllegalArgumentException("Unsupported cloud provider: " + cloudProvider);
         }
     }
 

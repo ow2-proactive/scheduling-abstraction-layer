@@ -128,13 +128,13 @@ public class PAConnectorIaasGateway {
 
         String jsonOutputString;
         switch (cloud.getCloudProviderName()) {
-            case "aws-ec2":
+            case AWS_EC2:
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
                                    cloud.getCloudProviderName() + "\"," + "\"credentials\": {\"username\": \"" +
                                    cloud.getCredentials().getUserName() + "\", \"password\": \"" +
                                    cloud.getCredentials().getPrivateKey() + "\"}}";
                 break;
-            case "openstack":
+            case OPENSTACK:
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," +
                                    "\"type\": \"openstack-nova\", \"endpoint\": \"" + cloud.getEndpoint() +
                                    "\", \"scope\":{\"prefix\": \"" + cloud.getScopePrefix() + "\", \"value\":\"" +
@@ -144,7 +144,7 @@ public class PAConnectorIaasGateway {
                                    cloud.getCredentials().getPrivateKey() + "\", \"domain\": \"" +
                                    cloud.getCredentials().getDomain() + "\"}, \"region\": \"" + region + "\"}";
                 break;
-            case "azure":
+            case AZURE:
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
                                    cloud.getCloudProviderName() + "\"," + "\"credentials\": {\"username\": \"" +
                                    cloud.getCredentials().getUserName() + "\", \"password\": \"" +
