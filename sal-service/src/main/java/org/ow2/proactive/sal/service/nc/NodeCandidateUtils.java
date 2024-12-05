@@ -58,17 +58,17 @@ public class NodeCandidateUtils {
     public void initNodeCandidateUtils() {
         geoLocationUtils = new GeoLocationUtils();
         nodeCandidatesCache = CacheBuilder.newBuilder()
-                .maximumSize(100)
-                .expireAfterWrite(60, TimeUnit.MINUTES)
-                .build(new CacheLoader<Quartet<PACloud, String, String, String>, JSONArray>() {
-                    @Override
-                    public JSONArray load(Quartet<PACloud, String, String, String> key) {
-                        return getAllPagedNodeCandidates(key.getValue0(),
-                                key.getValue1(),
-                                key.getValue2(),
-                                key.getValue3());
-                    }
-                });
+                                          .maximumSize(100)
+                                          .expireAfterWrite(60, TimeUnit.MINUTES)
+                                          .build(new CacheLoader<Quartet<PACloud, String, String, String>, JSONArray>() {
+                                              @Override
+                                              public JSONArray load(Quartet<PACloud, String, String, String> key) {
+                                                  return getAllPagedNodeCandidates(key.getValue0(),
+                                                                                   key.getValue1(),
+                                                                                   key.getValue2(),
+                                                                                   key.getValue3());
+                                              }
+                                          });
     }
 
     public static boolean verifyAllFilters(List<Requirement> requirements, NodeCandidate nodeCandidate) {
@@ -97,33 +97,33 @@ public class NodeCandidateUtils {
     }
 
     private static boolean satisfyAttributeRequirement(AttributeRequirement attributeRequirement,
-                                                       NodeCandidate nodeCandidate) {
+            NodeCandidate nodeCandidate) {
         // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
         LOGGER.info("Checking the attribute requirement: \n {} \n for node candidate \"{}\" ",
-                attributeRequirement.toString(),
-                nodeCandidate.getId());
+                    attributeRequirement.toString(),
+                    nodeCandidate.getId());
         // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
         if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_HARDWARE)) {
             switch (attributeRequirement.getRequirementAttribute()) {
                 case Hardware.JSON_RAM:
                     return attributeRequirement.getRequirementOperator()
-                            .compare(nodeCandidate.getHardware().getRam(),
-                                    Long.valueOf(attributeRequirement.getValue()));
+                                               .compare(nodeCandidate.getHardware().getRam(),
+                                                        Long.valueOf(attributeRequirement.getValue()));
                 case Hardware.JSON_CORES:
                     return attributeRequirement.getRequirementOperator()
-                            .compare(nodeCandidate.getHardware().getCores(),
-                                    Integer.valueOf(attributeRequirement.getValue()));
+                                               .compare(nodeCandidate.getHardware().getCores(),
+                                                        Integer.valueOf(attributeRequirement.getValue()));
                 case Hardware.JSON_DISK:
                     return attributeRequirement.getRequirementOperator()
-                            .compare(nodeCandidate.getHardware().getDisk(),
-                                    Double.valueOf(attributeRequirement.getValue()));
+                                               .compare(nodeCandidate.getHardware().getDisk(),
+                                                        Double.valueOf(attributeRequirement.getValue()));
                 case Hardware.JSON_FPGA:
                     return attributeRequirement.getRequirementOperator()
-                            .compare(nodeCandidate.getHardware().getFpga(),
-                                    Integer.valueOf(attributeRequirement.getValue()));
+                                               .compare(nodeCandidate.getHardware().getFpga(),
+                                                        Integer.valueOf(attributeRequirement.getValue()));
                 case Hardware.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getHardware().getName(),
-                            attributeRequirement.getValue());
+                                                                                 attributeRequirement.getValue());
             }
         }
         if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_LOCATION)) {
@@ -131,59 +131,59 @@ public class NodeCandidateUtils {
             switch (attributeRequirement.getRequirementAttribute()) {
                 case "geoLocation.country":
                     return attributeRequirement.getRequirementOperator()
-                            .compare(nodeCandidate.getLocation().getGeoLocation().getCountry(),
-                                    attributeRequirement.getValue());
+                                               .compare(nodeCandidate.getLocation().getGeoLocation().getCountry(),
+                                                        attributeRequirement.getValue());
                 case Location.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getLocation().getName(),
-                            attributeRequirement.getValue());
+                                                                                 attributeRequirement.getValue());
             }
         }
         if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_IMAGE)) {
             switch (attributeRequirement.getRequirementAttribute()) {
                 case Image.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getName(),
-                            attributeRequirement.getValue());
+                                                                                 attributeRequirement.getValue());
                 case Image.JSON_ID:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getId(),
-                            attributeRequirement.getValue());
+                                                                                 attributeRequirement.getValue());
                 case "operatingSystem.family":
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage()
-                                    .getOperatingSystem()
-                                    .getOperatingSystemFamily()
-                                    .name(),
-                            attributeRequirement.getValue());
+                                                                                              .getOperatingSystem()
+                                                                                              .getOperatingSystemFamily()
+                                                                                              .name(),
+                                                                                 attributeRequirement.getValue());
                 case "operatingSystem.version":
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage()
-                                    .getOperatingSystem()
-                                    .getOperatingSystemVersion()
-                                    .toString(),
-                            attributeRequirement.getValue());
+                                                                                              .getOperatingSystem()
+                                                                                              .getOperatingSystemVersion()
+                                                                                              .toString(),
+                                                                                 attributeRequirement.getValue());
             }
         }
         if (attributeRequirement.getRequirementClass().toLowerCase(Locale.ROOT).equals(NodeCandidate.JSON_CLOUD)) {
             if (attributeRequirement.getRequirementAttribute().equals("type")) {
                 return attributeRequirement.getRequirementOperator()
-                        .compare(nodeCandidate.getCloud().getCloudType().name(),
-                                attributeRequirement.getValue());
+                                           .compare(nodeCandidate.getCloud().getCloudType().name(),
+                                                    attributeRequirement.getValue());
             }
             if (attributeRequirement.getRequirementAttribute().equals("id")) {
                 return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getCloud().getId(),
-                        attributeRequirement.getValue());
+                                                                             attributeRequirement.getValue());
             }
         }
         if (attributeRequirement.getRequirementClass().toLowerCase(Locale.ROOT).equals("environment")) {
             if (attributeRequirement.getRequirementAttribute().equals("runtime")) {
                 return attributeRequirement.getRequirementOperator()
-                        .compare(nodeCandidate.getEnvironment().getRuntime().name(),
-                                attributeRequirement.getValue());
+                                           .compare(nodeCandidate.getEnvironment().getRuntime().name(),
+                                                    attributeRequirement.getValue());
             }
         }
         if (attributeRequirement.getRequirementClass().toLowerCase(Locale.ROOT).equals("name")) {
             if (attributeRequirement.getRequirementAttribute().equals("placementName")) {
                 if (nodeCandidate.getNodeCandidateType() == NodeCandidate.NodeCandidateTypeEnum.BYON ||
-                        nodeCandidate.getNodeCandidateType() == NodeCandidate.NodeCandidateTypeEnum.EDGE) {
+                    nodeCandidate.getNodeCandidateType() == NodeCandidate.NodeCandidateTypeEnum.EDGE) {
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getHardware().getName(),
-                            attributeRequirement.getValue());
+                                                                                 attributeRequirement.getValue());
                 }
             }
         }
@@ -198,9 +198,9 @@ public class NodeCandidateUtils {
                 return true;
             } else { // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
                 LOGGER.info("the nodeType in the requirement \"{}\" is mismatched with the node candidate \"{}\" nodeType \"{}\"",
-                        nodeType.getLiteral(),
-                        nodeCandidate.getId(),
-                        nodeCandidate.getNodeCandidateType().name());
+                            nodeType.getLiteral(),
+                            nodeCandidate.getId(),
+                            nodeCandidate.getNodeCandidateType().name());
                 return false;
             }
         }));
@@ -209,7 +209,7 @@ public class NodeCandidateUtils {
     private Hardware createHardware(JSONObject nodeCandidateJSON, PACloud paCloud) {
         JSONObject hardwareJSON = nodeCandidateJSON.optJSONObject("hw");
         String hardwareId = paCloud.getCloudId() + "/" + nodeCandidateJSON.optString("region") + "/" +
-                hardwareJSON.optString("type");
+                            hardwareJSON.optString("type");
         Hardware hardware = repositoryService.getHardware(hardwareId);
         if (hardware == null) {
             hardware = new Hardware();
@@ -228,7 +228,7 @@ public class NodeCandidateUtils {
             //we used value 8 for AWS as it is a defuault but can be modified: hardware.setDisk((double) 8);
 
             hardware.setCloudFpga(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
-                    hardwareJSON.optString("type"));
+                                  hardwareJSON.optString("type"));
 
             hardware.setLocation(createLocation(nodeCandidateJSON, paCloud));
 
@@ -357,15 +357,15 @@ public class NodeCandidateUtils {
             JSONArray images = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
             if (images == null) {
                 LOGGER.warn(String.format("No available images were found for the cloud [%s]. Please check your configuration.",
-                        paCloud.getCloudId()));
+                                          paCloud.getCloudId()));
                 return;
             }
             LOGGER.info("Returned images: {}", images);
             List<JSONObject> consolidatedImages = images.toList()
-                    .parallelStream()
-                    .map(NodeCandidateUtils::convertObjectToJson)
-                    .filter(record -> !blacklistedRegions.contains(record.get("location")))
-                    .collect(Collectors.toList());
+                                                        .parallelStream()
+                                                        .map(NodeCandidateUtils::convertObjectToJson)
+                                                        .filter(record -> !blacklistedRegions.contains(record.get("location")))
+                                                        .collect(Collectors.toList());
             LOGGER.info("Consolidated images: {}", consolidatedImages);
 
             //TODO: (Optimization) An images per region map structure <region,[image1,image2]> could be the best here.
@@ -390,7 +390,7 @@ public class NodeCandidateUtils {
                         break;
                     default:
                         throw new IllegalArgumentException("The infrastructure " + paCloud.getCloudProviderName() +
-                                " is not handled yet.");
+                                                           " is not handled yet.");
                 }
 
                 if (paCloud.getCloudProviderName().equals(CloudProviderType.OPENSTACK)) {
@@ -423,16 +423,16 @@ public class NodeCandidateUtils {
 
     private JSONArray getAllPagedNodeCandidates(PACloud paCloud, String region, String imageReq, String token) {
         JSONObject nodeCandidates = connectorIaasGateway.getNodeCandidates(paCloud.getDummyInfrastructureName(),
-                region,
-                imageReq,
-                token);
+                                                                           region,
+                                                                           imageReq,
+                                                                           token);
         try {
             if (!nodeCandidates.optString("nextToken").isEmpty()) {
                 return (joinJSONArrays(nodeCandidates.optJSONArray("nodeCandidates"),
-                        nodeCandidatesCache.get(Quartet.with(paCloud,
-                                region,
-                                imageReq,
-                                nodeCandidates.optString("nextToken")))));
+                                       nodeCandidatesCache.get(Quartet.with(paCloud,
+                                                                            region,
+                                                                            imageReq,
+                                                                            nodeCandidates.optString("nextToken")))));
             }
         } catch (ExecutionException ee) {
             LOGGER.error("Could not get node candidates from cache: ", ee);
@@ -443,18 +443,18 @@ public class NodeCandidateUtils {
     private JSONArray joinJSONArrays(JSONArray... jsonArrays) {
         JSONArray resultJSONArray = new JSONArray();
         Arrays.stream(jsonArrays)
-                .forEach(jsonArray -> IntStream.range(0, jsonArray.length())
-                        .mapToObj(jsonArray::get)
-                        .forEach(resultJSONArray::put));
+              .forEach(jsonArray -> IntStream.range(0, jsonArray.length())
+                                             .mapToObj(jsonArray::get)
+                                             .forEach(resultJSONArray::put));
         return resultJSONArray;
     }
 
     public long cleanNodeCandidates(List<String> newCloudIds) {
         List<NodeCandidate> nodeCandidatesToBeRemoved = repositoryService.listNodeCandidates()
-                .stream()
-                .filter(nodeCandidate -> newCloudIds.contains(nodeCandidate.getCloud()
-                        .getId()))
-                .collect(Collectors.toList());
+                                                                         .stream()
+                                                                         .filter(nodeCandidate -> newCloudIds.contains(nodeCandidate.getCloud()
+                                                                                                                                    .getId()))
+                                                                         .collect(Collectors.toList());
         try {
             LOGGER.info("Deleting nodes associated with the clouds {}", newCloudIds);
             // TODO: try finding a way to delete the nodes in batch rather than one by one
