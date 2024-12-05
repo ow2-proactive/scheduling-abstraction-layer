@@ -346,10 +346,18 @@ public class CloudService {
         if (paCloud != null) {
             try {
                 JSONArray imagesArray = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
+
+                String cloudIdOrEmpty;
+                if (paCloud.getCloudProviderName().equals("azure")) {
+                    cloudIdOrEmpty = "";
+                } else {
+                    cloudIdOrEmpty = cloudId + "/";
+                }
                 List<String> imagesIDs = IntStream.range(0, imagesArray.length())
                                                   .mapToObj(imagesArray::get)
-                                                  .map(image -> cloudId + "/" + ((JSONObject) image).optString("id"))
+                                                  .map(image -> cloudIdOrEmpty + ((JSONObject) image).optString("id"))
                                                   .collect(Collectors.toList());
+
                 LOGGER.debug("Filtering images related to cloud ID '{}'.", cloudId);
                 allImages.stream().filter(image -> imagesIDs.contains(image.getId())).forEach(filteredImages::add);
             } catch (RuntimeException e) {

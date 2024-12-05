@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 
 import lombok.extern.log4j.Log4j2;
-import net.bytebuddy.dynamic.scaffold.TypeInitializer;
 
 
 @Log4j2
@@ -38,9 +37,6 @@ public class TaskBuilder {
 
     private static final String SCRIPTS_SEPARATION_BASH = NEW_LINE + NEW_LINE + "# Separation script" + NEW_LINE +
                                                           NEW_LINE;
-
-    private static final String SCRIPTS_SEPARATION_GROOVY = NEW_LINE + NEW_LINE + "// Separation script" + NEW_LINE +
-                                                            NEW_LINE;
 
     private static final String EMS_DEPLOY_PRE_SCRIPT = "emsdeploy_prescript.sh";
 
@@ -58,7 +54,7 @@ public class TaskBuilder {
 
     private static final String CHECK_NODE_SOURCE_REGEXP_SCRIPT = "check_node_source_regexp.groovy";
 
-    private static final String ACQUIRE_NODE_AWS_SCRIPT = "acquire_node_aws_script.groovy";
+    private static final String ACQUIRE_NODE_SCRIPT = "acquire_node_script.groovy";
 
     private static final String REMOVE_NODE_SCRIPT = "remove_node_script.groovy";
 
@@ -263,6 +259,9 @@ public class TaskBuilder {
             case OPENSTACK:
                 imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
                 break;
+            case AZURE:
+                imageId = deployment.getNode().getNodeCandidate().getImage().getId();
+                break;
             default:
                 imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
         }
@@ -320,9 +319,9 @@ public class TaskBuilder {
     private ScriptTask createInfraIAASTaskForAWS(Task task, Deployment deployment, String taskNameSuffix,
             String nodeToken) {
         LOGGER.debug("Acquiring node AWS script file: " +
-                     getClass().getResource(File.separator + ACQUIRE_NODE_AWS_SCRIPT).toString());
+                     getClass().getResource(File.separator + ACQUIRE_NODE_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireAWSNode_" + task.getName() +
-                                                                             taskNameSuffix, ACQUIRE_NODE_AWS_SCRIPT);
+                                                                             taskNameSuffix, ACQUIRE_NODE_SCRIPT);
 
         deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
@@ -338,14 +337,32 @@ public class TaskBuilder {
     private ScriptTask createInfraIAASTaskForOS(Task task, Deployment deployment, String taskNameSuffix,
             String nodeToken) {
         LOGGER.debug("Acquiring node OS script file: " +
-                     getClass().getResource(File.separator + ACQUIRE_NODE_AWS_SCRIPT).toString());
+                     getClass().getResource(File.separator + ACQUIRE_NODE_SCRIPT).toString());
         ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireOSNode_" + task.getName() +
-                                                                             taskNameSuffix, ACQUIRE_NODE_AWS_SCRIPT);
+                                                                             taskNameSuffix, ACQUIRE_NODE_SCRIPT);
 
         deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
         Map<String, TaskVariable> variablesMap = createVariablesMapForAcquiringIAASNode(task, deployment, nodeToken);
         LOGGER.debug("Variables to be added to the task acquiring OS IAAS node: " + variablesMap.toString());
+        deployNodeTask.setVariables(variablesMap);
+
+        addLocalDefaultNSRegexSelectionScript(deployNodeTask);
+
+        return deployNodeTask;
+    }
+
+    private ScriptTask createInfraIAASTaskForAzure(Task task, Deployment deployment, String taskNameSuffix,
+            String nodeToken) {
+        LOGGER.debug("Acquiring node Azure script file: " +
+                     getClass().getResource(File.separator + ACQUIRE_NODE_SCRIPT).toString());
+        ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireAzureNode_" + task.getName() +
+                                                                             taskNameSuffix, ACQUIRE_NODE_SCRIPT);
+
+        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
+
+        Map<String, TaskVariable> variablesMap = createVariablesMapForAcquiringIAASNode(task, deployment, nodeToken);
+        LOGGER.debug("Variables to be added to the task acquiring Azure IAAS node: " + variablesMap.toString());
         deployNodeTask.setVariables(variablesMap);
 
         addLocalDefaultNSRegexSelectionScript(deployNodeTask);
@@ -359,6 +376,8 @@ public class TaskBuilder {
                 return createInfraIAASTaskForAWS(task, deployment, taskNameSuffix, nodeToken);
             case OPENSTACK:
                 return createInfraIAASTaskForOS(task, deployment, taskNameSuffix, nodeToken);
+            case AZURE:
+                return createInfraIAASTaskForAzure(task, deployment, taskNameSuffix, nodeToken);
             default:
                 return new ScriptTask();
         }
