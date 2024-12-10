@@ -78,6 +78,40 @@ Note that cloud credentials are validated only during async process.
   }
 ]
 ```
+
+*   For Azure cloud:
+
+```json
+[
+  {
+    "cloudId": "{{cloud_name}}",
+    "cloudProviderName": "azure",
+    "cloudType": "PUBLIC",
+    "subnet": null,
+    "securityGroup": "{{azure-securityGroup}}",
+    "sshCredentials": {
+      "username": "{{azure-username}}",
+      "keyPairName": null,
+      "privateKey": "{{azure-password}}"
+    },
+    "endpoint": null,
+    "scope": {
+      "prefix": null,
+      "value": null
+    },
+    "identityVersion": null,
+    "defaultNetwork": null,
+    "credentials": {
+      "user": "{{azure-user}}",
+      "secret": "{{azure-secret}}",
+      "domain": "{{azure-domain}}",
+      "subscriptionId": "{{azure-subscription}}"
+    },
+    "blacklist": null
+  }
+]
+```
+
 **Reply:** Error code, 0 if no Errors
 
 - `cloudId` (string):
@@ -96,21 +130,22 @@ This defines the specific subnet for your cloud infrastructure. If not needed, s
 The security group associated with this cloud configuration. Use the security group name applicable to your infrastructure’s security rules.
 
 - `sshCredentials` (object):
-Contains SSH access information for the cloud. The required fields are:
+Contains SSH access information for the cloud. For Open Stack and AWS should be defined on cloud provider side, while for Azure is automatically created as specified here. The required fields are:
 
     - `username` (string): The SSH username.
     - `keyPairName` (string): The name of the key pair used for SSH access.
     - `privateKey` (string or `null`): The private key in RSA format, with line breaks represented by `\n` for JSON compatibility. If not required, use `null`.
 
 - `endpoint` (string or `null`):
-    The authentication endpoint for the cloud provider. For OpenStack, use your specific authentication URL. AWS does not require this field, so it can be `null`.
+    The authentication endpoint for the cloud provider. For OpenStack, use your specific authentication URL. AWS and Azure does not require this field, so it can be `null`.
 - `scope` (object):
-Defines the scope of the cloud access, typically for OpenStack. Contains:
+Defines the scope of the cloud access, typically is used for OpenStack. Contains:
 
   - `prefix` (string or `null`): For OpenStack, use `"project"`. Set to `null` for AWS.
   - `value` (string or `null`): Project name for OpenStack. For AWS, this should be `null`.
-  - `identityVersion` (string or `null`):
-  Specifies the version of the identity API. This is required for OpenStack but should be `null` for AWS.
+
+- `identityVersion` (string or `null`):
+Specifies the version of the identity API. This is required for OpenStack but should be `null` for AWS.
 
 - `defaultNetwork` (string or `null`):
 Specifies the default network identifier, used primarily by OpenStack. Set this to `null` for AWS.
@@ -118,11 +153,12 @@ Specifies the default network identifier, used primarily by OpenStack. Set this 
 - `credentials` (object):
 Contains authentication details for accessing the cloud. The fields are:
 
-  - `user` (string): The cloud user name or access key.
+  - `user` (string): The cloud username or access key.
   - `secret` (string): The cloud password or secret access key.
-  - `domain` (string or `null`): The domain for the cloud account, required by OpenStack. For AWS, set this to `null`.
-  - `blacklist` (string or `null`):
-  Allows you to specify any blacklisted regions (e.g. locations). Use `null` if not applicable.
+  - `domain` (string or `null`): The domain for the cloud account, required by OpenStack and Azure. For AWS, set this to `null`.
+  - `subscriptionId` (string or `null`): This field is used only for the Azure cloud, For Open Stack and AWS, set this to `null`.
+
+- `blacklist` (string or `null`): Allows you to specify any blacklisted regions (e.g. locations). Use `null` if not applicable.
 
 #### 2.2- GetAllClouds endpoint:
 
