@@ -230,7 +230,17 @@ public class NodeCandidateUtils {
                 minRam = minRam.replace(".0", "");
             }
             hardware.setRam(Long.valueOf(minRam));
-            hardware.setCloudFpga(hardwareJSON.optString("type"));
+            hardware.setCpuFrequency(Double.valueOf(hardwareJSON.optString("minFreq")));
+            //  hardware.setCloudFpga(hardwareJSON.optString("type"));
+
+            //for now is better to not assign values for the disk as they are not dynamically obtained: hardware.setDisk((double) 0);
+            //we used value 8 for AWS as it is a defuault but can be modified: hardware.setDisk((double) 8);
+
+            hardware.setCloudFpga(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
+                                  hardwareJSON.optString("type"));
+
+            hardware.setCloudGpu(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
+                                 hardwareJSON.optString("type"));
 
             if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
                 hardware.setDisk((double) 8);
