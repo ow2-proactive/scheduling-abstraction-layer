@@ -248,6 +248,7 @@ public class NodeService {
                     variables.put("vmSizeType", deployment.getNode().getNodeCandidate().getHardware().getProviderId());
                     variables.put("vmUsername", cloud.getSshCredentials().getUsername());
                     variables.put("vmPassword", cloud.getSshCredentials().getPrivateKey());
+                    variables.put("vmPublicKey", cloud.getSshCredentials().getPublicKey());
                     variables.put("region", deployment.getNode().getNodeCandidate().getLocation().getName());
                     break;
                 default:

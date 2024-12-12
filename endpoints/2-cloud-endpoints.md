@@ -45,7 +45,6 @@ Note that cloud credentials are validated only during async process.
 ]
 ```
 
-
 *   For AWS cloud:
 
 ```json
@@ -88,10 +87,11 @@ Note that cloud credentials are validated only during async process.
     "cloudProviderName": "azure",
     "cloudType": "PUBLIC",
     "subnet": null,
-    "securityGroup": "{{azure-securityGroup}}",
+    "securityGroup": null,
     "sshCredentials": {
-      "username": "{{azure-username}}",
+      "username": "ubuntu",
       "keyPairName": null,
+      "publicKey": "{{azure-publickey}}",
       "privateKey": "{{azure-password}}"
     },
     "endpoint": null,
@@ -105,7 +105,7 @@ Note that cloud credentials are validated only during async process.
       "user": "{{azure-user}}",
       "secret": "{{azure-secret}}",
       "domain": "{{azure-domain}}",
-      "subscriptionId": "{{azure-subscription}}"
+      "subscriptionId": "{{azure-subscription_id}}"
     },
     "blacklist": null
   }
@@ -134,7 +134,8 @@ Contains SSH access information for the cloud. For Open Stack and AWS should be 
 
     - `username` (string): The SSH username.
     - `keyPairName` (string): The name of the key pair used for SSH access.
-    - `privateKey` (string or `null`): The private key in RSA format, with line breaks represented by `\n` for JSON compatibility. If not required, use `null`.
+    - `publicKey` (string or `null`): The public key in RSA format. If not required, use `null`.
+    - `privateKey` (string or `null`): The private key in RSA format, with line breaks represented by `\n` for JSON compatibility. If not required, use `null`. For Azure, set it to the VM ssh password.
 
 - `endpoint` (string or `null`):
     The authentication endpoint for the cloud provider. For OpenStack, use your specific authentication URL. AWS and Azure does not require this field, so it can be `null`.
@@ -155,10 +156,11 @@ Contains authentication details for accessing the cloud. The fields are:
 
   - `user` (string): The cloud username or access key.
   - `secret` (string): The cloud password or secret access key.
-  - `domain` (string or `null`): The domain for the cloud account, required by OpenStack and Azure. For AWS, set this to `null`.
-  - `subscriptionId` (string or `null`): This field is used only for the Azure cloud, For Open Stack and AWS, set this to `null`.
+  - `domain` (string or `null`): The domain for the cloud account, required by OpenStack. For AWS, set this to `null`.
+  - `subscriptionId` (string or `null`): The subscription id for the cloud account, required by Azure. For AWS and OpenStack, set this to `null`.
 
-- `blacklist` (string or `null`): Allows you to specify any blacklisted regions (e.g. locations). Use `null` if not applicable.
+- `blacklist` (string or `null`):
+Allows you to specify any blacklisted regions (e.g. locations). Use `null` if not applicable.
 
 #### 2.2- GetAllClouds endpoint:
 
