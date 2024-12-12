@@ -460,8 +460,15 @@ public class CloudService {
     private SSHCredentials hideSshCredentials(SSHCredentials creds) {
         SSHCredentials newCreds = new SSHCredentials();
         if (creds != null) {
-            newCreds.setKeyPairName(creds.getKeyPairName());
-            newCreds.setUsername(creds.getUsername());
+            if (creds.getUsername() != null) {
+                newCreds.setUsername(creds.getUsername());
+            }
+            if (creds.getKeyPairName() != null) {
+                newCreds.setKeyPairName(creds.getKeyPairName());
+            }
+            if (creds.getPublicKey() != null) {
+                newCreds.setPublicKey(creds.getPublicKey());
+            }
             if (creds.getPrivateKey() != null) {
                 newCreds.setPrivateKey(hideString(creds.getPrivateKey(), 3));
             }

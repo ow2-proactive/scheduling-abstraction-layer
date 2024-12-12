@@ -34,6 +34,11 @@ public class SSHCredentials implements Serializable {
     private String keyPairName = null;
 
     @Lob
+    @Column(name = "PUBLIC_KEY")
+    @JsonProperty("publicKey")
+    private String publicKey = null;
+
+    @Lob
     @Column(name = "PRIVATE_KEY")
     @JsonProperty("privateKey")
     private String privateKey = null;
@@ -49,11 +54,12 @@ public class SSHCredentials implements Serializable {
         SSHCredentials sshCredentials = (SSHCredentials) o;
         return Objects.equals(this.username, sshCredentials.username) &&
                Objects.equals(this.keyPairName, sshCredentials.keyPairName) &&
+               Objects.equals(this.publicKey, sshCredentials.publicKey) &&
                Objects.equals(this.privateKey, sshCredentials.privateKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, keyPairName, privateKey);
+        return Objects.hash(username, keyPairName, publicKey, privateKey);
     }
 }

@@ -17,7 +17,7 @@
     <variable name="imageOSType" value=""     />
     <variable name="vmSizeType" value=""     />
     <variable name="vmUsername" value=""     />
-    <variable name="vmPassword" value=""     />
+    <variable name="vmPassword" value="" model="PA:HIDDEN"    />
     <variable name="vmPublicKey" value=""     />
     <variable name="resourceGroup" value=""     />
     <variable name="region" value=""     />
