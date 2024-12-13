@@ -93,24 +93,54 @@ public class Hardware implements Serializable {
 
         // GCE GPU mappings
         Map<String, Integer> gceGpuMappings = new HashMap<>();
-        gceGpuMappings.put("a2-megagpu-16g", 16);
-        gceGpuMappings.put("a2-highgpu-8g", 8);
+        // A2 Series (Accelerator Optimized)
         gceGpuMappings.put("a2-highgpu-1g", 1);
+        gceGpuMappings.put("a2-highgpu-2g", 2);
+        gceGpuMappings.put("a2-highgpu-4g", 4);
+        gceGpuMappings.put("a2-highgpu-8g", 8);
+        gceGpuMappings.put("a2-megagpu-16g", 16);
+        // A3 Series (Latest Accelerator Optimized)
+        gceGpuMappings.put("a3-highgpu-1g", 1);
+        gceGpuMappings.put("a3-highgpu-2g", 2);
+        gceGpuMappings.put("a3-highgpu-4g", 4);
+        gceGpuMappings.put("a3-highgpu-8g", 8);
+        // G2 Series (Graphics Optimized)
+        gceGpuMappings.put("g2-standard-4", 1);
+        gceGpuMappings.put("g2-standard-8", 2);
+        gceGpuMappings.put("g2-standard-16", 4);
+        // N1 Series with GPUs
         gceGpuMappings.put("n1-standard with T4 GPU", 1);
         gceGpuMappings.put("n1-standard with P100", 1);
         gceGpuMappings.put("n1-standard with K80", 1);
+
         tempGpuMappings.put(CloudProviderType.GCE, Collections.unmodifiableMap(gceGpuMappings));
 
         // Azure GPU mappings
         Map<String, Integer> azureGpuMappings = new HashMap<>();
+        // NC Series
         azureGpuMappings.put("Standard_NC6", 1);
-        azureGpuMappings.put("Standard_NC6ads_A100_v4", 1);
-        azureGpuMappings.put("Standard_NV6s_v4", 1);
-        azureGpuMappings.put("Standard_ND6s", 1);
         azureGpuMappings.put("Standard_NC12", 2);
         azureGpuMappings.put("Standard_NC24", 4);
-        azureGpuMappings.put("Standard_NC64as_T4_v3", 4);
-        azureGpuMappings.put("Standard_ND40rs_v2", 8);
+        azureGpuMappings.put("Standard_NC24r", 4);
+        azureGpuMappings.put("Standard_NC6ads_A100_v4", 1); // New: Minimum GPU count added
+        azureGpuMappings.put("Standard_NC64as_T4_v3", 1); // New: Minimum GPU count added
+        // ND Series
+        azureGpuMappings.put("Standard_ND6s", 1);
+        azureGpuMappings.put("Standard_ND12s", 2);
+        azureGpuMappings.put("Standard_ND24s", 4);
+        azureGpuMappings.put("Standard_ND24rs", 4);
+        azureGpuMappings.put("Standard_ND40rs_v2", 1); // New: Minimum GPU count added
+        azureGpuMappings.put("Standard_ND40rs_v4", 8);
+        // NV Series
+        azureGpuMappings.put("Standard_NV4as_v4", 1);
+        azureGpuMappings.put("Standard_NV8as_v4", 2);
+        azureGpuMappings.put("Standard_NV16as_v4", 4);
+        azureGpuMappings.put("Standard_NV32as_v4", 4);
+        azureGpuMappings.put("Standard_NV6s_v4", 1); // New: Minimum GPU count added
+        // Additional instances
+        azureGpuMappings.put("Standard_NDm_A100_v4", 8);
+        azureGpuMappings.put("Standard_ND96asr_v5", 8);
+
         tempGpuMappings.put(CloudProviderType.AZURE, Collections.unmodifiableMap(azureGpuMappings));
 
         CLOUD_GPU_MAPPINGS = Collections.unmodifiableMap(tempGpuMappings);
