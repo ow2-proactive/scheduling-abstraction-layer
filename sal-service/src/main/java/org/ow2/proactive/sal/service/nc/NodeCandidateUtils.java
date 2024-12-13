@@ -111,25 +111,35 @@ public class NodeCandidateUtils {
                     attributeRequirement.toString(),
                     nodeCandidate.getId());
         // THIS LOG IS ADDED FOR TESTING,TO BE IMPROVED LATER
-        if (attributeRequirement.getRequirementClass().equals("hardware")) {
+        if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_HARDWARE)) {
             switch (attributeRequirement.getRequirementAttribute()) {
-                case "ram":
+                case Hardware.JSON_RAM:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getRam(),
                                                         Long.valueOf(attributeRequirement.getValue()));
-                case "cores":
+                case Hardware.JSON_CORES:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getCores(),
                                                         Integer.valueOf(attributeRequirement.getValue()));
-                case "disk":
+                case Hardware.JSON_DISK:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getDisk(),
                                                         Double.valueOf(attributeRequirement.getValue()));
-                case "fpga":
+                case Hardware.JSON_FPGA:
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getHardware().getFpga(),
                                                         Integer.valueOf(attributeRequirement.getValue()));
-                case "name":
+                case Hardware.JSON_CPU_FREQUENCY:
+                    return attributeRequirement.getRequirementOperator()
+                                               .compare(nodeCandidate.getHardware().getCpuFrequency(),
+                                                        Double.valueOf(attributeRequirement.getValue()));
+
+                case Hardware.JSON_GPU:
+                    return attributeRequirement.getRequirementOperator()
+                                               .compare(nodeCandidate.getHardware().getGpu(),
+                                                        Integer.valueOf(attributeRequirement.getValue()));
+
+                case Hardware.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getHardware().getName(),
                                                                                  attributeRequirement.getValue());
             }
@@ -230,7 +240,17 @@ public class NodeCandidateUtils {
                 minRam = minRam.replace(".0", "");
             }
             hardware.setRam(Long.valueOf(minRam));
-            hardware.setCloudFpga(hardwareJSON.optString("type"));
+            hardware.setCpuFrequency(Double.valueOf(hardwareJSON.optString("minFreq")));
+            //  hardware.setCloudFpga(hardwareJSON.optString("type"));
+
+            //for now is better to not assign values for the disk as they are not dynamically obtained: hardware.setDisk((double) 0);
+            //we used value 8 for AWS as it is a defuault but can be modified: hardware.setDisk((double) 8);
+
+            hardware.setCloudFpga(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
+                                  hardwareJSON.optString("type"));
+
+            hardware.setCloudGpu(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
+                                 hardwareJSON.optString("type"));
 
             if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
                 hardware.setDisk((double) 8);
