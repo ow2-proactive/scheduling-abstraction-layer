@@ -47,21 +47,6 @@ public class Hardware implements Serializable {
         awsMappings.put("f1.16xlarge", 8);
         tempMappings.put(CloudProviderType.AWS_EC2, Collections.unmodifiableMap(awsMappings));
 
-        // GCE mappings
-        Map<String, Integer> gceMappings = new HashMap<>();
-        gceMappings.put("n1-standard-1", 0);
-        gceMappings.put("n1-standard-2", 0);
-        gceMappings.put("a2-highgpu-1g", 1);
-        gceMappings.put("a2-highgpu-8g", 8);
-        tempMappings.put(CloudProviderType.GCE, Collections.unmodifiableMap(gceMappings));
-
-        // Azure mappings
-        Map<String, Integer> azureMappings = new HashMap<>();
-        azureMappings.put("Standard_NC6", 0);
-        azureMappings.put("Standard_ND6s", 1);
-        azureMappings.put("Standard_ND24s", 4);
-        tempMappings.put(CloudProviderType.AZURE, Collections.unmodifiableMap(azureMappings));
-
         CLOUD_FPGA_MAPPINGS = Collections.unmodifiableMap(tempMappings);
     }
 
@@ -72,25 +57,60 @@ public class Hardware implements Serializable {
 
         // AWS GPU mappings
         Map<String, Integer> awsGpuMappings = new HashMap<>();
-        awsGpuMappings.put("g4dn.xlarge", 1);
-        awsGpuMappings.put("g4dn.12xlarge", 4);
+        // P-Series Instances
         awsGpuMappings.put("p3.2xlarge", 1);
+        awsGpuMappings.put("p3.8xlarge", 4);
         awsGpuMappings.put("p3.16xlarge", 8);
+        awsGpuMappings.put("p3dn.24xlarge", 8);
+        awsGpuMappings.put("p4d.24xlarge", 8);
+        awsGpuMappings.put("p4de.24xlarge", 8);
+        awsGpuMappings.put("p5e.48xlarge", 8);
+        awsGpuMappings.put("p5en.48xlarge", 8);
+        // G-Series Instances
+        awsGpuMappings.put("g4dn.xlarge", 1);
+        awsGpuMappings.put("g4dn.2xlarge", 1);
+        awsGpuMappings.put("g4dn.4xlarge", 1);
+        awsGpuMappings.put("g4dn.8xlarge", 1);
+        awsGpuMappings.put("g4dn.12xlarge", 4);
+        awsGpuMappings.put("g4dn.16xlarge", 4);
+        awsGpuMappings.put("g5.xlarge", 1);
+        awsGpuMappings.put("g5.2xlarge", 1);
+        awsGpuMappings.put("g5.4xlarge", 1);
+        awsGpuMappings.put("g5.8xlarge", 1);
+        awsGpuMappings.put("g5.12xlarge", 4);
+        awsGpuMappings.put("g5.16xlarge", 4);
+        awsGpuMappings.put("g5.24xlarge", 4);
+        awsGpuMappings.put("g5.48xlarge", 8);
+        awsGpuMappings.put("g6e.xlarge", 1);
+        awsGpuMappings.put("g6e.2xlarge", 1);
+        awsGpuMappings.put("g6e.4xlarge", 1);
+        awsGpuMappings.put("g6e.8xlarge", 1);
+        awsGpuMappings.put("g6e.12xlarge", 4);
+        awsGpuMappings.put("g6e.24xlarge", 4);
+        awsGpuMappings.put("g6e.48xlarge", 8);
+
         tempGpuMappings.put(CloudProviderType.AWS_EC2, Collections.unmodifiableMap(awsGpuMappings));
 
         // GCE GPU mappings
         Map<String, Integer> gceGpuMappings = new HashMap<>();
-        gceGpuMappings.put("n1-standard-1", 0);
-        gceGpuMappings.put("a2-highgpu-1g", 1);
+        gceGpuMappings.put("a2-megagpu-16g", 16);
         gceGpuMappings.put("a2-highgpu-8g", 8);
+        gceGpuMappings.put("a2-highgpu-1g", 1);
+        gceGpuMappings.put("n1-standard with T4 GPU", 1);
+        gceGpuMappings.put("n1-standard with P100", 1);
+        gceGpuMappings.put("n1-standard with K80", 1);
         tempGpuMappings.put(CloudProviderType.GCE, Collections.unmodifiableMap(gceGpuMappings));
 
         // Azure GPU mappings
         Map<String, Integer> azureGpuMappings = new HashMap<>();
         azureGpuMappings.put("Standard_NC6", 1);
+        azureGpuMappings.put("Standard_NC6ads_A100_v4", 1);
+        azureGpuMappings.put("Standard_NV6s_v4", 1);
+        azureGpuMappings.put("Standard_ND6s", 1);
         azureGpuMappings.put("Standard_NC12", 2);
         azureGpuMappings.put("Standard_NC24", 4);
         azureGpuMappings.put("Standard_NC64as_T4_v3", 4);
+        azureGpuMappings.put("Standard_ND40rs_v2", 8);
         tempGpuMappings.put(CloudProviderType.AZURE, Collections.unmodifiableMap(azureGpuMappings));
 
         CLOUD_GPU_MAPPINGS = Collections.unmodifiableMap(tempGpuMappings);
