@@ -191,27 +191,6 @@ public class Hardware implements Serializable {
     private String owner = null;
 
     /**
-     * Sets the FPGA field based on machine type.
-     * @param machineType the machine type
-    
-    public void setCloudFpga(String machineType) {
-        switch (machineType) {
-            case "f1.2xlarge":
-                this.fpga = 1;
-                break;
-            case "f1.4xlarge":
-                this.fpga = 2;
-                break;
-            case "f1.16xlarge":
-                this.fpga = 8;
-                break;
-            default:
-                this.fpga = 0;
-        }
-    }
-    */
-
-    /**
      * Sets the FPGA field based on the cloud provider and machine type.
      * @param cloudProvider The type of the cloud provider (as a CloudProviderType enum).
      * @param machineType The machine type to map.
