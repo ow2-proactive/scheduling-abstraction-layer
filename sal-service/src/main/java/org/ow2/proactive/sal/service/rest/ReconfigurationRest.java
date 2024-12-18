@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/reconfigure")
-@Api(description = "Reconfiguration operations", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Reconfiguration operations", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class ReconfigurationRest {
 
     @Autowired
