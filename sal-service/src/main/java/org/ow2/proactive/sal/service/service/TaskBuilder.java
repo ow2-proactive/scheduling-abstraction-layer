@@ -244,8 +244,8 @@ public class TaskBuilder {
     private String createIAASNodeConfigJson(Task task, Deployment deployment) {
         ObjectMapper mapper = new ObjectMapper();
         String imageId;
-        switch (deployment.getPaCloud().getCloudProviderName()) {
-            case "aws-ec2":
+        switch (deployment.getPaCloud().getCloudProvider()) {
+            case AWS_EC2:
                 if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getNode()
                                                                                           .getNodeCandidate()
                                                                                           .getHardware()
@@ -256,10 +256,10 @@ public class TaskBuilder {
                               deployment.getNode().getNodeCandidate().getImage().getProviderId();
                 }
                 break;
-            case "openstack":
+            case OPENSTACK:
                 imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
                 break;
-            case "azure":
+            case AZURE:
                 imageId = deployment.getNode().getNodeCandidate().getImage().getId();
                 break;
             default:
@@ -371,12 +371,12 @@ public class TaskBuilder {
     }
 
     private ScriptTask createInfraIAASTask(Task task, Deployment deployment, String taskNameSuffix, String nodeToken) {
-        switch (deployment.getPaCloud().getCloudProviderName()) {
-            case "aws-ec2":
+        switch (deployment.getPaCloud().getCloudProvider()) {
+            case AWS_EC2:
                 return createInfraIAASTaskForAWS(task, deployment, taskNameSuffix, nodeToken);
-            case "openstack":
+            case OPENSTACK:
                 return createInfraIAASTaskForOS(task, deployment, taskNameSuffix, nodeToken);
-            case "azure":
+            case AZURE:
                 return createInfraIAASTaskForAzure(task, deployment, taskNameSuffix, nodeToken);
             default:
                 return new ScriptTask();

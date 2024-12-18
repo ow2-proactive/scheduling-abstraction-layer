@@ -35,8 +35,12 @@ public class PACloud implements Serializable {
     @Column(name = "NODE_SOURCE_NAME_PREFIX")
     private String nodeSourceNamePrefix;
 
-    @Column(name = "CLOUD_PROVIDER_NAME")
-    private String cloudProviderName;
+    //  @Column(name = "CLOUD_PROVIDER_NAME")
+    //  private String cloudProviderName;
+
+    @Column(name = "CLOUD_PROVIDER")
+    @Enumerated(EnumType.STRING)
+    private CloudProviderType cloudProvider;
 
     @Column(name = "CLOUD_TYPE")
     @Enumerated(EnumType.STRING)
@@ -151,7 +155,7 @@ public class PACloud implements Serializable {
                                                                    .collect(Collectors.toList())
                                                                    .toString();
         return "PACloud{" + "cloudId='" + cloudId + '\'' + ", nodeSourceNamePrefix='" + nodeSourceNamePrefix + '\'' +
-               ", cloudProviderName='" + cloudProviderName + '\'' + ", cloudType='" + cloudType.toString() + '\'' +
+               ", cloudProvider='" + cloudProvider + '\'' + ", cloudType='" + cloudType.toString() + '\'' +
                ", subnet='" + subnet + '\'' + ", securityGroup='" + securityGroup + '\'' + ", sshCredentials='" +
                Optional.ofNullable(sshCredentials).map(SSHCredentials::toString).orElse(null) + '\'' + ", endpoint='" +
                endpoint + '\'' + ", scopePrefix='" + scopePrefix + '\'' + ", scopeValue='" + scopeValue + '\'' +
