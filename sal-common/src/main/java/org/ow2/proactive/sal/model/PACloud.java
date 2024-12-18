@@ -35,9 +35,6 @@ public class PACloud implements Serializable {
     @Column(name = "NODE_SOURCE_NAME_PREFIX")
     private String nodeSourceNamePrefix;
 
-    //  @Column(name = "CLOUD_PROVIDER_NAME")
-    //  private String cloudProviderName;
-
     @Column(name = "CLOUD_PROVIDER")
     @Enumerated(EnumType.STRING)
     private CloudProviderType cloudProvider;

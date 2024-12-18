@@ -45,6 +45,7 @@ public class JCloudsInstancesUtils {
             return handledAWSInstanceTypes.contains(instanceType);
         }
         // TODO: To check if for other cloud providers all instance types are handled by JClouds
+        // not all instance types are handled (they can be excluded from findNodeCandidate by hardware/name attribute
         return true;
     }
 }

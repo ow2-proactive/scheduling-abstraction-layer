@@ -256,18 +256,18 @@ public class Hardware implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("class Hardware {\n");
 
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
-        sb.append("    cores: ").append(toIndentedString(cores)).append("\n");
-        sb.append("    cpuFrequency: ").append(toIndentedString(cpuFrequency)).append("\n");
-        sb.append("    ram: ").append(toIndentedString(ram)).append("\n");
-        sb.append("    disk: ").append(toIndentedString(disk)).append("\n");
-        sb.append("    fpga: ").append(toIndentedString(fpga)).append("\n");
-        sb.append("    gpu: ").append(toIndentedString(gpu)).append("\n");
-        sb.append("    location: ").append(toIndentedString(location)).append("\n");
-        sb.append("    state: ").append(toIndentedString(state)).append("\n");
-        sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
+        sb.append("    ").append(JSON_ID).append(": ").append(toIndentedString(id)).append("\n");
+        sb.append("    ").append(JSON_NAME).append(": ").append(toIndentedString(name)).append("\n");
+        sb.append("    ").append(JSON_PROVIDER_ID).append(": ").append(toIndentedString(providerId)).append("\n");
+        sb.append("    ").append(JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
+        sb.append("    ").append(JSON_CPU_FREQUENCY).append(": ").append(toIndentedString(cpuFrequency)).append("\n");
+        sb.append("    ").append(JSON_RAM).append(": ").append(toIndentedString(ram)).append("\n");
+        sb.append("    ").append(JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
+        sb.append("    ").append(JSON_FPGA).append(": ").append(toIndentedString(fpga)).append("\n");
+        sb.append("    ").append(JSON_GPU).append(": ").append(toIndentedString(gpu)).append("\n");
+        sb.append("    ").append(JSON_LOCATION).append(": ").append(toIndentedString(location)).append("\n");
+        sb.append("    ").append(JSON_STATE).append(": ").append(toIndentedString(state)).append("\n");
+        sb.append("    ").append(JSON_OWNER).append(": ").append(toIndentedString(owner)).append("\n");
         sb.append("}");
         return sb.toString();
     }

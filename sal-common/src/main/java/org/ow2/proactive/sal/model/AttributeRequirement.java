@@ -5,11 +5,10 @@
  */
 package org.ow2.proactive.sal.model;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,23 +18,30 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 @JsonTypeName(value = "AttributeRequirement")
 public class AttributeRequirement extends Requirement {
-    @JsonProperty("requirementClass")
+
+    // JSON property constants
+    public static final String JSON_REQUIREMENT_CLASS = "requirementClass";
+
+    public static final String JSON_REQUIREMENT_ATTRIBUTE = "requirementAttribute";
+
+    public static final String JSON_REQUIREMENT_OPERATOR = "requirementOperator";
+
+    public static final String JSON_VALUE = "value";
+
+    @JsonProperty(JSON_REQUIREMENT_CLASS)
     private String requirementClass;
 
-    @JsonProperty("requirementAttribute")
+    @JsonProperty(JSON_REQUIREMENT_ATTRIBUTE)
     private String requirementAttribute;
 
-    @JsonProperty("requirementOperator")
+    @JsonProperty(JSON_REQUIREMENT_OPERATOR)
     private RequirementOperator requirementOperator;
 
-    @JsonProperty("value")
+    @JsonProperty(JSON_VALUE)
     private String value;
-
-    public AttributeRequirement() {
-        this.type = RequirementType.ATTRIBUTE;
-    }
 
     public AttributeRequirement(String requirementClass, String requirementAttribute,
             RequirementOperator requirementOperator, String value) {
@@ -47,34 +53,27 @@ public class AttributeRequirement extends Requirement {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AttributeRequirement attributeRequirement = (AttributeRequirement) o;
-        return Objects.equals(this.requirementClass, attributeRequirement.requirementClass) &&
-               Objects.equals(this.requirementAttribute, attributeRequirement.requirementAttribute) &&
-               Objects.equals(this.requirementOperator, attributeRequirement.requirementOperator) &&
-               Objects.equals(this.value, attributeRequirement.value) && super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(requirementClass, requirementAttribute, requirementOperator, value, super.hashCode());
-    }
-
-    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class AttributeRequirement {\n");
-        sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-        sb.append("    requirementClass: ").append(toIndentedString(requirementClass)).append("\n");
-        sb.append("    requirementAttribute: ").append(toIndentedString(requirementAttribute)).append("\n");
-        sb.append("    requirementOperator: ").append(toIndentedString(requirementOperator)).append("\n");
-        sb.append("    value: ").append(toIndentedString(value)).append("\n");
+
+        sb.append("    ").append(super.toString()).append("\n");
+        sb.append("    ")
+          .append(JSON_REQUIREMENT_CLASS)
+          .append(": ")
+          .append(toIndentedString(requirementClass))
+          .append("\n");
+        sb.append("    ")
+          .append(JSON_REQUIREMENT_ATTRIBUTE)
+          .append(": ")
+          .append(toIndentedString(requirementAttribute))
+          .append("\n");
+        sb.append("    ")
+          .append(JSON_REQUIREMENT_OPERATOR)
+          .append(": ")
+          .append(toIndentedString(requirementOperator))
+          .append("\n");
+        sb.append("    ").append(JSON_VALUE).append(": ").append(toIndentedString(value)).append("\n");
         sb.append("}");
         return sb.toString();
     }

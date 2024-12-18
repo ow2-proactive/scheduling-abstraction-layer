@@ -27,10 +27,7 @@ public class CloudDefinition implements Serializable {
     @JsonProperty("cloudId")
     private String cloudId = null;
 
-    // @JsonProperty("cloudProviderName")
-    // private String cloudProviderName = null;
-
-    @JsonProperty("cloudProvider")
+    @JsonProperty("cloudProviderName")
     private CloudProviderType cloudProvider = null;
 
     @JsonProperty("cloudType")
