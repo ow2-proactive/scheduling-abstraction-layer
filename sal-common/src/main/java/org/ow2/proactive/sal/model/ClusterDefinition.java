@@ -19,16 +19,26 @@ import lombok.*;
 @Setter
 @ToString(callSuper = true)
 public class ClusterDefinition {
-    @JsonProperty("name")
+
+    // JSON field constants
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_NODES = "nodes";
+
+    public static final String JSON_MASTER_NODE = "master-node";
+
+    public static final String JSON_ENV_VAR = "env-var";
+
+    @JsonProperty(JSON_NAME)
     private String name = null;
 
-    @JsonProperty("nodes")
+    @JsonProperty(JSON_NODES)
     private List<ClusterNodeDefinition> nodes;
 
-    @JsonProperty("master-node")
+    @JsonProperty(JSON_MASTER_NODE)
     private String masterNode;
 
-    @JsonProperty("env-var")
+    @JsonProperty(JSON_ENV_VAR)
     private Map<String, String> envVars;
 
 }

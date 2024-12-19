@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/pagateway")
-@Api(description = "Operations on Proactive gateway", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Operations on Proactive gateway", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class PAGatewayRest {
 
     @Autowired

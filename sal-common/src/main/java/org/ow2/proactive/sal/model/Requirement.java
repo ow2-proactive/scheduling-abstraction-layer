@@ -5,11 +5,15 @@
  */
 package org.ow2.proactive.sal.model;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.Map;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.*;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,19 +23,21 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
-@JsonSubTypes({ @JsonSubTypes.Type(value = AttributeRequirement.class, name = "AttributeRequirement"),
-                @JsonSubTypes.Type(value = NodeTypeRequirement.class, name = "NodeTypeRequirement"), })
-
+@EqualsAndHashCode
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = Requirement.JSON_TYPE, visible = true)
+@JsonSubTypes({ @JsonSubTypes.Type(value = AttributeRequirement.class, name = AttributeRequirement.CLASS_NAME),
+                @JsonSubTypes.Type(value = NodeTypeRequirement.class, name = NodeTypeRequirement.CLASS_NAME) })
 public abstract class Requirement {
 
-    /**
-     * Port type
-     */
-    enum RequirementType {
-        ATTRIBUTE("AttributeRequirement"),
+    // JSON property constants
+    public static final String JSON_TYPE = "type";
 
-        NODE_TYPE("NodeTypeRequirement");
+    /**
+     * Requirement type (can be ATTRIBUTE or NODE_TYPE)
+     */
+    public enum RequirementType {
+        ATTRIBUTE(AttributeRequirement.CLASS_NAME),
+        NODE_TYPE(NodeTypeRequirement.CLASS_NAME);
 
         private final String value;
 
@@ -56,44 +62,22 @@ public abstract class Requirement {
         }
     }
 
-    @JsonProperty("type")
+    @JsonProperty(JSON_TYPE)
     protected RequirementType type;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Requirement requirement = (Requirement) o;
-        return Objects.equals(this.type, requirement.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(type);
-    }
-
+    /**
+     * Custom toString() method for the Requirement class to format the output.
+     * This method creates a formatted string representation of the Requirement object.
+     * It uses the type and other fields to build a human-readable string.
+     * The method leverages the {@link ModelUtils#buildToString} utility method to generate the string.
+     *
+     * @return A formatted string representation of the Requirement object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Requirement {\n");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_TYPE, type);
 
-        sb.append("    type: ").append(toIndentedString(type)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(Requirement.class.getSimpleName(), fields);
     }
 }

@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/vault")
-@Api(description = "Operations on ProActive secrets vault", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Operations on ProActive secrets vault", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class VaultRest {
     @Autowired
     private VaultService vaultService;

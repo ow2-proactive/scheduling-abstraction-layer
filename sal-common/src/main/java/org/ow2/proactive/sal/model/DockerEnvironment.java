@@ -25,12 +25,14 @@ import lombok.*;
 @JsonTypeName(value = "docker")
 public class DockerEnvironment extends AbstractInstallation {
 
-    @Column(name = "DOCKER_IMAGE")
-    @JsonProperty("dockerImage")
+    public static final String JSON_DOCKER_IMAGE = "dockerImage";
+
+    public static final String JSON_PORT = "port";
+
+    @JsonProperty(JSON_DOCKER_IMAGE)
     private String dockerImage;
 
-    @Column(name = "PORT")
-    @JsonProperty("port")
+    @JsonProperty(JSON_PORT)
     private String port;
 
     @ElementCollection

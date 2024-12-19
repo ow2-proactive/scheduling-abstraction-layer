@@ -22,9 +22,14 @@ import lombok.*;
 @ToString(callSuper = true)
 public class Communication implements Serializable {
 
-    @JsonProperty("portProvided")
+    // JSON field constants
+    public static final String JSON_PORT_PROVIDED = "portProvided";
+
+    public static final String JSON_PORT_REQUIRED = "portRequired";
+
+    @JsonProperty(JSON_PORT_PROVIDED)
     private String portProvided;
 
-    @JsonProperty("portRequired")
+    @JsonProperty(JSON_PORT_REQUIRED)
     private String portRequired;
 }

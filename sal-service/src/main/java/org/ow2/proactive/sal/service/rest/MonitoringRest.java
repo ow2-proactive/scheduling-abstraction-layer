@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/monitor")
-@Api(description = "Operations on EMS monitors", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Operations on EMS monitors", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class MonitoringRest {
 
     @Autowired

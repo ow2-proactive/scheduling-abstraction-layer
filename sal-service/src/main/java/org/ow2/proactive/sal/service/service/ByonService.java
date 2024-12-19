@@ -173,7 +173,7 @@ public class ByonService {
             cloud.setCloudId(nodeSourceName);
             cloud.setNodeSourceNamePrefix(nodeSourceName);
             cloud.setCloudType(CloudType.BYON);
-            cloud.setCloudProviderName("BYON");
+            cloud.setCloudProvider(CloudProviderType.BYON);
             cloud.setSshCredentials(sshCred);
             cloud.addDeployment(newDeployment);
             newDeployment.setPaCloud(cloud);

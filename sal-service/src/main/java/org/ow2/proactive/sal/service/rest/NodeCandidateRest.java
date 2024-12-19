@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/nodecandidates")
-@Api(description = "Operations on node candidates", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Operations on node candidates", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class NodeCandidateRest {
 
     @Autowired
