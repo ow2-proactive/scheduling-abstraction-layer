@@ -1,13 +1,8 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
-
+import java.util.Map;
+import java.util.LinkedHashMap;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
@@ -16,19 +11,29 @@ import javax.persistence.Enumerated;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import lombok.Setter;
+import org.ow2.proactive.sal.util.ModelUtils;
 
 /**
  * Node candidate environment
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Embeddable
+@EqualsAndHashCode
 public class Environment implements Serializable {
+
+    // JSON Constants
+    public static final String JSON_RUNTIME = "runtime";
+
     @Column(name = "RUNTIME")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("runtime")
+    @JsonProperty(JSON_RUNTIME)
     private Runtime runtime = null;
 
     public Environment runtime(Runtime runtime) {
@@ -36,53 +41,12 @@ public class Environment implements Serializable {
         return this;
     }
 
-    /**
-     * Get runtime
-     * @return runtime
-     **/
-    public Runtime getRuntime() {
-        return runtime;
-    }
-
-    public void setRuntime(Runtime runtime) {
-        this.runtime = runtime;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Environment environment = (Environment) o;
-        return Objects.equals(this.runtime, environment.runtime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(runtime);
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Environment {\n");
+        // Using LinkedHashMap to preserve field order
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_RUNTIME, runtime);
 
-        sb.append("    runtime: ").append(toIndentedString(runtime)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(Environment.class.getSimpleName(), fields);
     }
 }

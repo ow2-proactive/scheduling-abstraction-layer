@@ -32,7 +32,7 @@ import lombok.Setter;
 @Table(name = "EDGE_NODE")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class EdgeNode extends AbstractNode {
 
     @Column(name = "NAME")

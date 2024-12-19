@@ -1,12 +1,8 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -15,6 +11,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.ow2.proactive.sal.util.ModelUtils;
 
 
 /**
@@ -23,21 +23,31 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
+@Getter
+@Setter
+@EqualsAndHashCode
 public class GeoLocation implements Serializable {
+
+    // JSON field names as constants
+    public static final String JSON_CITY = "city";
+    public static final String JSON_COUNTRY = "country";
+    public static final String JSON_LATITUDE = "latitude";
+    public static final String JSON_LONGITUDE = "longitude";
+
     @Column(name = "CITY")
-    @JsonProperty("city")
+    @JsonProperty(JSON_CITY)
     private String city = null;
 
     @Column(name = "COUNTRY")
-    @JsonProperty("country")
+    @JsonProperty(JSON_COUNTRY)
     private String country = null;
 
     @Column(name = "LATITUDE")
-    @JsonProperty("latitude")
+    @JsonProperty(JSON_LATITUDE)
     private Double latitude = null;
 
     @Column(name = "LONGITUDE")
-    @JsonProperty("longitude")
+    @JsonProperty(JSON_LONGITUDE)
     private Double longitude = null;
 
     public GeoLocation(GeoLocationData geoLocationData) {
@@ -47,114 +57,14 @@ public class GeoLocation implements Serializable {
         this.longitude = geoLocationData.getLongitude();
     }
 
-    public GeoLocation city(String city) {
-        this.city = city;
-        return this;
-    }
-
-    /**
-     * City of the location
-     * @return city
-     **/
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public GeoLocation country(String country) {
-        this.country = country;
-        return this;
-    }
-
-    /**
-     * An ISO 3166-1 alpha-2 country code
-     * @return country
-     **/
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public GeoLocation latitude(Double latitude) {
-        this.latitude = latitude;
-        return this;
-    }
-
-    /**
-     * Latitude of the location in decimal degrees
-     * @return latitude
-     **/
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public GeoLocation longitude(Double longitude) {
-        this.longitude = longitude;
-        return this;
-    }
-
-    /**
-     * Longitude of the location in decimal degrees
-     * @return longitude
-     **/
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        GeoLocation geoLocation = (GeoLocation) o;
-        return Objects.equals(this.city, geoLocation.city) && Objects.equals(this.country, geoLocation.country) &&
-               Objects.equals(this.latitude, geoLocation.latitude) &&
-               Objects.equals(this.longitude, geoLocation.longitude);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(city, country, latitude, longitude);
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class GeoLocation {\n");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_CITY, city);
+        fields.put(JSON_COUNTRY, country);
+        fields.put(JSON_LATITUDE, latitude);
+        fields.put(JSON_LONGITUDE, longitude);
 
-        sb.append("    city: ").append(toIndentedString(city)).append("\n");
-        sb.append("    country: ").append(toIndentedString(country)).append("\n");
-        sb.append("    latitude: ").append(toIndentedString(latitude)).append("\n");
-        sb.append("    longitude: ").append(toIndentedString(longitude)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(GeoLocation.class.getSimpleName(), fields);
     }
 }
