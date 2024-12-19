@@ -20,15 +20,23 @@ import lombok.*;
 @ToString(callSuper = true)
 public class IaasDefinition {
 
-    @JsonProperty("nodeName")
+    public static final String JSON_NODE_NAME = "nodeName";
+
+    public static final String JSON_TASK_NAME = "taskName";
+
+    public static final String JSON_NODE_CANDIDATE_ID = "nodeCandidateId";
+
+    public static final String JSON_CLOUD_ID = "cloudId";
+
+    @JsonProperty(JSON_NODE_NAME)
     private String name = null;
 
-    @JsonProperty("taskName")
+    @JsonProperty(JSON_TASK_NAME)
     private String taskName = null;
 
-    @JsonProperty("nodeCandidateId")
+    @JsonProperty(JSON_NODE_CANDIDATE_ID)
     private String nodeCandidateId = null;
 
-    @JsonProperty("cloudId")
+    @JsonProperty(JSON_CLOUD_ID)
     private String cloudId = null;
 }

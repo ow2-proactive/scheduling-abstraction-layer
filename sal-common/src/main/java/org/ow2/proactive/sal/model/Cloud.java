@@ -6,10 +6,12 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.*;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,9 +29,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "CLOUD")
 public class Cloud implements Serializable {
@@ -58,7 +60,6 @@ public class Cloud implements Serializable {
 
     @Column(name = "ENDPOINT")
     @JsonProperty(JSON_ENDPOINT)
-    @EqualsAndHashCode.Include
     private String endpoint = null;
 
     @Column(name = "CLOUD_TYPE")
@@ -98,7 +99,7 @@ public class Cloud implements Serializable {
         OK("OK"),
         ERROR("ERROR");
 
-        private String value;
+        private final String value;
 
         StateEnum(String value) {
             this.value = value;
@@ -107,13 +108,13 @@ public class Cloud implements Serializable {
         @Override
         @JsonValue
         public String toString() {
-            return String.valueOf(value);
+            return value;
         }
 
         @JsonCreator
         public static StateEnum fromValue(String text) {
             for (StateEnum b : StateEnum.values()) {
-                if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
+                if (b.value.equalsIgnoreCase(text)) {
                     return b;
                 }
             }
@@ -122,52 +123,19 @@ public class Cloud implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Cloud cloud = (Cloud) o;
-        return Objects.equals(this.endpoint, cloud.endpoint) && Objects.equals(this.cloudType, cloud.cloudType) &&
-               Objects.equals(this.api, cloud.api) && Objects.equals(this.credential, cloud.credential) &&
-               Objects.equals(this.cloudConfiguration, cloud.cloudConfiguration) && Objects.equals(this.id, cloud.id) &&
-               Objects.equals(this.owner, cloud.owner) && Objects.equals(this.state, cloud.state) &&
-               Objects.equals(this.diagnostic, cloud.diagnostic);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(endpoint, cloudType, api, credential, cloudConfiguration, id, owner, state, diagnostic);
-    }
-
-    @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Cloud {\n");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_ID, id);
+        fields.put(JSON_ENDPOINT, endpoint);
+        fields.put(JSON_CLOUD_TYPE, cloudType);
+        fields.put(JSON_API, api);
+        fields.put(JSON_CREDENTIAL, credential);
+        fields.put(JSON_CLOUD_CONFIGURATION, cloudConfiguration);
+        fields.put(JSON_OWNER, owner);
+        fields.put(JSON_STATE, state);
+        fields.put(JSON_DIAGNOSTIC, diagnostic);
 
-        sb.append("    endpoint: ").append(toIndentedString(endpoint)).append("\n");
-        sb.append("    cloudType: ").append(toIndentedString(cloudType)).append("\n");
-        sb.append("    api: ").append(toIndentedString(api)).append("\n");
-        sb.append("    credential: ").append(toIndentedString(credential)).append("\n");
-        sb.append("    cloudConfiguration: ").append(toIndentedString(cloudConfiguration)).append("\n");
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
-        sb.append("    state: ").append(toIndentedString(state)).append("\n");
-        sb.append("    diagnostic: ").append(toIndentedString(diagnostic)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        return ModelUtils.buildToString(Cloud.class.getSimpleName(), fields);
     }
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
 }
