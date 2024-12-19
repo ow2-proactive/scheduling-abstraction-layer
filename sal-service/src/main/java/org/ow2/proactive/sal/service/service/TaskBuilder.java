@@ -626,8 +626,11 @@ public class TaskBuilder {
 
     private Map<String, TaskVariable> createVariablesMapForIAASNodeRemoval(Deployment deployment) {
         Map<String, TaskVariable> variablesMap = new HashMap<>();
-        variablesMap.put("nodeName",
-                         new TaskVariable("nodeName", deployment.getNodeName(), "PA:NOT_EMPTY_STRING", false));
+        variablesMap.put(Deployment.JSON_NODE_NAME,
+                         new TaskVariable(Deployment.JSON_NODE_NAME,
+                                          deployment.getNodeName(),
+                                          "PA:NOT_EMPTY_STRING",
+                                          false));
         variablesMap.put("preempt", new TaskVariable("preempt", "true", "PA:Boolean", false));
         return (variablesMap);
     }
@@ -903,7 +906,7 @@ public class TaskBuilder {
     public ScriptTask createDrainNodeTask(String nodeName, String masterNodeToken) {
         ScriptTask drainNodeTask = PAFactory.createBashScriptTaskFromFile("Drain-Node", DRIAN_NODE_SCRIPT);
         Map<String, TaskVariable> variablesMap = new HashMap<>();
-        variablesMap.put("nodeName", new TaskVariable("nodeName", nodeName));
+        variablesMap.put(Deployment.JSON_NODE_NAME, new TaskVariable(Deployment.JSON_NODE_NAME, nodeName));
         drainNodeTask.setVariables(variablesMap);
         drainNodeTask.addGenericInformation("NODE_ACCESS_TOKEN", masterNodeToken);
         return drainNodeTask;

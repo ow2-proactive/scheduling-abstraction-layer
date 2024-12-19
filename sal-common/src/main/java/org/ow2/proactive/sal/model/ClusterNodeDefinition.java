@@ -22,17 +22,25 @@ import lombok.*;
 @Setter
 @Table(name = "CLUSTER_NODE_DEF")
 public class ClusterNodeDefinition {
+
+    // JSON field constants
+    public static final String JSON_NODE_NAME = "nodeName";
+
+    public static final String JSON_NODE_CANDIDATE_ID = "nodeCandidateId";
+
+    public static final String JSON_CLOUD_ID = "cloudId";
+
     @Id
     @Column(name = "NAME")
-    @JsonProperty("nodeName")
+    @JsonProperty(JSON_NODE_NAME)
     private String name = null;
 
     @Column(name = "NC")
-    @JsonProperty("nodeCandidateId")
+    @JsonProperty(JSON_NODE_CANDIDATE_ID)
     private String nodeCandidateId = null;
 
     @Column(name = "CLOUD_ID")
-    @JsonProperty("cloudId")
+    @JsonProperty(JSON_CLOUD_ID)
     private String cloudId = null;
 
     private String state = "";
@@ -46,5 +54,4 @@ public class ClusterNodeDefinition {
     public String getNodeTaskName(String clusterName) {
         return this.name + "-" + clusterName + "_Task";
     }
-
 }

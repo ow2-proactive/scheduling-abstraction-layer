@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
@@ -6,14 +11,16 @@ import java.util.Map;
 
 import javax.persistence.*;
 
+import org.ow2.proactive.sal.util.ModelUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.ow2.proactive.sal.util.ModelUtils; // Assuming this is the correct import for ModelUtils
+
 
 /**
  * Represents the configuration of a cloud.
@@ -23,11 +30,12 @@ import org.ow2.proactive.sal.util.ModelUtils; // Assuming this is the correct im
 @Embeddable
 @Getter
 @Setter
-@EqualsAndHashCode(of = {CloudConfiguration.JSON_NODE_GROUP, CloudConfiguration.JSON_PROPERTIES})
+@EqualsAndHashCode(of = { CloudConfiguration.JSON_NODE_GROUP, CloudConfiguration.JSON_PROPERTIES })
 public class CloudConfiguration implements Serializable {
 
     // JSON field constants
     public static final String JSON_NODE_GROUP = "nodeGroup";
+
     public static final String JSON_PROPERTIES = "properties";
 
     @Column(name = "NODE_GROUP")
@@ -52,7 +60,6 @@ public class CloudConfiguration implements Serializable {
 
         return ModelUtils.buildToString(CloudConfiguration.class.getSimpleName(), fields);
     }
-
 
     @PreRemove
     private void cleanMappedDataFirst() {

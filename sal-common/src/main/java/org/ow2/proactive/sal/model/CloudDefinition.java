@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
@@ -7,6 +12,7 @@ import javax.persistence.Embedded;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
+
 
 /**
  * Attributes defining a Cloud
@@ -20,16 +26,27 @@ public class CloudDefinition implements Serializable {
 
     // JSON field constants
     public static final String JSON_CLOUD_ID = "cloudId";
+
     public static final String JSON_CLOUD_PROVIDER_NAME = "cloudProviderName";
+
     public static final String JSON_CLOUD_TYPE = "cloudType";
+
     public static final String JSON_SECURITY_GROUP = "securityGroup";
+
     public static final String JSON_SUBNET = "subnet";
+
     public static final String JSON_SSH_CREDENTIALS = "sshCredentials";
+
     public static final String JSON_ENDPOINT = "endpoint";
+
     public static final String JSON_SCOPE = "scope";
+
     public static final String JSON_IDENTITY_VERSION = "identityVersion";
+
     public static final String JSON_DEFAULT_NETWORK = "defaultNetwork";
+
     public static final String JSON_CREDENTIALS = "credentials";
+
     public static final String JSON_BLACKLIST = "blacklist";
 
     @JsonProperty(JSON_CLOUD_ID)

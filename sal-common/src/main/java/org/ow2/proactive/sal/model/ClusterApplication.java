@@ -6,7 +6,6 @@
 package org.ow2.proactive.sal.model;
 
 import java.util.Arrays;
-
 import java.util.Optional;
 
 import javax.persistence.*;
@@ -20,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -28,10 +28,15 @@ public class ClusterApplication {
 
     // JSON field constants
     public static final String JSON_APP_NAME = "appName";
+
     public static final String JSON_CLUSTER_NAME = "clusterName";
+
     public static final String JSON_APP_FILE = "appFile";
+
     public static final String JSON_PACKAGE_MANAGER = "packageManager";
+
     public static final String JSON_ACTION = "action";
+
     public static final String JSON_FLAGS = "flags";
 
     @Id
@@ -59,7 +64,6 @@ public class ClusterApplication {
     @JsonProperty(JSON_FLAGS)
     private String flags = "";
 
-
     @Getter
     public enum PackageManagerEnum {
         HELM("helm", "helm upgrade --install"),
@@ -67,6 +71,7 @@ public class ClusterApplication {
         KUBEVELA("kubevela", "vela up -f ");
 
         private final String name;
+
         private final String command;
 
         PackageManagerEnum(String name, String command) {
@@ -76,8 +81,8 @@ public class ClusterApplication {
 
         public static PackageManagerEnum getPackageManagerEnumByName(String name) {
             Optional<PackageManagerEnum> packageManager = Arrays.stream(PackageManagerEnum.values())
-                    .filter(pm -> pm.name.equals(name))
-                    .findFirst();
+                                                                .filter(pm -> pm.name.equals(name))
+                                                                .findFirst();
             return packageManager.orElse(null);
         }
     }
