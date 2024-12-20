@@ -37,8 +37,6 @@ import lombok.experimental.Accessors;
 @Entity
 @Table(name = "HARDWARE")
 public class Hardware implements Serializable {
-    // Class name constant
-    public static final String CLASS_NAME = "Hardware";
 
     // JSON property constants
     public static final String JSON_ID = "id";
@@ -255,8 +253,8 @@ public class Hardware implements Serializable {
     }
 
     /**
-     * Custom toString() method for the Hardware class to format the output.
-     * This method creates a formatted string representation of the Hardware object.
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
      * It uses a map of field names (represented as JSON constants) and their corresponding values
      * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
      * utility method to generate the string, ensuring that all fields are included with proper formatting.
@@ -279,7 +277,7 @@ public class Hardware implements Serializable {
         fields.put(JSON_STATE, state);
         fields.put(JSON_OWNER, owner);
 
-        return ModelUtils.buildToString(CLASS_NAME, fields);
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 
 }

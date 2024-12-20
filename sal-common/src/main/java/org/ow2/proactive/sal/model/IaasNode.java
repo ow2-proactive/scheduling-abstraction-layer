@@ -7,11 +7,12 @@ package org.ow2.proactive.sal.model;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.ow2.proactive.sal.util.ModelUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -20,6 +21,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 @AllArgsConstructor
 @NoArgsConstructor

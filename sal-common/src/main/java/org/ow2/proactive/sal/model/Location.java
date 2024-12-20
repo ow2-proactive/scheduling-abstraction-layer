@@ -6,9 +6,13 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.persistence.*;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -74,7 +78,7 @@ public class Location implements Serializable {
         ZONE("ZONE"),
         HOST("HOST");
 
-        private String value;
+        private final String value;
 
         LocationScopeEnum(String value) {
             this.value = value;
@@ -123,32 +127,27 @@ public class Location implements Serializable {
     @JsonProperty(JSON_OWNER)
     private String owner = null;
 
+    /**
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Location {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
-        sb.append("    locationScope: ").append(toIndentedString(locationScope)).append("\n");
-        sb.append("    isAssignable: ").append(toIndentedString(isAssignable)).append("\n");
-        sb.append("    geoLocation: ").append(toIndentedString(geoLocation)).append("\n");
-        sb.append("    parent: ").append(toIndentedString(parent)).append("\n");
-        sb.append("    state: ").append(toIndentedString(state)).append("\n");
-        sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_ID, id);
+        fields.put(JSON_NAME, name);
+        fields.put(JSON_PROVIDER_ID, providerId);
+        fields.put(JSON_LOCATION_SCOPE, locationScope);
+        fields.put(JSON_IS_ASSIGNABLE, isAssignable);
+        fields.put(JSON_GEO_LOCATION, geoLocation);
+        fields.put(JSON_PARENT, parent);
+        fields.put(JSON_STATE, state);
+        fields.put(JSON_OWNER, owner);
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

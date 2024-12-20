@@ -6,10 +6,11 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-
-import javax.persistence.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.persistence.*;
+
 import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,6 +35,8 @@ import lombok.experimental.Accessors;
 @Entity
 @Table(name = "IMAGE")
 public class Image implements Serializable {
+
+    // JSON property constants
     public static final String JSON_ID = "id";
 
     public static final String JSON_NAME = "name";
@@ -79,7 +82,13 @@ public class Image implements Serializable {
     private String owner = null;
 
     /**
-     * Custom toString() method for the Image class to format the output
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
      */
     @Override
     public String toString() {

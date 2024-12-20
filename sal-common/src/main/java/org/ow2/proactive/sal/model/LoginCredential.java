@@ -6,8 +6,12 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Embeddable;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -45,38 +49,21 @@ public class LoginCredential implements Serializable {
     @JsonProperty(JSON_PRIVATE_KEY)
     private String privateKey = null;
 
+    /**
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class LoginCredential {\n");
-
-        sb.append("    ")
-          .append(LoginCredential.JSON_USERNAME)
-          .append(": ")
-          .append(toIndentedString(username))
-          .append("\n");
-        sb.append("    ")
-          .append(LoginCredential.JSON_PASSWORD)
-          .append(": ")
-          .append(toIndentedString(password))
-          .append("\n");
-        sb.append("    ")
-          .append(LoginCredential.JSON_PRIVATE_KEY)
-          .append(": ")
-          .append(toIndentedString(privateKey))
-          .append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_USERNAME, username);
+        fields.put(JSON_PASSWORD, password);
+        fields.put(JSON_PRIVATE_KEY, privateKey);
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

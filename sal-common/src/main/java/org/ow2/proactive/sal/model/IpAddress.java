@@ -8,12 +8,13 @@ package org.ow2.proactive.sal.model;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.ow2.proactive.sal.util.ModelUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -23,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
 
 /**
  * IpAddress
@@ -38,7 +40,9 @@ public class IpAddress implements Serializable {
 
     // JSON field constants
     public static final String JSON_IP_ADDRESS_TYPE = "IpAddressType";
+
     public static final String JSON_IP_VERSION = "IpVersion";
+
     public static final String JSON_VALUE = "value";
 
     @Column(name = "IP_ADDRESS_TYPE")

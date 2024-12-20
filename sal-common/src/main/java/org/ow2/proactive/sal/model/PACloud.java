@@ -151,15 +151,19 @@ public class PACloud implements Serializable {
                                                                    .map(Deployment::getNodeName)
                                                                    .collect(Collectors.toList())
                                                                    .toString();
-        return "PACloud{" + "cloudId='" + cloudId + '\'' + ", nodeSourceNamePrefix='" + nodeSourceNamePrefix + '\'' +
-               ", cloudProvider='" + cloudProvider + '\'' + ", cloudType='" + cloudType.toString() + '\'' +
-               ", subnet='" + subnet + '\'' + ", securityGroup='" + securityGroup + '\'' + ", sshCredentials='" +
-               Optional.ofNullable(sshCredentials).map(SSHCredentials::toString).orElse(null) + '\'' + ", endpoint='" +
-               endpoint + '\'' + ", scopePrefix='" + scopePrefix + '\'' + ", scopeValue='" + scopeValue + '\'' +
-               ", identityVersion='" + identityVersion + '\'' + ", dummyInfrastructureName='" +
-               dummyInfrastructureName + '\'' + ", defaultNetwork='" + defaultNetwork + '\'' + ", blacklist='" +
-               blacklist + '\'' + ", deployedRegions=" + deployedRegions + ", deployedWhiteListedRegions=" +
-               deployedWhiteListedRegions + ", deployments='" + deploymentsPrint + '\'' + '}';
+        return getClass().getSimpleName() + "{" + CloudDefinition.JSON_CLOUD_ID + "='" + cloudId + '\'' + ", " +
+               CloudDefinition.JSON_CLOUD_PROVIDER_NAME + "='" + cloudProvider + '\'' + ", " +
+               CloudDefinition.JSON_CLOUD_TYPE + "='" + cloudType.toString() + '\'' + ", " +
+               CloudDefinition.JSON_SECURITY_GROUP + "='" + securityGroup + '\'' + ", " + CloudDefinition.JSON_SUBNET +
+               "='" + subnet + '\'' + ", " + CloudDefinition.JSON_SSH_CREDENTIALS + "='" +
+               Optional.ofNullable(sshCredentials).map(SSHCredentials::toString).orElse(null) + '\'' + ", " +
+               CloudDefinition.JSON_ENDPOINT + "='" + endpoint + '\'' + ", scopePrefix='" + scopePrefix + '\'' +
+               ", scopeValue='" + scopeValue + '\'' + ", " + CloudDefinition.JSON_IDENTITY_VERSION + "='" +
+               identityVersion + '\'' + ", dummyInfrastructureName='" + dummyInfrastructureName + '\'' + ", " +
+               CloudDefinition.JSON_DEFAULT_NETWORK + "='" + defaultNetwork + '\'' + ", " +
+               CloudDefinition.JSON_BLACKLIST + "='" + blacklist + '\'' + ", deployedRegions=" + deployedRegions +
+               ", deployedWhiteListedRegions=" + deployedWhiteListedRegions + ", deployments='" + deploymentsPrint +
+               '\'' + '}';
     }
 
     @PreRemove

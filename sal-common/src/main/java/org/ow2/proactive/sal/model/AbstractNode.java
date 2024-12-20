@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 @MappedSuperclass
@@ -21,6 +22,7 @@ public abstract class AbstractNode implements Node {
 
     // JSON field constants
     public static final String JSON_ID = "id";
+
     public static final String JSON_NODE_CANDIDATE = "nodeCandidate";
 
     @Id

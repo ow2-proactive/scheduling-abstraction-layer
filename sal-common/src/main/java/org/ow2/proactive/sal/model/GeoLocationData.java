@@ -43,14 +43,10 @@ public class GeoLocationData {
     }
 
     public String toString() {
-        return "GeoLocationData{" +
-                GeoLocation.JSON_CITY + "='" + city + '\'' +
-                ", " + GeoLocation.JSON_COUNTRY + "='" + country + '\'' +
-                ", " + GeoLocation.JSON_LATITUDE + "=" + latitude +
-                ", " + GeoLocation.JSON_LONGITUDE + "=" + longitude +
-                ", region='" + region + '\'' +
-                ", cloud='" + cloud + '\'' +
-                '}';
+        return "GeoLocationData{" + GeoLocation.JSON_CITY + "='" + city + '\'' + ", " + GeoLocation.JSON_COUNTRY +
+               "='" + country + '\'' + ", " + GeoLocation.JSON_LATITUDE + "=" + latitude + ", " +
+               GeoLocation.JSON_LONGITUDE + "=" + longitude + ", region='" + region + '\'' + ", cloud='" + cloud +
+               '\'' + '}';
     }
 
 }
