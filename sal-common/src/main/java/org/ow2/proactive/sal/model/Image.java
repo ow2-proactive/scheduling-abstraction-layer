@@ -6,9 +6,11 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import javax.persistence.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -81,28 +83,14 @@ public class Image implements Serializable {
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Image {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
-        sb.append("    operatingSystem: ").append(toIndentedString(operatingSystem)).append("\n");
-        sb.append("    location: ").append(toIndentedString(location)).append("\n");
-        sb.append("    state: ").append(toIndentedString(state)).append("\n");
-        sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_ID, id);
+        fields.put(JSON_NAME, name);
+        fields.put(JSON_PROVIDER_ID, providerId);
+        fields.put(JSON_OPERATING_SYSTEM, operatingSystem);
+        fields.put(JSON_LOCATION, location);
+        fields.put(JSON_STATE, state);
+        fields.put(JSON_OWNER, owner);
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

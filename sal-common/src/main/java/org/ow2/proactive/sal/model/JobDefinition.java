@@ -12,9 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.*;
 
-
 /**
- * Attributes defining a Job`
+ * Attributes defining a Job
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,12 +22,17 @@ import lombok.*;
 @ToString(callSuper = true)
 public class JobDefinition implements Serializable {
 
-    @JsonProperty("communications")
+    // JSON field constants
+    public static final String JSON_COMMUNICATIONS = "communications";
+    public static final String JSON_JOB_INFORMATION = "jobInformation";
+    public static final String JSON_TASKS = "tasks";
+
+    @JsonProperty(JSON_COMMUNICATIONS)
     private List<Communication> communications;
 
-    @JsonProperty("jobInformation")
+    @JsonProperty(JSON_JOB_INFORMATION)
     private JobInformation jobInformation;
 
-    @JsonProperty("tasks")
+    @JsonProperty(JSON_TASKS)
     private List<TaskDefinition> tasks;
 }

@@ -36,11 +36,6 @@ public class Environment implements Serializable {
     @JsonProperty(JSON_RUNTIME)
     private Runtime runtime = null;
 
-    public Environment runtime(Runtime runtime) {
-        this.runtime = runtime;
-        return this;
-    }
-
     @Override
     public String toString() {
         // Using LinkedHashMap to preserve field order
