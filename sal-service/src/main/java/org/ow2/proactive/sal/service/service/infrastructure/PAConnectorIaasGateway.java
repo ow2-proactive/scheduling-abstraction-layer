@@ -116,7 +116,7 @@ public class PAConnectorIaasGateway {
     @SneakyThrows
     public void defineInfrastructure(String infrastructureName, PACloud cloud, String region) {
         Validate.notNull(infrastructureName, "infrastructureName must not be null");
-        Validate.notNull(cloud.getCloudProviderName(), "cloudProviderName must not be null");
+        Validate.notNull(cloud.getCloudProvider(), "cloudProviderName must not be null");
 
         URIBuilder uriBuilder = new URIBuilder(new URL(paURL).toURI());
         URI requestUri = uriBuilder.setPath(CONNECTOR_IAAS_PATH + "/infrastructures").build();
@@ -127,14 +127,14 @@ public class PAConnectorIaasGateway {
         connection.setDoOutput(true);
 
         String jsonOutputString;
-        switch (cloud.getCloudProviderName()) {
-            case "aws-ec2":
+        switch (cloud.getCloudProvider()) {
+            case AWS_EC2:
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
-                                   cloud.getCloudProviderName() + "\"," + "\"credentials\": {\"username\": \"" +
+                                   cloud.getCloudProvider() + "\"," + "\"credentials\": {\"username\": \"" +
                                    cloud.getCredentials().getUserName() + "\", \"password\": \"" +
                                    cloud.getCredentials().getPrivateKey() + "\"}}";
                 break;
-            case "openstack":
+            case OPENSTACK:
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," +
                                    "\"type\": \"openstack-nova\", \"endpoint\": \"" + cloud.getEndpoint() +
                                    "\", \"scope\":{\"prefix\": \"" + cloud.getScopePrefix() + "\", \"value\":\"" +
@@ -144,9 +144,9 @@ public class PAConnectorIaasGateway {
                                    cloud.getCredentials().getPrivateKey() + "\", \"domain\": \"" +
                                    cloud.getCredentials().getDomain() + "\"}, \"region\": \"" + region + "\"}";
                 break;
-            case "azure":
+            case AZURE:
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
-                                   cloud.getCloudProviderName() + "\"," + "\"credentials\": {\"username\": \"" +
+                                   cloud.getCloudProvider() + "\"," + "\"credentials\": {\"username\": \"" +
                                    cloud.getCredentials().getUserName() + "\", \"password\": \"" +
                                    cloud.getCredentials().getPrivateKey() + "\", \"domain\": \"" +
                                    cloud.getCredentials().getDomain() + "\", \"subscriptionId\": \"" +

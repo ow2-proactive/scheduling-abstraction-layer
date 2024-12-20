@@ -6,18 +6,24 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.ow2.proactive.sal.util.ModelUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -25,113 +31,40 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
+@EqualsAndHashCode
 @Embeddable
 public class IpAddress implements Serializable {
+
+    // JSON field constants
+    public static final String JSON_IP_ADDRESS_TYPE = "IpAddressType";
+
+    public static final String JSON_IP_VERSION = "IpVersion";
+
+    public static final String JSON_VALUE = "value";
+
     @Column(name = "IP_ADDRESS_TYPE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("IpAddressType")
+    @JsonProperty(JSON_IP_ADDRESS_TYPE)
     private IpAddressType ipAddressType = null;
 
     @Column(name = "IP_VERSION")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("IpVersion")
+    @JsonProperty(JSON_IP_VERSION)
     private IpVersion ipVersion = null;
 
     @Column(name = "VALUE")
-    @JsonProperty("value")
+    @JsonProperty(JSON_VALUE)
     private String value = null;
-
-    public IpAddress ipAddressType(IpAddressType ipAddressType) {
-        this.ipAddressType = ipAddressType;
-        return this;
-    }
-
-    /**
-     * Get ipAddressType
-     * @return ipAddressType
-     **/
-    @NotNull
-    public IpAddressType getIpAddressType() {
-        return ipAddressType;
-    }
-
-    public void setIpAddressType(IpAddressType ipAddressType) {
-        this.ipAddressType = ipAddressType;
-    }
-
-    public IpAddress ipVersion(IpVersion ipVersion) {
-        this.ipVersion = ipVersion;
-        return this;
-    }
-
-    /**
-     * Get ipVersion
-     * @return ipVersion
-     **/
-    @NotNull
-    public IpVersion getIpVersion() {
-        return ipVersion;
-    }
-
-    public void setIpVersion(IpVersion ipVersion) {
-        this.ipVersion = ipVersion;
-    }
-
-    public IpAddress value(String value) {
-        this.value = value;
-        return this;
-    }
-
-    /**
-     * the ip address value
-     * @return value
-     **/
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        IpAddress ipAddress = (IpAddress) o;
-        return Objects.equals(this.ipAddressType, ipAddress.ipAddressType) &&
-               Objects.equals(this.ipVersion, ipAddress.ipVersion) && Objects.equals(this.value, ipAddress.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(ipAddressType, ipVersion, value);
-    }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class IpAddress {\n");
-
-        sb.append("    ipAddressType: ").append(toIndentedString(ipAddressType)).append("\n");
-        sb.append("    ipVersion: ").append(toIndentedString(ipVersion)).append("\n");
-        sb.append("    value: ").append(toIndentedString(value)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_IP_ADDRESS_TYPE, ipAddressType);
+        fields.put(JSON_IP_VERSION, ipVersion);
+        fields.put(JSON_VALUE, value);
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

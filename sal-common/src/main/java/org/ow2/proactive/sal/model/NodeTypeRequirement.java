@@ -5,12 +5,16 @@
  */
 package org.ow2.proactive.sal.model;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,15 +24,26 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@JsonTypeName(value = "NodeTypeRequirement")
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeName(value = NodeTypeRequirement.CLASS_NAME)
 public class NodeTypeRequirement extends Requirement {
-    @JsonProperty("nodeTypes")
+    // Define class name constant for reuse
+    public static final String CLASS_NAME = "NodeTypeRequirement";
+
+    // JSON property constants
+    public static final String JSON_NODE_TYPES = "nodeTypes";
+
+    public static final String JSON_JOB_ID_FOR_BYON = "jobIdForBYON";
+
+    public static final String JSON_JOB_ID_FOR_EDGE = "jobIdForEDGE";
+
+    @JsonProperty(JSON_NODE_TYPES)
     private List<NodeType> nodeTypes;
 
-    @JsonProperty("jobIdForByon")
+    @JsonProperty(JSON_JOB_ID_FOR_BYON)
     private String jobIdForBYON;
 
-    @JsonProperty("jobIdForEDGE")
+    @JsonProperty(JSON_JOB_ID_FOR_EDGE)
     private String jobIdForEDGE;
 
     public NodeTypeRequirement() {
@@ -43,49 +58,18 @@ public class NodeTypeRequirement extends Requirement {
     }
 
     /**
-     * Get nodeType
-     * @return nodeType
-     **/
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        NodeTypeRequirement nodeTypeRequirement = (NodeTypeRequirement) o;
-        return Objects.equals(this.nodeTypes, nodeTypeRequirement.nodeTypes) &&
-               Objects.equals(this.jobIdForBYON, nodeTypeRequirement.jobIdForBYON) &&
-               Objects.equals(this.jobIdForEDGE, nodeTypeRequirement.jobIdForEDGE) && super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nodeTypes, jobIdForBYON, jobIdForEDGE, super.hashCode());
-    }
-
+     * Custom toString() method for the NodeTypeRequirement class to format the output.
+     * This method uses {@link ModelUtils#buildToString} to generate the string representation of the object.
+     * @return A formatted string representation of the NodeTypeRequirement object.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class NodeTypeRequirement {\n");
-        sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-        sb.append("    nodeType: ").append(toIndentedString(nodeTypes)).append("\n");
-        sb.append("    jobIdForBYON: ").append(toIndentedString(jobIdForBYON)).append("\n");
-        sb.append("    jobIdForEDGE: ").append(toIndentedString(jobIdForEDGE)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_NODE_TYPES, nodeTypes);
+        fields.put(JSON_JOB_ID_FOR_BYON, jobIdForBYON);
+        fields.put(JSON_JOB_ID_FOR_EDGE, jobIdForEDGE);
+
+        return ModelUtils.buildToString(CLASS_NAME, fields);
     }
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
 }

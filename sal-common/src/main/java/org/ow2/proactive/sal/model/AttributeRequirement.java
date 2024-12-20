@@ -5,11 +5,15 @@
  */
 package org.ow2.proactive.sal.model;
 
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,18 +23,31 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@JsonTypeName(value = "AttributeRequirement")
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeName(value = AttributeRequirement.CLASS_NAME)
 public class AttributeRequirement extends Requirement {
-    @JsonProperty("requirementClass")
+    // Define class name constant for reuse
+    public static final String CLASS_NAME = "AttributeRequirement";
+
+    // JSON property constants
+    public static final String JSON_REQUIREMENT_CLASS = "requirementClass";
+
+    public static final String JSON_REQUIREMENT_ATTRIBUTE = "requirementAttribute";
+
+    public static final String JSON_REQUIREMENT_OPERATOR = "requirementOperator";
+
+    public static final String JSON_VALUE = "value";
+
+    @JsonProperty(JSON_REQUIREMENT_CLASS)
     private String requirementClass;
 
-    @JsonProperty("requirementAttribute")
+    @JsonProperty(JSON_REQUIREMENT_ATTRIBUTE)
     private String requirementAttribute;
 
-    @JsonProperty("requirementOperator")
+    @JsonProperty(JSON_REQUIREMENT_OPERATOR)
     private RequirementOperator requirementOperator;
 
-    @JsonProperty("value")
+    @JsonProperty(JSON_VALUE)
     private String value;
 
     public AttributeRequirement() {
@@ -46,47 +63,29 @@ public class AttributeRequirement extends Requirement {
         this.value = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AttributeRequirement attributeRequirement = (AttributeRequirement) o;
-        return Objects.equals(this.requirementClass, attributeRequirement.requirementClass) &&
-               Objects.equals(this.requirementAttribute, attributeRequirement.requirementAttribute) &&
-               Objects.equals(this.requirementOperator, attributeRequirement.requirementOperator) &&
-               Objects.equals(this.value, attributeRequirement.value) && super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(requirementClass, requirementAttribute, requirementOperator, value, super.hashCode());
-    }
-
+    /**
+     * Custom toString() method for the AttributeRequirement class to format the output
+     * This method creates a formatted string representation of the AttributeRequirement object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the AttributeRequirement object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class AttributeRequirement {\n");
-        sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-        sb.append("    requirementClass: ").append(toIndentedString(requirementClass)).append("\n");
-        sb.append("    requirementAttribute: ").append(toIndentedString(requirementAttribute)).append("\n");
-        sb.append("    requirementOperator: ").append(toIndentedString(requirementOperator)).append("\n");
-        sb.append("    value: ").append(toIndentedString(value)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_REQUIREMENT_CLASS, requirementClass);
+        fields.put(JSON_REQUIREMENT_ATTRIBUTE, requirementAttribute);
+        fields.put(JSON_REQUIREMENT_OPERATOR, requirementOperator);
+        fields.put(JSON_VALUE, value);
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        // Include the parent class fields as well
+        String parentString = super.toString();
+        Map<String, Object> parentFields = new LinkedHashMap<>();
+        parentFields.put("type", type);
+        fields.putAll(parentFields);
+
+        return ModelUtils.buildToString(CLASS_NAME, fields);
     }
 }

@@ -42,9 +42,11 @@ public class GeoLocationData {
         return Objects.equals(this.cloud, geoLocation.cloud) && Objects.equals(this.region, geoLocation.region);
     }
 
-    @Override
     public String toString() {
-        return "GeoLocationData{" + "city='" + city + '\'' + ", country='" + country + '\'' + ", latitude=" + latitude +
-               ", longitude=" + longitude + ", region='" + region + '\'' + ", cloud='" + cloud + '\'' + '}';
+        return "GeoLocationData{" + GeoLocation.JSON_CITY + "='" + city + '\'' + ", " + GeoLocation.JSON_COUNTRY +
+               "='" + country + '\'' + ", " + GeoLocation.JSON_LATITUDE + "=" + latitude + ", " +
+               GeoLocation.JSON_LONGITUDE + "=" + longitude + ", region='" + region + '\'' + ", cloud='" + cloud +
+               '\'' + '}';
     }
+
 }

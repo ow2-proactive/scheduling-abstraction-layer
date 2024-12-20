@@ -18,7 +18,7 @@ public enum IpAddressType {
 
     PRIVATE_IP("PRIVATE_IP");
 
-    private String value;
+    private final String value;
 
     IpAddressType(String value) {
         this.value = value;

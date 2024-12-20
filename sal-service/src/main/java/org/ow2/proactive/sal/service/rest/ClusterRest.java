@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/cluster")
-@Api(description = "Operations on Kubernetes cluster", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Operations on Kubernetes cluster", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class ClusterRest {
 
     @Autowired
@@ -89,7 +89,7 @@ public class ClusterRest {
     @RequestHeader(value = "sessionid")
     final String sessionId, @PathVariable
     final String clusterName, @RequestBody
-    final List<Map<String, String>> nodesLabels) throws NotConnectedException, IOException {
+    final List<Map<String, String>> nodesLabels) throws NotConnectedException {
         return ResponseEntity.ok(clusterService.labelNodes(sessionId, clusterName, nodesLabels));
     }
 

@@ -14,6 +14,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 
+/**
+ * Represents credentials for authentication and access.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -22,15 +25,24 @@ import lombok.*;
 @Embeddable
 public class Credential implements Serializable {
 
-    @JsonProperty("user")
+    // JSON field constants
+    public static final String JSON_USER = "user";
+
+    public static final String JSON_SECRET = "secret";
+
+    public static final String JSON_DOMAIN = "domain";
+
+    public static final String JSON_SUBSCRIPTION_ID = "subscriptionId";
+
+    @JsonProperty(JSON_USER)
     private String user = null;
 
-    @JsonProperty("secret")
+    @JsonProperty(JSON_SECRET)
     private String secret = null;
 
-    @JsonProperty("domain")
+    @JsonProperty(JSON_DOMAIN)
     private String domain = null;
 
-    @JsonProperty("subscriptionId")
+    @JsonProperty(JSON_SUBSCRIPTION_ID)
     private String subscriptionId = null;
 }

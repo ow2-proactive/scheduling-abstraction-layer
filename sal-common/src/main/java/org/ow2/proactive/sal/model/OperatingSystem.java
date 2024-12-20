@@ -7,17 +7,23 @@ package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.ow2.proactive.sal.util.ModelUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 /**
@@ -25,114 +31,49 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Embeddable
+@EqualsAndHashCode
 public class OperatingSystem implements Serializable {
+
+    // JSON property names as constants
+    public static final String JSON_OPERATING_SYSTEM_FAMILY = "operatingSystemFamily";
+
+    public static final String JSON_OPERATING_SYSTEM_ARCHITECTURE = "operatingSystemArchitecture";
+
+    public static final String JSON_OPERATING_SYSTEM_VERSION = "operatingSystemVersion";
+
     @Column(name = "OPERATING_SYSTEM_FAMILY")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("operatingSystemFamily")
+    @JsonProperty(JSON_OPERATING_SYSTEM_FAMILY)
     private OperatingSystemFamily operatingSystemFamily = null;
 
     @Column(name = "OPERATING_SYSTEM_ARCHITECTURE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("operatingSystemArchitecture")
+    @JsonProperty(JSON_OPERATING_SYSTEM_ARCHITECTURE)
     private OperatingSystemArchitecture operatingSystemArchitecture = null;
 
     @Column(name = "OPERATING_SYSTEM_VERSION")
-    @JsonProperty("operatingSystemVersion")
+    @JsonProperty(JSON_OPERATING_SYSTEM_VERSION)
     private BigDecimal operatingSystemVersion = null;
 
-    public OperatingSystem operatingSystemFamily(OperatingSystemFamily operatingSystemFamily) {
-        this.operatingSystemFamily = operatingSystemFamily;
-        return this;
-    }
-
     /**
-     * Get operatingSystemFamily
-     * @return operatingSystemFamily
-     **/
-    public OperatingSystemFamily getOperatingSystemFamily() {
-        return operatingSystemFamily;
-    }
-
-    public void setOperatingSystemFamily(OperatingSystemFamily operatingSystemFamily) {
-        this.operatingSystemFamily = operatingSystemFamily;
-    }
-
-    public OperatingSystem operatingSystemArchitecture(OperatingSystemArchitecture operatingSystemArchitecture) {
-        this.operatingSystemArchitecture = operatingSystemArchitecture;
-        return this;
-    }
-
-    /**
-     * Get operatingSystemArchitecture
-     * @return operatingSystemArchitecture
-     **/
-    public OperatingSystemArchitecture getOperatingSystemArchitecture() {
-        return operatingSystemArchitecture;
-    }
-
-    public void setOperatingSystemArchitecture(OperatingSystemArchitecture operatingSystemArchitecture) {
-        this.operatingSystemArchitecture = operatingSystemArchitecture;
-    }
-
-    public OperatingSystem operatingSystemVersion(BigDecimal operatingSystemVersion) {
-        this.operatingSystemVersion = operatingSystemVersion;
-        return this;
-    }
-
-    /**
-     * Version of the OS
-     * @return operatingSystemVersion
-     **/
-    public BigDecimal getOperatingSystemVersion() {
-        return operatingSystemVersion;
-    }
-
-    public void setOperatingSystemVersion(BigDecimal operatingSystemVersion) {
-        this.operatingSystemVersion = operatingSystemVersion;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        OperatingSystem operatingSystem = (OperatingSystem) o;
-        return Objects.equals(this.operatingSystemFamily, operatingSystem.operatingSystemFamily) &&
-               Objects.equals(this.operatingSystemArchitecture, operatingSystem.operatingSystemArchitecture) &&
-               Objects.equals(this.operatingSystemVersion, operatingSystem.operatingSystemVersion);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(operatingSystemFamily, operatingSystemArchitecture, operatingSystemVersion);
-    }
-
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class OperatingSystem {\n");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_OPERATING_SYSTEM_FAMILY, operatingSystemFamily);
+        fields.put(JSON_OPERATING_SYSTEM_ARCHITECTURE, operatingSystemArchitecture);
+        fields.put(JSON_OPERATING_SYSTEM_VERSION, operatingSystemVersion);
 
-        sb.append("    operatingSystemFamily: ").append(toIndentedString(operatingSystemFamily)).append("\n");
-        sb.append("    operatingSystemArchitecture: ")
-          .append(toIndentedString(operatingSystemArchitecture))
-          .append("\n");
-        sb.append("    operatingSystemVersion: ").append(toIndentedString(operatingSystemVersion)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

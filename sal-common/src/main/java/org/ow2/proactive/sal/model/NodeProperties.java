@@ -6,10 +6,13 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -67,54 +70,28 @@ public class NodeProperties implements Serializable {
     private GeoLocation geoLocation = null;
 
     /**
-     * Custom toString method with indentation and field labels.
-     * It creates a more readable string output for debugging and logging.
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
      *
-     * @return a string representation of the NodeProperties instance.
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("NodeProperties {\n");
-        sb.append("    ")
-          .append(Hardware.JSON_PROVIDER_ID)
-          .append(": ")
-          .append(toIndentedString(providerId))
-          .append("\n");
-        sb.append("    ").append(NodeCandidate.JSON_PRICE).append(": ").append(toIndentedString(price)).append("\n");
-        sb.append("    ").append(Hardware.JSON_CORES).append(": ").append(toIndentedString(cores)).append("\n");
-        sb.append("    ")
-          .append(Hardware.JSON_CPU_FREQUENCY)
-          .append(": ")
-          .append(toIndentedString(cpuFrequency))
-          .append("\n");
-        sb.append("    ").append(Hardware.JSON_RAM).append(": ").append(toIndentedString(ram)).append("\n");
-        sb.append("    ").append(Hardware.JSON_DISK).append(": ").append(toIndentedString(disk)).append("\n");
-        sb.append("    ").append(Hardware.JSON_FPGA).append(": ").append(toIndentedString(fpga)).append("\n");
-        sb.append("    ").append(Hardware.JSON_GPU).append(": ").append(toIndentedString(gpu)).append("\n");
-        sb.append("    ")
-          .append(Image.JSON_OPERATING_SYSTEM)
-          .append(": ")
-          .append(toIndentedString(operatingSystem))
-          .append("\n");
-        sb.append("    ")
-          .append(Location.JSON_GEO_LOCATION)
-          .append(": ")
-          .append(toIndentedString(geoLocation))
-          .append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(Hardware.JSON_PROVIDER_ID, providerId);
+        fields.put(NodeCandidate.JSON_PRICE, price);
+        fields.put(Hardware.JSON_CORES, cores);
+        fields.put(Hardware.JSON_CPU_FREQUENCY, cpuFrequency);
+        fields.put(Hardware.JSON_RAM, ram);
+        fields.put(Hardware.JSON_DISK, disk);
+        fields.put(Hardware.JSON_FPGA, fpga);
+        fields.put(Hardware.JSON_GPU, gpu);
+        fields.put(Image.JSON_OPERATING_SYSTEM, operatingSystem);
+        fields.put(Location.JSON_GEO_LOCATION, geoLocation);
 
-    /**
-     * Helper method to convert objects to indented strings.
-     * @param obj The object to convert.
-     * @return A string representation of the object or "null" if the object is null.
-     */
-    private String toIndentedString(Object obj) {
-        if (obj == null) {
-            return "null";
-        }
-        return obj.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

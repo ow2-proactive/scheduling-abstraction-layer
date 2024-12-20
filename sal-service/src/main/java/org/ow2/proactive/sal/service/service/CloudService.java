@@ -72,10 +72,10 @@ public class CloudService {
         List<String> savedCloudIds = new LinkedList<>();
         clouds.forEach(cloud -> {
             PACloud newCloud = new PACloud();
-            String nodeSourceNamePrefix = cloud.getCloudProviderName() + "-" + cloud.getCloudId();
+            String nodeSourceNamePrefix = cloud.getCloudProvider() + "-" + cloud.getCloudId();
             newCloud.setNodeSourceNamePrefix(nodeSourceNamePrefix);
             newCloud.setCloudId(cloud.getCloudId());
-            newCloud.setCloudProviderName(cloud.getCloudProviderName());
+            newCloud.setCloudProvider(cloud.getCloudProvider());
             newCloud.setCloudType(cloud.getCloudType());
             newCloud.setDeployedRegions(new HashMap<>());
             newCloud.setDeployedWhiteListedRegions(new HashMap<>());
@@ -99,13 +99,13 @@ public class CloudService {
             newCloud.setCredentials(credentials);
 
             String dummyInfraName = String.format(DUMMY_INFRA_NAME_TEMPLATE,
-                                                  newCloud.getCloudProviderName(),
+                                                  newCloud.getCloudProvider(),
                                                   newCloud.getCloudId());
             connectorIaasGateway.defineInfrastructure(dummyInfraName, newCloud, "");
             newCloud.setDummyInfrastructureName(dummyInfraName);
 
             repositoryService.savePACloud(newCloud);
-            LOGGER.debug("Cloud created: " + newCloud.toString());
+            LOGGER.debug("Cloud created: " + newCloud);
             savedCloudIds.add(newCloud.getCloudId());
         });
 
@@ -348,7 +348,7 @@ public class CloudService {
                 JSONArray imagesArray = connectorIaasGateway.getImages(paCloud.getDummyInfrastructureName());
 
                 String cloudIdOrEmpty;
-                if (paCloud.getCloudProviderName().equals("azure")) {
+                if (paCloud.getCloudProvider() == CloudProviderType.AZURE) {
                     cloudIdOrEmpty = "";
                 } else {
                     cloudIdOrEmpty = cloudId + "/";
@@ -387,35 +387,35 @@ public class CloudService {
     }
 
     /**
-     * This function returns the list of all available hardwares related to a registered cloud
+     * This function returns the list of all available hardware related to a registered cloud
      * @param sessionId A valid session id
      * @param cloudId A valid cloud identifier
-     * @return A list of available hardwares
+     * @return A list of available hardware
      */
-    public List<Hardware> getCloudHardwares(String sessionId, String cloudId) throws NotConnectedException {
-        LOGGER.warn("Feature not implemented yet. All hardwares will be returned.");
-        return getAllCloudHardwares(sessionId);
+    public List<Hardware> getCloudHardware(String sessionId, String cloudId) throws NotConnectedException {
+        LOGGER.warn("Feature not implemented yet. All hardware will be returned.");
+        return getAllCloudHardware(sessionId);
     }
 
     /**
-     * This function returns the list of all available hardwares
+     * This function returns the list of all available hardware
      * @param sessionId A valid session id
-     * @return A list of all available hardwares
+     * @return A list of all available hardware
      */
-    public List<Hardware> getAllCloudHardwares(String sessionId) throws NotConnectedException {
+    public List<Hardware> getAllCloudHardware(String sessionId) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        List<Hardware> allHardwares = repositoryService.listHardwares();
+        List<Hardware> allHardware = repositoryService.listHardwares();
 
-        return allHardwares.stream()
-                           .filter(hardware -> JCloudsInstancesUtils.isHandledHardwareInstanceType(repositoryService.findFirstNodeCandidateWithHardware(hardware)
-                                                                                                                    .getCloud()
-                                                                                                                    .getApi()
-                                                                                                                    .getProviderName(),
-                                                                                                   hardware.getName()) ||
-                                               WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(hardware.getName()))
-                           .collect(Collectors.toList());
+        return allHardware.stream()
+                          .filter(hardware -> JCloudsInstancesUtils.isHandledHardwareInstanceType(repositoryService.findFirstNodeCandidateWithHardware(hardware)
+                                                                                                                   .getCloud()
+                                                                                                                   .getApi()
+                                                                                                                   .getProviderName(),
+                                                                                                  hardware.getName()) ||
+                                              WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(hardware.getName()))
+                          .collect(Collectors.toList());
     }
 
     /**

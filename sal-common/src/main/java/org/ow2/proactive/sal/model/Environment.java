@@ -6,17 +6,23 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.ow2.proactive.sal.util.ModelUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 /**
@@ -24,65 +30,35 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Embeddable
+@EqualsAndHashCode
 public class Environment implements Serializable {
+
+    // JSON Constants
+    public static final String JSON_RUNTIME = "runtime";
+
     @Column(name = "RUNTIME")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("runtime")
+    @JsonProperty(JSON_RUNTIME)
     private Runtime runtime = null;
 
-    public Environment runtime(Runtime runtime) {
-        this.runtime = runtime;
-        return this;
-    }
-
     /**
-     * Get runtime
-     * @return runtime
-     **/
-    public Runtime getRuntime() {
-        return runtime;
-    }
-
-    public void setRuntime(Runtime runtime) {
-        this.runtime = runtime;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Environment environment = (Environment) o;
-        return Objects.equals(this.runtime, environment.runtime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(runtime);
-    }
-
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Environment {\n");
+        // Using LinkedHashMap to preserve field order
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_RUNTIME, runtime);
 
-        sb.append("    runtime: ").append(toIndentedString(runtime)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(Environment.class.getSimpleName(), fields);
     }
 }

@@ -26,7 +26,7 @@ public enum CloudType {
 
     SIMULATION("SIMULATION");
 
-    private String value;
+    private final String value;
 
     CloudType(String value) {
         this.value = value;

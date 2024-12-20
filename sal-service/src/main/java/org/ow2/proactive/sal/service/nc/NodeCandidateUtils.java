@@ -5,6 +5,8 @@
  */
 package org.ow2.proactive.sal.service.nc;
 
+import static org.ow2.proactive.sal.model.CloudProviderType.*;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -37,14 +39,6 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Component
 public class NodeCandidateUtils {
-
-    public static final String AWS_EC2 = "aws-ec2";
-
-    public static final String AZURE = "azure";
-
-    public static final String GCE = "gce";
-
-    public static final String OPENSTACK = "openstack";
 
     @Autowired
     private PAConnectorIaasGateway connectorIaasGateway;
@@ -144,24 +138,24 @@ public class NodeCandidateUtils {
                                                                                  attributeRequirement.getValue());
             }
         }
-        if (attributeRequirement.getRequirementClass().equals("location")) {
+        if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_LOCATION)) {
             //            if (attributeRequirement.getRequirementAttribute().equals("geoLocation.country")) {
             switch (attributeRequirement.getRequirementAttribute()) {
                 case "geoLocation.country":
                     return attributeRequirement.getRequirementOperator()
                                                .compare(nodeCandidate.getLocation().getGeoLocation().getCountry(),
                                                         attributeRequirement.getValue());
-                case "name":
+                case Location.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getLocation().getName(),
                                                                                  attributeRequirement.getValue());
             }
         }
-        if (attributeRequirement.getRequirementClass().equals("image")) {
+        if (attributeRequirement.getRequirementClass().equals(NodeCandidate.JSON_IMAGE)) {
             switch (attributeRequirement.getRequirementAttribute()) {
-                case "name":
+                case Image.JSON_NAME:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getName(),
                                                                                  attributeRequirement.getValue());
-                case "id":
+                case Image.JSON_ID:
                     return attributeRequirement.getRequirementOperator().compare(nodeCandidate.getImage().getId(),
                                                                                  attributeRequirement.getValue());
                 case "operatingSystem.family":
@@ -241,18 +235,14 @@ public class NodeCandidateUtils {
             }
             hardware.setRam(Long.valueOf(minRam));
             hardware.setCpuFrequency(Double.valueOf(hardwareJSON.optString("minFreq")));
-            //  hardware.setCloudFpga(hardwareJSON.optString("type"));
 
-            //for now is better to not assign values for the disk as they are not dynamically obtained: hardware.setDisk((double) 0);
-            //we used value 8 for AWS as it is a defuault but can be modified: hardware.setDisk((double) 8);
+            CloudProviderType cloudProvider = CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud"));
 
-            hardware.setCloudFpga(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
-                                  hardwareJSON.optString("type"));
+            hardware.setCloudFpga(cloudProvider, hardwareJSON.optString("type"));
 
-            hardware.setCloudGpu(CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud")),
-                                 hardwareJSON.optString("type"));
+            hardware.setCloudGpu(cloudProvider, hardwareJSON.optString("type"));
 
-            if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
+            if (cloudProvider == AWS_EC2) {
                 hardware.setDisk((double) 8);
             } else {
                 hardware.setDisk((double) 0);
@@ -275,15 +265,15 @@ public class NodeCandidateUtils {
             location.setProviderId(nodeCandidateJSON.optString("region"));
             location.setLocationScope(Location.LocationScopeEnum.REGION);
             location.setIsAssignable(true);
-            location.setGeoLocation(createGeoLocation(paCloud.getCloudProviderName(), location.getName()));
+            location.setGeoLocation(createGeoLocation(paCloud.getCloudProvider(), location.getName()));
 
             repositoryService.saveLocation(location);
         }
         return location;
     }
 
-    private GeoLocation createGeoLocation(String cloud, String region) {
-        switch (cloud) {
+    private GeoLocation createGeoLocation(CloudProviderType cloudProvider, String region) {
+        switch (cloudProvider) {
             case AWS_EC2:
                 return new GeoLocation(geoLocationUtils.findGeoLocation("AWS", region));
             case AZURE:
@@ -310,13 +300,14 @@ public class NodeCandidateUtils {
             os.setOperatingSystemFamily(OperatingSystemFamily.fromValue(osJSON.optString("family").toUpperCase()));
 
             String arch = "";
-            if (AWS_EC2.equals(nodeCandidateJSON.optString("cloud"))) {
+            CloudProviderType cloudProvider = CloudProviderType.fromValue(nodeCandidateJSON.optString("cloud"));
+            if (cloudProvider == AWS_EC2) {
                 if (nodeCandidateJSON.optJSONObject("hw").optString("type").startsWith("a")) {
                     arch = osJSON.optBoolean("is64Bit") ? "ARM64" : "ARM";
                 } else {
                     arch = osJSON.optBoolean("is64Bit") ? "AMD64" : "i386";
                 }
-            } else if (AZURE.equals(nodeCandidateJSON.optString("cloud"))) {
+            } else if (cloudProvider == AZURE) {
                 image.setId(imageJSON.optString("id"));
                 arch = osJSON.optString("arch");
             }
@@ -404,7 +395,8 @@ public class NodeCandidateUtils {
                 String os = (String) ((JSONObject) image.get("operatingSystem")).get("family");
                 os = os.substring(0, 1).toUpperCase() + os.substring(1);
                 String pair = os + ":" + region;
-                switch (paCloud.getCloudProviderName()) {
+
+                switch (paCloud.getCloudProvider()) {
                     case AWS_EC2:
                         imageReq = "Linux";
                         break;
@@ -415,11 +407,11 @@ public class NodeCandidateUtils {
                         imageReq = os;
                         break;
                     default:
-                        throw new IllegalArgumentException("The infrastructure " + paCloud.getCloudProviderName() +
+                        throw new IllegalArgumentException("The infrastructure " + paCloud.getCloudType() +
                                                            " is not handled yet.");
                 }
 
-                if (paCloud.getCloudProviderName().equals(OPENSTACK)) {
+                if (paCloud.getCloudProvider() == OPENSTACK) {
                     entries.add(pair);
                 }
                 populateNodeCandidatesFromCache(paCloud, region, imageReq, image);

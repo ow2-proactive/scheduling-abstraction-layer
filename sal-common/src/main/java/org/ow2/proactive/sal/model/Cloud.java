@@ -6,66 +6,100 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.*;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 /**
  * Representation of a cloud used by Cloudiator
  */
-@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "CLOUD")
 public class Cloud implements Serializable {
+    public static final String JSON_ID = "id";
+
+    public static final String JSON_ENDPOINT = "endpoint";
+
+    public static final String JSON_CLOUD_TYPE = "cloudType";
+
+    public static final String JSON_API = "api";
+
+    public static final String JSON_CREDENTIAL = "credential";
+
+    public static final String JSON_CLOUD_CONFIGURATION = "cloudConfiguration";
+
+    public static final String JSON_OWNER = "owner";
+
+    public static final String JSON_STATE = "state";
+
+    public static final String JSON_DIAGNOSTIC = "diagnostic";
+
     @Id
     @Column(name = "ID")
-    @JsonProperty("id")
+    @JsonProperty(JSON_ID)
     private String id = null;
 
     @Column(name = "ENDPOINT")
-    @JsonProperty("endpoint")
+    @JsonProperty(JSON_ENDPOINT)
     private String endpoint = null;
 
     @Column(name = "CLOUD_TYPE")
     @Enumerated(EnumType.STRING)
-    @JsonProperty("cloudType")
+    @JsonProperty(JSON_CLOUD_TYPE)
     private CloudType cloudType = null;
 
     @Embedded
-    @JsonProperty("api")
+    @JsonProperty(JSON_API)
     private Api api = null;
 
     @Embedded
-    @JsonProperty("credential")
+    @JsonProperty(JSON_CREDENTIAL)
     private CloudCredential credential = null;
 
     @Embedded
-    @JsonProperty("cloudConfiguration")
+    @JsonProperty(JSON_CLOUD_CONFIGURATION)
     private CloudConfiguration cloudConfiguration = null;
 
     @Column(name = "OWNER")
-    @JsonProperty("owner")
+    @JsonProperty(JSON_OWNER)
     private String owner = null;
+
+    @Column(name = "STATE")
+    @Enumerated(EnumType.STRING)
+    @JsonProperty(JSON_STATE)
+    private StateEnum state = null;
+
+    @Column(name = "DIAGNOSTIC")
+    @JsonProperty(JSON_DIAGNOSTIC)
+    private String diagnostic = null;
 
     /**
      * State of the cloud
      */
     public enum StateEnum {
         OK("OK"),
-
         ERROR("ERROR");
 
-        private String value;
+        private final String value;
 
         StateEnum(String value) {
             this.value = value;
@@ -74,13 +108,13 @@ public class Cloud implements Serializable {
         @Override
         @JsonValue
         public String toString() {
-            return String.valueOf(value);
+            return value;
         }
 
         @JsonCreator
         public static StateEnum fromValue(String text) {
             for (StateEnum b : StateEnum.values()) {
-                if (String.valueOf(b.value).equals(text.toUpperCase(Locale.ROOT))) {
+                if (b.value.equalsIgnoreCase(text)) {
                     return b;
                 }
             }
@@ -88,215 +122,20 @@ public class Cloud implements Serializable {
         }
     }
 
-    @Column(name = "STATE")
-    @Enumerated(EnumType.STRING)
-    @JsonProperty("state")
-    private StateEnum state = null;
-
-    @Column(name = "DIAGNOSTIC")
-    @JsonProperty("diagnostic")
-    private String diagnostic = null;
-
-    public Cloud endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
-    }
-
-    /**
-     * URI where the api of this cloud provider can be accessed.
-     * @return endpoint
-     **/
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public Cloud cloudType(CloudType cloudType) {
-        this.cloudType = cloudType;
-        return this;
-    }
-
-    /**
-     * Get cloudType
-     * @return cloudType
-     **/
-    public CloudType getCloudType() {
-        return cloudType;
-    }
-
-    public void setCloudType(CloudType cloudType) {
-        this.cloudType = cloudType;
-    }
-
-    public Cloud api(Api api) {
-        this.api = api;
-        return this;
-    }
-
-    /**
-     * Get api
-     * @return api
-     **/
-    public Api getApi() {
-        return api;
-    }
-
-    public void setApi(Api api) {
-        this.api = api;
-    }
-
-    public Cloud credential(CloudCredential credential) {
-        this.credential = credential;
-        return this;
-    }
-
-    /**
-     * Get credential
-     * @return credential
-     **/
-    public CloudCredential getCredential() {
-        return credential;
-    }
-
-    public void setCredential(CloudCredential credential) {
-        this.credential = credential;
-    }
-
-    public Cloud cloudConfiguration(CloudConfiguration cloudConfiguration) {
-        this.cloudConfiguration = cloudConfiguration;
-        return this;
-    }
-
-    /**
-     * Get cloudConfiguration
-     * @return cloudConfiguration
-     **/
-    public CloudConfiguration getCloudConfiguration() {
-        return cloudConfiguration;
-    }
-
-    public void setCloudConfiguration(CloudConfiguration cloudConfiguration) {
-        this.cloudConfiguration = cloudConfiguration;
-    }
-
-    public Cloud id(String id) {
-        this.id = id;
-        return this;
-    }
-
-    /**
-     * Unique identifier for the cloud
-     * @return id
-     **/
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Cloud owner(String owner) {
-        this.owner = owner;
-        return this;
-    }
-
-    /**
-     * Id of the user owning this cloud.
-     * @return owner
-     **/
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public Cloud state(StateEnum state) {
-        this.state = state;
-        return this;
-    }
-
-    /**
-     * State of the cloud
-     * @return state
-     **/
-    public StateEnum getState() {
-        return state;
-    }
-
-    public void setState(StateEnum state) {
-        this.state = state;
-    }
-
-    public Cloud diagnostic(String diagnostic) {
-        this.diagnostic = diagnostic;
-        return this;
-    }
-
-    /**
-     * Diagnostic information for the cloud
-     * @return diagnostic
-     **/
-    public String getDiagnostic() {
-        return diagnostic;
-    }
-
-    public void setDiagnostic(String diagnostic) {
-        this.diagnostic = diagnostic;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Cloud cloud = (Cloud) o;
-        return Objects.equals(this.endpoint, cloud.endpoint) && Objects.equals(this.cloudType, cloud.cloudType) &&
-               Objects.equals(this.api, cloud.api) && Objects.equals(this.credential, cloud.credential) &&
-               Objects.equals(this.cloudConfiguration, cloud.cloudConfiguration) && Objects.equals(this.id, cloud.id) &&
-               Objects.equals(this.owner, cloud.owner) && Objects.equals(this.state, cloud.state) &&
-               Objects.equals(this.diagnostic, cloud.diagnostic);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(endpoint, cloudType, api, credential, cloudConfiguration, id, owner, state, diagnostic);
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Cloud {\n");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_ID, id);
+        fields.put(JSON_ENDPOINT, endpoint);
+        fields.put(JSON_CLOUD_TYPE, cloudType);
+        fields.put(JSON_API, api);
+        fields.put(JSON_CREDENTIAL, credential);
+        fields.put(JSON_CLOUD_CONFIGURATION, cloudConfiguration);
+        fields.put(JSON_OWNER, owner);
+        fields.put(JSON_STATE, state);
+        fields.put(JSON_DIAGNOSTIC, diagnostic);
 
-        sb.append("    endpoint: ").append(toIndentedString(endpoint)).append("\n");
-        sb.append("    cloudType: ").append(toIndentedString(cloudType)).append("\n");
-        sb.append("    api: ").append(toIndentedString(api)).append("\n");
-        sb.append("    credential: ").append(toIndentedString(credential)).append("\n");
-        sb.append("    cloudConfiguration: ").append(toIndentedString(cloudConfiguration)).append("\n");
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
-        sb.append("    state: ").append(toIndentedString(state)).append("\n");
-        sb.append("    diagnostic: ").append(toIndentedString(diagnostic)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        return ModelUtils.buildToString(Cloud.class.getSimpleName(), fields);
     }
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
 }

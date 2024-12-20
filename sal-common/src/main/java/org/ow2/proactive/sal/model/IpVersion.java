@@ -18,7 +18,7 @@ public enum IpVersion {
 
     V6("V6");
 
-    private String value;
+    private final String value;
 
     IpVersion(String value) {
         this.value = value;

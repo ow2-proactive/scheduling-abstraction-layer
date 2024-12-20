@@ -6,15 +6,21 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import org.ow2.proactive.sal.util.ModelUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 /**
@@ -23,85 +29,36 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
+@EqualsAndHashCode
+@Getter
+@Setter
 public class CloudCredential implements Serializable {
+    public static final String JSON_USER = "user";
+
+    public static final String JSON_SECRET = "secret";
+
     @Column(name = "USER")
-    @JsonProperty("user")
+    @JsonProperty(JSON_USER)
     private String user = null;
 
     @Column(name = "SECRET")
-    @JsonProperty("secret")
+    @JsonProperty(JSON_SECRET)
     private String secret = null;
 
-    public CloudCredential user(String user) {
-        this.user = user;
-        return this;
-    }
-
     /**
-     * Username for authentication at the cloud provider's API
-     * @return user
-     **/
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public CloudCredential secret(String secret) {
-        this.secret = secret;
-        return this;
-    }
-
-    /**
-     * Secret (e.g. Password) for authentication at the cloud provider's API
-     * @return secret
-     **/
-    public String getSecret() {
-        return secret;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        CloudCredential cloudCredential = (CloudCredential) o;
-        return Objects.equals(this.user, cloudCredential.user) && Objects.equals(this.secret, cloudCredential.secret);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(user, secret);
-    }
-
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class CloudCredential {\n");
-
-        sb.append("    user: ").append(toIndentedString(user)).append("\n");
-        sb.append("    secret: ").append(toIndentedString(secret)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_USER, user);
+        fields.put(JSON_SECRET, secret);
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }
