@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "PA_CLOUD")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "cloudId", scope = PACloud.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = CloudDefinition.JSON_CLOUD_ID, scope = PACloud.class)
 public class PACloud implements Serializable {
 
     public static final String WHITE_LISTED_NAME_PREFIX = "WLH";

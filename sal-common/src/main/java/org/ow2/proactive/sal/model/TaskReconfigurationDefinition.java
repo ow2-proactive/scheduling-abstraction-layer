@@ -19,13 +19,20 @@ import lombok.NoArgsConstructor;
 @Data
 public class TaskReconfigurationDefinition implements Serializable {
 
-    @JsonProperty("task")
-    TaskDefinition task;
+    // JSON field constants
+    public static final String JSON_TASK = "task";
 
-    @JsonProperty("iaasNodeSelection")
-    IaasDefinition iaasNodeSelection;
+    public static final String JSON_IAAS_NODE_SELECTION = "iaasNodeSelection";
 
-    @JsonProperty("emsDeploymentDefinition")
+    public static final String JSON_EMS_DEPLOYMENT_DEFINITION = "emsDeploymentDefinition";
+
+    @JsonProperty(JSON_TASK)
+    private TaskDefinition task;
+
+    @JsonProperty(JSON_IAAS_NODE_SELECTION)
+    private IaasDefinition iaasNodeSelection;
+
+    @JsonProperty(JSON_EMS_DEPLOYMENT_DEFINITION)
     private EmsDeploymentDefinitionForNode emsDeploymentDefinition;
 
 }

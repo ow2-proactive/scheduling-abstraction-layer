@@ -21,15 +21,24 @@ import lombok.*;
 @Data
 public class ReconfigurationJobDefinition implements Serializable {
 
-    @JsonProperty("communications")
+    // JSON field constants
+    public static final String JSON_COMMUNICATIONS = "communications";
+
+    public static final String JSON_UNCHANGED_TASKS = "unchangedTasks";
+
+    public static final String JSON_DELETE_TASKS = "deleteTasks";
+
+    public static final String JSON_ADD_TASKS = "addTasks";
+
+    @JsonProperty(JSON_COMMUNICATIONS)
     private List<Communication> communications;
 
-    @JsonProperty("unchangedTasks")
+    @JsonProperty(JSON_UNCHANGED_TASKS)
     private List<String> unchangedTasks;
 
-    @JsonProperty("deleteTasks")
+    @JsonProperty(JSON_DELETE_TASKS)
     private List<String> deletedTasks;
 
-    @JsonProperty("addTasks")
+    @JsonProperty(JSON_ADD_TASKS)
     private List<TaskReconfigurationDefinition> addedTasks;
 }
