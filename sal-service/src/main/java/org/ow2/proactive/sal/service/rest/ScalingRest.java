@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/scale")
-@Api(description = "Scaling operations", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Scaling operations", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class ScalingRest {
 
     @Autowired

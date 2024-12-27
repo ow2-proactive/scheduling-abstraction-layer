@@ -23,12 +23,19 @@ import lombok.*;
 @ToString(callSuper = true)
 public class TaskDefinition implements Serializable {
 
-    @JsonProperty("name")
+    // JSON field constants
+    public static final String JSON_NAME = "name";
+
+    public static final String JSON_INSTALLATION = "installation";
+
+    public static final String JSON_PORTS = "ports";
+
+    @JsonProperty(JSON_NAME)
     private String name;
 
-    @JsonProperty("installation")
+    @JsonProperty(JSON_INSTALLATION)
     private AbstractInstallation installation;
 
-    @JsonProperty("ports")
+    @JsonProperty(JSON_PORTS)
     private List<AbstractPortDefinition> ports;
 }

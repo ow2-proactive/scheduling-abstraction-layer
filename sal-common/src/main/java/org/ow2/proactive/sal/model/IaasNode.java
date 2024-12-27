@@ -5,15 +5,19 @@
  */
 package org.ow2.proactive.sal.model;
 
-import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.ow2.proactive.sal.util.ModelUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,63 +28,51 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true) // Includes `id` from AbstractNode
 @Table(name = "IAAS_NODE")
 public class IaasNode extends AbstractNode {
 
+    // JSON field constants
+    public static final String JSON_NUM_DEPLOYMENTS = "numDeployments";
+
     @Column(name = "NUM_DEPLOYMENTS")
-    @JsonProperty("numDeployments")
+    @JsonProperty(JSON_NUM_DEPLOYMENTS)
     private Long numDeployments = 0L;
 
+    /**
+     * Increment the number of deployed nodes.
+     *
+     * @param number The number to increment.
+     */
     public void incDeployedNodes(Long number) {
         numDeployments = numDeployments + number;
     }
 
+    /**
+     * Decrement the number of deployed nodes, ensuring it doesn't drop below 0.
+     *
+     * @param number The number to decrement.
+     */
     public void decDeployedNodes(Long number) {
         numDeployments = numDeployments > number ? numDeployments - number : 0L;
     }
 
+    /**
+     * Constructor to create an IaasNode from a NodeCandidate.
+     *
+     * @param nodeCandidate The node candidate to initialize from.
+     */
     public IaasNode(NodeCandidate nodeCandidate) {
         this.nodeCandidate = nodeCandidate;
         nodeCandidate.setNodeId(this.id);
     }
 
     @Override
-    public boolean equals(java.lang.Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        IaasNode iaasNode = (IaasNode) o;
-        return Objects.equals(this.id, iaasNode.id) && Objects.equals(this.nodeCandidate, iaasNode.nodeCandidate) &&
-               Objects.equals(this.numDeployments, iaasNode.numDeployments);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, nodeCandidate, numDeployments);
-    }
-
-    @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class IaasNode {\n");
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    nodeCandidate: ").append(toIndentedString(nodeCandidate)).append("\n");
-        sb.append("    numDeployments: ").append(toIndentedString(numDeployments)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(AbstractNode.JSON_ID, id);
+        fields.put(AbstractNode.JSON_NODE_CANDIDATE, nodeCandidate);
+        fields.put(JSON_NUM_DEPLOYMENTS, numDeployments);
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

@@ -92,7 +92,8 @@ public class MonitoringService {
                                                             deployment.getDeploymentType().getName(),
                                                             deployment.getNode().getNodeCandidate(),
                                                             deployment.getNodeName(),
-                                                            EmsDeploymentRequest.TargetProvider.fromValue(cloud.getCloudProviderName()),
+                                                            EmsDeploymentRequest.TargetProvider.fromValue(cloud.getCloudProvider()
+                                                                                                               .toString()),
                                                             deployment.getTask()
                                                                       .getPortsToOpen()
                                                                       .stream()

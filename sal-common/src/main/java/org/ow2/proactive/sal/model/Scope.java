@@ -27,9 +27,14 @@ import lombok.Setter;
 @Embeddable
 public class Scope implements Serializable {
 
-    @JsonProperty("prefix")
+    // JSON field constants
+    public static final String JSON_PREFIX = "prefix";
+
+    public static final String JSON_VALUE = "value";
+
+    @JsonProperty(JSON_PREFIX)
     private String prefix = null;
 
-    @JsonProperty("value")
+    @JsonProperty(JSON_VALUE)
     private String value = null;
 }

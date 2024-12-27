@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "PA_CLOUD")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "cloudId", scope = PACloud.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = CloudDefinition.JSON_CLOUD_ID, scope = PACloud.class)
 public class PACloud implements Serializable {
 
     public static final String WHITE_LISTED_NAME_PREFIX = "WLH";
@@ -35,8 +35,9 @@ public class PACloud implements Serializable {
     @Column(name = "NODE_SOURCE_NAME_PREFIX")
     private String nodeSourceNamePrefix;
 
-    @Column(name = "CLOUD_PROVIDER_NAME")
-    private String cloudProviderName;
+    @Column(name = "CLOUD_PROVIDER")
+    @Enumerated(EnumType.STRING)
+    private CloudProviderType cloudProvider;
 
     @Column(name = "CLOUD_TYPE")
     @Enumerated(EnumType.STRING)
@@ -150,15 +151,19 @@ public class PACloud implements Serializable {
                                                                    .map(Deployment::getNodeName)
                                                                    .collect(Collectors.toList())
                                                                    .toString();
-        return "PACloud{" + "cloudId='" + cloudId + '\'' + ", nodeSourceNamePrefix='" + nodeSourceNamePrefix + '\'' +
-               ", cloudProviderName='" + cloudProviderName + '\'' + ", cloudType='" + cloudType.toString() + '\'' +
-               ", subnet='" + subnet + '\'' + ", securityGroup='" + securityGroup + '\'' + ", sshCredentials='" +
-               Optional.ofNullable(sshCredentials).map(SSHCredentials::toString).orElse(null) + '\'' + ", endpoint='" +
-               endpoint + '\'' + ", scopePrefix='" + scopePrefix + '\'' + ", scopeValue='" + scopeValue + '\'' +
-               ", identityVersion='" + identityVersion + '\'' + ", dummyInfrastructureName='" +
-               dummyInfrastructureName + '\'' + ", defaultNetwork='" + defaultNetwork + '\'' + ", blacklist='" +
-               blacklist + '\'' + ", deployedRegions=" + deployedRegions + ", deployedWhiteListedRegions=" +
-               deployedWhiteListedRegions + ", deployments='" + deploymentsPrint + '\'' + '}';
+        return getClass().getSimpleName() + "{" + CloudDefinition.JSON_CLOUD_ID + "='" + cloudId + '\'' + ", " +
+               CloudDefinition.JSON_CLOUD_PROVIDER_NAME + "='" + cloudProvider + '\'' + ", " +
+               CloudDefinition.JSON_CLOUD_TYPE + "='" + cloudType.toString() + '\'' + ", " +
+               CloudDefinition.JSON_SECURITY_GROUP + "='" + securityGroup + '\'' + ", " + CloudDefinition.JSON_SUBNET +
+               "='" + subnet + '\'' + ", " + CloudDefinition.JSON_SSH_CREDENTIALS + "='" +
+               Optional.ofNullable(sshCredentials).map(SSHCredentials::toString).orElse(null) + '\'' + ", " +
+               CloudDefinition.JSON_ENDPOINT + "='" + endpoint + '\'' + ", scopePrefix='" + scopePrefix + '\'' +
+               ", scopeValue='" + scopeValue + '\'' + ", " + CloudDefinition.JSON_IDENTITY_VERSION + "='" +
+               identityVersion + '\'' + ", dummyInfrastructureName='" + dummyInfrastructureName + '\'' + ", " +
+               CloudDefinition.JSON_DEFAULT_NETWORK + "='" + defaultNetwork + '\'' + ", " +
+               CloudDefinition.JSON_BLACKLIST + "='" + blacklist + '\'' + ", deployedRegions=" + deployedRegions +
+               ", deployedWhiteListedRegions=" + deployedWhiteListedRegions + ", deployments='" + deploymentsPrint +
+               '\'' + '}';
     }
 
     @PreRemove

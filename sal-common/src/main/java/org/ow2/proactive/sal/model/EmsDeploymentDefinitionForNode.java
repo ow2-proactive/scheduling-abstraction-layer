@@ -22,10 +22,14 @@ import lombok.*;
 @ToString(callSuper = true)
 public class EmsDeploymentDefinitionForNode implements Serializable {
 
-    @JsonProperty("authorizationBearer")
+    public static final String JSON_AUTHORIZATION_BEARER = "authorizationBearer";
+
+    public static final String JSON_IS_PRIVATE_IP = "isPrivateIp";
+
+    @JsonProperty(JSON_AUTHORIZATION_BEARER)
     private String authorizationBearer;
 
-    @JsonProperty("isPrivateIp")
+    @JsonProperty(JSON_IS_PRIVATE_IP)
     private boolean isPrivateIP;
 
 }

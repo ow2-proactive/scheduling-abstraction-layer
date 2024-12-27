@@ -5,10 +5,13 @@
  */
 package org.ow2.proactive.sal.model;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 import javax.persistence.*;
+
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -29,7 +32,7 @@ import lombok.Setter;
 @Table(name = "EDGE_NODE")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class EdgeNode extends AbstractNode {
 
     @Column(name = "NAME")
@@ -85,38 +88,32 @@ public class EdgeNode extends AbstractNode {
         return "EDGE_NS_" + this.systemArch + "_" + this.id;
     }
 
+    /**
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class EdgeNode {\n");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(EdgeDefinition.JSON_NAME, name);
+        fields.put(EdgeDefinition.JSON_LOGIN_CREDENTIAL, loginCredential);
+        fields.put(EdgeDefinition.JSON_NODE_PROPERTIES, nodeProperties);
+        fields.put(EdgeDefinition.JSON_PORT, port);
+        fields.put(EdgeDefinition.JSON_REASON, reason);
+        fields.put(EdgeDefinition.JSON_DIAGNOSTIC, diagnostic);
+        fields.put(EdgeDefinition.JSON_USER_ID, userId);
+        fields.put(EdgeDefinition.JSON_ALLOCATED, allocated);
+        fields.put(EdgeDefinition.JSON_JOB_ID, jobId);
+        fields.put(EdgeDefinition.JSON_SYSTEM_ARCH, systemArch);
+        fields.put(EdgeDefinition.JSON_SCRIPT_URL, scriptURL);
+        fields.put(EdgeDefinition.JSON_JAR_URL, jarURL);
 
-        sb.append("    name: ").append(toIndentedString(this.name)).append("\n");
-        sb.append("    id: ").append(toIndentedString(this.id)).append("\n");
-        sb.append("    loginCredential: ").append(toIndentedString(this.loginCredential)).append("\n");
-        sb.append("    ipAddresses: ").append(toIndentedString(this.ipAddresses)).append("\n");
-        sb.append("    nodeProperties: ").append(toIndentedString(this.nodeProperties)).append("\n");
-        sb.append("    reason: ").append(toIndentedString(this.reason)).append("\n");
-        sb.append("    diagnostic: ").append(toIndentedString(this.diagnostic)).append("\n");
-        sb.append("    nodeCandidate: ").append(toIndentedString(this.nodeCandidate)).append("\n");
-        sb.append("    userId: ").append(toIndentedString(this.userId)).append("\n");
-        sb.append("    allocated: ").append(toIndentedString(this.allocated)).append("\n");
-        sb.append("    jobId: ").append(toIndentedString(this.jobId)).append("\n");
-        sb.append("    systemArch: ").append(toIndentedString(this.systemArch)).append("\n");
-        sb.append("    scriptURL: ").append(toIndentedString(this.scriptURL)).append("\n");
-        sb.append("    jarURL: ").append(toIndentedString(this.jarURL)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(EdgeNode.class.getSimpleName(), fields);
     }
 
     @PreRemove
