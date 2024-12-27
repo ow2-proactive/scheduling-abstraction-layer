@@ -262,14 +262,6 @@ public class TaskBuilder {
                 nodeConfigJson += ", \"vmType\": \"" +
                                   deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\"";
                 break;
-            case "openstack":
-                // imageId
-                nodeConfigJson += "\"image\": \"" + deployment.getNode().getNodeCandidate().getImage().getProviderId() +
-                                  "\"";
-                // vmType
-                nodeConfigJson += ", \"vmType\": \"" +
-                                  deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\"";
-                break;
             case "azure":
                 // imageId
                 nodeConfigJson += "\"image\": \"" + deployment.getNode().getNodeCandidate().getImage().getId() + "\"";
