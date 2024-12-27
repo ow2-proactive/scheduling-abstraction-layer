@@ -7,7 +7,7 @@ Before using this endpoint, ensure that cloud or edge nodes are added.
 
 *   For the `NodeTypeRequirement` we verify that the node candidate is the type desired. These types are: `IAAS`, `PAAS`, `FAAS`, `BYON`, `EDGE`, `SIMULATION`
 *   For the `AttributeRequirement` they are catagorized in the following classes:
-    *   `hardware`: In this class we can filter based on the `ram`, `cores`, `disk`, `fpga`, `name`
+    *   `hardware`: In this class we can filter based on the `ram`, `cores`, `disk`, `cpuFrequency`,`fpga`, `gpu`,`name`
     *   `location`: In this class we can filter based on the `geoLocation.country`
     *   `image`: In this class we can filter based on the  `name`, `operatingSystem.family` , `operatingSystem.version`
     *   `cloud`: In this class we can filter based on the `id` and `type`. A cloud type can be `PRIVATE`, `PUBLIC`, `BYON`, `EDGE`
