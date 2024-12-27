@@ -21,8 +21,8 @@
     <variable name="vmPublicKey" value=""     />
     <variable name="resourceGroup" value=""     />
     <variable name="region" value=""     />
-    <variable name="numberOfInstances" value="1" model="PA:Integer"     />
-    <variable name="numberOfNodesPerInstance" value="1" model="PA:Integer"     />
+    <variable name="NS_nVMs" value="0" model="PA:Integer"     />
+    <variable name="NS_nNodesPerVM" value="1" model="PA:Integer"     />
     <variable name="privateNetworkCIDR" value=""     />
     <variable name="resourceUsageRefreshFreqInMin" value="30"     />
     <variable name="rateCardRefreshFreqInMin" value="30"     />
@@ -78,8 +78,8 @@ def infrastructureParameters = [variables.get("clientId"),
                                 variables.get("vmPublicKey"),
                                 variables.get("resourceGroup"),
                                 variables.get("region"),
-                                variables.get("numberOfInstances"),
-                                variables.get("numberOfNodesPerInstance"),
+                                variables.get("NS_nVMs"),
+                                variables.get("NS_nNodesPerVM"),
                                 protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/rest/node.jar", // nodeJarURL
                                 variables.get("privateNetworkCIDR"),
                                 "true", // staticPublicIP

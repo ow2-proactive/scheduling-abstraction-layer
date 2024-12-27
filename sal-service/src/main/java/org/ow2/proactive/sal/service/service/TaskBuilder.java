@@ -242,10 +242,12 @@ public class TaskBuilder {
     }
 
     private String createIAASNodeConfigJson(Task task, Deployment deployment) {
+        String nodeConfigJson = "{";
         ObjectMapper mapper = new ObjectMapper();
         String imageId;
         switch (deployment.getPaCloud().getCloudProviderName()) {
             case "aws-ec2":
+                // imageId
                 if (WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(deployment.getNode()
                                                                                           .getNodeCandidate()
                                                                                           .getHardware()
@@ -255,19 +257,39 @@ public class TaskBuilder {
                     imageId = deployment.getNode().getNodeCandidate().getLocation().getName() + "/" +
                               deployment.getNode().getNodeCandidate().getImage().getProviderId();
                 }
+                nodeConfigJson += "\"image\": \"" + imageId + "\"";
+                // vmType
+                nodeConfigJson += ", \"vmType\": \"" +
+                                  deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\"";
                 break;
             case "openstack":
-                imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
+                // imageId
+                nodeConfigJson += "\"image\": \"" + deployment.getNode().getNodeCandidate().getImage().getProviderId() +
+                                  "\"";
+                // vmType
+                nodeConfigJson += ", \"vmType\": \"" +
+                                  deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\"";
                 break;
             case "azure":
-                imageId = deployment.getNode().getNodeCandidate().getImage().getId();
+                // imageId
+                nodeConfigJson += "\"image\": \"" + deployment.getNode().getNodeCandidate().getImage().getId() + "\"";
+                // vmSizeType
+                nodeConfigJson += ", \"vmSizeType\": \"" +
+                                  deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\"";
                 break;
             default:
-                imageId = deployment.getNode().getNodeCandidate().getImage().getProviderId();
+                // imageId
+                nodeConfigJson += "\"image\": \"" + deployment.getNode().getNodeCandidate().getImage().getProviderId() +
+                                  "\"";
+                // vmType
+                nodeConfigJson += ", \"vmType\": \"" +
+                                  deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\"";
         }
-        String nodeConfigJson = "{\"image\": \"" + imageId + "\", " + "\"vmType\": \"" +
-                                deployment.getNode().getNodeCandidate().getHardware().getProviderId() + "\", " +
-                                "\"nodeTags\": \"" + deployment.getNodeName() + "\"";
+
+        // nodeTags
+        nodeConfigJson += ", \"nodeTags\": \"" + deployment.getNodeName() + "\"";
+
+        // portsToOpen
         if (task.getPortsToOpen() != null && !task.getPortsToOpen().isEmpty()) {
             try {
                 nodeConfigJson += ", \"portsToOpen\": " + mapper.writeValueAsString(task.getPortsToOpen()) + "\"";
@@ -275,6 +297,8 @@ public class TaskBuilder {
                 LOGGER.error(Arrays.toString(e.getStackTrace()));
             }
         }
+
+        // securityGroups
         if (task.getSecurityGroup() != null) {
             nodeConfigJson += ", \"securityGroups\": [\"" + task.getSecurityGroup() + "\"]";
         }
