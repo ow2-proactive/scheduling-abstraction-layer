@@ -6,11 +6,14 @@
 package org.ow2.proactive.sal.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.persistence.*;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.ow2.proactive.sal.util.ModelUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -83,7 +86,7 @@ public class NodeCandidate implements Serializable {
         EDGE("EDGE"),
         SIMULATION("SIMULATION");
 
-        private String value;
+        private final String value;
 
         NodeCandidateTypeEnum(String value) {
             this.value = value;
@@ -173,36 +176,32 @@ public class NodeCandidate implements Serializable {
         return nodeCandidateType.equals(NodeCandidateTypeEnum.EDGE);
     }
 
+    /**
+     * Custom toString() method for the class to format the output.
+     * This method creates a formatted string representation of the class object.
+     * It uses a map of field names (represented as JSON constants) and their corresponding values
+     * to build a human-readable string. The method leverages the {@link ModelUtils#buildToString}
+     * utility method to generate the string, ensuring that all fields are included with proper formatting.
+     *
+     * @return A formatted string representation of the Hardware object, with each field on a new line.
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class NodeCandidate {\n");
+        Map<String, Object> fields = new LinkedHashMap<>();
+        fields.put(JSON_ID, id);
+        fields.put(JSON_NODE_CANDIDATE_TYPE, nodeCandidateType);
+        fields.put(JSON_JOB_ID_FOR_BYON, jobIdForBYON);
+        fields.put(JSON_JOB_ID_FOR_EDGE, jobIdForEDGE);
+        fields.put(JSON_PRICE, price);
+        fields.put(JSON_CLOUD, cloud);
+        fields.put(JSON_LOCATION, location);
+        fields.put(JSON_IMAGE, image);
+        fields.put(JSON_HARDWARE, hardware);
+        fields.put(JSON_PRICE_PER_INVOCATION, pricePerInvocation);
+        fields.put(JSON_MEMORY_PRICE, memoryPrice);
+        fields.put(JSON_NODE_ID, nodeId);
+        fields.put(JSON_ENVIRONMENT, environment);
 
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    nodeCandidateType: ").append(toIndentedString(nodeCandidateType)).append("\n");
-        sb.append("    jobIdForBYON: ").append(toIndentedString(jobIdForBYON)).append("\n");
-        sb.append("    jobIdForEDGE: ").append(toIndentedString(jobIdForEDGE)).append("\n");
-        sb.append("    price: ").append(toIndentedString(price)).append("\n");
-        sb.append("    cloud: ").append(toIndentedString(cloud)).append("\n");
-        sb.append("    image: ").append(toIndentedString(image)).append("\n");
-        sb.append("    hardware: ").append(toIndentedString(hardware)).append("\n");
-        sb.append("    location: ").append(toIndentedString(location)).append("\n");
-        sb.append("    pricePerInvocation: ").append(toIndentedString(pricePerInvocation)).append("\n");
-        sb.append("    memoryPrice: ").append(toIndentedString(memoryPrice)).append("\n");
-        sb.append("    nodeId: ").append(toIndentedString(nodeId)).append("\n");
-        sb.append("    environment: ").append(toIndentedString(environment)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return ModelUtils.buildToString(getClass().getSimpleName(), fields);
     }
 }

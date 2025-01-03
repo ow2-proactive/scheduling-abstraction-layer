@@ -22,11 +22,16 @@ import lombok.*;
 @Setter
 @Embeddable
 public class OperatingSystemType implements Serializable {
+    // JSON property names as constants
+    public static final String JSON_OPERATING_SYSTEM_FAMILY = "operatingSystemFamily";
+
+    public static final String JSON_OPERATING_SYSTEM_VERSION = "operatingSystemVersion";
+
     @Column(name = "OPERATING_SYSTEM_FAMILY")
-    @JsonProperty("operatingSystemFamily")
+    @JsonProperty(JSON_OPERATING_SYSTEM_FAMILY)
     private String operatingSystemFamily;
 
     @Column(name = "OPERATING_SYSTEM_VERSION")
-    @JsonProperty("operatingSystemVersion")
+    @JsonProperty(JSON_OPERATING_SYSTEM_VERSION)
     private float operatingSystemVersion;
 }

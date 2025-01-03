@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/persistence")
-@Api(description = "Operations to clean the cloud, clusters and SAL database", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Operations to clean the cloud, clusters and SAL database", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class PersistenceRest {
 
     @Autowired

@@ -32,7 +32,7 @@ import lombok.extern.log4j.Log4j2;
 @Setter
 @Entity
 @Table(name = "TASK")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "taskId", scope = Task.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = Deployment.JSON_TASK_ID, scope = Task.class)
 public class Task implements Serializable {
     @Id
     @Column(name = "TASK_ID")

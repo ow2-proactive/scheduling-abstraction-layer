@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/edge")
-@Api(description = "Operations on Edge", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Operations on Edge", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class EdgeRest {
 
     @Autowired

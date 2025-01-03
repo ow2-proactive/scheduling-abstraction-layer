@@ -15,6 +15,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
 
+/**
+ * Represents installation details for commands, extending the AbstractInstallation class.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
@@ -24,52 +27,77 @@ import lombok.*;
 @JsonTypeName(value = "commands")
 public class CommandsInstallation extends AbstractInstallation {
 
+    // JSON field constants
+    public static final String JSON_PRE_INSTALL = "preInstall";
+
+    public static final String JSON_INSTALL = "install";
+
+    public static final String JSON_POST_INSTALL = "postInstall";
+
+    public static final String JSON_PRE_START = "preStart";
+
+    public static final String JSON_START = "start";
+
+    public static final String JSON_POST_START = "postStart";
+
+    public static final String JSON_PRE_STOP = "preStop";
+
+    public static final String JSON_STOP = "stop";
+
+    public static final String JSON_POST_STOP = "postStop";
+
+    public static final String JSON_UPDATE_CMD = "update";
+
+    public static final String JSON_START_DETECTION = "startDetection";
+
+    public static final String JSON_OPERATING_SYSTEM = "operatingSystem";
+
     @Column(name = "PREINSTALL", columnDefinition = "TEXT")
-    @JsonProperty("preInstall")
+    @JsonProperty(JSON_PRE_INSTALL)
     private String preInstall;
 
     @Column(name = "INSTALL", columnDefinition = "TEXT")
-    @JsonProperty("install")
+    @JsonProperty(JSON_INSTALL)
     private String install;
 
     @Column(name = "POSTINSTALL", columnDefinition = "TEXT")
-    @JsonProperty("postInstall")
+    @JsonProperty(JSON_POST_INSTALL)
     private String postInstall;
 
     @Column(name = "PRESTART", columnDefinition = "TEXT")
-    @JsonProperty("preStart")
+    @JsonProperty(JSON_PRE_START)
     private String preStart;
 
     @Column(name = "START", columnDefinition = "TEXT")
-    @JsonProperty("start")
+    @JsonProperty(JSON_START)
     private String start;
 
     @Column(name = "POSTSTART", columnDefinition = "TEXT")
-    @JsonProperty("postStart")
+    @JsonProperty(JSON_POST_START)
     private String postStart;
 
     @Column(name = "PRESTOP", columnDefinition = "TEXT")
-    @JsonProperty("preStop")
+    @JsonProperty(JSON_PRE_STOP)
     private String preStop;
 
     @Column(name = "STOP", columnDefinition = "TEXT")
-    @JsonProperty("stop")
+    @JsonProperty(JSON_STOP)
     private String stop;
 
     @Column(name = "POSTSTOP", columnDefinition = "TEXT")
-    @JsonProperty("postStop")
+    @JsonProperty(JSON_POST_STOP)
     private String postStop;
 
     @Column(name = "UPDATE_CMD", columnDefinition = "TEXT")
-    @JsonProperty("update")
+    @JsonProperty(JSON_UPDATE_CMD)
     private String updateCmd;
 
     @Column(name = "START_DETECTION", columnDefinition = "TEXT")
-    @JsonProperty("startDetection")
+    @JsonProperty(JSON_START_DETECTION)
     private String startDetection;
 
     @Embedded
-    @JsonProperty("operatingSystem")
+    @JsonProperty(JSON_OPERATING_SYSTEM)
     private OperatingSystemType operatingSystemType;
 
     @Override

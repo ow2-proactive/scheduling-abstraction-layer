@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/cloud")
-@Api(description = "Operations on clouds", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+@Api(tags = "Cloud Operations", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 public class CloudRest {
 
     @Autowired
@@ -115,9 +115,9 @@ public class CloudRest {
     @RequestParam(value = "cloudid")
     final Optional<String> cloudId) throws NotConnectedException {
         if (cloudId.isPresent()) {
-            return ResponseEntity.ok(cloudService.getCloudHardwares(sessionId, cloudId.get()));
+            return ResponseEntity.ok(cloudService.getCloudHardware(sessionId, cloudId.get()));
         } else {
-            return ResponseEntity.ok(cloudService.getAllCloudHardwares(sessionId));
+            return ResponseEntity.ok(cloudService.getAllCloudHardware(sessionId));
         }
     }
 
