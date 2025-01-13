@@ -292,7 +292,7 @@ public class TaskBuilder {
         // portsToOpen
         if (task.getPortsToOpen() != null && !task.getPortsToOpen().isEmpty()) {
             try {
-                nodeConfigJson += ", \"portsToOpen\": " + mapper.writeValueAsString(task.getPortsToOpen()) + "\"";
+                nodeConfigJson += ", \"portsToOpen\": " + mapper.writeValueAsString(task.getPortsToOpen());
             } catch (IOException e) {
                 LOGGER.error(Arrays.toString(e.getStackTrace()));
             }
