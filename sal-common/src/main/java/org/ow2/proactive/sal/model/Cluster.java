@@ -63,7 +63,7 @@ public class Cluster {
     // TODO: Change this into Enum
     @Column(name = "STATUS")
     @JsonProperty(JSON_STATUS)
-    private String status = "defined";
+    private ClusterStatus status = ClusterStatus.DEFINED;
 
     @Column(name = "ENV", columnDefinition = "text", length = 65535)
     @JsonProperty(JSON_ENV_VARS)
