@@ -1,32 +1,13 @@
 /*
- * ProActive Parallel Suite(TM):
- * The Open Source library for parallel and distributed
- * Workflows & Scheduling, Orchestration, Cloud Automation
- * and Big Data Analysis on Enterprise Grids & Clouds.
- *
- * Copyright (c) 2007 - 2017 ActiveEon
- * Contact: contact@activeeon.com
- *
- * This library is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Affero General Public License
- * as published by the Free Software Foundation: version 3 of
- * the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * If needed, contact us to obtain a release under GPL Version 2 or 3
- * or a different license than the AGPL.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 package org.ow2.proactive.sal.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+
 
 /**
  * @author ActiveEon Team
@@ -34,12 +15,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum ClusterStatus {
 
+    //this status is assinged to cluster after calling Define Cluster endpoint
     DEFINED("Defined"),
+    //this status is assigned when all the nodes in cluster successfully finished their deployment (having corresponding JobStatus FINISHED for all nodes)
     DEPLOYED("Deployed"),
+    //this status is assigned to cluster when one or more nodes were not successfuly deployed (having corresponding  JobStatus FAILED, KILLED, IN_ERROR or CANCELED)
     FAILED("Failed"),
+    //this status is assigned to the cluster when it is sent for the deployment by using Deploy Cluster endpoint
     SUBMITTED("Submitted"),
+    //this status is assigned to the cluster when ScaleIn or ScaleOut operations are called.
     SCALING("Scaling"),
-
 
     OTHER("other"); // For any unknown status
 

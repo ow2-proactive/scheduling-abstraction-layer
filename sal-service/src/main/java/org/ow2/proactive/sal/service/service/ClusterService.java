@@ -39,19 +39,6 @@ public class ClusterService {
     @Autowired
     private EdgeService edgeService;
 
-    // Define cluster state constants
-    private static final String STATUS_DEFINED = "Defined";
-
-    private static final String STATUS_DEPLOYED = "Deployed";
-
-    private static final String STATUS_FAILED = "Failed";
-
-    private static final String STATUS_SUBMITTED = "Submitted"; // New status
-
-    private static final String STATUS_SCALING = "Scaling";
-
-    private static final String STATUS_FINISHED = "Finished";
-
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
@@ -64,32 +51,35 @@ public class ClusterService {
         // 1- add a method to check that the node candidate exist in the data base.
         // 2- change the return type to include a message if errors occurred.
 
-        Cluster newCluster = new Cluster();
-        newCluster.setName(clusterDefinition.getName());
-        newCluster.setMasterNode(clusterDefinition.getMasterNode());
-        newCluster.setStatus(STATUS_DEFINED);
-        newCluster.setEnvVars(ClusterUtils.createEnvVarsScript(clusterDefinition.getEnvVars()));
+        Cluster cluster = new Cluster();
+
+        cluster.setName(clusterDefinition.getName());
+        cluster.setMasterNode(clusterDefinition.getMasterNode());
+        cluster.setStatus(ClusterStatus.DEFINED);
+        cluster.setEnvVars(ClusterUtils.createEnvVarsScript(clusterDefinition.getEnvVars()));
         clusterDefinition.getNodes()
                          .forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
-        newCluster.setNodes(clusterDefinition.getNodes());
-        repositoryService.saveCluster(newCluster);
-        ClusterNodeDefinition masterNode = ClusterUtils.getNodeByName(newCluster, newCluster.getMasterNode());
+        cluster.setNodes(clusterDefinition.getNodes());
+        repositoryService.saveCluster(cluster);
+
+        ClusterNodeDefinition masterNode = ClusterUtils.getNodeByName(cluster, cluster.getMasterNode());
         if (masterNode != null) {
             PACloud cloud = repositoryService.getPACloud(masterNode.getCloudId());
-            Job masterNodeJob = ClusterUtils.createMasterNodeJob(newCluster.getName(),
+            Job masterNodeJob = ClusterUtils.createMasterNodeJob(cluster.getName(),
                                                                  masterNode,
                                                                  cloud,
-                                                                 newCluster.getEnvVars());
+                                                                 cluster.getEnvVars());
             masterNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(masterNodeJob);
         } else {
             LOGGER.error("The cluster Definition of {} contains the master node name {}," +
                          "but this node is not found in the list of defined nodes",
-                         newCluster.getName(),
-                         newCluster.getMasterNode());
+                         cluster.getName(),
+                         cluster.getMasterNode());
             throw new IllegalArgumentException("The master node [%s] was not passed in the list of the defined nodes");
         }
-        List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(newCluster);
+
+        List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(cluster);
         if (workerNodes.isEmpty()) {
             LOGGER.warn("The cluster does not has any worker nodes, only the master will be deployed");
         } else {
@@ -97,17 +87,14 @@ public class ClusterService {
                 NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
                 if (nc.getCloud().getCloudType().equals(CloudType.EDGE)) {
                     EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
-                    String clusterName = newCluster.getName();
+                    String clusterName = cluster.getName();
                     String jobId = node.getNodeJobName(clusterName);
 
                     edgeNode.setJobId(jobId);
                     repositoryService.saveEdgeNode(edgeNode);
                     nc.setJobIdForEDGE(jobId);
                     repositoryService.saveNodeCandidate(nc);
-                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(clusterName,
-                                                                         node,
-                                                                         null,
-                                                                         newCluster.getEnvVars());
+                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(clusterName, node, null, cluster.getEnvVars());
                     workerNodeJob.getTasks().forEach(repositoryService::saveTask);
                     repositoryService.saveJob(workerNodeJob);
                     //                    Map<String, String> edgeNodeMap = new HashMap<>();
@@ -115,10 +102,10 @@ public class ClusterService {
                     //                    edgeService.addEdgeNodes(sessionId, edgeNodeMap, jobId);
                 } else {
                     PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(newCluster.getName(),
+                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(cluster.getName(),
                                                                          node,
                                                                          cloud,
-                                                                         newCluster.getEnvVars());
+                                                                         cluster.getEnvVars());
                     workerNodeJob.getTasks().forEach(repositoryService::saveTask);
                     repositoryService.saveJob(workerNodeJob);
                 }
@@ -134,24 +121,26 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        Validate.notNull(clusterName, "The received clusterName is empty. Nothing to be defined.");
+        Validate.notNull(clusterName, "The received clusterName is empty. Nothing to be deployed.");
+        //todo: validate that we exist the code here
         LOGGER.info("deployCluster endpoint is called to deploy the cluster: " + clusterName);
-        Cluster toDeployCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
 
         // add nodes
-        if (toDeployCluster == null) {
-            LOGGER.error("No Cluster was found! Nothing is deployed!");
+        if (cluster == null) {
+            LOGGER.error("No Cluster definition was found! Nothing is deployed!");
             return false;
         } else {
-            List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(toDeployCluster);
-            LOGGER.info("Deploying the master node of the cluster [{}]", toDeployCluster.getName());
-            submitClusterNode(sessionId, toDeployCluster, toDeployCluster.getMasterNode(), false);
-            LOGGER.info("Deploying the worker nodes of the cluster [{}]", toDeployCluster.getName());
+            LOGGER.info("Deploying the master node of the cluster [{}]", cluster.getName());
+            submitClusterNode(sessionId, cluster, cluster.getMasterNode(), false);
+
+            List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(cluster);
+            LOGGER.info("Deploying the worker nodes of the cluster [{}]", cluster.getName());
             for (ClusterNodeDefinition node : workerNodes) {
-                submitClusterNode(sessionId, toDeployCluster, node.getName(), true);
+                submitClusterNode(sessionId, cluster, node.getName(), true);
             }
-            toDeployCluster.setStatus(STATUS_SUBMITTED);
-            repositoryService.saveCluster(toDeployCluster);
+            cluster.setStatus(ClusterStatus.SUBMITTED);
+            repositoryService.saveCluster(cluster);
             repositoryService.flush();
         }
         return true;
@@ -164,7 +153,7 @@ public class ClusterService {
         if (node != null) {
             NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
             String jobId = node.getNodeJobName(cluster.getName());
-            Deployment currentDeployment = new Deployment();
+            Deployment currentDeployment;
             if (nc.getCloud().getCloudType().equals(CloudType.EDGE)) {
                 EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
                 Map<String, String> edgeNodeMap = new HashMap<>();
@@ -193,39 +182,40 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        LOGGER.info("getCluster endpoint is called to deploy the cluster: " + clusterName);
-        Cluster getCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
-        if (getCluster == null) {
+
+        LOGGER.info("cluster endpoint is called to deploy the cluster: " + clusterName);
+        Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        if (cluster == null) {
             LOGGER.error("No Cluster was found! Nothing is deployed!");
             return null;
         } else {
-            List<ClusterNodeDefinition> nodes = getCluster.getNodes();
+            List<ClusterNodeDefinition> nodes = cluster.getNodes();
             int i = 0;
-            List<String> states = new ArrayList<>();
+            List<JobStatus> states = new ArrayList<>();
             for (ClusterNodeDefinition node : nodes) {
                 JobState state = jobService.getJobState(sessionId, node.getNodeJobName(clusterName));
                 if (state != null && state.getJobStatus() != null) {
                     node.setState(state.getJobStatus().toString());
-                    states.add(state.getJobStatus().toString());
+                    states.add(state.getJobStatus());
                 } else {
-                    node.setState(STATUS_DEFINED);
+                    node.setState(ClusterStatus.OTHER.toString()); //todo: check node states
                 }
                 nodes.set(i, node);
                 i += 1;
                 node.setNodeUrl(getNodeUrl(sessionId, clusterName, node));
             }
-            if (states.contains(JobStatus.IN_ERROR.toString()) || states.contains(JobStatus.FAILED.toString()) ||
-                states.contains(JobStatus.CANCELED.toString())) {
-                getCluster.setStatus(STATUS_FAILED);
+            if (states.contains(JobStatus.IN_ERROR) || states.contains(JobStatus.FAILED) ||
+                states.contains(JobStatus.KILLED) || states.contains(JobStatus.CANCELED)) {
+                cluster.setStatus(ClusterStatus.FAILED);
             } else {
-                if (checkAllStates(states)) {
-                    getCluster.setStatus(STATUS_DEPLOYED);
+                if (checkAllStatesFinished(states)) {
+                    cluster.setStatus(ClusterStatus.DEPLOYED);
                 }
             }
-            getCluster.setNodes(nodes);
-            repositoryService.saveCluster(getCluster);
+            cluster.setNodes(nodes);
+            repositoryService.saveCluster(cluster);
             repositoryService.flush();
-            return getCluster;
+            return cluster;
         }
     }
 
@@ -235,30 +225,29 @@ public class ClusterService {
             throw new NotConnectedException();
         }
         LOGGER.info("scaleOutCluster endpoint is called for the cluster: " + clusterName);
-        Cluster toScaleCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
-        repositoryService.deleteCluster(toScaleCluster);
+        Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        repositoryService.deleteCluster(cluster);
         repositoryService.flush();
-        List<ClusterNodeDefinition> newList = new ArrayList<ClusterNodeDefinition>(toScaleCluster.getNodes());
+
+        List<ClusterNodeDefinition> newList = new ArrayList<ClusterNodeDefinition>(cluster.getNodes());
         newList.addAll(newNodes);
         newList.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
-        toScaleCluster.setNodes(newList);
-        toScaleCluster.setStatus(STATUS_SCALING);
-        repositoryService.saveCluster(toScaleCluster);
+        cluster.setNodes(newList);
+        cluster.setStatus(ClusterStatus.SCALING);
+        repositoryService.saveCluster(cluster);
+
         LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
         for (ClusterNodeDefinition node : newNodes) {
             PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(toScaleCluster.getName(),
-                                                                 node,
-                                                                 cloud,
-                                                                 toScaleCluster.getEnvVars());
+            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(cluster.getName(), node, cloud, cluster.getEnvVars());
             workerNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(workerNodeJob);
         }
         repositoryService.flush();
         for (ClusterNodeDefinition node : newNodes) {
-            submitClusterNode(sessionId, toScaleCluster, node.getName(), true);
+            submitClusterNode(sessionId, cluster, node.getName(), true);
         }
-        return toScaleCluster;
+        return cluster;
     }
 
     public Cluster scaleInCluster(String sessionId, String clusterName, List<String> nodesToDelete)
@@ -266,18 +255,20 @@ public class ClusterService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        LOGGER.info("scaleDownCluster endpoint is called for the cluster: " + clusterName);
-        Cluster toScaleCluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
-        repositoryService.deleteCluster(toScaleCluster);
+        LOGGER.info("scaleInCluster endpoint is called for the cluster: " + clusterName);
+        Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+        repositoryService.deleteCluster(cluster);
         repositoryService.flush();
+
         String masterNodeToken = "";
-        if (toScaleCluster != null) {
-            masterNodeToken = toScaleCluster.getMasterNode() + "_" + clusterName;
+        if (cluster != null) {
+            masterNodeToken = cluster.getMasterNode() + "_" + clusterName;
         }
-        List<ClusterNodeDefinition> clusterNodes = toScaleCluster.getNodes();
+        List<ClusterNodeDefinition> clusterNodes = cluster.getNodes();
+
         for (String nodeName : nodesToDelete) {
-            ClusterNodeDefinition node = getNodeFromCluster(toScaleCluster, nodeName);
-            if (node != null && !node.getName().equals(toScaleCluster.getMasterNode())) {
+            ClusterNodeDefinition node = getNodeFromCluster(cluster, nodeName);
+            if (node != null && !node.getName().equals(cluster.getMasterNode())) {
                 try {
                     if (deleteNode(sessionId, clusterName, node, masterNodeToken, true) != -1L) {
                         clusterNodes = deleteNodeFromCluster(clusterNodes, nodeName);
@@ -289,17 +280,17 @@ public class ClusterService {
                 LOGGER.warn("unable to delete node {}, the node was not found in the cluster {}",
                             nodeName,
                             clusterName);
-                if (node != null && node.getName().equals(toScaleCluster.getMasterNode())) {
+                if (node != null && node.getName().equals(cluster.getMasterNode())) {
                     LOGGER.warn("removing the master node {} of the cluster {} is not allowed!", nodeName, clusterName);
                 }
             }
         }
-        toScaleCluster.setNodes(clusterNodes);
-        toScaleCluster.setStatus(STATUS_SCALING);
+        cluster.setNodes(clusterNodes);
+        cluster.setStatus(ClusterStatus.SCALING);
         clusterNodes.forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
-        repositoryService.saveCluster(toScaleCluster);
+        repositoryService.saveCluster(cluster);
         repositoryService.flush();
-        return toScaleCluster;
+        return cluster;
     }
 
     public Long labelNodes(String sessionId, String clusterName, List<Map<String, String>> nodeLabels)
@@ -369,24 +360,24 @@ public class ClusterService {
             throw new NotConnectedException();
         }
         LOGGER.info("deleteCluster endpoint is called to remove the cluster: " + clusterName);
-        Cluster toScaleCluster = getCluster(sessionId, clusterName);
-        for (ClusterNodeDefinition node : toScaleCluster.getNodes()) {
+        Cluster cluster = getCluster(sessionId, clusterName);
+        for (ClusterNodeDefinition node : cluster.getNodes()) {
             if (node != null) {
                 deleteNode(sessionId, clusterName, node, "", false);
             } else
                 LOGGER.warn("Cannot delete a null node.");
         }
-        repositoryService.deleteCluster(toScaleCluster);
+        repositoryService.deleteCluster(cluster);
         repositoryService.flush();
         return true;
     }
 
-    private boolean checkAllStates(List<String> states) {
+    private boolean checkAllStatesFinished(List<JobStatus> states) {
         if (states.isEmpty()) {
             return false;
         }
-        for (String state : states) {
-            if (!state.equals(STATUS_FINISHED)) {
+        for (JobStatus state : states) {
+            if (!state.equals(JobStatus.FINISHED)) {
                 return false;
             }
         }

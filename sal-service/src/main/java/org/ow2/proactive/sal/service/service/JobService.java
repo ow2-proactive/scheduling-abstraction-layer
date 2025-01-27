@@ -386,7 +386,7 @@ public class JobService {
     /**
      * Get a ProActive job state
      * @param sessionId A valid session id
-     * @param jobId A job ID
+     * @param jobId A jobName
      * @return The job state
      */
     public JobState getJobState(String sessionId, String jobId) throws NotConnectedException {
@@ -399,6 +399,7 @@ public class JobService {
             LOGGER.error(String.format("Job [%s] not found", jobId));
             return new JobState(SubmittedJobType.UNKNOWN, null);
         }
+
         Job submittedJob = optJob.get();
         LOGGER.info("Job " + jobId + " mapped to the submitted ProActive job: " + submittedJob.getSubmittedJobId() +
                     " of type: " + submittedJob.getSubmittedJobType());

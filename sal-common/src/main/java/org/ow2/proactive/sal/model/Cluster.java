@@ -60,7 +60,6 @@ public class Cluster {
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.REFRESH)
     private List<ClusterNodeDefinition> nodes;
 
-    // TODO: Change this into Enum
     @Column(name = "STATUS")
     @JsonProperty(JSON_STATUS)
     private ClusterStatus status = ClusterStatus.DEFINED;
