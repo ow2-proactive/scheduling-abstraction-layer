@@ -61,6 +61,7 @@ public class Cluster {
     private List<ClusterNodeDefinition> nodes;
 
     @Column(name = "STATUS")
+    @Enumerated(EnumType.STRING)
     @JsonProperty(JSON_STATUS)
     private ClusterStatus status = ClusterStatus.DEFINED;
 
