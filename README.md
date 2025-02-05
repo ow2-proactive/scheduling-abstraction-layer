@@ -98,7 +98,7 @@ docker pull activeeon/sal:dev
 
 * Open [docker-compose.yaml](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/docker/docker-compose.yaml)
 
-* Setup connection to the ProActive scheduler 
+* Setup connection to the ProActive scheduler
 
 ```bash
 sal:
