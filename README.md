@@ -98,7 +98,7 @@ docker pull activeeon/sal:dev
 
 * Open [docker-compose.yaml](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/docker/docker-compose.yaml)
 
-* Setup connection to the ProActive scheduler (line 43-45)
+* Setup connection to the ProActive scheduler
 
 ```bash
 sal:
@@ -108,7 +108,7 @@ sal:
       PWS_PASSWORD: <CHANGE_ME>
 ```
 
-* Setup which SAL image will be used (line 19):
+* Setup which SAL image will be used:
 
 ```bash
 sal:
@@ -117,7 +117,7 @@ image: activeeon/sal:test
 ```
 NOTE: It is possible to generate automatically an image from the `.war` file generated in section 2.1.1. In this case the image tag (e.g. test) should not exist in DockerHub repository.
 
-* Setup database PASSWORD (line 9, 13 & 47):
+* Setup database PASSWORD :
 ```bash
 environment:
       MYSQL_ROOT_PASSWORD: PASSWORD
@@ -131,16 +131,25 @@ environment:
       test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=PASSWORD" ]
 ```
 
-* Setup SAL ports (line 29-33):
+* Setup SAL ports :
 ```bash
 sal:
     ports:
       - "8088:8080" # sal service ports
       - "9001:9001" # sal-pda service ports for debugging
 ```
-* In a case you are running SAL on Windows change the Dockerfile to be used  (line 25):
+
+* In a case you do not want to use the deployment with persistent volume comment following:
 ```bash
-dockerfile: ./docker/Dockerfile.win
+    # Comment this if you do not want to attach a volume for persistent data storage:
+    volumes:
+      - mariadb_data:/var/lib/mysql
+```
+
+```bash
+#Comment this part if you do not want to include volume for peristant data storage
+volumes:
+  mariadb_data: {}
 ```
 
 NOTE: In a case of committing improvements to the SAL project, you will need to keep your local changes to the `docker-compose.yaml` untracked. Use the following command:
