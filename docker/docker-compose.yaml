@@ -9,6 +9,9 @@ services:
       MYSQL_ROOT_PASSWORD: PASSWORD
       MYSQL_DATABASE: proactive
     container_name: myComposeMariaDB
+    # Comment this if you do not want to attach a volume for persistent data storage:
+    volumes:
+      - mariadb_data:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=PASSWORD" ]
       interval: 10s
@@ -51,8 +54,10 @@ services:
       DB_PLATFORM: org.hibernate.dialect.MariaDB53Dialect
       JPDA_ADDRESS: 9001
       JPDA_TRANSPORT: dt_socket
-
     entrypoint: [ "/bin/sh", "-c", "if [ -f /usr/local/tomcat/bin/wait_for_db.sh ]; then /usr/local/tomcat/bin/wait_for_db.sh; fi && catalina.sh run" ]
     container_name: myComposeSAL
 networks:
   db-tier: {}
+#Comment this part if you do not want to include volume for peristant data storage
+volumes:
+  mariadb_data: {}
