@@ -1,6 +1,6 @@
 services:
   database:
-    image: mariadb #optionaly set specific version e.g. mariadb:10.7
+    image: mariadb:latest #optionaly set specific version e.g. mariadb:10.7
     ports:
       - "3307:3306"
     networks:
@@ -11,17 +11,15 @@ services:
     container_name: myComposeMariaDB
     healthcheck:
       test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=PASSWORD" ]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 60s
   sal:
     #Set up image to be used for SAL from https://hub.docker.com/r/activeeon/sal/tags
     image: activeeon/sal:test
     build:
       context: ..
-      #Set up Dockerfile to be used:
-      #Dockerfile is used for Jenkins image creation
-      #Dockerfile.win to be used for local build on Windows
       dockerfile: ./docker/Dockerfile
     depends_on:
       database:
@@ -37,6 +35,7 @@ services:
       - db-tier
     volumes:
       - ./scripts:/usr/local/tomcat/scripts
+      - ./wait_for_db.sh:/usr/local/tomcat/bin/wait_for_db.sh
     environment:
       PROPERTIES_FILENAME: sal
       #Set up connection to ProActive server (PWS)
@@ -52,7 +51,8 @@ services:
       DB_PLATFORM: org.hibernate.dialect.MariaDB53Dialect
       JPDA_ADDRESS: 9001
       JPDA_TRANSPORT: dt_socket
+
+    entrypoint: [ "/bin/sh", "-c", "if [ -f /usr/local/tomcat/bin/wait_for_db.sh ]; then /usr/local/tomcat/bin/wait_for_db.sh; fi && catalina.sh run" ]
     container_name: myComposeSAL
 networks:
-  # The presence of these objects is sufficient to define them
   db-tier: {}
