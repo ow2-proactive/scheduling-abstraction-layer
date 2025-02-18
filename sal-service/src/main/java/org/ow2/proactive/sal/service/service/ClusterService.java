@@ -183,7 +183,7 @@ public class ClusterService {
             throw new NotConnectedException();
         }
 
-        LOGGER.info("cluster endpoint is called to deploy the cluster: " + clusterName);
+        LOGGER.info("cluster endpoint is called to get the cluster status: " + clusterName);
         Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
         if (cluster == null) {
             LOGGER.error("No Cluster was found! Nothing is deployed!");
