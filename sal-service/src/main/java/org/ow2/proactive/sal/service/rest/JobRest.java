@@ -96,14 +96,26 @@ public class JobRest {
     }
 
     @RequestMapping(value = "/{jobId}/status", method = RequestMethod.GET)
-    @ApiOperation(value = "Get a ProActive job state", response = Pair.class)
+    @ApiOperation(value = "Get a ProActive job state using submitted job Name", response = Pair.class)
     public ResponseEntity<JobState>
             getJobState(@ApiParam(value = "Proactive authentication session id", required = true)
     @RequestHeader(value = "sessionid")
-    final String sessionId, @ApiParam(value = "A job ID", required = true)
+    final String sessionId, @ApiParam(value = "A job ID corresponding the PA job name", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
         return ResponseEntity.ok(jobService.getJobState(sessionId, jobId));
+    }
+
+    // New method for handling Long jobId
+    @RequestMapping(value = "/{submittedJobId}/PAstatus", method = RequestMethod.GET)
+    @ApiOperation(value = "Get a ProActive job state using submitted job ID", response = Pair.class)
+    public ResponseEntity<JobState>
+            getJobStateLong(@ApiParam(value = "Proactive authentication session id", required = true)
+    @RequestHeader(value = "sessionid")
+    final String sessionId, @ApiParam(value = "A ProActive job ID", required = true)
+    @PathVariable
+    final Long submittedJobId) throws NotConnectedException {
+        return ResponseEntity.ok(jobService.getJobState(sessionId, submittedJobId));
     }
 
     @RequestMapping(value = "/{jobId}/wait", method = RequestMethod.GET)
