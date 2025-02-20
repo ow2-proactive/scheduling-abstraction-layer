@@ -171,7 +171,10 @@ This endpoint is used to deploy and manage applications within a specific Kubern
 ```
 
 
-**Reply:**  Long indicating the ProActive Job Id (Generated workflow in Proactive)
+**Reply:**  Long indicating the submitted Job Id of ProActive (Generated workflow in Proactive)
+
+Once you've initiated a deployment using the ManageApplication endpoint, you can check the status of the application deployment by using the submitted Job ID returned in the response. To check the current state of the deployment workflow, use the [GetJobState endpoint.](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/5-job-endpoints.md#56--getjobstate-endpoint)
+
 
 - `appFile`: This field contains the deployment definition in YAML format. It includes application metadata, component specifications, environment variables, and policies for deployment.
 
@@ -306,7 +309,10 @@ Using LabelNodes, you can dynamically adjust labels on worker nodes as you manag
 ]
 ```
 
-**Reply:** Long indicating the ProActive Job Id (Generated workflow in Proactive)
+**Reply:** Long indicating the submitted Job Id (Generated workflow in Proactive)
+
+Once you've initiated a labeling using the LabelNode endpoint, you can check the status of the application deployment by using the submitted Job ID returned in the response. To check the current state of the deployment workflow, use the [GetJobState endpoint.](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/endpoints/5-job-endpoints.md#56--getjobstate-endpoint)
+
 
 - _Node Name (Key)_: The name of the node to which the label is being added or updated. Each node name should correspond to a node deployed in the cluster.
 Example node names might include `worker2_name` when labeling for workload readiness or `worker_name` when preparing for scaling down.
