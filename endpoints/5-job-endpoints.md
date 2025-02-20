@@ -166,7 +166,7 @@ Also a job can define a Docker container:
     ]
 }
 ```
-
+---
 #### 5.2- GetJobs endpoint:
 
 **Description**: Get all job skeletons
@@ -180,6 +180,8 @@ Also a job can define a Docker container:
 **Headers:** sessionid
 
 **Returns**: A JSON list of the jobs.
+
+---
 
 #### 5.3- GetJob endpoint:
 
@@ -197,6 +199,7 @@ Also a job can define a Docker container:
 
 **Returns**: A JSON of the job.
 
+---
 #### 5.4- StopJobs endpoint:
 
 **Description**: Stop all the jobs that are submitted to ProActive.
@@ -211,6 +214,7 @@ Also a job can define a Docker container:
 
 **Headers:** sessionid
 
+---
 #### 5.5- SubmitJob endpoint:
 
 **Description**: Submit a job constructed in lazy-mode to the ProActive Scheduler.
@@ -226,6 +230,8 @@ Also a job can define a Docker container:
 **Headers:** sessionid
 
 **Returns**: Submitted job id if successful, otherwise -1.
+
+---
 
 #### 5.6- GetJobState endpoint:
 
@@ -243,6 +249,56 @@ Also a job can define a Docker container:
 
 **Returns**: the status of the job.
 
+---
+#### 5.6 - GetJobState endpoint:
+
+**Description**: Retrieve the current state of a **ProActive job** using either:
+- A **ProActive job name** stored in SAL as JobId (`jobId`, String)
+- A **ProActive job ID** (`submittedJobId`, Long)
+
+
+##### **Option 1: Get Job State by ProActive Job Name**
+
+📌 Use this endpoint when you have the **ProActive job name** (as registered in SAL).
+
+**Path:**
+
+```url
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<JOB_ID>/status
+```
+
+**Path Variable:**
+- `<JOB_ID>`: The **ProActive job name** (String)
+
+**Headers:**
+- `sessionid`: A valid ProActive session ID
+
+**Returns:** The status of the job corresponding to the **ProActive job name**.
+
+**Job Status Reference:** [JobStatus.java](https://github.com/ow2-proactive/scheduling/blob/master/scheduler/scheduler-api/src/main/java/org/ow2/proactive/scheduler/common/job/JobStatus.java)
+
+
+##### **Option 2: Get Job State by ProActive Job ID**
+
+📌 Use this endpoint when you have the **ProActive job ID** (a numeric identifier).
+
+**Path:**
+
+```url
+🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/job/<SUBMITTED_JOB_ID>/PAstatus
+```
+
+**Path Variable:**
+- `<SUBMITTED_JOB_ID>`: The **ProActive job ID** (Long)
+
+**Headers:**
+- `sessionid`: A valid ProActive session ID
+
+**Returns:** The status of the job corresponding to the **ProActive job ID**.
+
+**Job Status Reference:** [JobStatus.java](https://github.com/ow2-proactive/scheduling/blob/master/scheduler/scheduler-api/src/main/java/org/ow2/proactive/scheduler/common/job/JobStatus.java)
+
+---
 #### 5.7- WaitForJob endpoint:
 
 **Description**: Wait for execution and get results of a job.
@@ -261,6 +317,7 @@ Also a job can define a Docker container:
 
 **Returns**: Job result.
 
+---
 #### 5.8- killJob endpoint:
 
 **Description**: To kill a job running on the ProActive scheduler.
@@ -277,6 +334,7 @@ Also a job can define a Docker container:
 
 **Returns**: True if the job was successfully killed, false otherwise.
 
+---
 #### 5.9- WaitForTask endpoint:
 
 **Description**: Wait for execution and get results of a task
@@ -295,6 +353,7 @@ Also a job can define a Docker container:
 
 **Returns**: Task result.
 
+---
 #### 5.10- GetTaskResult endpoint:
 
 **Description**: Get a task result.
@@ -311,6 +370,7 @@ Also a job can define a Docker container:
 
 **Returns**: Task result.
 
+---
 #### 5.11- KillAllActivePAJobs endpoint:
 
 **Description**: Kill all active jobs in ProActive Scheduler
@@ -325,6 +385,7 @@ Also a job can define a Docker container:
 
 **Returns**: True if the killing of all the jobs was successful, false otherwise.
 
+---
 #### 5.12- RemoveAllPAJobs endpoint:
 
 **Description**: Remove all jobs from the ProActive Scheduler
