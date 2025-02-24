@@ -36,7 +36,7 @@ public class PAFactory {
      * @return A ProActive SimpleScript instance
      */
     public static SimpleScript createSimpleScript(String implementation, String scriptLanguage) {
-        LOGGER.debug("Creating a simple script from its implementation ");
+        LOGGER.debug("Creating a simple script from implementation " + implementation);
         SimpleScript mySQLSimpleScript = new SimpleScript(implementation, scriptLanguage);
         LOGGER.debug("Simple script created.");
         return mySQLSimpleScript;
@@ -65,7 +65,7 @@ public class PAFactory {
     public static ScriptTask createScriptTask(String taskName, String implementationScript, String scriptLanguage) {
         ScriptTask scriptTask = new ScriptTask();
         scriptTask.setName(taskName);
-        LOGGER.debug("Creating a bash script task");
+        LOGGER.debug("Creating a bash script task" + taskName);
         SimpleScript simpleScript = createSimpleScript(implementationScript, scriptLanguage);
         TaskScript taskScript = new TaskScript(simpleScript);
         LOGGER.debug("Bash script task created.");
