@@ -183,7 +183,7 @@ public class ClusterService {
             throw new NotConnectedException();
         }
 
-        LOGGER.info("cluster endpoint is called to deploy the cluster: " + clusterName);
+        LOGGER.info("cluster endpoint is called to get the cluster status: " + clusterName);
         Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
         if (cluster == null) {
             LOGGER.error("No Cluster was found! Nothing is deployed!");
@@ -205,7 +205,8 @@ public class ClusterService {
                 node.setNodeUrl(getNodeUrl(sessionId, clusterName, node));
             }
             if (states.contains(JobStatus.IN_ERROR) || states.contains(JobStatus.FAILED) ||
-                states.contains(JobStatus.KILLED) || states.contains(JobStatus.CANCELED)) {
+                states.contains(JobStatus.KILLED) || states.contains(JobStatus.CANCELED) ||
+                states.contains(ClusterStatus.OTHER.toString())) {
                 cluster.setStatus(ClusterStatus.FAILED);
             } else {
                 if (checkAllStatesFinished(states)) {
@@ -310,12 +311,9 @@ public class ClusterService {
         String script = ClusterUtils.createLabelNodesScript(nodeLabels, clusterName);
 
         try {
-            return jobService.submitOneTaskJob(sessionId,
-                                               script,
-                                               masterNodeToken,
-                                               "label_nodes_" + clusterName,
-                                               "basic",
-                                               "");
+            String paJobName = "label_nodes_" + clusterName;
+            return jobService.submitOneTaskJob(sessionId, script, masterNodeToken, paJobName, "basic", "");
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

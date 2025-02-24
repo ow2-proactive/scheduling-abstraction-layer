@@ -384,10 +384,26 @@ public class JobService {
     }
 
     /**
+     * Get the job status for a given submitted job ID.
+     *
+     * @param submittedJobId The ID of the submitted ProActive job.
+     * @return The job status.
+     */
+    private JobStatus getJobStatusBySubmittedId(long submittedJobId) {
+        if (submittedJobId == 0L) {
+            return null;
+        }
+        JobStatus jobStatus = schedulerGateway.getJobState(String.valueOf(submittedJobId)).getStatus();
+        LOGGER.info("Returned state: " + jobStatus + " for submitted job ID: " + submittedJobId);
+        return jobStatus;
+    }
+
+    /**
      * Get a ProActive job state
      * @param sessionId A valid session id
      * @param jobId A jobName
      * @return The job state
+     * @throws NotConnectedException if the session is not active
      */
     public JobState getJobState(String sessionId, String jobId) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
@@ -395,6 +411,7 @@ public class JobService {
         }
         LOGGER.info("Getting job " + jobId + " state ");
         Optional<Job> optJob = Optional.ofNullable(repositoryService.getJob(jobId));
+
         if (!optJob.isPresent()) {
             LOGGER.error(String.format("Job [%s] not found", jobId));
             return new JobState(SubmittedJobType.UNKNOWN, null);
@@ -403,12 +420,29 @@ public class JobService {
         Job submittedJob = optJob.get();
         LOGGER.info("Job " + jobId + " mapped to the submitted ProActive job: " + submittedJob.getSubmittedJobId() +
                     " of type: " + submittedJob.getSubmittedJobType());
-        JobStatus jobStatus = null;
-        if (submittedJob.getSubmittedJobId() != 0L) {
-            jobStatus = schedulerGateway.getJobState(String.valueOf(submittedJob.getSubmittedJobId())).getStatus();
-            LOGGER.info("Returned state: " + jobStatus.toString() + " for job: " + jobId);
-        }
+
+        JobStatus jobStatus = getJobStatusBySubmittedId(submittedJob.getSubmittedJobId());
+
         return new JobState(submittedJob.getSubmittedJobType(), jobStatus);
+    }
+
+    /**
+     * Get a ProActive job state based on submitted job ID.
+     *
+     * @param sessionId A valid session id
+     * @param submittedJobId Id of submitted Proactive job
+     * @return The job state
+     * @throws NotConnectedException if the session is not active
+     */
+    public JobState getJobState(String sessionId, long submittedJobId) throws NotConnectedException {
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+
+        LOGGER.info("Getting job state for submitted job ID: " + submittedJobId);
+        JobStatus jobStatus = getJobStatusBySubmittedId(submittedJobId);
+
+        return new JobState(SubmittedJobType.UNKNOWN, jobStatus);
     }
 
     /**
