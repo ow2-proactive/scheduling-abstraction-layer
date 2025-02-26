@@ -39,6 +39,10 @@ public class ClusterService {
     @Autowired
     private EdgeService edgeService;
 
+    private boolean isValidClusterName(String name) {
+        return name != null && !name.isEmpty() && name.matches("^[a-z0-9-]+$");
+    }
+
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
@@ -53,7 +57,12 @@ public class ClusterService {
 
         Cluster cluster = new Cluster();
 
-        cluster.setName(clusterDefinition.getName());
+        if (!isValidClusterName(clusterDefinition.getName())) {
+            throw new IllegalArgumentException("Invalid cloud ID: " + clusterDefinition.getName() +
+                                               ". Must contain only lowercase letters, numbers, and hyphens.");
+        } else
+            cluster.setName(clusterDefinition.getName());
+
         cluster.setMasterNode(clusterDefinition.getMasterNode());
         cluster.setStatus(ClusterStatus.DEFINED);
         cluster.setEnvVars(ClusterUtils.createEnvVarsScript(clusterDefinition.getEnvVars()));
