@@ -41,7 +41,7 @@ public class SchedulerConnectionHelper {
      * @return The initialized Scheduler gateway
      */
     public static synchronized RestSmartProxyImpl connect(String username, String password) {
-        LOGGER.debug("Connecting to Scheduler ...");
+        //LOGGER.debug("Connecting to Scheduler ...");
         //TODO: TO improve the concatenation of URLs
         ConnectionInfo connectionInfo = new ConnectionInfo(paURL + SCHEDULER_REST_PATH, username, password, null, true);
         // Check if the proxy is connected
@@ -50,7 +50,7 @@ public class SchedulerConnectionHelper {
             restSmartProxy.init(connectionInfo);
             LOGGER.info("Connected to Scheduler");
         } else {
-            LOGGER.info("Already connected to Scheduler");
+            //LOGGER.info("Already connected to Scheduler");
         }
         isActive = true;
         return restSmartProxy;

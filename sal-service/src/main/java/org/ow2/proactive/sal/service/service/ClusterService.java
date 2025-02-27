@@ -46,16 +46,15 @@ public class ClusterService {
     private void validateNode(ClusterNodeDefinition node) {
         if (!isValidClusterName(node.getName())) {
             throw new IllegalArgumentException("Invalid node name [" + node.getName() +
-                    "]. Must contain only lowercase letters, numbers, and hyphens.");
+                                               "]. Must contain only lowercase letters, numbers, and hyphens.");
         }
 
         NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
         if (nc == null) {
             throw new IllegalArgumentException("No NodeCandidate found for node [" + node.getName() +
-                    "] with candidate ID [" + node.getNodeCandidateId() + "].");
+                                               "] with candidate ID [" + node.getNodeCandidateId() + "].");
         }
     }
-
 
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {

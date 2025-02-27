@@ -64,13 +64,13 @@ public class RMConnectionHelper {
      */
     public static synchronized void connect(String username, String password)
             throws LoginException, KeyException, RMException {
-        LOGGER.debug("Connecting to RM ...");
+        //LOGGER.debug("Connecting to RM ...");
         try {
             // If the sessionId is equals to "" (empty), an exception will occurs.
             // If the sessionId is valid ==> Already connected
             // If the sessionId is invalid we create a new session by establishing a new connection to the RM
             if (isActive()) {
-                LOGGER.info("Already Connected to RM");
+                //LOGGER.info("Already Connected to RM");
             } else {
                 // Connect and create a new session
                 sessionId = rmRestInterface.rmConnect(username, password);
