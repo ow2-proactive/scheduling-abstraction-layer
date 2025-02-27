@@ -51,26 +51,52 @@ public class ClusterService {
         Validate.notNull(clusterDefinition, "The received Cluster definition is empty. Nothing to be defined.");
         LOGGER.info("defineCluster endpoint is called to define the cluster: " + clusterDefinition.getName());
 
-        // TODO:
-        // 1- add a method to check that the node candidate exist in the data base.
-        // 2- change the return type to include a message if errors occurred.
-
         Cluster cluster = new Cluster();
 
+        //Validate cluster name
         if (!isValidClusterName(clusterDefinition.getName())) {
-            throw new IllegalArgumentException("Invalid cloud ID: " + clusterDefinition.getName() +
+            throw new IllegalArgumentException("Invalid cluster name: " + clusterDefinition.getName() +
                                                ". Must contain only lowercase letters, numbers, and hyphens.");
-        } else
-            cluster.setName(clusterDefinition.getName());
+        }
+        cluster.setName(clusterDefinition.getName());
 
+        //Validate master node is defined and it's name
+        if (!isValidClusterName(clusterDefinition.getMasterNode())) {
+            throw new IllegalArgumentException("Invalid master node name [" + clusterDefinition.getMasterNode() +
+                                               "]. Must contain only lowercase letters, numbers, and hyphens.");
+        }
+        boolean masterNodeExists = clusterDefinition.getNodes()
+                                                    .stream()
+                                                    .anyMatch(node -> node.getName()
+                                                                          .equals(clusterDefinition.getMasterNode()));
+        if (!masterNodeExists) {
+            throw new IllegalArgumentException("The master node [" + clusterDefinition.getMasterNode() +
+                                               "] is not found in the list of defined nodes.");
+        }
         cluster.setMasterNode(clusterDefinition.getMasterNode());
+
+        // Validate all node names and check if NodeCandidate exists
+        List<ClusterNodeDefinition> nodes = clusterDefinition.getNodes();
+        for (ClusterNodeDefinition node : nodes) {
+            if (!isValidClusterName(node.getName())) {
+                throw new IllegalArgumentException("Invalid node name [" + node.getName() +
+                                                   "]. Must contain only lowercase letters, numbers, and hyphens.");
+            }
+
+            NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
+            if (nc == null) {
+                throw new IllegalArgumentException("No NodeCandidate found for node [" + node.getName() +
+                                                   "] with candidate ID [" + node.getNodeCandidateId() + "].");
+            }
+        }
+
         cluster.setStatus(ClusterStatus.DEFINED);
         cluster.setEnvVars(ClusterUtils.createEnvVarsScript(clusterDefinition.getEnvVars()));
-        clusterDefinition.getNodes()
-                         .forEach(clusterNodeDef -> repositoryService.saveClusterNodeDefinition(clusterNodeDef));
-        cluster.setNodes(clusterDefinition.getNodes());
+        nodes.forEach(repositoryService::saveClusterNodeDefinition);
+        cluster.setNodes(nodes);
         repositoryService.saveCluster(cluster);
 
+        //Create masterNode job
         ClusterNodeDefinition masterNode = ClusterUtils.getNodeByName(cluster, cluster.getMasterNode());
         if (masterNode != null) {
             PACloud cloud = repositoryService.getPACloud(masterNode.getCloudId());
@@ -80,50 +106,50 @@ public class ClusterService {
                                                                  cluster.getEnvVars());
             masterNodeJob.getTasks().forEach(repositoryService::saveTask);
             repositoryService.saveJob(masterNodeJob);
-        } else {
-            LOGGER.error("The cluster Definition of {} contains the master node name {}," +
-                         "but this node is not found in the list of defined nodes",
-                         cluster.getName(),
-                         cluster.getMasterNode());
-            throw new IllegalArgumentException("The master node [%s] was not passed in the list of the defined nodes");
         }
 
-        List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(cluster);
+        //Create workerNode job
+        List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWorkerNodes(cluster);
         if (workerNodes.isEmpty()) {
             LOGGER.warn("The cluster does not has any worker nodes, only the master will be deployed");
         } else {
             for (ClusterNodeDefinition node : workerNodes) {
                 NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
-                if (nc.getCloud().getCloudType().equals(CloudType.EDGE)) {
-                    EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
-                    String clusterName = cluster.getName();
-                    String jobId = node.getNodeJobName(clusterName);
-
-                    edgeNode.setJobId(jobId);
-                    repositoryService.saveEdgeNode(edgeNode);
-                    nc.setJobIdForEDGE(jobId);
-                    repositoryService.saveNodeCandidate(nc);
-                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(clusterName, node, null, cluster.getEnvVars());
-                    workerNodeJob.getTasks().forEach(repositoryService::saveTask);
-                    repositoryService.saveJob(workerNodeJob);
-                    //                    Map<String, String> edgeNodeMap = new HashMap<>();
-                    //                    edgeNodeMap.put(edgeNode.getId(), edgeNode.getName() + "/_Task");
-                    //                    edgeService.addEdgeNodes(sessionId, edgeNodeMap, jobId);
-                } else {
-                    PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-                    Job workerNodeJob = ClusterUtils.createWorkerNodeJob(cluster.getName(),
-                                                                         node,
-                                                                         cloud,
-                                                                         cluster.getEnvVars());
-                    workerNodeJob.getTasks().forEach(repositoryService::saveTask);
-                    repositoryService.saveJob(workerNodeJob);
-                }
-
+                createWorkerNodeJob(cluster, node, nc);
             }
         }
         repositoryService.flush();
 
         return true;
+    }
+
+    private void createWorkerNodeJob(Cluster cluster, ClusterNodeDefinition node, NodeCandidate nc) {
+        try {
+            String clusterName = cluster.getName();
+            Job workerNodeJob;
+
+            if (nc.getCloud().getCloudType().equals(CloudType.EDGE)) {
+                EdgeNode edgeNode = ByonUtils.getEdgeNodeFromNC(nc);
+                String jobId = node.getNodeJobName(clusterName);
+
+                edgeNode.setJobId(jobId);
+                repositoryService.saveEdgeNode(edgeNode);
+
+                nc.setJobIdForEDGE(jobId);
+                repositoryService.saveNodeCandidate(nc);
+
+                workerNodeJob = ClusterUtils.createWorkerNodeJob(clusterName, node, null, cluster.getEnvVars());
+            } else {
+                PACloud cloud = repositoryService.getPACloud(node.getCloudId());
+                workerNodeJob = ClusterUtils.createWorkerNodeJob(clusterName, node, cloud, cluster.getEnvVars());
+            }
+
+            workerNodeJob.getTasks().forEach(repositoryService::saveTask);
+            repositoryService.saveJob(workerNodeJob);
+        } catch (IOException e) {
+            LOGGER.error("Failed to create worker node job for node [{}]: {}", node.getName(), e.getMessage(), e);
+            throw new RuntimeException("Error processing worker node: " + node.getName(), e);
+        }
     }
 
     public boolean deployCluster(String sessionId, String clusterName) throws NotConnectedException {
@@ -143,7 +169,7 @@ public class ClusterService {
             LOGGER.info("Deploying the master node of the cluster [{}]", cluster.getName());
             submitClusterNode(sessionId, cluster, cluster.getMasterNode(), false);
 
-            List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWrokerNodes(cluster);
+            List<ClusterNodeDefinition> workerNodes = ClusterUtils.getWorkerNodes(cluster);
             LOGGER.info("Deploying the worker nodes of the cluster [{}]", cluster.getName());
             for (ClusterNodeDefinition node : workerNodes) {
                 submitClusterNode(sessionId, cluster, node.getName(), true);
