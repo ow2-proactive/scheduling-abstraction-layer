@@ -43,6 +43,20 @@ public class ClusterService {
         return name != null && !name.isEmpty() && name.matches("^[a-z0-9-]+$");
     }
 
+    private void validateNode(ClusterNodeDefinition node) {
+        if (!isValidClusterName(node.getName())) {
+            throw new IllegalArgumentException("Invalid node name [" + node.getName() +
+                    "]. Must contain only lowercase letters, numbers, and hyphens.");
+        }
+
+        NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
+        if (nc == null) {
+            throw new IllegalArgumentException("No NodeCandidate found for node [" + node.getName() +
+                    "] with candidate ID [" + node.getNodeCandidateId() + "].");
+        }
+    }
+
+
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
             throws NotConnectedException, IOException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
@@ -78,16 +92,7 @@ public class ClusterService {
         // Validate all node names and check if NodeCandidate exists
         List<ClusterNodeDefinition> nodes = clusterDefinition.getNodes();
         for (ClusterNodeDefinition node : nodes) {
-            if (!isValidClusterName(node.getName())) {
-                throw new IllegalArgumentException("Invalid node name [" + node.getName() +
-                                                   "]. Must contain only lowercase letters, numbers, and hyphens.");
-            }
-
-            NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
-            if (nc == null) {
-                throw new IllegalArgumentException("No NodeCandidate found for node [" + node.getName() +
-                                                   "] with candidate ID [" + node.getNodeCandidateId() + "].");
-            }
+            validateNode(node);
         }
 
         cluster.setStatus(ClusterStatus.DEFINED);
@@ -261,6 +266,10 @@ public class ClusterService {
             throw new NotConnectedException();
         }
         LOGGER.info("scaleOutCluster endpoint is called for the cluster: " + clusterName);
+
+        for (ClusterNodeDefinition node : newNodes) {
+            validateNode(node);
+        }
         Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
         repositoryService.deleteCluster(cluster);
         repositoryService.flush();
@@ -274,10 +283,8 @@ public class ClusterService {
 
         LOGGER.info("Scaling out the worker nodes of the cluster [{}]", clusterName);
         for (ClusterNodeDefinition node : newNodes) {
-            PACloud cloud = repositoryService.getPACloud(node.getCloudId());
-            Job workerNodeJob = ClusterUtils.createWorkerNodeJob(cluster.getName(), node, cloud, cluster.getEnvVars());
-            workerNodeJob.getTasks().forEach(repositoryService::saveTask);
-            repositoryService.saveJob(workerNodeJob);
+            NodeCandidate nc = repositoryService.getNodeCandidate(node.getNodeCandidateId());
+            createWorkerNodeJob(cluster, node, nc);
         }
         repositoryService.flush();
         for (ClusterNodeDefinition node : newNodes) {
