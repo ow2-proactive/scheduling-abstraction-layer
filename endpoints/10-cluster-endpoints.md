@@ -66,6 +66,7 @@ which can be imported from the `sal-common` package. An example of the node stru
 
 - *Cluster Name Length:*
 The cluster name should be kept relatively short, as it will be included in the names of the cluster nodes. Note that many cloud providers impose restrictions on the length of node names, so it's essential to ensure compatibility with these limits.
+Also, must contain only lowercase letters, numbers, and hyphens.
 
 - *Node Name Requirements:*
 Node names must adhere to Internet hostname conventions, allowing only lowercase letters, digits, and hyphens, and must start with a letter.

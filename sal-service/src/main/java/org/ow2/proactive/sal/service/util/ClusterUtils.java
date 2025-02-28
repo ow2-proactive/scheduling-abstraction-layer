@@ -15,12 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.io.*;
 import org.ow2.proactive.sal.model.*;
-import org.ow2.proactive.sal.service.service.RepositoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -150,7 +146,7 @@ public class ClusterUtils {
         return null;
     }
 
-    public static List<ClusterNodeDefinition> getWrokerNodes(Cluster cluster) {
+    public static List<ClusterNodeDefinition> getWorkerNodes(Cluster cluster) {
         String masterNodeName = cluster.getMasterNode();
         List<ClusterNodeDefinition> workerNodes = new ArrayList<>();
         for (ClusterNodeDefinition node : cluster.getNodes()) {
