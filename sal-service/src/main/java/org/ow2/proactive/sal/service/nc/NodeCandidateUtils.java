@@ -381,14 +381,14 @@ public class NodeCandidateUtils {
             List<JSONObject> consolidatedImages = images.toList()
                                                         .parallelStream()
                                                         .map(NodeCandidateUtils::convertObjectToJson)
-                                                        .filter(record -> !blacklistedRegions.contains(record.get("location")))
+                                                        .filter(record -> record.get("location").toString().isEmpty() ||
+                                                                          !blacklistedRegions.contains(record.get("location")))
                                                         .collect(Collectors.toList());
             LOGGER.info("Consolidated images: {}", consolidatedImages);
 
             //TODO: (Optimization) An images per region map structure <region,[image1,image2]> could be the best here.
             // It can reduce the getNodeCandidates calls to PA.
             List<String> entries = new LinkedList<>();
-            List<String> openstackOsList = Arrays.asList("Ubuntu", "Fedora", "Centos", "Debian");
             consolidatedImages.forEach(image -> {
                 String region = image.optString("location");
                 String imageReq;
@@ -404,6 +404,9 @@ public class NodeCandidateUtils {
                         imageReq = os;
                         break;
                     case AZURE:
+                        imageReq = os;
+                        break;
+                    case GCE:
                         imageReq = os;
                         break;
                     default:

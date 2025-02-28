@@ -152,6 +152,12 @@ public class PAConnectorIaasGateway {
                                    cloud.getCredentials().getDomain() + "\", \"subscriptionId\": \"" +
                                    cloud.getCredentials().getSubscriptionId() + "\"}}";
                 break;
+            case GCE:
+                jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
+                                   cloud.getCloudProvider() + "\"," + "\"credentials\": {\"username\": \"" +
+                                   cloud.getCredentials().getUserName() + "\", \"password\": \"" +
+                                   cloud.getCredentials().getPrivateKey() + "\"}, \"region\": \"" + region + "\"}";
+                break;
             default:
                 throw new IllegalArgumentException("The infrastructure " + infrastructureName + " is not handled yet.");
         }
