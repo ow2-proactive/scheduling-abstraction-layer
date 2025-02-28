@@ -91,7 +91,7 @@ public class PAGatewayService {
             retries++;
         }
         if (isConnected) {
-            LOGGER.info("Connected to RM and Scheduler after {} attempts.", retries);
+            //LOGGER.info("Connected to RM and Scheduler after {} attempts.", retries);
         } else {
             LOGGER.info("Connection to RM and Scheduler failed after {} attempts.", retries);
         }
@@ -99,9 +99,9 @@ public class PAGatewayService {
     }
 
     protected String connect(String username, String password) throws LoginException, KeyException, RMException {
-        LOGGER.debug("Connecting to ProActive's Resource Manager");
+        //LOGGER.debug("Connecting to ProActive's Resource Manager");
         resourceManagerGateway.connect(username, password);
-        LOGGER.debug("Connecting to ProActive's Scheduler");
+        //LOGGER.debug("Connecting to ProActive's Scheduler");
         schedulerGateway.connect(username, password);
         return resourceManagerGateway.getSessionId();
     }
