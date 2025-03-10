@@ -35,7 +35,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode
 @Entity
-@Table(name = "HARDWARE")
+@Table(name = "HARDWARE", indexes = { @Index(name = "idx_hardware_id", columnList = "ID") })
 public class Hardware implements Serializable {
 
     // JSON property constants
@@ -64,7 +64,7 @@ public class Hardware implements Serializable {
     public static final String JSON_OWNER = "owner";
 
     @Id
-    @Column(name = "ID")
+    @Column(name = "ID", unique = true, nullable = false, updatable = false)
     @JsonProperty(JSON_ID)
     private String id = null;
 

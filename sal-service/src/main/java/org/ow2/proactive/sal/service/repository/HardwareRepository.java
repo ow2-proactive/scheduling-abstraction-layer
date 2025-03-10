@@ -19,11 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 public interface HardwareRepository extends JpaRepository<Hardware, String> {
 
     @Transactional(readOnly = true)
+    @Query("SELECT h FROM Hardware h WHERE h.id LIKE CONCAT(:cloudId, '%')")
+    List<Hardware> findByCloudId(String cloudId);
+
+    @Transactional(readOnly = true)
     @Query(value = "SELECT id FROM Hardware WHERE id NOT IN (SELECT hardware.id FROM NodeCandidate GROUP BY hardware.id)")
     List<String> getOrphanHardwareIds();
 
     @Modifying(clearAutomatically = true)
     @Query(value = "DELETE FROM Hardware WHERE id NOT IN (SELECT hardware.id FROM NodeCandidate GROUP BY hardware.id)")
     void deleteOrphanHardwareIds();
-
 }
