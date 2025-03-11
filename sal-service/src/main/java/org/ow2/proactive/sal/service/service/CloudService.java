@@ -430,7 +430,7 @@ public class CloudService {
      */
     public List<Location> getCloudLocations(String sessionId, String cloudId) throws NotConnectedException {
         LOGGER.warn("Feature not implemented yet. All locations will be returned.");
-        return getAllCloudLocations(sessionId);
+        return repositoryService.listLocations(cloudId);
     }
 
     /**

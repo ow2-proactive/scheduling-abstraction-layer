@@ -204,7 +204,7 @@ Allows you to specify any blacklisted regions (e.g. locations). Use `null` if no
 🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/images
 ```
 
-**Path Variable (optional):** cloudid = {{cloud_name}}
+**Path Variable (optional):** `cloudid` = {{cloud_name}}
 
 **Headers:** `sessionid`
 
@@ -222,7 +222,7 @@ Allows you to specify any blacklisted regions (e.g. locations). Use `null` if no
 🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/location
 ```
 
-**Path Variable (optional):** cloudid = {{cloud_name}} -> TBD: this is not implemented yet
+**Path Variable (optional):** `cloudid` = {{cloud_name}}
 
 **Headers:** `sessionid`
 
@@ -240,7 +240,7 @@ Allows you to specify any blacklisted regions (e.g. locations). Use `null` if no
 🟢 GET {{protocol}}://{{sal_host}}:{{sal_port}}/sal/cloud/hardware
 ```
 
-**Path Variable (optional):** cloudid = {{cloud_name}} -> TBD: this is not implemented yet
+**Path Variable (optional):** `cloudid` = {{cloud_name}}
 
 **Headers:** `sessionid`
 
