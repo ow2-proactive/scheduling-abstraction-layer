@@ -575,6 +575,13 @@ public class RepositoryService {
     }
 
     /**
+     * List Location for specific clouds entries
+     */
+    public List<Location> listLocations(String cloudId) {
+        return locationRepository.findByCloudId(cloudId);
+    }
+
+    /**
      * Add or update the instance data given in param
      * @param location is the instance data to add or update, its instance id will be use as a key
      */
