@@ -155,7 +155,8 @@ public class PAConnectorIaasGateway {
             case GCE:
                 jsonOutputString = "{\"id\": \"" + infrastructureName + "\"," + "\"type\": \"" +
                                    cloud.getCloudProvider() + "\"," + "\"credentials\": {\"username\": \"" +
-                                   cloud.getCredentials().getUserName() + "\", \"password\": \"" +
+                                   cloud.getCredentials().getUserName() + "\", \"projectId\": \"" +
+                                   cloud.getCredentials().getProjectId() + "\", \"password\": \"" +
                                    cloud.getCredentials().getPrivateKey() + "\"}, \"region\": \"" + region + "\"}";
                 break;
             default:

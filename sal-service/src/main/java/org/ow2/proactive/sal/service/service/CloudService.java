@@ -92,6 +92,7 @@ public class CloudService {
 
             Credentials credentials = new Credentials();
             credentials.setUserName(cloud.getCredentials().getUser());
+            credentials.setProjectId(cloud.getCredentials().getProjectId());
             credentials.setPrivateKey(cloud.getCredentials().getSecret());
             credentials.setDomain(cloud.getCredentials().getDomain());
             credentials.setSubscriptionId(cloud.getCredentials().getSubscriptionId());
@@ -452,6 +453,9 @@ public class CloudService {
             }
             if (creds.getUserName() != null) {
                 newCreds.setUserName(hideString(creds.getUserName(), 5));
+            }
+            if (creds.getProjectId() != null) {
+                newCreds.setProjectId(hideString(creds.getProjectId(), 5));
             }
         }
         return newCreds;

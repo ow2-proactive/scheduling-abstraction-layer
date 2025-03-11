@@ -253,6 +253,9 @@ public class NodeService {
                     break;
                 case GCE:
                     filename = File.separator + "Define_NS_GCE.xml";
+                    variables.put("user", cloud.getCredentials().getUserName());
+                    variables.put("projectId", cloud.getCredentials().getProjectId());
+                    variables.put("secret", cloud.getCredentials().getPrivateKey());
                     variables.put("vmUsername", cloud.getSshCredentials().getUsername());
                     variables.put("vmPublicKey", cloud.getSshCredentials().getPublicKey());
                     variables.put("vmPrivateKey", cloud.getSshCredentials().getPrivateKey());
