@@ -64,7 +64,7 @@ public class Hardware implements Serializable {
     public static final String JSON_OWNER = "owner";
 
     @Id
-    @Column(name = "ID", unique = true, nullable = false, updatable = false)
+    @Column(name = "ID", unique = true, nullable = false)
     @JsonProperty(JSON_ID)
     private String id = null;
 
