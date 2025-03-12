@@ -71,6 +71,11 @@ public class CloudService {
 
         List<String> savedCloudIds = new LinkedList<>();
         clouds.forEach(cloud -> {
+            if (!isValidCloudName(cloud.getCloudId())) {
+                throw new IllegalArgumentException("Invalid cloudId: " + cloud.getCloudId() +
+                                                   ". Must be 3-253 characters and contain only lowercase letters, numbers, and hyphens.");
+            }
+
             PACloud newCloud = new PACloud();
             String nodeSourceNamePrefix = cloud.getCloudProvider() + "-" + cloud.getCloudId();
             newCloud.setNodeSourceNamePrefix(nodeSourceNamePrefix);
@@ -106,7 +111,7 @@ public class CloudService {
             newCloud.setDummyInfrastructureName(dummyInfraName);
 
             repositoryService.savePACloud(newCloud);
-            LOGGER.debug("Cloud created: " + newCloud);
+            LOGGER.debug("Cloud infrastructure created: " + newCloud);
             savedCloudIds.add(newCloud.getCloudId());
         });
 
@@ -122,6 +127,11 @@ public class CloudService {
         }
 
         return 0;
+    }
+
+    private boolean isValidCloudName(String name) {
+        return name != null && !name.isEmpty() && name.length() >= 3 && name.length() <= 253 &&
+               name.matches("^[a-z0-9-]+$");
     }
 
     private static void cleanDoneAsyncProcesses() {

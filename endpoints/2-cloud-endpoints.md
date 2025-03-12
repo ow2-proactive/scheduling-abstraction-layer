@@ -116,9 +116,9 @@ Note that cloud credentials are validated only during async process.
 
 - `cloudId` (string):
 This is a unique identifier for the cloud infrastructure. Choose a unique descriptive name for easy identification, as it will be referenced by SAL.
-
+  Must be 3-253 characters and contain only lowercase letters, numbers, and hyphens.
 - `cloudProviderName` (string):
-The name of the cloud provider. For OpenStack, use `"openstack"`, and for AWS, use `"aws-ec2"`.
+The name of the cloud provider. For OpenStack, use `"openstack"`, and for AWS, use `"aws-ec2"`, for Azure `"azure"`.
 
 - `cloudType` (string):
 Specifies whether the cloud infrastructure is `"PRIVATE"` (e.g., for OpenStack) or `"PUBLIC"` (e.g., for AWS).
