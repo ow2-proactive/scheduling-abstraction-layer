@@ -40,7 +40,7 @@ import lombok.extern.log4j.Log4j2;
 @Getter
 @Setter
 @Entity
-@Table(name = "NODE_CANDIDATE")
+@Table(name = "NODE_CANDIDATE", indexes = { @Index(name = "idx_nodecandidate_id", columnList = "ID") })
 public class NodeCandidate implements Serializable {
     public static final String JSON_ID = "id";
 
@@ -71,7 +71,7 @@ public class NodeCandidate implements Serializable {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    @Column(name = "ID")
+    @Column(name = "ID", nullable = false, unique = true)
     @JsonProperty(JSON_ID)
     private String id = null;
 

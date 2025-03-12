@@ -32,7 +32,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "LOCATION")
+@Table(name = "LOCATION", indexes = @Index(name = "idx_location_id", columnList = "ID"))
 @Accessors(chain = true)
 @EqualsAndHashCode
 @Getter
@@ -57,7 +57,7 @@ public class Location implements Serializable {
     public static final String JSON_OWNER = "owner";
 
     @Id
-    @Column(name = "ID")
+    @Column(name = "ID", nullable = false, unique = true)
     @JsonProperty(JSON_ID)
     private String id = null;
 

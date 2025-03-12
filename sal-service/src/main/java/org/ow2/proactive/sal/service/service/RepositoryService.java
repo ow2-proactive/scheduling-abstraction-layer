@@ -405,6 +405,13 @@ public class RepositoryService {
     }
 
     /**
+     * List Hardware for specific clouds entries
+     */
+    public List<Hardware> listHardwares(String cloudId) {
+        return hardwareRepository.findByCloudId(cloudId);
+    }
+
+    /**
      * Add or update the instance data given in param
      * @param hardware is the instance data to add or update, its instance id will be use as a key
      */
@@ -565,6 +572,13 @@ public class RepositoryService {
      */
     public List<Location> listLocations() {
         return locationRepository.findAll();
+    }
+
+    /**
+     * List Location for specific clouds entries
+     */
+    public List<Location> listLocations(String cloudId) {
+        return locationRepository.findByCloudId(cloudId);
     }
 
     /**

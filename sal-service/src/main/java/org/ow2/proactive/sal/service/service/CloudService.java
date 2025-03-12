@@ -404,8 +404,10 @@ public class CloudService {
      * @return A list of available hardware
      */
     public List<Hardware> getCloudHardware(String sessionId, String cloudId) throws NotConnectedException {
-        LOGGER.warn("Feature not implemented yet. All hardware will be returned.");
-        return getAllCloudHardware(sessionId);
+        if (!paGatewayService.isConnectionActive(sessionId)) {
+            throw new NotConnectedException();
+        }
+        return repositoryService.listHardwares(cloudId);
     }
 
     /**
@@ -417,8 +419,9 @@ public class CloudService {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
-        List<Hardware> allHardware = repositoryService.listHardwares();
+        return repositoryService.listHardwares();
 
+        /** only defined for the AWS and JClouds -> braking since Azure is integrated
         return allHardware.stream()
                           .filter(hardware -> JCloudsInstancesUtils.isHandledHardwareInstanceType(repositoryService.findFirstNodeCandidateWithHardware(hardware)
                                                                                                                    .getCloud()
@@ -427,6 +430,7 @@ public class CloudService {
                                                                                                   hardware.getName()) ||
                                               WhiteListedInstanceTypesUtils.isHandledHardwareInstanceType(hardware.getName()))
                           .collect(Collectors.toList());
+         **/
     }
 
     /**
@@ -437,7 +441,7 @@ public class CloudService {
      */
     public List<Location> getCloudLocations(String sessionId, String cloudId) throws NotConnectedException {
         LOGGER.warn("Feature not implemented yet. All locations will be returned.");
-        return getAllCloudLocations(sessionId);
+        return repositoryService.listLocations(cloudId);
     }
 
     /**
