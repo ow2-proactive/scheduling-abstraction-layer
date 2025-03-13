@@ -17,6 +17,7 @@ import org.ow2.proactive.sal.model.*;
 import org.ow2.proactive.sal.service.nc.WhiteListedInstanceTypesUtils;
 import org.ow2.proactive.sal.service.service.application.PAFactory;
 import org.ow2.proactive.sal.service.util.ByonUtils;
+import org.ow2.proactive.sal.service.util.ClusterUtils;
 import org.ow2.proactive.sal.service.util.Utils;
 import org.ow2.proactive.scheduler.common.task.ScriptTask;
 import org.ow2.proactive.scheduler.common.task.TaskVariable;
@@ -77,6 +78,8 @@ public class TaskBuilder {
     private static final String DRIAN_NODE_SCRIPT = "drain_node_script.sh";
 
     private static final String WAIT_FOR_MASTER_SCRIPT = "wait_for_master.groovy";
+
+    private static final String WAIT_FOR_MASTER_K3S_SCRIPT = "wait_for_master.groovy";
 
     private static final String SET_TOKEN_SCRIPT = "set_token.groovy";
 
@@ -899,9 +902,18 @@ public class TaskBuilder {
     }
 
     private ScriptTask createWaitForMasterTask(String masterNodeToken) {
-        ScriptTask waitForMasterTask = PAFactory.createGroovyScriptTaskFromFile("wait_for_master",
-                                                                                WAIT_FOR_MASTER_SCRIPT);
+        String clusterType = System.getenv(ClusterUtils.CLUSTER_TYPE_ENV);
+        String waitForMasterScript;
+
+        if (ClusterUtils.CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType)) {
+            waitForMasterScript = WAIT_FOR_MASTER_K3S_SCRIPT;
+        } else {
+            waitForMasterScript = WAIT_FOR_MASTER_SCRIPT;
+        }
+
+        ScriptTask waitForMasterTask = PAFactory.createGroovyScriptTaskFromFile("wait_for_master", waitForMasterScript);
         waitForMasterTask.addGenericInformation("NODE_ACCESS_TOKEN", masterNodeToken);
+
         return waitForMasterTask;
     }
 

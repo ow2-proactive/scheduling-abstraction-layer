@@ -24,6 +24,12 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class ClusterUtils {
 
+    public static final String CLUSTER_TYPE_ENV = "CLUSTER_TYPE";
+
+    public static final String CLUSTER_TYPE_K3S = "k3s";
+
+    public static final String CLUSTER_TYPE_K8S = "k8s";
+
     private static final String SCRIPTS_PATH = "/usr/local/tomcat/scripts/";
 
     // TO be changed, the hardcoding of the ubuntu user is a bad practice.
@@ -39,12 +45,6 @@ public class ClusterUtils {
     private static final String K3S_COMMANDS = "dau=\"sudo -H -E -u ubuntu\"\n" +
                                                "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml\n" +
                                                "echo \"KUBECONFIG=${KUBECONFIG}\" | sudo tee -a /etc/environment\n";
-
-    private static final String CLUSTER_TYPE_ENV = "CLUSTER_TYPE";
-
-    private static final String CLUSTER_TYPE_K3S = "k3s";
-
-    private static final String CLUSTER_TYPE_K8S = "k8s";
 
     public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
             String envVars) throws IOException {
@@ -234,7 +234,8 @@ public class ClusterUtils {
         return createDeployApplicationScript(application, clusterType);
     }
 
-    public static String createDeployApplicationScript(ClusterApplication application, String clusterType) throws IOException {
+    public static String createDeployApplicationScript(ClusterApplication application, String clusterType)
+            throws IOException {
         String fileName = "/home/ubuntu/" + application.getAppName() + ".yaml";
         application.setYamlManager(ClusterApplication.PackageManagerEnum.getPackageManagerEnumByName(application.getPackageManager()));
         String appCommand = createAppCommand(application.getYamlManager(), fileName, clusterType);
@@ -263,10 +264,11 @@ public class ClusterUtils {
         return script.toString();
     }
 
-
-    private static String createAppCommand(ClusterApplication.PackageManagerEnum yamlManager, String fileName, String clusterType) {
+    private static String createAppCommand(ClusterApplication.PackageManagerEnum yamlManager, String fileName,
+            String clusterType) {
         if (yamlManager != null) {
-            String cliSelection = CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType) ? CLI_K3s_USER_SELECTION : CLI_USER_SELECTION;
+            String cliSelection = CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType) ? CLI_K3s_USER_SELECTION
+                                                                                 : CLI_USER_SELECTION;
             return String.format("%s '%s %s'", cliSelection, yamlManager.getCommand(), fileName);
         } else {
             LOGGER.error("The selected yaml executor is not supported!");
