@@ -33,6 +33,19 @@ public class ClusterUtils {
 
     private static final String FILE_PATH = "/home/ubuntu/.profile";
 
+    // K3s-related commands
+    private static final String CLI_K3s_USER_SELECTION = "$dau bash -c";
+
+    private static final String K3S_COMMANDS = "dau=\"sudo -H -E -u ubuntu\"\n" +
+                                               "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml\n" +
+                                               "echo \"KUBECONFIG=${KUBECONFIG}\" | sudo tee -a /etc/environment\n";
+
+    private static final String CLUSTER_TYPE_ENV = "CLUSTER_TYPE";
+
+    private static final String CLUSTER_TYPE_K3S = "k3s";
+
+    private static final String CLUSTER_TYPE_K8S = "k8s";
+
     public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
             String envVars) throws IOException {
         Job masterNodeJob = new Job();
@@ -174,6 +187,33 @@ public class ClusterUtils {
     }
 
     public static String createLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
+        String clusterType = System.getenv(CLUSTER_TYPE_ENV);
+
+        if (CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType)) {
+            return createK3sLabelNodesScript(nodeLabels, clusterName);
+        } else {
+            return createK8sLabelNodesScript(nodeLabels, clusterName);
+        }
+    }
+
+    public static String createK3sLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
+        StringBuilder script = new StringBuilder();
+        script.append(K3S_COMMANDS).append("\n");
+        for (Map<String, String> nodeLabelPair : nodeLabels) {
+            for (String nodeName : nodeLabelPair.keySet()) {
+                String label = nodeLabelPair.get(nodeName);
+                script.append(String.format("%s '%s %s-%s %s' \n",
+                                            CLI_K3s_USER_SELECTION,
+                                            KUBE_LABEL_COMMAND,
+                                            nodeName.toLowerCase(),
+                                            clusterName,
+                                            label));
+            }
+        }
+        return script.toString();
+    }
+
+    public static String createK8sLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
         StringBuilder script = new StringBuilder();
         for (Map<String, String> nodeLabelPair : nodeLabels) {
             for (String nodeName : nodeLabelPair.keySet()) {
