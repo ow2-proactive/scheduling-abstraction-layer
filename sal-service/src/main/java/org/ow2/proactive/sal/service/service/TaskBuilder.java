@@ -79,7 +79,7 @@ public class TaskBuilder {
 
     private static final String WAIT_FOR_MASTER_SCRIPT = "wait_for_master.groovy";
 
-    private static final String WAIT_FOR_MASTER_K3S_SCRIPT = "wait_for_master.groovy";
+    private static final String WAIT_FOR_MASTER_K3S_SCRIPT = "wait_for_master_k3s.groovy";
 
     private static final String SET_TOKEN_SCRIPT = "set_token.groovy";
 

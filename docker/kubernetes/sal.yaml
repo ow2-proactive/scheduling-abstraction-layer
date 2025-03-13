@@ -64,6 +64,8 @@ spec:
           env:
             - name: MYSQL_DATABASE
               value: proactive
+            - name: CLUSTER_TYPE
+              value: "k8s"  # Change to "k3s" when needed
             - name: PROPERTIES_FILENAME
               value: sal
             - name: PWS_URL
