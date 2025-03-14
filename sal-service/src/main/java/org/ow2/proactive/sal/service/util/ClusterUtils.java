@@ -24,6 +24,12 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class ClusterUtils {
 
+    public static final String CLUSTER_TYPE_ENV = "CLUSTER_TYPE";
+
+    public static final String CLUSTER_TYPE_K3S = "k3s";
+
+    public static final String CLUSTER_TYPE_K8S = "k8s";
+
     private static final String SCRIPTS_PATH = "/usr/local/tomcat/scripts/";
 
     // TO be changed, the hardcoding of the ubuntu user is a bad practice.
@@ -32,6 +38,13 @@ public class ClusterUtils {
     private static final String CLI_USER_SELECTION = "sudo -H -u ubuntu bash -c";
 
     private static final String FILE_PATH = "/home/ubuntu/.profile";
+
+    // K3s-related commands
+    private static final String CLI_K3s_USER_SELECTION = "$dau bash -c";
+
+    private static final String K3S_COMMANDS = "dau=\"sudo -H -E -u ubuntu\"\n" +
+                                               "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml\n" +
+                                               "echo \"KUBECONFIG=${KUBECONFIG}\" | sudo tee -a /etc/environment\n";
 
     public static Job createMasterNodeJob(String clusterName, ClusterNodeDefinition masterNode, PACloud cloud,
             String envVars) throws IOException {
@@ -174,6 +187,33 @@ public class ClusterUtils {
     }
 
     public static String createLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
+        String clusterType = System.getenv(CLUSTER_TYPE_ENV);
+
+        if (CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType)) {
+            return createK3sLabelNodesScript(nodeLabels, clusterName);
+        } else {
+            return createK8sLabelNodesScript(nodeLabels, clusterName);
+        }
+    }
+
+    public static String createK3sLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
+        StringBuilder script = new StringBuilder();
+        script.append(K3S_COMMANDS).append("\n");
+        for (Map<String, String> nodeLabelPair : nodeLabels) {
+            for (String nodeName : nodeLabelPair.keySet()) {
+                String label = nodeLabelPair.get(nodeName);
+                script.append(String.format("%s '%s %s-%s %s' \n",
+                                            CLI_K3s_USER_SELECTION,
+                                            KUBE_LABEL_COMMAND,
+                                            nodeName.toLowerCase(),
+                                            clusterName,
+                                            label));
+            }
+        }
+        return script.toString();
+    }
+
+    public static String createK8sLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
         StringBuilder script = new StringBuilder();
         for (Map<String, String> nodeLabelPair : nodeLabels) {
             for (String nodeName : nodeLabelPair.keySet()) {
@@ -190,34 +230,46 @@ public class ClusterUtils {
     }
 
     public static String createDeployApplicationScript(ClusterApplication application) throws IOException {
+        String clusterType = System.getenv(CLUSTER_TYPE_ENV); // Get cluster type from env variable
+        return createDeployApplicationScript(application, clusterType);
+    }
+
+    public static String createDeployApplicationScript(ClusterApplication application, String clusterType)
+            throws IOException {
         String fileName = "/home/ubuntu/" + application.getAppName() + ".yaml";
         application.setYamlManager(ClusterApplication.PackageManagerEnum.getPackageManagerEnumByName(application.getPackageManager()));
-        String appCommand = createAppCommand(application.getYamlManager(), fileName);
+        String appCommand = createAppCommand(application.getYamlManager(), fileName, clusterType);
 
         if (appCommand == null) {
             LOGGER.error("\"{}\" is not supported!", application.getPackageManager());
             throw new IOException("yaml executor is not supported!");
         }
-        BufferedReader bufReader = new BufferedReader(new StringReader(application.getAppFile()));
-        StringBuilder script = new StringBuilder();
-        String line = null;
-        script.append("sudo rm -f " + fileName + " || echo 'file was not found.' \n");
 
-        // start heredoc
+        StringBuilder script = new StringBuilder();
+        script.append("sudo rm -f ").append(fileName).append(" || echo 'file was not found.' \n");
+
+        // Start heredoc
         script.append("cat <<'EOF' >").append(fileName).append("\n");
-        // embed the application YAML directly
-        script.append(application.getAppFile());
-        // end heredoc
+        script.append(application.getAppFile()); // Embed the YAML file content
         script.append("\nEOF\n");
 
-        script.append("sudo chown ubuntu:ubuntu " + fileName + "\n");
+        script.append("sudo chown ubuntu:ubuntu ").append(fileName).append("\n");
+
+        // Insert K3s-specific commands if needed
+        if (CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType)) {
+            script.append(K3S_COMMANDS).append("\n");
+        }
+
         script.append(appCommand);
         return script.toString();
     }
 
-    private static String createAppCommand(ClusterApplication.PackageManagerEnum yamlManager, String fileName) {
+    private static String createAppCommand(ClusterApplication.PackageManagerEnum yamlManager, String fileName,
+            String clusterType) {
         if (yamlManager != null) {
-            return String.format("%s '%s %s'", CLI_USER_SELECTION, yamlManager.getCommand(), fileName);
+            String cliSelection = CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType) ? CLI_K3s_USER_SELECTION
+                                                                                 : CLI_USER_SELECTION;
+            return String.format("%s '%s %s'", cliSelection, yamlManager.getCommand(), fileName);
         } else {
             LOGGER.error("The selected yaml executor is not supported!");
             return null;
