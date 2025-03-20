@@ -98,6 +98,13 @@ docker pull activeeon/sal:dev
 
 * Open [docker-compose.yaml](https://github.com/ow2-proactive/scheduling-abstraction-layer/blob/master/docker/docker-compose.yaml)
 
+* Specify which version of the Kubernetes cluster you will deploy. Default scripts set for deployment are for k8s.
+
+
+```bash
+    CLUSTER_TYPE: "k8s"  # (defult) or "k3s"
+```
+
 * Setup connection to the ProActive scheduler
 
 ```bash
