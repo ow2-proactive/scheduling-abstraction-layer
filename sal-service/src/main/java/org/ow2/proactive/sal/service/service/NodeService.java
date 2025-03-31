@@ -259,7 +259,7 @@ public class NodeService {
                     variables.put("vmUsername", cloud.getSshCredentials().getUsername());
                     variables.put("vmPublicKey", cloud.getSshCredentials().getPublicKey());
                     variables.put("vmPrivateKey", cloud.getSshCredentials().getPrivateKey());
-                    variables.put("image", deployment.getNode().getNodeCandidate().getImage().getId());
+                    variables.put("image", deployment.getNode().getNodeCandidate().getImage().getName());
                     variables.put("region", deployment.getNode().getNodeCandidate().getLocation().getName());
                     variables.put("machineType", deployment.getNode().getNodeCandidate().getHardware().getProviderId());
                     variables.put("ram", deployment.getNode().getNodeCandidate().getHardware().getRam().toString());
