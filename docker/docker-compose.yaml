@@ -1,21 +1,19 @@
 services:
   database:
     image: mariadb:latest #optionaly set specific version e.g. mariadb:10.7
-    #image: mariadb:10.7
     ports:
       - "3307:3306"
     networks:
       - db-tier
     environment:
-      #  MYSQL_ROOT_PASSWORD: PASSWORD
-      MYSQL_ROOT_PASSWORD: activeeon
+      MYSQL_ROOT_PASSWORD: PASSWORD
       MYSQL_DATABASE: proactive
     container_name: myComposeMariaDB
-    # Uncomment this to attach a volume for persistent data storage and adjust location as needed:
-    #volumes:
-    #- mariadb_data:/var/lib/mysql
+    # Comment this if you do not want to attach a volume for persistent data storage:
+    volumes:
+      - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=activeeon" ]
+      test: [ "CMD", "mariadb-admin" , "ping", "-h", "localhost", "--password=PASSWORD" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,9 +21,6 @@ services:
   sal:
     #Set up image to be used for SAL from https://hub.docker.com/r/activeeon/sal/tags
     image: activeeon/sal:test
-    #image: activeeon/sal:k3s
-    #image: activeeon/sal:dev
-    #image: activeeon/sal:dev-2024-08-21
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
@@ -44,52 +39,15 @@ services:
     volumes:
       - ./scripts:/usr/local/tomcat/scripts
       - ./wait_for_db.sh:/usr/local/tomcat/bin/wait_for_db.sh
-
     environment:
       PROPERTIES_FILENAME: sal
+      CLUSTER_TYPE: "k8s"  # (defult) or "k3s"
       #Set up connection to ProActive server (PWS)
-      #PWS_URL: <CHANGE_ME>
-      #PWS_USERNAME: <CHANGE_ME>
-      #PWS_PASSWORD: <CHANGE_ME>
-
-      #---- trydev ------
-      #PWS_URL: https://trydev.activeeon.com:8443/
-      #PWS_USERNAME: barisic
-      #PWS_PASSWORD: ProActive123
-
-      #---- NREC - SANDBOX ------
-      PWS_URL: http://158.37.66.40:8880/
-      PWS_USERNAME: cd
-      PWS_PASSWORD: 5rf0A@sj01=
-
-      #---- NREC - PRODUCTION------
-      #PWS_URL: http://158.37.66.119:8880/
-      #PWS_USERNAME: admin
-      #PWS_PASSWORD: FvRV98mF3Ar&mG
-
-      #---- NREC - PRODUCTION------
-      #PWS_URL: http://158.37.66.119:8880/
-      #PWS_USERNAME: admin
-      #PWS_PASSWORD: FvRV98mF3Ar&mG
-
-      #---- NREC - KUBE------
-      #PWS_URL: http://proactive-scheduler-service-web:8080/
-      #PWS_USERNAME: admin
-      #PWS_PASSWORD: activeeon
-
-      #---- AE - KUBE------
-      #PWS_URL: http://kube.activeeon.com:32000//
-      #PWS_USERNAME: admin
-      #PWS_PASSWORD: activeeon
-
-      #----LOCAL------
-      #PWS_URL: http://192.168.56.1:8080/
-      #PWS_USERNAME: admin
-      #PWS_PASSWORD: admin
-
+      PWS_URL: <CHANGE_ME>
+      PWS_USERNAME: <CHANGE_ME>
+      PWS_PASSWORD: <CHANGE_ME>
       DB_USERNAME: root
-      #DB_PASSWORD: PASSWORD
-      DB_PASSWORD: activeeon
+      DB_PASSWORD: PASSWORD
       DB_DRIVER_CLASSNAME: org.mariadb.jdbc.Driver
       DB_PORT: 3306
       DB_HOSTNAME: myComposeMariaDB
@@ -97,7 +55,6 @@ services:
       DB_PLATFORM: org.hibernate.dialect.MariaDB53Dialect
       JPDA_ADDRESS: 9001
       JPDA_TRANSPORT: dt_socket
-
     entrypoint: [
       "/bin/sh",
       "-c",
@@ -107,10 +64,8 @@ services:
       catalina.sh jpda run"
     ]
     container_name: myComposeSAL
-
 networks:
   db-tier: {}
-
-  #Uncomment this part to include volume for peristant data storage
-  #volumes:
-  #mariadb_data: {}
+#Comment this part if you do not want to include volume for peristant data storage
+volumes:
+  mariadb_data: {}
