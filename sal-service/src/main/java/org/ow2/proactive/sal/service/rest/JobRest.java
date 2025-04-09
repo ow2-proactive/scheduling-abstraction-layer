@@ -92,7 +92,7 @@ public class JobRest {
     final String sessionId, @ApiParam(value = "A job identifier", required = true)
     @PathVariable
     final String jobId) throws NotConnectedException {
-        return ResponseEntity.ok(jobService.submitJob(sessionId, jobId));
+        return ResponseEntity.ok(jobService.submitJob(sessionId, jobId, null));
     }
 
     @RequestMapping(value = "/{jobId}/status", method = RequestMethod.GET)
