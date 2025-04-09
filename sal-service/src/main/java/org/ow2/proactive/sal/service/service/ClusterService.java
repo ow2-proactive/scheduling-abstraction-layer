@@ -8,6 +8,7 @@ package org.ow2.proactive.sal.service.service;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.ow2.proactive.sal.model.*;
@@ -18,12 +19,17 @@ import org.ow2.proactive.scheduler.common.job.JobStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.log4j.Log4j2;
 
 
 @Log4j2
 @Service("ClusterService")
 public class ClusterService {
+    public static final String CONTAINERIZATION_FLAVOR_ENV = "export CONTAINERIZATION_FLAVOR=";
+
     @Autowired
     private PAGatewayService paGatewayService;
 
@@ -39,6 +45,8 @@ public class ClusterService {
     @Autowired
     private EdgeService edgeService;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private boolean isValidClusterName(String name) {
         return name != null && !name.isEmpty() && name.matches("^[a-z0-9-]+$");
     }
@@ -53,6 +61,45 @@ public class ClusterService {
         if (nc == null) {
             throw new IllegalArgumentException("No NodeCandidate found for node [" + node.getName() +
                                                "] with candidate ID [" + node.getNodeCandidateId() + "].");
+        }
+    }
+
+    public static String getContainerizationFlavor(String envVarsScript) {
+        if (envVarsScript == null || envVarsScript.isEmpty()) {
+            return null;
+        }
+
+        try {
+            String[] lines = envVarsScript.split("\\r?\\n");
+
+            for (String line : lines) {
+                line = line.trim();
+
+                if (line.contains(CONTAINERIZATION_FLAVOR_ENV)) {
+                    // Extract only the export part before '>>'
+                    int exportIndex = line.indexOf(CONTAINERIZATION_FLAVOR_ENV);
+                    String exportPart = line.substring(exportIndex).split(">>")[0].trim();
+
+                    // Split and get the value part
+                    String[] keyValue = exportPart.replace("export ", "").split("=", 2);
+                    if (keyValue.length == 2) {
+                        String rawValue = keyValue[1].trim();
+
+                        // Remove surrounding quotes and convert to lower case
+                        String cleanValue = rawValue.trim()
+                                                    .replaceAll("^['\"]+|['\"]+$", "") // removes quotes from start/end
+                                                    .toLowerCase();
+
+                        return ClusterUtils.CLUSTER_TYPE_K3S.equals(cleanValue) ? ClusterUtils.CLUSTER_TYPE_K3S
+                                                                                : ClusterUtils.CLUSTER_TYPE_K8S;
+                    }
+                }
+            }
+
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace(); // or use logger
+            return null;
         }
     }
 
@@ -95,7 +142,9 @@ public class ClusterService {
         }
 
         cluster.setStatus(ClusterStatus.DEFINED);
+
         cluster.setEnvVars(ClusterUtils.createEnvVarsScript(clusterDefinition.getEnvVars()));
+
         nodes.forEach(repositoryService::saveClusterNodeDefinition);
         cluster.setNodes(nodes);
         repositoryService.saveCluster(cluster);
@@ -210,7 +259,8 @@ public class ClusterService {
             repositoryService.saveDeployment(currentDeployment);
             repositoryService.flush();
             // submit job
-            jobService.submitJob(sessionId, jobId);
+            String containerizationFlavor = getContainerizationFlavor(cluster.getEnvVars());
+            jobService.submitJob(sessionId, jobId, containerizationFlavor);
             LOGGER.info("Node {} is submitted for deployment", nodeName);
         } else {
             LOGGER.error("The node {} was not found in the cluster {} definition", nodeName, cluster.getName());
@@ -343,13 +393,15 @@ public class ClusterService {
         LOGGER.info("labelNodes endpoint is called to label nodes in the cluster: " + clusterName);
         String masterNodeToken = "";
         Cluster cluster = ClusterUtils.getClusterByName(clusterName, repositoryService.listCluster());
+
         if (cluster != null) {
             masterNodeToken = cluster.getMasterNode() + "_" + clusterName;
         } else {
             LOGGER.error("The cluster with the name {} was not found!", clusterName);
             return -1L;
         }
-        String script = ClusterUtils.createLabelNodesScript(nodeLabels, clusterName);
+        String containerizationFlavor = getContainerizationFlavor(cluster.getEnvVars());
+        String script = ClusterUtils.createLabelNodesScript(nodeLabels, clusterName, containerizationFlavor);
 
         try {
             String paJobName = "label_nodes_" + clusterName;
@@ -377,7 +429,8 @@ public class ClusterService {
         }
         String script = "";
         try {
-            script = ClusterUtils.createDeployApplicationScript(application);
+            String containerizationFlavor = getContainerizationFlavor(cluster.getEnvVars());
+            script = ClusterUtils.createDeployApplication(application, containerizationFlavor);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
