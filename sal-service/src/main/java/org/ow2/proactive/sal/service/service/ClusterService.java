@@ -64,6 +64,22 @@ public class ClusterService {
         }
     }
 
+    public static String stripQuotes(String value) {
+        if (value == null || value.isEmpty()) return value;
+
+        int start = 0;
+        int end = value.length();
+
+        if (value.charAt(0) == '"' || value.charAt(0) == '\'') {
+            start++;
+        }
+        if (value.length() > 1 && (value.charAt(value.length() - 1) == '"' || value.charAt(value.length() - 1) == '\'')) {
+            end--;
+        }
+
+        return value.substring(start, end);
+    }
+
     public static String getContainerizationFlavor(String envVarsScript) {
         if (envVarsScript == null || envVarsScript.isEmpty()) {
             return null;
@@ -86,9 +102,7 @@ public class ClusterService {
                         String rawValue = keyValue[1].trim();
 
                         // Remove surrounding quotes and convert to lower case
-                        String cleanValue = rawValue.trim()
-                                                    .replaceAll("^['\"]+|['\"]+$", "") // removes quotes from start/end
-                                                    .toLowerCase();
+                        String cleanValue = stripQuotes(rawValue.trim()).toLowerCase();
 
                         return ClusterUtils.CLUSTER_TYPE_K3S.equals(cleanValue) ? ClusterUtils.CLUSTER_TYPE_K3S
                                                                                 : ClusterUtils.CLUSTER_TYPE_K8S;
@@ -98,9 +112,10 @@ public class ClusterService {
 
             return null;
         } catch (Exception e) {
-            e.printStackTrace(); // or use logger
+            LOGGER.error("Failed to parse containerization flavor from envVarsScript: {}", e.getMessage(), e);
             return null;
         }
+
     }
 
     public boolean defineCluster(String sessionId, ClusterDefinition clusterDefinition)
@@ -266,6 +281,7 @@ public class ClusterService {
             LOGGER.error("The node {} was not found in the cluster {} definition", nodeName, cluster.getName());
         }
     }
+
 
     public Cluster getCluster(String sessionId, String clusterName) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
