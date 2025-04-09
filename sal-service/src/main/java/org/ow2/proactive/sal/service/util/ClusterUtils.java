@@ -186,8 +186,10 @@ public class ClusterUtils {
 
     }
 
-    public static String createLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName) {
-        String clusterType = System.getenv(CLUSTER_TYPE_ENV);
+    public static String createLabelNodesScript(List<Map<String, String>> nodeLabels, String clusterName,
+            String containerizationFlavor) {
+        String clusterType = (containerizationFlavor != null) ? containerizationFlavor
+                                                              : System.getenv(CLUSTER_TYPE_ENV);
 
         if (CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType)) {
             return createK3sLabelNodesScript(nodeLabels, clusterName);
@@ -229,8 +231,10 @@ public class ClusterUtils {
         return script.toString();
     }
 
-    public static String createDeployApplicationScript(ClusterApplication application) throws IOException {
-        String clusterType = System.getenv(CLUSTER_TYPE_ENV); // Get cluster type from env variable
+    public static String createDeployApplication(ClusterApplication application, String containerizationFlavor)
+            throws IOException {
+        String clusterType = (containerizationFlavor != null) ? containerizationFlavor
+                                                              : System.getenv(CLUSTER_TYPE_ENV);
         return createDeployApplicationScript(application, clusterType);
     }
 

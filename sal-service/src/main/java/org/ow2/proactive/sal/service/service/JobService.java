@@ -304,7 +304,7 @@ public class JobService {
      * @return The submitted job id
      */
     @Transactional
-    public Long submitJob(String sessionId, String jobId) throws NotConnectedException {
+    public Long submitJob(String sessionId, String jobId, String containerizationFlavor) throws NotConnectedException {
         if (!paGatewayService.isConnectionActive(sessionId)) {
             throw new NotConnectedException();
         }
@@ -319,7 +319,9 @@ public class JobService {
                    .stream()
                    .filter(task -> task.getDeployments() != null && !task.getDeployments().isEmpty())
                    .forEach(task -> {
-                       List<ScriptTask> scriptTasks = taskBuilder.buildPATask(task, jobToSubmit);
+                       List<ScriptTask> scriptTasks = taskBuilder.buildPATask(task,
+                                                                              jobToSubmit,
+                                                                              containerizationFlavor);
 
                        addAllScriptTasksToPAJob(paJob, task, scriptTasks);
                        repositoryService.saveTask(task);
