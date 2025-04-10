@@ -64,22 +64,20 @@ public class ClusterService {
         }
     }
 
-    public static String stripQuotes(String value) {
-        if (value == null || value.isEmpty())
-            return value;
+    private static String stripQuotes(String value) {
+        if (value == null)
+            return null;
+        value = value.trim();
 
-        int start = 0;
-        int end = value.length();
-
-        if (value.charAt(0) == '"' || value.charAt(0) == '\'') {
-            start++;
-        }
-        if (value.length() > 1 &&
-            (value.charAt(value.length() - 1) == '"' || value.charAt(value.length() - 1) == '\'')) {
-            end--;
+        while (!value.isEmpty() && (value.startsWith("\"") || value.startsWith("'"))) {
+            value = value.substring(1).trim();
         }
 
-        return value.substring(start, end);
+        while (!value.isEmpty() && (value.endsWith("\"") || value.endsWith("'"))) {
+            value = value.substring(0, value.length() - 1).trim();
+        }
+
+        return value;
     }
 
     public static String getContainerizationFlavor(String envVarsScript) {
