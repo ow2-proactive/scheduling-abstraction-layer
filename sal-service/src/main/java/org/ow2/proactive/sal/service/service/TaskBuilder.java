@@ -715,7 +715,7 @@ public class TaskBuilder {
         } else if (addedTaskNames.contains(task.getName())) {
             // When the scaled task is a parent of the task to be built
             LOGGER.info("Building task [{}] as a new added task ", task.getTaskId());
-            scriptTasks.addAll(buildPATask(task, job));
+            scriptTasks.addAll(buildPATask(task, job, null));
         } else {
             LOGGER.warn("Task [{}] is neither unchanged nor added. This should not figure ine job!", task.getTaskId());
         }
@@ -768,7 +768,7 @@ public class TaskBuilder {
      * @param job The related job skeleton
      * @return A list of ProActive tasks
      */
-    public List<ScriptTask> buildPATask(Task task, Job job) {
+    public List<ScriptTask> buildPATask(Task task, Job job, String containerizationFlavor) {
         List<ScriptTask> scriptTasks = new LinkedList<>();
         LOGGER.debug("Building PA task for: {}", task.getTaskId());
         if (task.getDeployments() == null || task.getDeployments().isEmpty()) {
@@ -784,7 +784,8 @@ public class TaskBuilder {
                 String suffix = "_" + deployment.getNumber();
                 scriptTasks.add(createInfraTask(task, deployment, suffix, token));
                 if (deployment.getWorker() != null && deployment.getWorker()) {
-                    ScriptTask waitForMasterTask = createWaitForMasterTask(deployment.getMasterToken());
+                    ScriptTask waitForMasterTask = createWaitForMasterTask(deployment.getMasterToken(),
+                                                                           containerizationFlavor);
                     waitForMasterTask.addDependence(scriptTasks.get(scriptTasks.size() - 1));
                     scriptTasks.add(waitForMasterTask);
                 }
@@ -869,8 +870,9 @@ public class TaskBuilder {
         return (variablesMap);
     }
 
-    private ScriptTask createWaitForMasterTask(String masterNodeToken) {
-        String clusterType = System.getenv(ClusterUtils.CLUSTER_TYPE_ENV);
+    private ScriptTask createWaitForMasterTask(String masterNodeToken, String containerizationFlavor) {
+        String clusterType = (containerizationFlavor != null) ? containerizationFlavor
+                                                              : System.getenv(ClusterUtils.CLUSTER_TYPE_ENV);
         String waitForMasterScript;
 
         if (ClusterUtils.CLUSTER_TYPE_K3S.equalsIgnoreCase(clusterType)) {
