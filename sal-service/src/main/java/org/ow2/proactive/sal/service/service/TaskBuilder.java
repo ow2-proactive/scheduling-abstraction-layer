@@ -343,53 +343,19 @@ public class TaskBuilder {
         return (variablesMap);
     }
 
-    private ScriptTask createInfraIAASTaskForAWS(Task task, Deployment deployment, String taskNameSuffix,
-            String nodeToken) {
-        LOGGER.debug("Acquiring node AWS script file: " +
+    private ScriptTask createInfraIAASTaskForCloudProvider(Task task, Deployment deployment, String taskNameSuffix,
+            String nodeToken, String cloudProvider) {
+        LOGGER.debug("Acquiring node " + cloudProvider + " script file: " +
                      getClass().getResource(File.separator + ACQUIRE_NODE_SCRIPT).toString());
-        ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireAWSNode_" + task.getName() +
-                                                                             taskNameSuffix, ACQUIRE_NODE_SCRIPT);
+        ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquire" + cloudProvider + "Node_" +
+                                                                             task.getName() + taskNameSuffix,
+                                                                             ACQUIRE_NODE_SCRIPT);
 
         deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
 
         Map<String, TaskVariable> variablesMap = createVariablesMapForAcquiringIAASNode(task, deployment, nodeToken);
-        LOGGER.debug("Variables to be added to the task acquiring AWS IAAS node: " + variablesMap.toString());
-        deployNodeTask.setVariables(variablesMap);
-
-        addLocalDefaultNSRegexSelectionScript(deployNodeTask);
-
-        return deployNodeTask;
-    }
-
-    private ScriptTask createInfraIAASTaskForOS(Task task, Deployment deployment, String taskNameSuffix,
-            String nodeToken) {
-        LOGGER.debug("Acquiring node OS script file: " +
-                     getClass().getResource(File.separator + ACQUIRE_NODE_SCRIPT).toString());
-        ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireOSNode_" + task.getName() +
-                                                                             taskNameSuffix, ACQUIRE_NODE_SCRIPT);
-
-        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
-
-        Map<String, TaskVariable> variablesMap = createVariablesMapForAcquiringIAASNode(task, deployment, nodeToken);
-        LOGGER.debug("Variables to be added to the task acquiring OS IAAS node: " + variablesMap.toString());
-        deployNodeTask.setVariables(variablesMap);
-
-        addLocalDefaultNSRegexSelectionScript(deployNodeTask);
-
-        return deployNodeTask;
-    }
-
-    private ScriptTask createInfraIAASTaskForAzure(Task task, Deployment deployment, String taskNameSuffix,
-            String nodeToken) {
-        LOGGER.debug("Acquiring node Azure script file: " +
-                     getClass().getResource(File.separator + ACQUIRE_NODE_SCRIPT).toString());
-        ScriptTask deployNodeTask = PAFactory.createGroovyScriptTaskFromFile("acquireAzureNode_" + task.getName() +
-                                                                             taskNameSuffix, ACQUIRE_NODE_SCRIPT);
-
-        deployNodeTask.setPreScript(PAFactory.createSimpleScriptFromFIle(PRE_ACQUIRE_NODE_SCRIPT, "groovy"));
-
-        Map<String, TaskVariable> variablesMap = createVariablesMapForAcquiringIAASNode(task, deployment, nodeToken);
-        LOGGER.debug("Variables to be added to the task acquiring Azure IAAS node: " + variablesMap.toString());
+        LOGGER.debug("Variables to be added to the task acquiring " + cloudProvider + " IAAS node: " +
+                     variablesMap.toString());
         deployNodeTask.setVariables(variablesMap);
 
         addLocalDefaultNSRegexSelectionScript(deployNodeTask);
@@ -400,11 +366,13 @@ public class TaskBuilder {
     private ScriptTask createInfraIAASTask(Task task, Deployment deployment, String taskNameSuffix, String nodeToken) {
         switch (deployment.getPaCloud().getCloudProvider()) {
             case AWS_EC2:
-                return createInfraIAASTaskForAWS(task, deployment, taskNameSuffix, nodeToken);
+                return createInfraIAASTaskForCloudProvider(task, deployment, taskNameSuffix, nodeToken, "AWS");
             case OPENSTACK:
-                return createInfraIAASTaskForOS(task, deployment, taskNameSuffix, nodeToken);
+                return createInfraIAASTaskForCloudProvider(task, deployment, taskNameSuffix, nodeToken, "OS");
             case AZURE:
-                return createInfraIAASTaskForAzure(task, deployment, taskNameSuffix, nodeToken);
+                return createInfraIAASTaskForCloudProvider(task, deployment, taskNameSuffix, nodeToken, "Azure");
+            case GCE:
+                return createInfraIAASTaskForCloudProvider(task, deployment, taskNameSuffix, nodeToken, "GCE");
             default:
                 return new ScriptTask();
         }
