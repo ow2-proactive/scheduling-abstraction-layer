@@ -16,7 +16,7 @@ public enum CloudProviderType {
 
     AWS_EC2("aws-ec2"),
     AZURE("azure"),
-    GCE("gce"),
+    GCE("google-compute-engine"),
     OPENSTACK("openstack"), //openstack-nova
 
     EDGE("EDGE"),

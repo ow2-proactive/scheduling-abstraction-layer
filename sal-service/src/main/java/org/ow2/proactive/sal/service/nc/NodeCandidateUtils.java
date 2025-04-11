@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
+import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -363,6 +364,22 @@ public class NodeCandidateUtils {
         return myJson;
     }
 
+    private String getOsAccordingToCloudProvider(CloudProviderType cloudProviderType, String os)
+            throws IllegalArgumentException {
+        switch (cloudProviderType) {
+            case AWS_EC2:
+                return "Linux";
+            case OPENSTACK:
+                return os;
+            case AZURE:
+                return os;
+            case GCE:
+                return os;
+            default:
+                throw new IllegalArgumentException("The infrastructure " + cloudProviderType + " is not handled yet.");
+        }
+    }
+
     public void saveNodeCandidates(List<String> newCloudIds) {
         newCloudIds.forEach(newCloudId -> {
             PACloud paCloud = repositoryService.getPACloud(newCloudId);
@@ -378,65 +395,60 @@ public class NodeCandidateUtils {
                 return;
             }
             LOGGER.info("Returned images: {}", images);
-            List<JSONObject> consolidatedImages = images.toList()
-                                                        .parallelStream()
-                                                        .map(NodeCandidateUtils::convertObjectToJson)
-                                                        .filter(record -> !blacklistedRegions.contains(record.get("location")))
-                                                        .collect(Collectors.toList());
-            LOGGER.info("Consolidated images: {}", consolidatedImages);
+            Map<Pair<String, String>, List<JSONObject>> consolidatedImagesGrouped = images.toList()
+                                                                                          .parallelStream()
+                                                                                          .map(NodeCandidateUtils::convertObjectToJson)
+                                                                                          .filter(record -> record.get("location")
+                                                                                                                  .toString()
+                                                                                                                  .isEmpty() ||
+                                                                                                            !blacklistedRegions.contains(record.get("location")))
+                                                                                          .collect(Collectors.groupingBy(image -> {
+                                                                                              // Retrieve the region
+                                                                                              String region = image.optString("location");
+                                                                                              // Retrieve the imageReq
+                                                                                              String os = (String) ((JSONObject) image.get("operatingSystem")).get("family");
+                                                                                              os = os.substring(0, 1)
+                                                                                                     .toUpperCase() +
+                                                                                                   os.substring(1);
+                                                                                              String imageReq = getOsAccordingToCloudProvider(paCloud.getCloudProvider(),
+                                                                                                                                              os);
 
-            //TODO: (Optimization) An images per region map structure <region,[image1,image2]> could be the best here.
-            // It can reduce the getNodeCandidates calls to PA.
-            List<String> entries = new LinkedList<>();
-            List<String> openstackOsList = Arrays.asList("Ubuntu", "Fedora", "Centos", "Debian");
-            consolidatedImages.forEach(image -> {
-                String region = image.optString("location");
-                String imageReq;
-                String os = (String) ((JSONObject) image.get("operatingSystem")).get("family");
-                os = os.substring(0, 1).toUpperCase() + os.substring(1);
-                String pair = os + ":" + region;
+                                                                                              return new Pair<>(region,
+                                                                                                                imageReq);
+                                                                                          }));
 
-                switch (paCloud.getCloudProvider()) {
-                    case AWS_EC2:
-                        imageReq = "Linux";
-                        break;
-                    case OPENSTACK:
-                        imageReq = os;
-                        break;
-                    case AZURE:
-                        imageReq = os;
-                        break;
-                    default:
-                        throw new IllegalArgumentException("The infrastructure " + paCloud.getCloudType() +
-                                                           " is not handled yet.");
+            consolidatedImagesGrouped.entrySet().parallelStream().forEach(entry -> {
+                String region = entry.getKey().getValue0();
+                String imageReq = entry.getKey().getValue1();
+                List<JSONObject> imageList = entry.getValue();
+
+                try {
+                    JSONArray nodeCandidates = nodeCandidatesCache.get(Quartet.with(paCloud, region, imageReq, ""));
+
+                    imageList.forEach(image -> createAndStoreIaasNodesAndNodeCandidates(nodeCandidates,
+                                                                                        paCloud,
+                                                                                        image));
+                } catch (ExecutionException e) {
+                    LOGGER.error("Could not get node candidates from cache: ", e);
                 }
-
-                if (paCloud.getCloudProvider() == OPENSTACK) {
-                    entries.add(pair);
-                }
-                populateNodeCandidatesFromCache(paCloud, region, imageReq, image);
             });
+
         });
 
         repositoryService.flush();
     }
 
-    private void populateNodeCandidatesFromCache(PACloud paCloud, String region, String imageReq, JSONObject image) {
-        try {
-            JSONArray nodeCandidates = nodeCandidatesCache.get(Quartet.with(paCloud, region, imageReq, ""));
-            nodeCandidates.forEach(nc -> {
-                JSONObject nodeCandidate = (JSONObject) nc;
-                createLocation(nodeCandidate, paCloud);
-                NodeCandidate newNodeCandidate = createNodeCandidate(nodeCandidate, image, paCloud);
-                repositoryService.saveNodeCandidate(newNodeCandidate);
-                IaasNode newIaasNode = new IaasNode(newNodeCandidate);
-                repositoryService.saveIaasNode(newIaasNode);
-                newNodeCandidate.setNodeId(newIaasNode.getId());
-                repositoryService.saveNodeCandidate(newNodeCandidate);
-            });
-        } catch (ExecutionException ee) {
-            LOGGER.error("Could not get node candidates from cache: ", ee);
-        }
+    private void createAndStoreIaasNodesAndNodeCandidates(JSONArray nodeCandidates, PACloud paCloud, JSONObject image) {
+        nodeCandidates.forEach(nc -> {
+            JSONObject nodeCandidate = (JSONObject) nc;
+            createLocation(nodeCandidate, paCloud);
+            NodeCandidate newNodeCandidate = createNodeCandidate(nodeCandidate, image, paCloud);
+            repositoryService.saveNodeCandidate(newNodeCandidate);
+            IaasNode newIaasNode = new IaasNode(newNodeCandidate);
+            repositoryService.saveIaasNode(newIaasNode);
+            newNodeCandidate.setNodeId(newIaasNode.getId());
+            repositoryService.saveNodeCandidate(newNodeCandidate);
+        });
     }
 
     private JSONArray getAllPagedNodeCandidates(PACloud paCloud, String region, String imageReq, String token) {

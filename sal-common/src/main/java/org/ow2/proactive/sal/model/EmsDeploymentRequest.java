@@ -59,7 +59,7 @@ public class EmsDeploymentRequest implements Serializable {
         // Azure VM
         AZUREVM("azure"),
         // Google CLoud Engine
-        GCE("gce"),
+        GCE("google-compute-engine"),
         // OpenStack NOVA
         OPENSTACKNOVA("openstack"),
         // BYON, to be used for on-premise baremetal

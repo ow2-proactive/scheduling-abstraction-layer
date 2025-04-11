@@ -31,6 +31,8 @@ public class Credentials implements Serializable {
 
     public static final String JSON_USER_NAME = "userName";
 
+    public static final String JSON_PROJECT_ID = "projectId";
+
     public static final String JSON_PASSWORD = "password";
 
     public static final String JSON_PRIVATE_KEY = "privateKey";
@@ -50,6 +52,10 @@ public class Credentials implements Serializable {
     @Column(name = "USER_NAME")
     @JsonProperty(JSON_USER_NAME)
     private String userName;
+
+    @Column(name = "PROJECT_ID")
+    @JsonProperty(JSON_PROJECT_ID)
+    private String projectId;
 
     @Column(name = "PASSWORD")
     @JsonProperty(JSON_PASSWORD)

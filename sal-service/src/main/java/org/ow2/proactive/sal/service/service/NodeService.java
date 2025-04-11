@@ -167,6 +167,17 @@ public class NodeService {
         return newDeployment;
     }
 
+    private String getZoneFromGceHardwareLocation(String location) {
+        String[] locationAsArray = location.split("/");
+        List<String> locationAsList = Arrays.asList(locationAsArray);
+        int indexOfZones = locationAsList.indexOf("zones");
+        if (indexOfZones == -1) {
+            return "null";
+        } else {
+            return locationAsArray[indexOfZones + 1];
+        }
+    }
+
     /**
      * Define a node source in PA server related to a deployment information
      * @param nodeSourceName A valid and unique node source name
@@ -250,6 +261,25 @@ public class NodeService {
                     variables.put("vmPassword", cloud.getSshCredentials().getPrivateKey());
                     variables.put("vmPublicKey", cloud.getSshCredentials().getPublicKey());
                     variables.put("region", deployment.getNode().getNodeCandidate().getLocation().getName());
+                    break;
+                case GCE:
+                    filename = File.separator + "Define_NS_GCE.xml";
+                    variables.put("user", cloud.getCredentials().getUserName());
+                    variables.put("projectId", cloud.getCredentials().getProjectId());
+                    variables.put("secret", cloud.getCredentials().getPrivateKey());
+                    variables.put("vmUsername", cloud.getSshCredentials().getUsername());
+                    variables.put("vmPublicKey", cloud.getSshCredentials().getPublicKey());
+                    variables.put("vmPrivateKey", cloud.getSshCredentials().getPrivateKey());
+                    variables.put("image", deployment.getNode().getNodeCandidate().getImage().getName());
+                    // To avoid: "Machine type specified xxx is in a different scope than the instance"
+                    variables.put("region",
+                                  getZoneFromGceHardwareLocation(deployment.getNode()
+                                                                           .getNodeCandidate()
+                                                                           .getHardware()
+                                                                           .getId()));
+                    variables.put("machineType", deployment.getNode().getNodeCandidate().getHardware().getProviderId());
+                    variables.put("ram", deployment.getNode().getNodeCandidate().getHardware().getRam().toString());
+                    variables.put("cores", deployment.getNode().getNodeCandidate().getHardware().getCores().toString());
                     break;
                 default:
                     throw new IllegalArgumentException("Unhandled cloud provider: " + cloud.getCloudProvider());

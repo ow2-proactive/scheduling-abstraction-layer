@@ -28,6 +28,8 @@ public class Credential implements Serializable {
     // JSON field constants
     public static final String JSON_USER = "user";
 
+    public static final String JSON_PROJECT_ID = "projectId";
+
     public static final String JSON_SECRET = "secret";
 
     public static final String JSON_DOMAIN = "domain";
@@ -36,6 +38,9 @@ public class Credential implements Serializable {
 
     @JsonProperty(JSON_USER)
     private String user = null;
+
+    @JsonProperty(JSON_PROJECT_ID)
+    private String projectId = null;
 
     @JsonProperty(JSON_SECRET)
     private String secret = null;
