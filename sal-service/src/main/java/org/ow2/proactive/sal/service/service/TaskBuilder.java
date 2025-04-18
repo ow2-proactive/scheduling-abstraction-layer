@@ -335,7 +335,7 @@ public class TaskBuilder {
         }
         variablesMap.put("nVMs", new TaskVariable("nVMs", "1", "PA:Integer", false));
         variablesMap.put("synchronous", new TaskVariable("synchronous", "true", "PA:Boolean", false));
-        variablesMap.put("timeout", new TaskVariable("timeout", "700", "PA:Long", false));
+        variablesMap.put("timeout", new TaskVariable("timeout", "300000", "PA:Long", false));
         String nodeConfigJson = createIAASNodeConfigJson(task, deployment);
         variablesMap.put("nodeConfigJson", new TaskVariable("nodeConfigJson", nodeConfigJson, "PA:JSON", false));
         variablesMap.put("token", new TaskVariable("token", nodeToken));
