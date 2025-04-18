@@ -59,7 +59,7 @@ def infrastructureParameters = [variables.get("NS_nVMs"),
                                 protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/connector-iaas", // connector-iaas url
                                 protocol + "://" + variables.get("rm_host_name") + ":"+ variables.get("pa_port") + "/rest/node.jar", // nodeJarURL
                                 "-Dproactive.useIPaddress=false", //additionalProperties"
-                                60 * 1000, // nodeTimeout
+                                300 * 1000, // nodeTimeout
                                "mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget -nv --no-check-certificate %nodeJarUrl% ; nohup jre/bin/java -jar node.jar -Dproactive.communication.protocol=%protocol% -Dpython.path=%jythonPath% -Dproactive.pamr.router.address=%rmHostname% -D%instanceIdNodeProperty%=%instanceId% -r %rmUrl% -s %nodeSourceName% %nodeNamingOption% -v %credentials% -w %numberOfNodesPerInstance% %additionalProperties% &"] // linuxStartupScript
 
 def gceCredentialMap = ["client_email": variables.get("user"), "project_id": variables.get("projectId"), "private_key": variables.get("secret")]
