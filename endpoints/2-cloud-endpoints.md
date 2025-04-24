@@ -37,10 +37,8 @@ Note that cloud credentials are validated only during async process.
     "defaultNetwork": "{{os-defaultNetwork}}",
     "credentials": {
       "user": "{{os-user}}",
-      "projectId": null,
       "secret": "{{os-secret}}",
-      "domain": "{{os-domain}}",
-      "subscriptionId": null
+      "domain": "{{os-domain}}"
     },
     "blacklist": null
   }
@@ -72,10 +70,8 @@ Note that cloud credentials are validated only during async process.
     "defaultNetwork": null,
     "credentials": {
       "user": "{{aws-user}}",
-      "projectId": null,
       "secret": "{{aws-secret}}",
-      "domain": null,
-      "subscriptionId": null
+      "domain": null
     },
     "blacklist": null
   }
@@ -107,7 +103,6 @@ Note that cloud credentials are validated only during async process.
     "defaultNetwork": null,
     "credentials": {
       "user": "{{azure-user}}",
-      "projectId": null,
       "secret": "{{azure-secret}}",
       "domain": "{{azure-domain}}",
       "subscriptionId": "{{azure-subscription_id}}"
@@ -144,8 +139,7 @@ Note that cloud credentials are validated only during async process.
       "user": "{{gce-user}}",
       "projectId": "{{gce-project-id}}",
       "secret": "{{gce-secret}}",
-      "domain": null,
-      "subscriptionId": null
+      "domain": null
     },
     "region": null,
     "blacklist": null
@@ -156,54 +150,55 @@ Note that cloud credentials are validated only during async process.
 **Reply:** Error code, 0 if no Errors
 
 - `cloudId` (string):
-This is a unique identifier for the cloud infrastructure. Choose a unique descriptive name for easy identification, as it will be referenced by SAL.
+  This is a unique identifier for the cloud infrastructure. Choose a unique descriptive name for easy identification, as it will be referenced by SAL.
   Must be 3-253 characters and contain only lowercase letters, numbers, and hyphens.
 
 - `cloudProviderName` (string):
-The name of the cloud provider. For OpenStack, use `"openstack"`, for AWS, use `"aws-ec2"`, for Azure use `"azure"`, for GCE use `"google-compute-engine"`.
+  The name of the cloud provider. For OpenStack, use `"openstack"`, for AWS, use `"aws-ec2"`, for Azure use `"azure"`, for GCE use `"google-compute-engine"`.
 
 - `cloudType` (string):
-Specifies whether the cloud infrastructure is `"PRIVATE"` (e.g., for OpenStack) or `"PUBLIC"` (e.g., for AWS).
+  Specifies whether the cloud infrastructure is `"PRIVATE"` (e.g., for OpenStack) or `"PUBLIC"` (e.g., for AWS).
 
 - `subnet` (string or `null`):
-This defines the specific subnet for your cloud infrastructure. If not needed, set this field to null.
+  This defines the specific subnet for your cloud infrastructure. If not needed, set this field to null.
 
 - `securityGroup` (string):
-The security group associated with this cloud configuration. Use the security group name applicable to your infrastructure’s security rules.
+  The security group associated with this cloud configuration. Use the security group name applicable to your infrastructure’s security rules. Set to `null` for Azure and GCE. Optional for Openstack and AWS.
 
 - `sshCredentials` (object):
-Contains SSH access information for the cloud. For Open Stack and AWS should be defined on cloud provider side, while for Azure is automatically created as specified here. The required fields are:
+  Contains SSH access information for the cloud. For Open Stack and AWS should be defined on cloud provider side, while for Azure is automatically created as specified here. The required fields are:
 
-    - `username` (string): The SSH username.
-    - `keyPairName` (string): The name of the key pair used for SSH access. Optional for Openstack and AWS.
-    - `publicKey` (string or `null`): The single line public key in RSA format. If not required, use `null`. Optional for Azure and GCE.
-    - `privateKey` (string or `null`): The private key in RSA format, with line breaks represented by `\n` for JSON compatibility. If not required, use `null`. For Azure, set it to the VM ssh password. Optional for AWS and GCE.
+  - `username` (string): The SSH username.
+  - `keyPairName` (string): The name of the key pair used for SSH access. Set to `null` for Azure and GCE. Optional for Openstack and AWS.
+  - `publicKey` (string or `null`): The single line public key in RSA format. Optional for Azure and GCE.
+  - `privateKey` (string or `null`): The private key in RSA format, with line breaks represented by `\n` for JSON compatibility. For Azure, set it to the VM ssh password. Optional for AWS and GCE.
 
 - `endpoint` (string or `null`):
-    The authentication endpoint for the cloud provider. For OpenStack, use your specific authentication URL. Set to `null` for AWS, Azure and GCE.
+  The authentication endpoint for the cloud provider. For OpenStack, use your specific authentication URL. Set to `null` for AWS, Azure and GCE.
+
 - `scope` (object):
-Defines the scope of the cloud access, typically is used for OpenStack. Set to `null` for AWS, Azure and GCE. It contains:
+  Defines the scope of the cloud access, typically is used for OpenStack. Set to `null` for AWS, Azure and GCE. This property contains:
 
   - `prefix` (string or `null`): For OpenStack, use `"project"`. Set to `null` for AWS, Azure and GCE.
   - `value` (string or `null`): Project name for OpenStack. Set to `null` for AWS, Azure and GCE.
 
 - `identityVersion` (string or `null`):
-Specifies the version of the identity API. This is required for OpenStack. Set to `null` for AWS, Azure and GCE.
+  Specifies the version of the identity API. This is required for OpenStack. Set to `null` for AWS, Azure and GCE.
 
 - `defaultNetwork` (string or `null`):
-Specifies the default network identifier, used primarily by OpenStack. Set to `null` for AWS, Azure and GCE.
+  Specifies the default network identifier, used primarily by OpenStack. Set to `null` for AWS, Azure and GCE.
 
 - `credentials` (object):
-Contains authentication details for accessing the cloud. The fields are:
+  Contains authentication details for accessing the cloud. The fields are:
 
   - `user` (string): The cloud username or access key.
-  - `projectId` (string): The GCE project id. Set to `null` for OS, AWS and Azure.
+  - `projectId` (string): The GCE project id.
   - `secret` (string): The cloud password or secret access key.
   - `domain` (string or `null`): The domain for the cloud account, required by OS and Azure. Set to `null` for AWS and GCE.
   - `subscriptionId` (string or `null`): The subscription id for the cloud account, required by Azure. Set to `null` for OS, AWS and GCE.
 
 - `blacklist` (string or `null`):
-Allows you to specify any blacklisted regions (e.g. locations). Use `null` if not applicable.
+  Allows you to specify any blacklisted regions (e.g. locations). Use `null` if not applicable.
 
 #### 2.2- GetAllClouds endpoint:
 
