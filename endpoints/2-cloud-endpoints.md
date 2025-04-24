@@ -175,9 +175,9 @@ The security group associated with this cloud configuration. Use the security gr
 Contains SSH access information for the cloud. For Open Stack and AWS should be defined on cloud provider side, while for Azure is automatically created as specified here. The required fields are:
 
     - `username` (string): The SSH username.
-    - `keyPairName` (string): The name of the key pair used for SSH access (can be set for Openstack and AWS).
-    - `publicKey` (string or `null`): The single line public key in RSA format. If not required, use `null` (can be set for Azure and GCE).
-    - `privateKey` (string or `null`): The private key in RSA format, with line breaks represented by `\n` for JSON compatibility. If not required, use `null`. For Azure, set it to the VM ssh password.
+    - `keyPairName` (string): The name of the key pair used for SSH access. Optional for Openstack and AWS.
+    - `publicKey` (string or `null`): The single line public key in RSA format. If not required, use `null`. Optional for Azure and GCE.
+    - `privateKey` (string or `null`): The private key in RSA format, with line breaks represented by `\n` for JSON compatibility. If not required, use `null`. For Azure, set it to the VM ssh password. Optional for AWS and GCE.
 
 - `endpoint` (string or `null`):
     The authentication endpoint for the cloud provider. For OpenStack, use your specific authentication URL. Set to `null` for AWS, Azure and GCE.
