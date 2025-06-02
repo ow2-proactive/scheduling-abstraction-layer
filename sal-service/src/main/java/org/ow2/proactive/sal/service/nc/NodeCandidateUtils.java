@@ -380,6 +380,23 @@ public class NodeCandidateUtils {
         }
     }
 
+    private boolean filterOsWithVersionAccordingToCloudProvider(CloudProviderType cloudProviderType,
+            JSONObject osAsJson) throws IllegalArgumentException {
+        switch (cloudProviderType) {
+            case AWS_EC2:
+                return true;
+            case OPENSTACK:
+                return true;
+            case AZURE:
+                return true;
+            case GCE:
+                return osAsJson.get("family").toString().toLowerCase().equals("ubuntu") &&
+                       osAsJson.get("version").toString().startsWith("22");
+            default:
+                throw new IllegalArgumentException("The infrastructure " + cloudProviderType + " is not handled yet.");
+        }
+    }
+
     public void saveNodeCandidates(List<String> newCloudIds) {
         newCloudIds.forEach(newCloudId -> {
             PACloud paCloud = repositoryService.getPACloud(newCloudId);
@@ -398,10 +415,12 @@ public class NodeCandidateUtils {
             Map<Pair<String, String>, List<JSONObject>> consolidatedImagesGrouped = images.toList()
                                                                                           .parallelStream()
                                                                                           .map(NodeCandidateUtils::convertObjectToJson)
-                                                                                          .filter(record -> record.get("location")
-                                                                                                                  .toString()
-                                                                                                                  .isEmpty() ||
-                                                                                                            !blacklistedRegions.contains(record.get("location")))
+                                                                                          .filter(image -> (image.get("location")
+                                                                                                                 .toString()
+                                                                                                                 .isEmpty() ||
+                                                                                                            !blacklistedRegions.contains(image.get("location"))) &&
+                                                                                                           filterOsWithVersionAccordingToCloudProvider(paCloud.getCloudProvider(),
+                                                                                                                                                       (JSONObject) image.get("operatingSystem")))
                                                                                           .collect(Collectors.groupingBy(image -> {
                                                                                               // Retrieve the region
                                                                                               String region = image.optString("location");
